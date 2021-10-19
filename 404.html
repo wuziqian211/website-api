@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
   <head>
-    <meta charset="utf-8" />
-    <title>404</title>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <meta charset="utf-8">
+    <title>您访问了一个不存在的网址</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div id="404">
-      <div style="font-size: 40px; font-weight: bold;">wuziqian211 的网站 - 您似乎来错了页面！</div><br />本页面不是您要访问的网站，您是否想要访问<a id="URL"></a>？
-    </div>
-    <script type="text/javascript">
-      var u = document.URL.split("/");
-      u[2] = "wuziqian211.top";
-      var t = "";
-      for (var i = 0; i < u.length; i++) {
-        if (i == u.length - 1) {
-          t += u[i];
-        } else {
-          t += u[i] + "/";
-        }
-      }
-      var a = document.getElementById("URL");
-      a.textContent = t;
-      a.href = t;
-    </script>
+    <div id="404"><div style="font-size: 40px; font-weight: bold;">wuziqian211 的网站 - 您似乎输入错了网址！</div>本网址不是您要访问的网站，您是否想要访问 <a id="URL"></a>？</div>
+    <script type="text/javascript">var u = document.URL.split("/");
+u[2] = "wuziqian211.top";
+var t = "";
+for (var i = 0; i < u.length; i++) {
+  if (i == u.length - 1) {
+    t += u[i];
+  } else {
+    t += u[i] + "/";
+  }
+}
+var a = document.getElementById("URL");
+a.textContent = t;
+a.href = t;</script>
   </body>
 </html>
