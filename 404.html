@@ -9,16 +9,7 @@
     <div id="404"><div style="font-size: 40px; font-weight: bold;">wuziqian211 的网站 - 您似乎输入错了网址！</div>本网站不是您要访问的网站，您是否想要访问 <a id="URL"></a>？</div>
     <script type="text/javascript">var u = document.URL.split("/");
 u[2] = "wuziqian211.top";
-var t = "";
-for (var i = 0; i < u.length; i++) {
-  if (i == u.length - 1) {
-    t += u[i];
-  } else {
-    t += u[i] + "/";
-  }
-}
 var a = document.getElementById("URL");
-a.textContent = t;
-a.href = t;</script>
+a.textContent = a.href = u.join("/");</script>
   </body>
 </html>
