@@ -1,1 +1,1 @@
-{"rewrites":[{"source":"/favicon.ico","destination":"/favicon.ico"}],[{"source":"/robots.txt","destination":"/robots.txt"}],[{"source":"/:path*","destination":"/api/404.js"}]}
+{"rewrites":[{"source":"/:path*","destination":"/api/404.js"}]}
