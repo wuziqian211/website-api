@@ -1,1 +1,1 @@
-{"routes":[{"src":"/favicon.ico","dest":"/favicon.ico"}],[{"src":"/robots.txt","dest":"/robots.txt"}],[{"src":"/(.*)","dest":"/api/404.js"}]}
+{"rewrites":[{"source":"/favicon.ico","destination":"/favicon.ico"}],[{"source":"/robots.txt","destination":"/robots.txt"}],[{"source":"/:path*","destination":"/api/404.js"}]}
