@@ -1,1 +1,1 @@
-{"rewrites":[{"source":"/(.*)","destination":"/api/404.js"}]}
+{"rewrites":[{"source":"/avatar/:email","destination":"https://seccdn.libravatar.org/avatar/:email?d=retro"}]}
