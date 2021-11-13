@@ -1,1 +1,1 @@
-{"rewrites":[{"source":"/avatar/:email","destination":"https://seccdn.libravatar.org/avatar/:email?d=retro"}]}
+{"rewrites":[{"source":"/avatar/:email","destination":"https://seccdn.libravatar.org/avatar/:email?d=retro"},{"source":"/gravatarproxy/:path","destination":"https://seccdn.libravatar.org/gravatarproxy/:path"}]}
