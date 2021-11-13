@@ -1,11 +1,1 @@
-export default function handler(q,s){s.status(404).send(`<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <title>页面不存在 | wuziqian211's Blog</title>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-  </head>
-  <body>
-    <div id="404"><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - 您似乎输入错了网址！</div>本网站不是您要访问的网站，您是否想要访问 <a href="https://wuziqian211.top${q.url}" id="URL">https://wuziqian211.top${q.url}</a>？</div>
-  </body>
-</html>`);}
+export default function handler(q,s){const d=new FormData();d.append('image',q.query.image);d.append('apiType','ai58,sougou');d.append('token','b3b46a4146e79d57c5d3227cdf949f0e');var x;fetch('https://www.hualigs.cn/api/upload',{method:'POST',body:d}).then(function(r){return r.json();}).then(function(j){x=j;});s.status(200).json(url:x.data.url.ai58);}
