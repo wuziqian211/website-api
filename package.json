@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "vercel-install": "npm install node-fetch && npm install"
+  }
+}
