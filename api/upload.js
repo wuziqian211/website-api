@@ -1,1 +1,1 @@
-module.exports=(q,s)=>{const p=new URLSearchParams({image:q.query.image,apiType:'ai58,sougou',token:'b3b46a4146e79d57c5d3227cdf949f0e'});const F=require('node-fetch');F('https://www.hualigs.cn/api/upload',{method:'POST',body:p}).then(r=>r.json()).then(j=>s.status(200).json(j));};
+module.exports=(q,s)=>{const p=new URLSearchParams({image:q.body.image,apiType:'ai58,sougou',token:'b3b46a4146e79d57c5d3227cdf949f0e'});const F=require('node-fetch');F('https://www.hualigs.cn/api/upload',{method:'POST',body:p}).then(r=>r.json()).then(j=>s.status(200).json(j));};
