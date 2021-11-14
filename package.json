@@ -1,4 +1,5 @@
 {
+  "license": "ISC",
   "dependencies": {
     "node-fetch": "latest"
   }
