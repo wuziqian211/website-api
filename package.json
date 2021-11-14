@@ -1,6 +1,6 @@
 {
   "license": "ISC",
   "dependencies": {
-    "node-fetch": "latest"
+    "node-fetch": "^3"
   }
 }
