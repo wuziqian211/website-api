@@ -1,0 +1,1 @@
+module.exports=(q,s)=>{const F=require('node-fetch');const p=new URLSearchParams({mid:q.query.mid});var b;F('https://api.bilibili.com/x/space/acc/info',{method:'GET',body:p}).then(r=>b=r.json());if(q.query.type=='1'){F(b.data.face,{method:'GET'}).then(i=>i.arrayBuffer()).then(d=>s.status(200).send(d))}else{s.status(200).json(b)};};
