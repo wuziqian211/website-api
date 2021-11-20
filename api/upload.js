@@ -1,0 +1,1 @@
+module.exports=(q,s)=>{const d=new FormData();d.append('image',q.query.image);d.append('apiType','ai58,sougou');d.append('token','b3b46a4146e79d57c5d3227cdf949f0e');const F=require('node-fetch');F('https://www.hualigs.cn/api/upload',{method:'POST',body:d}).then(r=>r.json()).then(j=>s.status(200).json(j));};
