@@ -1,4 +1,5 @@
-module.exports=(q,s)=>{s.status(404).send(`<!DOCTYPE html>
+module.exports = (req, res) => {
+  res.status(404).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
@@ -8,4 +9,5 @@ module.exports=(q,s)=>{s.status(404).send(`<!DOCTYPE html>
   <body>
     <div><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - 您似乎输入错了网址！</div>本网站不是您要访问的网站，您是否想要访问 <a href="https://wuziqian211.top${q.url}">https://wuziqian211.top${q.url}</a>？</div>
   </body>
-</html>`);};
+</html>`);
+};
