@@ -1,1 +1,30 @@
-module.exports=(q,s)=>{if(/^[0-9]+$/.test(q.query.mid)){const F=require('node-fetch');F(`https://api.bilibili.com/x/space/acc/info?mid=${q.query.mid}`).then(r=>r.json()).then(function(j){if(q.query.type=='1'){var h;if(j.code==0){F(j.data.face).then(function(i){h=i.headers.get('Content-Type');return i.buffer();}).then(b=>s.setHeader('Content-Type',h).status(200).send(b));}else{F('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(i=>i.buffer()).then(b=>s.setHeader('Content-Type','image/jpg').status(404).send(b))};}else if(j.code==0){s.status(200).json({code:0,data:{name:j.data.name,face:j.data.face}});}else{s.status(404).json({code:-404});};});}else{s.status(400).json({code:-400})};};
+module.exports = (req, res) => {
+  if (/^[0-9]+$/.test(req.query.mid)) {
+    const fetch = require('node-fetch');
+    fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(function (json) {
+      if (req.query.type == '1') {
+        var header;
+        if (json.code == 0) {
+          fetch(json.data.face).then(function (img) {
+            header = img.headers.get('Content-Type');
+            return img.buffer();
+          }).then(buffer => res.setHeader('Content-Type', header).status(200).send(buffer));
+        } else {
+          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').status(404).send(buffer));
+        }
+      } else if (json.code == 0) {
+        res.status(200).json({
+          code: 0,
+          data: {
+            name: json.data.name,
+            face: json.data.face
+          }
+        });
+      } else {
+        res.status(404).json({code: -404});
+      }
+    });
+  } else {
+    res.status(400).json({code: -400});
+  }
+};
