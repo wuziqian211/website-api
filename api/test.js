@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if (req.getHeader('Accept').indexOf('text/html') == -1) {
+  if (req.getHeader('Accept').split(',').indexOf('text/html') == -1) {
     res.status(200).json({code: 0});
   } else {
     res.status(200).send(`<!DOCTYPE html>
@@ -13,4 +13,5 @@ module.exports = (req, res) => {
     <div><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - 欢迎您来到API页面！</div>本网站主要是用来执行API操作的。</div>
   </body>
 </html>`);
+  }
 };
