@@ -1,6 +1,5 @@
 module.exports = (req, res) => {
-  const header = req.getHeader('Accept');
-  if (header.split(',').indexOf('text/html') == -1) {
+  if (req.headers.Accept.split(',').indexOf('text/html') == -1 && req.headers.Accept != '*/*') {
     res.status(200).json({code: 0});
   } else {
     res.status(200).send(`<!DOCTYPE html>
