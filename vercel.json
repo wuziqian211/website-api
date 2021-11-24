@@ -11,6 +11,7 @@
     }
   ],
   "rewrites": [
+    {"source": "/", "destination": "/api/index.js"},
     {"source": "/(.*)", "destination": "/api/404.js"}
   ]
 }
