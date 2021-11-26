@@ -7,7 +7,7 @@ module.exports = (req, res) => {
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - 您似乎输入错了网址！</div>本网站不是您要访问的网站，您是否想要访问 <a href="https://wuziqian211.top${q.url}">https://wuziqian211.top${q.url}</a>？</div>
+    <div><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - 您似乎输入错了网址！</div>本网站不是您要访问的网站，您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？</div>
   </body>
 </html>`);
 };
