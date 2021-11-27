@@ -1,11 +1,11 @@
 module.exports = (req, res) => {
   if (/^[0-9]+$/.test(req.query.mid)) {
     const fetch = require('node-fetch');
-    fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(function (json) {
+    fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
       if (req.query.type == '1') {
         var header;
         if (json.code == 0) {
-          fetch(json.data.face).then(function (img) {
+          fetch(json.data.face).then(img => {
             header = img.headers.get('Content-Type');
             return img.buffer();
           }).then(buffer => res.setHeader('Content-Type', header).status(200).send(buffer));
