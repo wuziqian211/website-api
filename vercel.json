@@ -13,7 +13,7 @@
       "src": "token.js",
       "use": "@vercel/node"
     }
-  ]
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -26,7 +26,6 @@
     }
   ],
   "rewrites": [
-    {"source": "/", "destination": "/api/index.js"},
-    {"source": "/(.*)", "destination": "/api/404.js"}
+    {"source": "/(.*)", "destination": "/404.js"}
   ]
 }
