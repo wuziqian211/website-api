@@ -1,16 +1,16 @@
 {
   "builds": [
     {
-      "src": "404",
+      "src": "/404.js",
       "use": "@vercel/node"
     }, {
-      "src": "getbili",
+      "src": "/getbili.js",
       "use": "@vercel/node"
     }, {
-      "src": "index",
+      "src": "/index.js",
       "use": "@vercel/node"
     }, {
-      "src": "token",
+      "src": "/token.js",
       "use": "@vercel/node"
     }
   ],
@@ -25,7 +25,11 @@
       ]
     }
   ],
+  "redirects": [
+    {"source": "/api/:path", "destination": "/:path.js"}
+  ],
   "rewrites": [
-    {"source": "/(.*)", "destination": "/404"}
+    {"source": "/", "destination": "/index.js"},
+    {"source": "/(.*)", "destination": "/404.js"}
   ]
 }
