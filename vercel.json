@@ -12,6 +12,9 @@
     }, {
       "src": "/token.js",
       "use": "@vercel/node"
+    }, {
+      "src": "/*",
+      "use": "@vercel/static"
     }
   ],
   "headers": [
