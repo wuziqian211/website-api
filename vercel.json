@@ -1,4 +1,19 @@
 {
+  "builds": [
+    {
+      "src": "404.js",
+      "use": "@vercel/node"
+    }, {
+      "src": "getbili.js",
+      "use": "@vercel/node"
+    }, {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }, {
+      "src": "token.js",
+      "use": "@vercel/node"
+    }
+  ]
   "headers": [
     {
       "source": "/(.*)",
