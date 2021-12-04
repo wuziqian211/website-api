@@ -79,5 +79,45 @@ img {
         res.status(400).json({code: json.code});
       }
     });
+  } else if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
+    res.status(400).send(`<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UID 无效 | wuziqian211's Blog</title>
+    <style type="text/css">body {
+  background-color: #0078B7;
+  color: #FFF;
+  font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
+  padding: 90px;
+}
+.face {
+  font-size: 100px;
+}
+.tips {
+  display: inline-block;
+  padding-top: 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+a {
+  color: #FFF;
+}
+p {
+  font-size: 24px;
+}</style>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <!-- Reference code: status.fastgit.org -->
+    <span class="face">:(</span>
+    <p>您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa</p>
+    <form action="/getbili.js" method="GET">请输入要获取用户信息的 UID：<input type="text" name="mid" value="${req.query.mid}"><input type="submit" value="获取"></form>
+    <span class="tips">BAD_REQUEST</span>
+  </body>
+</html>`);
+  } else {
+    res.status(400).json({code: -400});
   }
 };
