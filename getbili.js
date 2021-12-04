@@ -83,7 +83,7 @@ img {
     });
   } else if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
     if (req.query.mid == undefined) {
-      sendHTML({code: 200, title: '获取哔哩哔哩用户信息', face: ')', content: `本 API 可以获取指定 B 站用户的信息。<br>用法：https://${req.host}/getbili.js?mid={您想获取信息的 UID}`, mid: '', tips: 'OK'});
+      sendHTML({code: 200, title: '获取哔哩哔哩用户信息', face: ')', content: `本 API 可以获取指定 B 站用户的信息。<br>用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息的 UID}`, mid: '', tips: 'OK'});
     } else {
       sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa', mid: req.query.mid, tips: 'BAD_REQUEST'});
     }
