@@ -37,7 +37,7 @@ img {
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:${d.face}</span>
     <p>${d.content}</p>
-    <form action="/getbili.js" method="GET">请输入要获取用户信息的 UID：<input type="text" name="mid" value="${req.query.mid}"><input type="submit" value="获取"></form>
+    <form action="/getbili.js" method="GET">请输入要获取用户信息的 UID：<input type="text" name="mid" value="${d.mid}"><input type="submit" value="获取"></form>
     <span class="tips">${d.tips}</span>
   </body>
 </html>`);
@@ -47,13 +47,13 @@ img {
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
       if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
         if (json.code == 0) {
-          sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br>头像：<br><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}">`, tips: 'OK'});
+          sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br>头像：<br><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}">`, mid: req.query.mid, tips: 'OK'});
         } else if (json.code == -412) {
-          sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br>请稍后重试awa', tips: 'PRECONDITION_FAILED'});
+          sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br>请稍后重试awa', mid: req.query.mid, tips: 'PRECONDITION_FAILED'});
         } else if (json.code == -404) {
-          sendHTML({code: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, tips: 'NOT_FOUND'});
+          sendHTML({code: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
         } else {
-          sendHTML({code: 400, title: '获取用户信息失败', face: '(', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试awa`, tips: 'BAD_REQUEST'});
+          sendHTML({code: 400, title: '获取用户信息失败', face: '(', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
         }
       } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) {
         var header;
@@ -83,9 +83,9 @@ img {
     });
   } else if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
     if (req.query.mid == undefined) {
-      sendHTML({code: 200, title: '获取哔哩哔哩用户信息', face: ')', content: '您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa', tips: 'BAD_REQUEST'});
+      sendHTML({code: 200, title: '获取哔哩哔哩用户信息', face: ')', content: `本 API 可以获取指定 B 站用户的信息。<br>用法：https://${req.host}/getbili.js?mid={您想获取信息的 UID}`, mid: '', tips: 'BAD_REQUEST'});
     } else {
-      sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa', tips: 'BAD_REQUEST'});
+      sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa', mid: req.query.mid, tips: 'BAD_REQUEST'});
     }
   } else {
     res.status(400).json({code: -400});
