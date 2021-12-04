@@ -10,7 +10,7 @@ module.exports = (req, res) => {
   background-color: #0078B7;
   color: #FFF;
   font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
-  padding: 90px 90px 0 0;
+  padding: 90px 0 90px 0;
 }
 .face {
   font-size: 100px;
