@@ -1,4 +1,13 @@
 {
+  "builds": [
+    {
+      "src": "/404.js",
+      "use": "@vercel/node"
+    }, {
+      "src": "/*",
+      "use": "@vercel/static"
+    }
+  ],
   "rewrites": [
     {"source": "/(.*)", "destination": "/api/404.js"}
   ]
