@@ -3,11 +3,36 @@ module.exports = (req, res) => {
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>页面不存在 | wuziqian211's Blog</title>
+    <style type="text/css">body {
+  background-color: #0078B7;
+  color: #FFF;
+  font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
+  padding: 90px;
+}
+.face {
+  font-size: 100px;
+}
+.tips {
+  display: inline-block;
+  padding-top: 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+a {
+  color: #FFF;
+}
+p {
+  font-size: 24px;
+}</style>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - 您似乎输入错了网址！</div>本网站不是您要访问的网站，您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？</div>
+    <!-- Reference code: status.fastgit.org -->
+    <span class="face">:(</span>
+    <p>您似乎输入错了网址，您是否想要访问 <a>https://wuziqian211.top${req.url}</a>？</p>
+    <span class="tips">NOT_FOUND</span>
   </body>
 </html>`);
 };
