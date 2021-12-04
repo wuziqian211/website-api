@@ -37,7 +37,7 @@ img {
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:${d.face}</span>
     <p>${d.content}</p>
-    <form action="/getbili.js" method="GET"><label for="mid">请输入要获取用户信息的 UID：</label><input type="text" name="mid" id="mid" value="${d.mid}" autocomplete="off"><input type="submit" value="获取"></form>
+    <form action="/getbili.js" method="GET"><label for="mid">请输入要获取用户信息的 UID：</label><input type="number" name="mid" id="mid" value="${d.mid}" autocomplete="off"><input type="submit" value="获取"></form>
     <span class="tips">${d.tips}</span>
   </body>
 </html>`);
@@ -85,7 +85,7 @@ img {
     if (req.query.mid == undefined) {
       sendHTML({code: 200, title: '获取哔哩哔哩用户信息', face: ')', content: `本 API 可以获取指定 B 站用户的信息。<br>用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息的 UID}`, mid: '', tips: 'OK'});
     } else {
-      sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa', mid: req.query.mid, tips: 'BAD_REQUEST'});
+      sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br>请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
     }
   } else {
     res.status(400).json({code: -400});
