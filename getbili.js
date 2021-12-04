@@ -4,7 +4,7 @@ module.exports = (req, res) => {
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
       if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
         if (json.code == 0) {
-          var d = {code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br>头像：<img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}">`, tips: 'OK'};
+          var d = {code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br>头像：<br><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}">`, tips: 'OK'};
         } else if (json.code == -412) {
           var d = {code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br>请稍后重试awa', tips: 'PRECONDITION_FAILED'};
         } else if (json.code == -404) {
@@ -38,6 +38,10 @@ a {
 }
 p {
   font-size: 24px;
+}
+image {
+  width: 100px;
+  height: 100px;
 }</style>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
