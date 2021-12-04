@@ -9,6 +9,6 @@
     }
   ],
   "rewrites": [
-    {"source": "/(.*)", "destination": "/api/404.js"}
+    {"source": "/(.*)", "destination": "/404.js"}
   ]
 }
