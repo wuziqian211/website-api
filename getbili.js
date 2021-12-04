@@ -2,17 +2,7 @@ module.exports = (req, res) => {
   if (/^[0-9]+$/.test(req.query.mid)) {
     const fetch = require('node-fetch');
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
-      if (req.headers.accept && req.headers.accept.indexOf('image') != -1) {
-        var header;
-        if (json.code == 0) {
-          fetch(json.data.face).then(img => {
-            header = img.headers.get('Content-Type');
-            return img.buffer();
-          }).then(buffer => res.setHeader('Content-Type', header).status(200).send(buffer));
-        } else {
-          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').status(404).send(buffer));
-        }
-      } else if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
+      if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
         if (json.code == 0) {
           var d = {code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br>头像：<img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}">`, tips: 'OK'};
         } else if (json.code == -412) {
@@ -58,6 +48,16 @@ p {
     <span class="tips">${d.tips}</span>
   </body>
 </html>`);
+      } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) {
+        var header;
+        if (json.code == 0) {
+          fetch(json.data.face).then(img => {
+            header = img.headers.get('Content-Type');
+            return img.buffer();
+          }).then(buffer => res.setHeader('Content-Type', header).status(200).send(buffer));
+        } else {
+          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').status(404).send(buffer));
+        }
       } else if (json.code == 0) {
         res.status(200).json({
           code: 0,
