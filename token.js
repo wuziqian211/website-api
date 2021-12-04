@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if (!req.headers.accept || req.headers.accept.split(',').indexOf('text/html') == -1) {
+  if (!req.headers.accept || req.headers.accept.indexOf('html') == -1) {
     res.status(200).json({
       code: 0,
       data: {
