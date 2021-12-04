@@ -49,7 +49,7 @@ img {
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:${d.face}</span>
     <p>${d.content}</p>
-    <form action="/getbili.js" method="GET">请输入要获取用户信息的 UID：<input type="text" name="mid" value="${q.query.mid}"><input type="submit" value="获取"></form>
+    <form action="/getbili.js" method="GET">请输入要获取用户信息的 UID：<input type="text" name="mid" value="${req.query.mid}"><input type="submit" value="获取"></form>
     <span class="tips">${d.tips}</span>
   </body>
 </html>`);
