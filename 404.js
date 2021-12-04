@@ -23,6 +23,9 @@ module.exports = (req, res) => {
   font-size: 14px;
   line-height: 20px;
 }
+a {
+  color: #FFF;
+}
 p {
   font-size: 24px;
 }</style>
@@ -31,7 +34,7 @@ p {
   <body>
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:(</span>
-    <p>API 不存在<br><p>您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p><span class="tips">NOT_FOUND</span></p>
+    <p>您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p><span class="tips">NOT_FOUND</span>
   </body>
 </html>`);
   }
