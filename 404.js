@@ -31,7 +31,7 @@ p {
   <body>
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:(</span>
-    <p>您似乎输入错了网址，您是否想要访问 <a>https://wuziqian211.top${req.url}</a>？</p>
+    <p>您似乎输入错了网址，您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？</p>
     <span class="tips">NOT_FOUND</span>
   </body>
 </html>`);
