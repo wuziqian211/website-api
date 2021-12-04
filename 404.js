@@ -6,11 +6,32 @@ module.exports = (req, res) => {
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>页面不存在 | wuziqian211's Blog</title>
+    <style type="text/css">body {
+  background-color: #0078B7;
+  color: #FFF;
+  font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
+  padding: 90px;
+}
+.face {
+  font-size: 100px;
+}
+.tips {
+  display: inline-block;
+  padding-top: 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+p {
+  font-size: 24px;
+}</style>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div><div style="font-size: 40px; font-weight: bold;">wuziqian211's Blog - API 不存在</div>您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</div>
+    <!-- Reference code: status.fastgit.org -->
+    <span class="face">:(</span>
+    <p>API 不存在<br><p>您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p><span class="tips">NOT_FOUND</span></p>
   </body>
 </html>`);
   }
