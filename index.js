@@ -35,7 +35,7 @@ p {
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:)</span>
     <p>欢迎您来到 API 页面！<br>本网站主要为 wuziqian211's Blog 的一些功能提供服务。</p>
-    <p>可用API：<br><a href="/getbili.js">获取哔哩哔哩用户信息</a></p>
+    <p>可用 API：<br><a href="/getbili.js">获取哔哩哔哩指定用户信息</a></p>
     <span class="tips">MULTIPLE_CHOICES</span>
   </body>
 </html>`);
