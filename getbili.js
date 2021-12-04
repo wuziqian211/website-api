@@ -1,11 +1,11 @@
 module.exports = (req, res) => {
-  function sendHTML(d) {
-    res.status(d.code).send(`<!DOCTYPE html>
+  function sendHTML(data) {
+    res.status(data.code).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${d.title} | wuziqian211's Blog</title>
+    <title>${data.title} | wuziqian211's Blog</title>
     <style type="text/css">body {
   background-color: #0078B7;
   color: #FFF;
@@ -28,17 +28,16 @@ p {
   font-size: 24px;
 }
 img {
-  width: 100px;
   height: 100px;
 }</style>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
-    <span class="face">:${d.face}</span>
-    <p>${d.content}</p>
-    <form action="/getbili.js" method="GET"><label for="mid">请输入要获取用户信息的 UID：</label><input type="number" name="mid" id="mid" value="${d.mid}" autocomplete="off"><input type="submit" value="获取"></form>
-    <span class="tips">${d.tips}</span>
+    <span class="face">:${data.face}</span>
+    <p>${data.content}</p>
+    <form action="/getbili.js" method="GET"><label for="mid">请输入要获取用户信息的 UID：</label><input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off"><input type="submit" value="获取"></form>
+    <span class="tips">${data.tips}</span>
   </body>
 </html>`);
   }
