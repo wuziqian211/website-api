@@ -39,7 +39,7 @@ a {
 p {
   font-size: 24px;
 }
-image {
+img {
   width: 100px;
   height: 100px;
 }</style>
