@@ -23,15 +23,19 @@ module.exports = (req, res) => {
 a {
   color: #FFF;
 }
-p {
+.content {
   font-size: 24px;
+}
+.home {
+  font-size: 16px;
 }</style>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:(</span>
-    <p>您似乎输入错了网址，您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？</p>
+    <p class="content">您似乎输入错了网址，您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？</p>
+    <p class="home"><a href="/">返回 API 首页</a></p>
     <span class="tips">NOT_FOUND</span>
   </body>
 </html>`);
