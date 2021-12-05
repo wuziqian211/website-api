@@ -28,9 +28,6 @@
       ]
     }
   ],
-  "redirects": [
-    {"source": "/api/:path", "destination": "/:path.js"}
-  ],
   "rewrites": [
     {"source": "/", "destination": "/index.js"},
     {"source": "/(.*)", "destination": "/404.js"}
