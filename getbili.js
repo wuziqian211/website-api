@@ -1,8 +1,5 @@
 module.exports = (req, res) => {
   function sendHTML(data) {
-    if (data.code == 200) {
-      res.setHeader('Cache-Control', 's-maxage=1000, stale-while-revalidate');
-    }
     res.status(data.code).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -71,12 +68,12 @@ img {
           fetch(json.data.face).then(img => {
             header = img.headers.get('Content-Type');
             return img.buffer();
-          }).then(buffer => res.setHeader('Cache-Control', 's-maxage=1000, stale-while-revalidate').setHeader('Content-Type', header).status(200).send(buffer));
+          }).then(buffer => res.setHeader('Content-Type', header).status(200).send(buffer));
         } else {
           fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').status(404).send(buffer));
         }
       } else if (json.code == 0) {
-        res.setHeader('Cache-Control', 's-maxage=1000, stale-while-revalidate').status(200).json({
+        res.status(200).json({
           code: 0,
           data: {
             name: json.data.name,
