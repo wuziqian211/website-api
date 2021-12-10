@@ -63,14 +63,16 @@ img {
           sendHTML({code: 400, title: '获取用户信息失败', face: '(', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
         }
       } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) {
-        var header;
+        var header, filename;
         if (json.code == 0) {
           fetch(json.data.face).then(img => {
+            const URLEncode = require('urlencode');
             header = img.headers.get('Content-Type');
+            filename = URLEncode(`${json.data.name} 的头像.${json.data.face.split('.')[json.data.face.split('.') - 1]}`, 'UTF-8');
             return img.buffer();
-          }).then(buffer => res.setHeader('Content-Type', header).status(200).send(buffer));
+          }).then(buffer => res.setHeader('Content-Type', header).setHeader('Content-Disposition', `inline;filename=${filename}`).status(200).send(buffer));
         } else {
-          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').status(404).send(buffer));
+          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').status(404).send(buffer));
         }
       } else if (json.code == 0) {
         res.status(200).json({
