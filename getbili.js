@@ -68,7 +68,7 @@ img {
           fetch(json.data.face).then(img => {
             const URLEncode = require('urlencode');
             header = img.headers.get('Content-Type');
-            filename = URLEncode(`${json.data.name} 的头像.${json.data.face.split('.')[json.data.face.split('.') - 1]}`, 'UTF-8');
+            filename = URLEncode(`${json.data.name} 的头像.${json.data.face.split('.')[json.data.face.split('.').length - 1]}`, 'UTF-8');
             return img.buffer();
           }).then(buffer => res.setHeader('Content-Type', header).setHeader('Content-Disposition', `inline;filename=${filename}`).status(200).send(buffer));
         } else {
