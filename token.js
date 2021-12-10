@@ -31,6 +31,10 @@ module.exports = (req, res) => {
 a {
   color: #FFF;
 }
+p {
+  overflow-wrap: break-word;
+  text-align: justify;
+}
 .content {
   font-size: 24px;
 }
