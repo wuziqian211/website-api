@@ -6,37 +6,7 @@ module.exports = (req, res) => {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${data.title} | wuziqian211's Blog</title>
-    <style type="text/css">body {
-  background-color: #0078B7;
-  color: #FFF;
-  font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
-  padding: 90px 0 0 90px;
-}
-.face {
-  font-size: 100px;
-}
-.tips {
-  display: inline-block;
-  padding-top: 10px;
-  font-size: 14px;
-  line-height: 20px;
-}
-a {
-  color: #FFF;
-}
-p {
-  overflow-wrap: break-word;
-  text-align: justify;
-}
-.content {
-  font-size: 24px;
-}
-.home {
-  font-size: 16px;
-}
-img {
-  height: 100px;
-}</style>
+    <link rel="stylesheet" href="/style.css">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
   <body>
