@@ -16,6 +16,7 @@ module.exports = (req, res) => {
         });
       } else {
         res.status(200).json({code: 0, data: {new: 0}});
+      }
     } else {
       res.status(400).json({code: -400});
     }
