@@ -13,6 +13,9 @@
       "src": "/token.js",
       "use": "@vercel/node"
     }, {
+      "src": "/update.js",
+      "use": "@vercel/node"
+    }, {
       "src": "/*",
       "use": "@vercel/static"
     }
