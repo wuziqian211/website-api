@@ -16,9 +16,6 @@
       "src": "/update.js",
       "use": "@vercel/node"
     }, {
-      "src": "/get.js",
-      "use": "@vercel/node"
-    }, {
       "src": "/*",
       "use": "@vercel/static"
     }
