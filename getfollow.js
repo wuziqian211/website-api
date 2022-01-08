@@ -11,6 +11,7 @@ module.exports = (req, res) => {
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
+    <span class="face">:${data.face}</span>
     <p class="content">${data.content}</p>
     <form action="/getfollow.js" method="GET">
       <label for="mid">请输入要获取用户关注、粉丝数的 UID：</label>
