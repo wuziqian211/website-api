@@ -7,7 +7,7 @@ module.exports = (req, res) => {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>页面不存在 | wuziqian211's Blog</title>
+    <title>API 不存在 | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   </head>
