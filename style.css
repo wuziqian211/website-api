@@ -2,6 +2,8 @@ body {
   background-color: #0078B7;
   color: #FFF;
   font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
+  overflow-wrap: break-word;
+  text-align: justify;
   padding: 90px 0 0 90px;
 }
 .face {
@@ -15,10 +17,6 @@ body {
 }
 a {
   color: #FFF;
-}
-p {
-  overflow-wrap: break-word;
-  text-align: justify;
 }
 .content {
   font-size: 24px;
