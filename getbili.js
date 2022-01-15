@@ -28,7 +28,7 @@ module.exports = (req, res) => {
   if (/^[0-9]+$/.test(req.query.mid)) {
     const fetch = require('node-fetch');
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
-      if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
+      if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.query.t) {
         if (json.code == 0) {
           sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" />`, mid: req.query.mid, tips: 'OK'});
         } else if (json.code == -412) {

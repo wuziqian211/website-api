@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
+  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && !req.query.t) {
     res.status(200).json({
       code: 0,
       data: {

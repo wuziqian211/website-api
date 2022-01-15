@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
+  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && !req.query.t) {
     if (req.query.name == 'bat') {
       if (parseInt(req.query.version) > 0) {
         if (parseInt(req.query.version) < 6) {

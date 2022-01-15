@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
+  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && !req.query.t) {
     res.status(404).json({code: -404});
   } else {
     res.status(300).send(`<!DOCTYPE html>
