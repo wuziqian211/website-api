@@ -10,18 +10,18 @@ module.exports = (req, res) => {
     <title>欢迎来到 API 页面 | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <script src="/pjax.min.js"></script>
+    <link rel="stylesheet" href="/animate.min.css" />    <script src="/pjax.min.js"></script>
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
     <div class="data-pjax">
-      <span class="face">:)</span>
-      <p class="content">欢迎您来到 API 页面！<br />这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。</p>
-      <p class="content">可用 API：<br /><a href="/getbili.js">获取哔哩哔哩指定用户信息</a><br /><a href="/getfollow.js">获取哔哩哔哩指定用户关注、粉丝数</a></p>
-      <p class="home"><a href="https://wuziqian211.top/">返回网站首页</a></p>
-      <span class="tips">MULTIPLE_CHOICES</span>
+      <span class="face animate__animated animate__fadeIn animate__faster">:)</span>
+      <p class="content animate__animated animate__fadeIn animate__faster">欢迎您来到 API 页面！<br />这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。</p>
+      <p class="content animate__animated animate__fadeIn animate__faster">可用 API：<br /><a href="/getbili.js">获取哔哩哔哩指定用户信息</a><br /><a href="/getfollow.js">获取哔哩哔哩指定用户关注、粉丝数</a></p>
+      <p class="home animate__animated animate__fadeIn animate__faster"><a href="https://wuziqian211.top/">返回网站首页</a></p>
+      <span class="tips animate__animated animate__fadeIn animate__faster">MULTIPLE_CHOICES</span>
     </div>
-    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false});</script>
+    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false}); document.addEventListener('pjax:error', function(){document.location.href = event.options.request.responseURL;});</script>
   </body>
 </html>`);
   }

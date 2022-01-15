@@ -33,17 +33,18 @@ module.exports = (req, res) => {
     <title>API 不存在 | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/animate.min.css" />
     <script src="/pjax.min.js"></script>
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
     <div class="data-pjax">
-      <span class="face">:(</span>
-      <p class="content">您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p>
-      <p class="home"><a href="/">返回 API 首页</a></p>
-      <span class="tips">NOT_FOUND</span>
+      <span class="face animate__animated animate__fadeIn animate__faster">:(</span>
+      <p class="content animate__animated animate__fadeIn animate__faster">您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p>
+      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/">返回 API 首页</a></p>
+      <span class="tips animate__animated animate__fadeIn animate__faster">NOT_FOUND</span>
     </div>
-    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false});</script>
+    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false}); document.addEventListener('pjax:error', function(){document.location.href = event.options.request.responseURL;});</script>
   </body>
 </html>`);
   }

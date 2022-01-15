@@ -8,22 +8,23 @@ module.exports = (req, res) => {
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/animate.min.css" />
     <script src="/pjax.min.js"></script>
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
     <div class="data-pjax">
-      <span class="face">:${data.face}</span>
-      <p class="content">${data.content}</p>
-      <form action="/getfollow.js" method="GET">
+      <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
+      <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
+      <form class="animate__animated animate__fadeIn animate__faster" action="/getfollow.js" method="GET">
         <label for="mid">请输入要获取用户关注、粉丝数的 UID：</label>
         <input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" />
         <input type="submit" value="获取" />
       </form>
-      <p class="home"><a href="/">返回 API 首页</a></p>
-      <span class="tips">${data.tips}</span>
+      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/">返回 API 首页</a></p>
+      <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>
     </div>
-    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false});</script>
+    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false}); document.addEventListener('pjax:error', function(){document.location.href = event.options.request.responseURL;});</script>
   </body>
 </html>`);
   }
