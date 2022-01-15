@@ -21,7 +21,21 @@ module.exports = (req, res) => {
       <p class="home animate__animated animate__fadeIn animate__faster"><a href="https://wuziqian211.top/">返回网站首页</a></p>
       <span class="tips animate__animated animate__fadeIn animate__faster">MULTIPLE_CHOICES</span>
     </div>
-    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false}); document.addEventListener('pjax:error', function(){document.location.href = event.options.request.responseURL;});</script>
+    <script>
+      var pjax = new Pjax({
+        selectors: ['title', '.data-pjax'],
+        cacheBust: false
+      });
+      document.addEventListener('pjax:error', function() {
+        document.location.href = event.request.responseURL;
+      });
+      document.addEventListener('pjax:send', function() {
+        document.querySelectorAll('.animate__animated').forEach(function(e) {
+          e.classList.remove('animate__fadeIn');
+          e.classList.add('animate__fadeOut');
+        });
+      });
+    </script>
   </body>
 </html>`);
   }
