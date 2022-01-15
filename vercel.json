@@ -1,10 +1,10 @@
 {
   "builds": [
     {
-      "src": "/404.js",
+      "src": "**/*.js",
       "use": "@vercel/node"
     }, {
-      "src": "/*",
+      "src": "**/*",
       "use": "@vercel/static"
     }
   ],
