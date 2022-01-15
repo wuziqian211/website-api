@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && !req.query.t) {
+  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
     res.status(404).json({code: -404});
   } else {
     res.status(300).send(`<!DOCTYPE html>
@@ -19,7 +19,7 @@ module.exports = (req, res) => {
     <p class="content">可用 API：<br /><a href="/getbili.js">获取哔哩哔哩指定用户信息</a><br /><a href="/getfollow.js">获取哔哩哔哩指定用户关注、粉丝数</a></p>
     <p class="home"><a href="https://wuziqian211.top/">返回网站首页</a></p>
     <span class="tips">MULTIPLE_CHOICES</span>
-    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"]});</script>
+    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"], cacheBust: false});</script>
   </body>
 </html>`);
   }
