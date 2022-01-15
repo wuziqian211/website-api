@@ -46,9 +46,9 @@ module.exports = (req, res) => {
             header = img.headers.get('Content-Type');
             filename = URLEncode(`${json.data.name} 的头像.${json.data.face.split('.')[json.data.face.split('.').length - 1]}`, 'UTF-8');
             return img.buffer();
-          }).then(buffer => res.setHeader('Content-Type', header).setHeader('Content-Disposition', `inline;filename=${filename}`).status(200).send(buffer));
+          }).then(buffer => res.status(200).setHeader('Content-Type', header).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
         } else {
-          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').status(404).send(buffer));
+          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
         }
       } else if (json.code == 0) {
         res.status(200).json({
