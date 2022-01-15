@@ -2,7 +2,7 @@ module.exports = (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
     res.status(404).json({code: -404});
   } else {
-    res.status(300).send(`<!DOCTYPE html>
+    res.status(200).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
