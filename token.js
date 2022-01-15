@@ -15,8 +15,10 @@ module.exports = (req, res) => {
     <title>API 不存在 | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script>
   </head>
   <body>
+    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"]});</script>
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:(</span>
     <p class="content">您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p>

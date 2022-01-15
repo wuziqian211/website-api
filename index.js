@@ -10,8 +10,10 @@ module.exports = (req, res) => {
     <title>欢迎来到 API 页面 | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script>
   </head>
   <body>
+    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"]});</script>
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:)</span>
     <p class="content">欢迎您来到 API 页面！<br />这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。</p>
