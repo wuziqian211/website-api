@@ -11,7 +11,6 @@ module.exports = (req, res) => {
     <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script>
   </head>
   <body>
-    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"]});</script>
     <!-- Reference code: status.fastgit.org -->
     <span class="face">:${data.face}</span>
     <p class="content">${data.content}</p>
@@ -22,13 +21,14 @@ module.exports = (req, res) => {
     </form>
     <p class="home"><a href="/">返回 API 首页</a></p>
     <span class="tips">${data.tips}</span>
+    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"]});</script>
   </body>
 </html>`);
   }
   if (/^[0-9]+$/.test(req.query.mid)) {
     const fetch = require('node-fetch');
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
-      if (req.headers.accept && req.headers.accept.indexOf('html') != -1) {
+      if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
         if (json.code == 0) {
           sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" />`, mid: req.query.mid, tips: 'OK'});
         } else if (json.code == -412) {
