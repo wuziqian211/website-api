@@ -1,9 +1,6 @@
 {
   "builds": [
     {
-      "src": "/pjax.min.js",
-      "use": "@vercel/static"
-    }, {
       "src": "**/*.js",
       "use": "@vercel/node"
     }, {
