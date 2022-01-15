@@ -1,25 +1,10 @@
 {
   "builds": [
     {
-      "src": "/404.js",
+      "src": "**/*.js",
       "use": "@vercel/node"
     }, {
-      "src": "/getbili.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "/getfollow.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "/index.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "/token.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "/update.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "/*",
+      "src": "**/*",
       "use": "@vercel/static"
     }
   ],
