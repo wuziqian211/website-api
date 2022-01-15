@@ -19,11 +19,13 @@ module.exports = (req, res) => {
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
-    <span class="face">:(</span>
-    <p class="content">您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p>
-    <p class="home"><a href="/">返回 API 首页</a></p>
-    <span class="tips">NOT_FOUND</span>
-    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"], cacheBust: false});</script>
+    <div class="data-pjax">
+      <span class="face">:(</span>
+      <p class="content">您访问的 API 不存在，请到<a href="https://api.wuziqian211.top/">首页</a>查看目前可用的 API 列表</p>
+      <p class="home"><a href="/">返回 API 首页</a></p>
+      <span class="tips">NOT_FOUND</span>
+    </div>
+    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false});</script>
   </body>
 </html>`);
   }

@@ -12,16 +12,18 @@ module.exports = (req, res) => {
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
-    <span class="face">:${data.face}</span>
-    <p class="content">${data.content}</p>
-    <form action="/getbili.js" method="GET">
-      <label for="mid">请输入要获取用户信息的 UID：</label>
-      <input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" />
-      <input type="submit" value="获取" />
-    </form>
-    <p class="home"><a href="/">返回 API 首页</a></p>
-    <span class="tips">${data.tips}</span>
-    <script>var pjax = new Pjax({selectors: ["title", ".face", ".content", "form", ".home", ".tips"], cacheBust: false});</script>
+    <div class="data-pjax">
+      <span class="face">:${data.face}</span>
+      <p class="content">${data.content}</p>
+      <form action="/getbili.js" method="GET">
+        <label for="mid">请输入要获取用户信息的 UID：</label>
+        <input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" />
+        <input type="submit" value="获取" />
+      </form>
+      <p class="home"><a href="/">返回 API 首页</a></p>
+      <span class="tips">${data.tips}</span>
+    </div>
+    <script>var pjax = new Pjax({selectors: ["title", ".data-pjax"], cacheBust: false});</script>
   </body>
 </html>`);
   }
