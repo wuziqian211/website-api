@@ -49,7 +49,7 @@ module.exports = (req, res) => {
         if (json.code == 0) {
           sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" />`, mid: req.query.mid, tips: 'OK'});
         } else if (json.code == -412) {
-          sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'PRECONDITION_FAILED'});
+          sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
         } else if (json.code == -404) {
           sendHTML({code: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
         } else {
