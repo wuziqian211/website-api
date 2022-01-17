@@ -1,4 +1,5 @@
 module.exports = (req, res) => {
+  const fetch = require('node-fetch');
   function sendHTML(data) {
     res.status(data.code).send(`<!DOCTYPE html>
 <html lang="zh-CN">
@@ -43,7 +44,6 @@ module.exports = (req, res) => {
 </html>`);
   }
   if (/^[0-9]+$/.test(req.query.mid)) {
-    const fetch = require('node-fetch');
     fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(json => {
       if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
         if (json.code == 0) {
