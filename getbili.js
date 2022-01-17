@@ -1,4 +1,5 @@
 module.exports = (req, res) => {
+  const fetch = require('node-fetch');
   function sendHTML(data) {
     res.status(data.code).send(`<!DOCTYPE html>
 <html lang="zh-CN">
@@ -6,10 +7,10 @@ module.exports = (req, res) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${data.title} | wuziqian211's Blog API</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/res/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="/animate.min.css" />
-    <script src="/pjax.min.js"></script>
+    <link rel="stylesheet" href="/res/animate.min.css" />
+    <script src="/res/pjax.min.js"></script>
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
@@ -43,7 +44,6 @@ module.exports = (req, res) => {
 </html>`);
   }
   if (/^[0-9]+$/.test(req.query.mid)) {
-    const fetch = require('node-fetch');
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
       if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
         if (json.code == 0) {
@@ -89,6 +89,9 @@ module.exports = (req, res) => {
     } else {
       sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
     }
+  } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) {
+    var faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
+    fetch(`https://api.wuziqian211.top/res/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(img => img.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpg').send(buffer));
   } else {
     res.status(400).json({code: -400});
   }
