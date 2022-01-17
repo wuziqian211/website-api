@@ -65,7 +65,7 @@ module.exports = (req, res) => {
             return img.buffer();
           }).then(buffer => res.status(200).setHeader('Content-Type', header).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
         } else {
-          fetch('http://i0.hdslb.com/bfs/face/member/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
+          fetch('https://api.wuziqian211.top/res/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
         }
       } else if (json.code == 0) {
         res.status(200).json({
@@ -90,8 +90,12 @@ module.exports = (req, res) => {
       sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
     }
   } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) {
-    var faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-    fetch(`https://api.wuziqian211.top/res/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(img => img.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpg').send(buffer));
+    if (!req.query.mid || req.query.mid == '') {
+      var faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
+      fetch(`https://api.wuziqian211.top/res/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(img => img.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpg').send(buffer));
+    } else {
+      fetch('https://api.wuziqian211.top/res/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').send(buffer));      
+    }
   } else {
     res.status(400).json({code: -400});
   }
