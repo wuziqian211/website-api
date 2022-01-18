@@ -8,7 +8,8 @@ module.exports = (req, res) => {
         }
       });
     } else if (req.query && req.query.id == 'thanks') {
-      var thanks = [{
+      var HTML = '';
+      [{
         image: '/images/bilibili.svg',
         title: '哔哩哔哩',
         content: '提供wuziqian211发布视频、动态，与粉丝互动等的地方。哔哩哔哩是中国年轻世代高度聚集的综合性视频社区，被用户亲切地称为“B站”。',
@@ -18,9 +19,7 @@ module.exports = (req, res) => {
         title: '您',
         content: '支持wuziqian211。自从您关注wuziqian211以来，虽然TA可能会犯各种各样的错误，您也一直在支持着TA。',
         link: 'https://space.bilibili.com/'
-      }];
-      var HTML = '';
-      thanks.forEach(function(i) {
+      }].sort(function(a, b){return 0.5 - Math.random()}).forEach(function(i) {
         HTML += `<div class="link-grid-container">
 <object class="link-grid-image" data="${i.image}"></object>
 <p>${i.title}</p><p>${i.content}</p>
