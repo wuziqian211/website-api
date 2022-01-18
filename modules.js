@@ -1,11 +1,36 @@
 module.exports = (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
-    res.status(200).json({
-      code: 0,
-      data: {
-        token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='
-      }
-    });
+    if (req.query && req.query.id == 'token') {
+      res.status(200).json({
+        code: 0,
+        data: {
+          token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='
+        }
+      });
+    } else if (req.query && req.query.id == 'thanks') {
+      var thanks = [{
+        image: '/images/bilibili.svg',
+        title: '哔哩哔哩',
+        content: '提供wuziqian211发布视频、动态，与粉丝互动等的地方。哔哩哔哩是中国年轻世代高度聚集的综合性视频社区，被用户亲切地称为“B站”。',
+        link: 'https://www.bilibili.com/'
+      }, {
+        image: '/images/you.png',
+        title: '您',
+        content: '支持wuziqian211。自从您关注wuziqian211以来，虽然TA可能会犯各种各样的错误，您也一直在支持着TA。',
+        link: 'https://space.bilibili.com/'
+      }];
+      var HTML = '';
+      thanks.forEach(function(i) {
+        HTML += `<div class="link-grid-container">
+<object class="link-grid-image" data="${i.image}"></object>
+<p>${i.title}</p><p>${i.content}</p>
+<a target="_blank" rel="noopener external nofollow noreferrer" href="${i.link}"></a>
+</div>`
+      });
+      res.status(200).json({code: 0, data: HTML});
+    } else {
+      res.status(400).json({code: -400});
+    }
   } else {
     res.status(404).send(`<!DOCTYPE html>
 <html lang="zh-CN">
