@@ -12,12 +12,12 @@ module.exports = (req, res) => {
       [{
         image: '/images/bilibili.svg',
         title: '哔哩哔哩',
-        content: '提供wuziqian211发布视频、动态，与粉丝互动等的地方。哔哩哔哩是中国年轻世代高度聚集的综合性视频社区，被用户亲切地称为“B站”。',
+        content: '提供 wuziqian211 发布视频、动态，与粉丝互动等的地方。哔哩哔哩是中国年轻世代高度聚集的综合性视频社区，被用户亲切地称为“B 站”。',
         link: 'https://www.bilibili.com/'
       }, {
         image: '/images/you.png',
         title: '您',
-        content: '支持wuziqian211。自从您关注wuziqian211以来，虽然TA可能会犯各种各样的错误，您也一直在支持着TA。',
+        content: '支持 wuziqian211。自从您关注 wuziqian211 以来，虽然 TA 可能会犯各种各样的错误，您也一直在支持着 TA。',
         link: 'https://space.bilibili.com/'
       }].sort(function(a, b){return 0.5 - Math.random()}).forEach(function(i) {
         HTML += `<div class="link-grid-container">
