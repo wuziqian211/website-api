@@ -19,13 +19,11 @@ module.exports = (req, res) => {
         title: '您',
         content: '支持 wuziqian211。自从您关注 wuziqian211 以来，虽然 TA 可能会犯各种各样的错误，您也一直在支持着 TA。',
         link: 'https://space.bilibili.com/'
-      }].sort(function(a, b){return 0.5 - Math.random()}).forEach(function(i) {
-        HTML += `<div class="link-grid-container">
+      }].sort(() => 0.5 - Math.random()).forEach(i => HTML += `<div class="link-grid-container">
 <object class="link-grid-image" data="${i.image}"></object>
 <p>${i.title}</p><p>${i.content}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="${i.link}"></a>
-</div>`
-      });
+</div>`);
       res.status(200).json({code: 0, data: HTML});
     } else {
       res.status(400).json({code: -400});
