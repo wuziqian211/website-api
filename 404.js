@@ -5,11 +5,11 @@ module.exports = (req, res) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0078B7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
     <title>页面不存在 | wuziqian211's Blog</title>
-    <link rel="stylesheet" href="/res/style.css" />
+    <link rel="stylesheet" href="https://api.wuziqian211.top/res/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="/res/animate.min.css" />
+    <link rel="stylesheet" href="https://api.wuziqian211.top/res/animate.min.css" />
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
