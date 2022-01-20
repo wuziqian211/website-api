@@ -20,7 +20,7 @@ module.exports = (req, res) => {
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
       <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
       <form class="animate__animated animate__fadeIn animate__faster" action="/getbili.js" method="GET">
-        <label for="mid">请输入要获取用户信息的 UID：</label>
+        <label for="mid">请输入要获取用户信息及关注、粉丝数的 UID：</label>
         <input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" />
         <input type="submit" value="获取" />
       </form>
@@ -49,7 +49,13 @@ module.exports = (req, res) => {
     fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
       if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
         if (json.code == 0) {
-          sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" />`, mid: req.query.mid, tips: 'OK'});
+          fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
+            if (fjson.code == 0) {
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+            } else {
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" />`, mid: req.query.mid, tips: 'OK'});
+            }
+          });
         } else if (json.code == -412) {
           sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
         } else if (json.code == -404) {
@@ -70,11 +76,11 @@ module.exports = (req, res) => {
           fetch('https://api.wuziqian211.top/res/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
         }
       } else if (json.code == 0) {
-        res.status(200).json({
-          code: 0,
-          data: {
-            name: json.data.name,
-            face: json.data.face
+        fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
+          if (fjson.code == 0) {
+            res.status(200).json({code: 0, data: {name: json.data.name, face: json.data.face, following: fjson.data.following, follower: fjson.data.follower}});
+          } else {
+            res.status(200).json({code: 0, data: {name: json.data.name, face: json.data.face}});
           }
         });
       } else if (json.code == -412) {
@@ -87,7 +93,7 @@ module.exports = (req, res) => {
     });
   } else if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
     if (!req.query.mid || req.query.mid == '') {
-      sendHTML({code: 200, title: '获取哔哩哔哩用户信息', face: ')', content: `本 API 可以获取指定 B 站用户的信息。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息的 UID}`, mid: '', tips: 'OK'});
+      sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息及关注、粉丝数的 UID}`, mid: '', tips: 'OK'});
     } else {
       sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
     }
