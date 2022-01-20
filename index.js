@@ -8,7 +8,7 @@ module.exports = (req, res) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0078B7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
     <title>欢迎来到 API 页面 | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/res/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
