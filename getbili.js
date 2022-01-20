@@ -20,7 +20,7 @@ module.exports = (req, res) => {
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
       <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
       <form class="animate__animated animate__fadeIn animate__faster" action="/getbili.js" method="GET">
-        <label for="mid">请输入要获取用户信息及关注、粉丝数的 UID：</label>
+        <label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label>
         <input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" />
         <input type="submit" value="获取" />
       </form>
@@ -93,7 +93,7 @@ module.exports = (req, res) => {
     });
   } else if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') {
     if (!req.query.mid || req.query.mid == '') {
-      sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息及关注、粉丝数的 UID}`, mid: '', tips: 'OK'});
+      sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}`, mid: '', tips: 'OK'});
     } else {
       sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
     }
