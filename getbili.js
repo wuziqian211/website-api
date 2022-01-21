@@ -21,9 +21,7 @@ module.exports = (req, res) => {
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
       <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
       <form class="animate__animated animate__fadeIn animate__faster" action="/getbili.js" method="GET">
-        <label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label>
-        <input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" />
-        <input type="submit" value="获取" />
+        <label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label><br /><input type="number" name="mid" id="mid" value="${data.mid}" autocomplete="off" /><input type="submit" value="获取" />
       </form>
       <p class="home animate__animated animate__fadeIn animate__faster"><a href="/">返回 API 首页</a></p>
       <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>
