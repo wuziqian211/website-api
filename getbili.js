@@ -1,5 +1,6 @@
 module.exports = (req, res) => {
   const fetch = require('node-fetch');
+  const URLEncode = require('urlencode');
   function sendHTML(data) {
     res.status(data.code).send(`<!DOCTYPE html>
 <html lang="zh-CN">
@@ -67,7 +68,6 @@ module.exports = (req, res) => {
         var header, filename;
         if (json.code == 0) {
           fetch(json.data.face).then(img => {
-            const URLEncode = require('urlencode');
             header = img.headers.get('Content-Type');
             filename = URLEncode(`${json.data.name} 的头像.${json.data.face.split('.')[json.data.face.split('.').length - 1]}`, 'UTF-8');
             return img.buffer();
