@@ -51,7 +51,7 @@ module.exports = (req, res) => {
         if (json.code == 0) {
           fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
             if (fjson.code == 0) {
-              sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name} 的头像" src="${json.data.face}" referrerpolicy="no-referrer" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
             } else {
               sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `昵称：${json.data.name}<br />头像：<br /><img alt="${json.data.name}" src="/getbili.js?mid=${req.query.mid}" />`, mid: req.query.mid, tips: 'OK'});
             }
