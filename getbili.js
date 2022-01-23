@@ -90,14 +90,16 @@ module.exports = (req, res) => {
       fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
           if (json.code == 0) {
+            var t = json.data.face.split(':');
+            t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.type == 'info') { // 仅获取用户信息
-              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${json.data.face}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})`, mid: req.query.mid, tips: 'OK'});
             } else {
               fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${json.data.face}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})<br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})<br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                 } else {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${json.data.face}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})`, mid: req.query.mid, tips: 'OK'});
                 }
               });
             }
@@ -110,13 +112,15 @@ module.exports = (req, res) => {
           }
         } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) { // 客户端提供的接受类型有图片（不含HTML），获取头像
           if (json.code == 0) {
+            var t = json.data.face.split(':');
+            t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.allow_redirect) { // 允许本API重定向到B站服务器的头像地址
-              req.status(307).setHeader('Location', json.data.face).setHeader('Refresh', `0;url=${json.data.face}`).json({code: 307, data: {url: json.data.face}});
+              req.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0;url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
             } else {
               var type, filename;
-              fetch(json.data.face).then(img => { // 获取B站服务器的头像
+              fetch(t.join(':')).then(img => { // 获取B站服务器的头像
                 type = img.headers.get('Content-Type'); // 设置头像的文件类型
-                filename = URLEncode(`${json.data.name} 的头像.${json.data.face.split('.')[json.data.face.split('.').length - 1]}`, 'UTF-8'); // 设置头像的文件名
+                filename = URLEncode(`${json.data.name} 的头像.${t.join(':').split('.')[t.join(':').split('.').length - 1]}`, 'UTF-8'); // 设置头像的文件名
                 return img.buffer();
               }).then(buffer => res.status(200).setHeader('Content-Type', type).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
             }
@@ -125,14 +129,16 @@ module.exports = (req, res) => {
           }
         } else { // 接受类型既不含HTML，也不含图片，返回json
           if (json.code == 0) {
+            var t = json.data.face.split(':');
+            t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.type == 'info') { // 仅获取用户信息
-              res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: json.data.face, level: json.data.level}});
+              res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: t.join(':'), level: json.data.level}});
             } else {
               fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
-                  res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: json.data.face, level: json.data.level, following: fjson.data.following, follower: fjson.data.follower}});
+                  res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: t.join(':'), level: json.data.level, following: fjson.data.following, follower: fjson.data.follower}});
                 } else {
-                  res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: json.data.face, level: json.data.level}});
+                  res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: t.join(':'), level: json.data.level}});
                 }
               });
             }
