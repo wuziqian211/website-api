@@ -63,10 +63,14 @@ module.exports = (req, res) => {
   }
   if (/^[0-9]+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     function getinfo(mid) { // 获取用户信息
-      fetch(`https://api.bilibili.com/x/space/acc/info?mid=${mid}`).then(resp => resp.json()).then(json => return json);
+      var json;
+      fetch(`https://api.bilibili.com/x/space/acc/info?mid=${mid}`).then(resp => resp.json()).then(j => json = j);
+      return json;
     }
     function getfollow(mid) { // 获取用户的关注、粉丝数
-      fetch(`https://api.bilibili.com/x/relation/stat?vmid=${mid}`).then(resp => resp.json()).then(fjson => return fjson);
+      var fjson;
+      fetch(`https://api.bilibili.com/x/relation/stat?vmid=${mid}`).then(resp => resp.json()).then(j => fjson = j);
+      return fjson;
     }
     if (req.query.type == 'follow') { // 仅获取用户关注、粉丝数
       var fjson = getfollow(req.query.mid);
