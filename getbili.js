@@ -63,7 +63,7 @@ module.exports = (req, res) => {
   }
   if (/^[0-9]+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type == 'follow') { // 仅获取用户关注、粉丝数
-      fetch(`https://api.bilibili.com/x/relation/stat?vmid=${mid}`).then(resp => resp.json()).then(fjson => {
+      fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
           if (fjson.code == 0) {
             sendHTML({code: 200, title: `UID${req.query.mid} 的关注、粉丝数`, face: ')', content: `关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
@@ -87,13 +87,13 @@ module.exports = (req, res) => {
         }
       });
     } else { // 不是仅获取关注、粉丝数
-      fetch(`https://api.bilibili.com/x/space/acc/info?mid=${mid}`).then(resp => resp.json()).then(json => {
+      fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`).then(resp => resp.json()).then(json => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
           if (json.code == 0) {
             if (req.query.type == 'info') { // 仅获取用户信息
               sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${json.data.face}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})`, mid: req.query.mid, tips: 'OK'});
             } else {
-              fetch(`https://api.bilibili.com/x/relation/stat?vmid=${mid}`).then(resp => resp.json()).then(fjson => {
+              fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
                   sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${json.data.face}" referrerpolicy="no-referrer" />${json.data.name} (Lv${json.data.level})<br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                 } else {
@@ -128,7 +128,7 @@ module.exports = (req, res) => {
             if (req.query.type == 'info') { // 仅获取用户信息
               res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: json.data.face, level: json.data.level}});
             } else {
-              fetch(`https://api.bilibili.com/x/relation/stat?vmid=${mid}`).then(resp => resp.json()).then(fjson => {
+              fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
                   res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: json.data.face, level: json.data.level, following: fjson.data.following, follower: fjson.data.follower}});
                 } else {
