@@ -18,8 +18,7 @@
 module.exports = (req, res) => {
   const fetch = require('node-fetch');
   const URLEncode = require('urlencode');
-  function sendHTML(data) { // 将HTML数据发送到客户端
-    res.status(data.code).send(`<!DOCTYPE html>
+  const sendHTML = data => res.status(data.code).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -59,8 +58,7 @@ module.exports = (req, res) => {
       });
     </script>
   </body>
-</html>`);
-  }
+</html>`); // 将HTML数据发送到客户端
   if (/^[0-9]+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type == 'follow') { // 仅获取用户关注、粉丝数
       fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
