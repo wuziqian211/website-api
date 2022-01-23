@@ -155,7 +155,7 @@ module.exports = (req, res) => {
   } else { // UID无效
     if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
       if (!req.query.mid || req.query.mid == '') { // 没有设置UID参数
-        sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: '本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/wuziqian211/website-api/getbili.js">本 API 源码</a>。', mid: '', tips: 'OK'});
+        sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: '本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/wuziqian211/website-api/blob/main/getbili.js">本 API 源码</a>。', mid: '', tips: 'OK'});
       } else { // 设置了UID参数但无效
         sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
       }
