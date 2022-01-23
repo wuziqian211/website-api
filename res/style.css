@@ -24,8 +24,9 @@ a {
 .home {
   font-size: 16px;
 }
-img {
-  height: 100px;
+.uface {
+  height: 24px;
+  border-radius: 50%;
 }
 @media (prefers-color-scheme: dark) {
   body {
