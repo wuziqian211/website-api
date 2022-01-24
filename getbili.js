@@ -105,15 +105,16 @@ module.exports = (req, res) => {
           if (json.code == 0) {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
-            if (req.query.allow_redirect) { // 允许本API重定向到B站服务器的头像地址
-              req.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0;url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
+            if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
+              res.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0;url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
             } else {
-              var type, filename;
+              var status, type, filename;
               fetch(t.join(':')).then(img => { // 获取B站服务器的头像
+                status = img.status;
                 type = img.headers.get('Content-Type'); // 设置头像的文件类型
                 filename = URLEncode(`${json.data.name} 的头像.${t.join(':').split('.')[t.join(':').split('.').length - 1]}`, 'UTF-8'); // 设置头像的文件名
                 return img.buffer();
-              }).then(buffer => res.status(200).setHeader('Content-Type', type).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
+              }).then(buffer => res.status(status).setHeader('Content-Type', type).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
             }
           } else { // 用户信息获取失败，返回默认头像
             fetch(`https://${process.env.VERCEL_URL}/res/noface.jpg`).then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
