@@ -24,7 +24,7 @@ module.exports = (req, res) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0078B7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#000064" media="(prefers-color-scheme: dark)" />
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/res/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
@@ -43,19 +43,12 @@ module.exports = (req, res) => {
       <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>
     </div>
     <script>
-      var pjax = new Pjax({
-        selectors: ['title', '.data-pjax'],
-        cacheBust: false
-      });
-      document.addEventListener('pjax:error', function() {
-        document.location.href = event.request.responseURL;
-      });
-      document.addEventListener('pjax:send', function() {
-        document.querySelectorAll('.animate__animated').forEach(function(e) {
-          e.classList.remove('animate__fadeIn');
-          e.classList.add('animate__fadeOut');
-        });
-      });
+      var pjax = new Pjax({selectors: ['title', '.data-pjax'], cacheBust: false});
+      document.addEventListener('pjax:send', () => document.querySelectorAll('.animate__animated').forEach(e => {
+        e.classList.remove('animate__fadeIn');
+        e.classList.add('animate__fadeOut');
+      }));
+      document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
   </body>
 </html>`); // 将HTML数据发送到客户端
