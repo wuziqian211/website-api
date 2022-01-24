@@ -123,7 +123,7 @@ module.exports = (req, res) => {
               }).then(buffer => res.status(200).setHeader('Content-Type', type).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
             }
           } else { // 用户信息获取失败，返回默认头像
-            fetch('https://api.wuziqian211.top/res/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
+            fetch(`https://${process.env.VERCEL_URL}/res/noface.jpg`).then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
           }
         } else { // 接受类型既不含HTML，也不含图片，返回json
           if (json.code == 0) {
@@ -153,16 +153,16 @@ module.exports = (req, res) => {
   } else { // UID无效
     if ((req.headers.accept && req.headers.accept.indexOf('html') != -1) || req.headers['x-pjax'] == 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
       if (!req.query.mid || req.query.mid == '') { // 没有设置UID参数
-        sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: '本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://api.wuziqian211.top/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/wuziqian211/website-api/blob/main/getbili.js">本 API 源码</a>。', mid: '', tips: 'OK'});
+        sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：https://${process.env.VERCEL_URL}/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/getbili.js">本 API 源码</a>。`, mid: '', tips: 'OK'});
       } else { // 设置了UID参数但无效
         sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
       }
     } else if (req.headers.accept && req.headers.accept.indexOf('image') != -1) { // 客户端提供的接受类型有图片（不含HTML），获取头像
       if (!req.query.mid || req.query.mid == '') { // 没有设置UID参数，返回随机头像
         var faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-        fetch(`https://api.wuziqian211.top/res/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(img => img.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpg').send(buffer));
+        fetch(`https://${process.env.VERCEL_URL}/res/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(img => img.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpg').send(buffer));
       } else { // 设置了UID参数但无效，返回默认头像
-        fetch('https://api.wuziqian211.top/res/noface.jpg').then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').send(buffer));      
+        fetch(`https://${process.env.VERCEL_URL}/res/noface.jpg`).then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpg').send(buffer));      
       }
     } else { // 接受类型既不含HTML，也不含图片，返回json
       res.status(400).json({code: -400});
