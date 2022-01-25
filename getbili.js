@@ -89,16 +89,14 @@ module.exports = (req, res) => {
           if (json.code == 0) {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
-            var level_svg;
-            fetch(`${process.env.URL}/res/level_${json.data.level}.svg`).then(resp => resp.text()).then(svg => level_svg = svg); // 获取等级图片
             if (req.query.type == 'info') { // 仅获取用户信息
-              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <span class="ulevel">${level_svg}</span>`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
             } else {
               fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <span class="ulevel">${level_svg}</span><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                 } else {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <span class="ulevel">${level_svg}</span>`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
                 }
               });
             }
