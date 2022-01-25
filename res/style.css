@@ -29,6 +29,9 @@ a {
   border-radius: 50%;
   vertical-align: middle;
 }
+.ulevel {
+  height: 20px;
+}
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #000064;
