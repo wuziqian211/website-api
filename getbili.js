@@ -4,8 +4,8 @@
  * 如果您的网站、程序等能正常调用B站API，最好直接使用B站API。
  * 提示：
  *   本API会检测请求头中“accept”的值，以返回不同类型的数据。
- *   如果“accept”的值包含“html”，则返回HTML数据。
- *   如果包含“image”，且填写了参数“mid”，就返回对应用户的头像数据；如果未填写参数，就返回随机头像。
+ *   如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据。
+ *   如果包含“image”（比如在<img>标签的“src”参数填写本API网址），且填写了参数“mid”，就返回对应用户的头像数据；如果未填写参数，就返回随机头像。
  *   否则，返回json。
  * 参数：
  *   mid：您想获取用户信息及关注、粉丝数的用户的UID。
@@ -90,13 +90,13 @@ module.exports = (req, res) => {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.type == 'info') { // 仅获取用户信息
-              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />  ${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
             } else {
               fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />  ${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                 } else {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />&nbsp;&nbsp;${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" />  ${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
                 }
               });
             }
