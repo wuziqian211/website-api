@@ -90,13 +90,13 @@ module.exports = (req, res) => {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.type == 'info') { // 仅获取用户信息
-              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
             } else {
               fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                 } else {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
                 }
               });
             }
