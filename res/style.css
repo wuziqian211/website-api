@@ -30,7 +30,7 @@ a {
   vertical-align: middle;
 }
 .ulevel {
-  height: 20px;
+  height: 40px;
 }
 @media (prefers-color-scheme: dark) {
   body {
