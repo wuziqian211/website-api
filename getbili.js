@@ -89,7 +89,7 @@ module.exports = (req, res) => {
           if (json.code == 0) {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
-            var c = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name}</a> <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" /></a>`;
+            var c = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}" style="text-decoration: none;"><img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name}</a> <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295" style="text-decoration: none;"><img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" /></a>`;
             if (req.query.type == 'info') { // 仅获取用户信息
               sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
             } else {
