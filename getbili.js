@@ -89,14 +89,15 @@ module.exports = (req, res) => {
           if (json.code == 0) {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
+            var c = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name}</a> <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" /></a>`;
             if (req.query.type == 'info') { // 仅获取用户信息
-              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
             } else {
               fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                 if (fjson.code == 0) {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" /><br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: c + `<br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                 } else {
-                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: `<img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name} <img class="ulevel" alt="Lv${json.data.level}" src="/res/level_${json.data.level}.svg" />`, mid: req.query.mid, tips: 'OK'});
+                  sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
                 }
               });
             }
@@ -112,7 +113,7 @@ module.exports = (req, res) => {
             var t = json.data.face.split(':');
             t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
-              res.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0;url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
+              res.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0; url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
             } else {
               var status, type, filename;
               fetch(t.join(':')).then(img => { // 获取B站服务器的头像
