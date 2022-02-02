@@ -10,10 +10,10 @@ module.exports = (req, res) => {
     <meta name="theme-color" content="#0078B7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000064" media="(prefers-color-scheme: dark)" />
     <title>API 不存在 | wuziqian211's Blog API</title>
-    <link rel="stylesheet" href="/res/style.css" />
+    <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="/res/animate.min.css" />
-    <script src="/res/pjax.min.js"></script>
+    <link rel="stylesheet" href="/assets/animate.min.css" />
+    <script src="/assets/pjax.min.js"></script>
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
