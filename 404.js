@@ -7,9 +7,9 @@ module.exports = (req, res) => {
     <meta name="theme-color" content="#0078B7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000064" media="(prefers-color-scheme: dark)" />
     <title>页面不存在 | wuziqian211's Blog</title>
-    <link rel="stylesheet" href="${process.env.URL}/res/style.css" />
+    <link rel="stylesheet" href="${process.env.URL}/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="${process.env.URL}/res/animate.min.css" />
+    <link rel="stylesheet" href="${process.env.URL}/assets/animate.min.css" />
   </head>
   <body>
     <!-- Reference code: status.fastgit.org -->
