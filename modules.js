@@ -1,11 +1,11 @@
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
+  if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     switch (req.query.id) {
       case 'token':
         res.status(200).json({code: 0, data: {token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='}});
         break;
       case 'thanks':
-        var HTML = '';
+        let HTML = '';
         [
           {image: '/images/bilibili.svg', title: '哔哩哔哩', content: '提供 wuziqian211 发布视频、动态，与粉丝互动等的地方。哔哩哔哩是中国年轻世代高度聚集的综合性视频社区，被用户亲切地称为“B 站”。', link: 'https://www.bilibili.com/'},
           {image: '/images/you.png', title: '您', content: '支持 wuziqian211。自从您关注 wuziqian211 以来，虽然 TA 可能会犯各种各样的错误，您也一直在支持着 TA。', link: 'https://space.bilibili.com/'}
@@ -16,7 +16,7 @@ module.exports = (req, res) => {
 </div>`);
         res.status(200).json({code: 0, data: HTML});
         break;
-      case 'update': {
+      case 'update':
         if (parseInt(req.query.version) > 0) {
           switch (req.query.name) {
             case 'bat':
@@ -33,7 +33,6 @@ module.exports = (req, res) => {
           res.status(400).json({code: -400});
         }
         break;
-      }
       default:
         res.status(400).json({code: -400});
     }
@@ -60,7 +59,7 @@ module.exports = (req, res) => {
       <span class="tips animate__animated animate__fadeIn animate__faster">NOT_FOUND</span>
     </div>
     <script>
-      var pjax = new Pjax({selectors: ['title', '.data-pjax'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', '.data-pjax'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelectorAll('.animate__animated').forEach(e => {
         e.classList.remove('animate__fadeIn');
         e.classList.add('animate__fadeOut');

@@ -1,5 +1,5 @@
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') == -1) && req.headers['x-pjax'] != 'true') {
+  if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     res.status(404).json({code: -404});
   } else {
     res.status(404).send(`<!DOCTYPE html>
@@ -24,7 +24,7 @@ module.exports = (req, res) => {
       <span class="tips animate__animated animate__fadeIn animate__faster">NOT_FOUND</span>
     </div>
     <script>
-      var pjax = new Pjax({selectors: ['title', '.data-pjax'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', '.data-pjax'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelectorAll('.animate__animated').forEach(e => {
         e.classList.remove('animate__fadeIn');
         e.classList.add('animate__fadeOut');
