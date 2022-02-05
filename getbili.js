@@ -18,7 +18,7 @@
 module.exports = (req, res) => {
   const fetch = require('node-fetch');
   const URLEncode = require('urlencode');
-  const sendHTML = data => res.status(data.code).send(`<!DOCTYPE html>
+  const sendHTML = data => res.status(data.status).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -64,16 +64,16 @@ module.exports = (req, res) => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (fjson.code) {
             case 0:
-              sendHTML({code: 200, title: `UID${req.query.mid} 的关注、粉丝数`, face: ')', content: `关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+              sendHTML({status: 200, title: `UID${req.query.mid} 的关注、粉丝数`, face: ')', content: `关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
               break;
             case -412:
-              sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
+              sendHTML({status: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
               break;
             case -404:
-              sendHTML({code: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
+              sendHTML({status: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
               break;
             default:
-              sendHTML({code: 400, title: '获取用户关注、粉丝数失败', face: '(', content: `获取 UID${req.query.mid} 的关注、粉丝数失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
+              sendHTML({status: 400, title: '获取用户关注、粉丝数失败', face: '(', content: `获取 UID${req.query.mid} 的关注、粉丝数失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
           }
         } else { // 接受类型不含HTML，返回json
           switch (fjson.code) {
@@ -100,25 +100,25 @@ module.exports = (req, res) => {
               t[0] = 'https'; // 将头像地址的协议改成HTTPS
               const c = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}" style="text-decoration: none;"><img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name}</a> <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295" style="text-decoration: none;"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>`;
               if (req.query.type === 'info') { // 仅获取用户信息
-                sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
+                sendHTML({status: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
               } else {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
-                    sendHTML({code: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: c + `<br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
+                    sendHTML({status: 200, title: `${json.data.name} 的用户信息及关注、粉丝数`, face: ')', content: c + `<br />关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
                   } else {
-                    sendHTML({code: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
+                    sendHTML({status: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
                   }
                 });
               }
               break;
             case -412:
-              sendHTML({code: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
+              sendHTML({status: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
               break;
             case -404:
-              sendHTML({code: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
+              sendHTML({status: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
               break;
             default:
-              sendHTML({code: 400, title: '获取用户信息失败', face: '(', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
+              sendHTML({status: 400, title: '获取用户信息失败', face: '(', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
           }
         } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型含图片（不含HTML），获取头像
           if (json.code === 0) {
@@ -170,9 +170,9 @@ module.exports = (req, res) => {
   } else { // UID无效
     if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
       if (!req.query.mid) { // 没有设置UID参数
-        sendHTML({code: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：${process.env.URL}/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/getbili.js">本 API 源码</a>。`, mid: '', tips: 'OK'});
+        sendHTML({status: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：${process.env.URL}/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/getbili.js">本 API 源码</a>。`, mid: '', tips: 'OK'});
       } else { // 设置了UID参数但无效
-        sendHTML({code: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
+        sendHTML({status: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
       }
     } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），获取头像
       if (!req.query.mid) { // 没有设置UID参数，返回随机头像
