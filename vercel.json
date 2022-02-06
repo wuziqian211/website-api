@@ -1,13 +1,9 @@
 {
-  "builds": [
-    {
-      "src": "/*.js",
-      "use": "@vercel/node"
-    }, {
-      "src": "**/*",
-      "use": "@vercel/static"
+  "functions": {
+    "api/getbili.js": {
+      "includeFiles": "assets/*"
     }
-  ],
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -20,7 +16,11 @@
     }
   ],
   "rewrites": [
-    {"source": "/", "destination": "/index.js"},
-    {"source": "/(.*)", "destination": "/404.js"}
+    {"source": "/", "destination": "/api/index.js"},
+    {"source": "/(.*)", "destination": "/api/404.js"}
+  ],
+  "redirects": [
+    {"source": "/getbili.js", "destination": "/api/getbili"},
+    {"source": "/modules.js", "destination": "/api/modules"}
   ]
 }

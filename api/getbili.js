@@ -1,5 +1,5 @@
 /* 获取哔哩哔哩用户信息及其关注、粉丝数
- * https://api.wuziqian211.top/getbili.js
+ * https://api.wuziqian211.top/api/getbili
  * 本API主要的目的是，帮助那些想得到B站API的数据，却因为一些安全原因而无法获取数据的网站与程序等。
  * 如果您的网站、程序等能正常调用B站API，最好直接使用B站API。
  * 提示：
@@ -25,7 +25,7 @@ module.exports = (req, res) => {
   const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
       <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
-      <form class="animate__animated animate__fadeIn animate__faster" action="/getbili.js" method="GET">
+      <form class="animate__animated animate__fadeIn animate__faster" action="/api/getbili" method="GET">
         <div>
           <label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label>
         </div>
@@ -147,7 +147,7 @@ module.exports = (req, res) => {
   } else { // UID无效
     if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
       if (!req.query.mid) { // 没有设置UID参数
-        sendHTML({status: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：${process.env.URL}/getbili.js?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/getbili.js">本 API 源码</a>。`, mid: '', tips: 'OK'});
+        sendHTML({status: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：${process.env.URL}/api/getbili?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getbili.js">本 API 源码</a>。`, mid: '', tips: 'OK'});
       } else { // 设置了UID参数但无效
         sendHTML({status: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
       }
