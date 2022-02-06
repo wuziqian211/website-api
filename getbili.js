@@ -18,7 +18,8 @@
 const fetch = require('node-fetch');
 const URLEncode = require('urlencode');
 const HTML = require('./html');
-const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
+module.exports = (req, res) => {
+  const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
       <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
       <form class="animate__animated animate__fadeIn animate__faster" action="/getbili.js" method="GET">
@@ -32,7 +33,6 @@ const sendHTML = data => res.status(data.status).send(HTML({title: data.title, d
       </form>
       <p class="home animate__animated animate__fadeIn animate__faster"><a href="/">返回 API 首页</a></p>
       <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>`})); // 将HTML数据发送到客户端
-module.exports = (req, res) => {
   if (/^[0-9]+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
       fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
