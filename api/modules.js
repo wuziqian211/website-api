@@ -5,18 +5,6 @@ module.exports = (req, res) => {
       case 'token':
         res.status(200).json({code: 0, data: {token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='}});
         break;
-      case 'thanks':
-        let html = '';
-        [
-          {image: '/images/bilibili.svg', title: '哔哩哔哩', content: '提供 wuziqian211 发布视频、动态，与粉丝互动等的地方。哔哩哔哩是中国年轻世代高度聚集的综合性视频社区，被用户亲切地称为“B 站”。', link: 'https://www.bilibili.com/'},
-          {image: '/images/you.png', title: '您', content: '支持 wuziqian211。自从您关注 wuziqian211 以来，虽然 TA 可能会犯各种各样的错误，您也一直在支持着 TA。', link: 'https://space.bilibili.com/'}
-        ].sort(() => 0.5 - Math.random()).forEach(i => html += `<div class="link-grid-container">
-<object class="link-grid-image" data="${i.image}"></object>
-<p>${i.title}</p><p>${i.content}</p>
-<a target="_blank" rel="noopener external nofollow noreferrer" href="${i.link}"></a>
-</div>`);
-        res.status(200).json({code: 0, data: html});
-        break;
       case 'update':
         if (parseInt(req.query.version) > 0) {
           switch (req.query.name) {
