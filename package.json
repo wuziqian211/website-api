@@ -3,6 +3,7 @@
   "dependencies": {
     "node-fetch": "^2",
     "form-data": "latest",
-    "urlencode": "latest"
+    "urlencode": "latest",
+    "fs": "latest"
   }
 }

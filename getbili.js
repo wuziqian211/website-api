@@ -16,6 +16,9 @@
  *   https://space.bilibili.com/425503913
  */
 const fetch = require('node-fetch');
+const {readFileSync} = require('fs');
+const {join} = require('path');
+const file = fileName => readFileSync(join(__dirname, fileName));
 const URLEncode = require('urlencode');
 const HTML = require('./assets/html');
 module.exports = (req, res) => {
@@ -110,7 +113,7 @@ module.exports = (req, res) => {
               }).then(buffer => res.send(buffer));
             }
           } else { // 用户信息获取失败，返回默认头像
-            fetch(`${process.env.URL}/assets/noface.jpg`).then(resp => resp.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer)); // 用户不存在.jpg
+            res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(file('assets/noface.jpg')); // 用户不存在.jpg
           }
         } else { // 接受类型既不含HTML，也不含图片，返回json
           switch (json.code) {
@@ -151,9 +154,9 @@ module.exports = (req, res) => {
     } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），获取头像
       if (!req.query.mid) { // 没有设置UID参数，返回随机头像
         const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-        fetch(`${process.env.URL}/assets/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(resp => resp.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpeg').send(buffer));
+        res.status(200).setHeader('Content-Type', 'image/jpeg').send(file(`assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
       } else { // 设置了UID参数但无效，返回默认头像
-        fetch(`${process.env.URL}/assets/noface.jpg`).then(resp => resp.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpeg').send(buffer));      
+        res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));      
       }
     } else { // 接受类型既不含HTML，也不含图片，返回json
       res.status(400).json({code: -400});
