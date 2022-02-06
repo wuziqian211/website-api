@@ -1,11 +1,25 @@
+const fetch = require('node-fetch');
 const HTML = require('../assets/html');
+const encodeHTML = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
 module.exports = (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     switch (req.query.id) {
       case 'token':
         res.status(200).json({code: 0, data: {token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='}});
         break;
-      case 'update':
+      case 'friends':
+        let users = [425503913, 8047632];
+        fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
+          let html = '';
+          json.data.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container">
+<object class="link-grid-image" data="${encodeHTML(u.face)}"></object>
+<p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
+<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
+</div>`);
+          res.status(200).json({code: 0, data: html});
+        });
+        break;
+      case 'update': // Test only, not yet perfect
         if (parseInt(req.query.version) > 0) {
           switch (req.query.name) {
             case 'bat':
