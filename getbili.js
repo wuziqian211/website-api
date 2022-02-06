@@ -17,7 +17,7 @@
  */
 const fetch = require('node-fetch');
 const URLEncode = require('urlencode');
-const HTML = require('./html');
+const HTML = require('./assets/html');
 module.exports = (req, res) => {
   const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
