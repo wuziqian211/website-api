@@ -15,25 +15,11 @@
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
  */
+const fetch = require('node-fetch');
+const URLEncode = require('urlencode');
+const HTML = require('./html');
 module.exports = (req, res) => {
-  const fetch = require('node-fetch');
-  const URLEncode = require('urlencode');
-  const sendHTML = data => res.status(data.status).send(`<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0078B7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000064" media="(prefers-color-scheme: dark)" />
-    <title>${data.title} | wuziqian211's Blog API</title>
-    <link rel="stylesheet" href="/assets/style.css" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="/assets/animate.min.css" />
-    <script src="/assets/pjax.min.js"></script>
-  </head>
-  <body>
-    <!-- Reference code: status.fastgit.org -->
-    <div class="data-pjax">
+  const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
       <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
       <form class="animate__animated animate__fadeIn animate__faster" action="/getbili.js" method="GET">
@@ -46,18 +32,7 @@ module.exports = (req, res) => {
         </div>
       </form>
       <p class="home animate__animated animate__fadeIn animate__faster"><a href="/">返回 API 首页</a></p>
-      <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>
-    </div>
-    <script>
-      const pjax = new Pjax({selectors: ['title', '.data-pjax'], cacheBust: false});
-      document.addEventListener('pjax:send', () => document.querySelectorAll('.animate__animated').forEach(e => {
-        e.classList.remove('animate__fadeIn');
-        e.classList.add('animate__fadeOut');
-      }));
-      document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
-    </script>
-  </body>
-</html>`); // 将HTML数据发送到客户端
+      <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>`})); // 将HTML数据发送到客户端
   if (/^[0-9]+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
       fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
@@ -127,16 +102,15 @@ module.exports = (req, res) => {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
               res.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0; url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
             } else {
-              let status, type, filename;
-              fetch(t.join(':')).then(img => { // 获取B站服务器的头像
-                status = img.status;
-                type = img.headers.get('Content-Type'); // 设置头像的文件类型
-                filename = URLEncode(`${json.data.name} 的头像.${t.join(':').split('.')[t.join(':').split('.').length - 1]}`, 'UTF-8'); // 设置头像的文件名
-                return img.buffer();
-              }).then(buffer => res.status(status).setHeader('Content-Type', type).setHeader('Content-Disposition', `inline;filename=${filename}`).send(buffer));
+              fetch(t.join(':')).then(resp => { // 获取B站服务器的头像
+                const a = t.join(':').split('.');
+                const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
+                res.status(resp.status).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                return resp.buffer();
+              }).then(buffer => res.send(buffer));
             }
           } else { // 用户信息获取失败，返回默认头像
-            fetch(`${process.env.URL}/assets/noface.jpg`).then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer));
+            fetch(`${process.env.URL}/assets/noface.jpg`).then(resp => resp.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(buffer)); // 用户不存在.jpg
           }
         } else { // 接受类型既不含HTML，也不含图片，返回json
           switch (json.code) {
@@ -177,9 +151,9 @@ module.exports = (req, res) => {
     } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），获取头像
       if (!req.query.mid) { // 没有设置UID参数，返回随机头像
         const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-        fetch(`${process.env.URL}/assets/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(img => img.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpeg').send(buffer));
+        fetch(`${process.env.URL}/assets/${faces[Math.floor(Math.random() * 11)]}.jpg`).then(resp => resp.buffer()).then(buffer => res.status(200).setHeader('Content-Type', 'image/jpeg').send(buffer));
       } else { // 设置了UID参数但无效，返回默认头像
-        fetch(`${process.env.URL}/assets/noface.jpg`).then(img => img.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpeg').send(buffer));      
+        fetch(`${process.env.URL}/assets/noface.jpg`).then(resp => resp.buffer()).then(buffer => res.status(404).setHeader('Content-Type', 'image/jpeg').send(buffer));      
       }
     } else { // 接受类型既不含HTML，也不含图片，返回json
       res.status(400).json({code: -400});
