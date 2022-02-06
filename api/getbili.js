@@ -18,7 +18,7 @@
 const fetch = require('node-fetch');
 const {readFileSync} = require('fs');
 const {join} = require('path');
-const file = fileName => readFileSync(join(__dirname, fileName));
+const file = fileName => readFileSync(join(__dirname, '..', fileName));
 const URLEncode = require('urlencode');
 const HTML = require('../assets/html');
 module.exports = (req, res) => {
