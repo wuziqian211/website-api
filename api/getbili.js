@@ -20,7 +20,7 @@ const {readFileSync} = require('fs');
 const {join} = require('path');
 const file = fileName => readFileSync(join(__dirname, fileName));
 const URLEncode = require('urlencode');
-const HTML = require('./assets/html');
+const HTML = require('../assets/html');
 module.exports = (req, res) => {
   const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>

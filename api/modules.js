@@ -1,4 +1,4 @@
-const HTML = require('./assets/html');
+const HTML = require('../assets/html');
 module.exports = (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     switch (req.query.id) {
