@@ -12,7 +12,7 @@ module.exports = (req, res) => {
         fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
           let html = '';
           json.data.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container">
-<object class="link-grid-image" data="${encodeHTML(u.face)}"></object>
+<img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
 </div>`);
