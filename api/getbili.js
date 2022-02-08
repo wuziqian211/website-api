@@ -1,16 +1,21 @@
 /* 获取哔哩哔哩用户信息及其关注、粉丝数
  * https://api.wuziqian211.top/api/getbili
  * 本API主要的目的是，帮助那些想得到B站API的数据，却因为一些安全原因而无法获取数据的网站与程序等。
- * 如果您的网站、程序等能正常调用B站API，最好直接使用B站API。
- * 提示：
- *   本API会检测请求头中“accept”的值，以返回不同类型的数据。
- *   如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据。
- *   如果包含“image”（比如在<img>标签的“src”参数填写本API网址），且填写了参数“mid”，就返回对应用户的头像数据；如果未填写参数，就返回随机头像。
- *   否则，返回json。
- * 参数：
+ * 如果您的网站、程序等能正常调用B站API，最好直接使用B站API，会更快一些。
+ * 请求参数（区分大小写）：
  *   mid：您想获取用户信息及关注、粉丝数的用户的UID。
  *   allow_redirect：如果包含本参数，则获取头像数据时可能会重定向到B站服务器的头像地址。
  *   type：当本参数的值为“info”时只返回用户信息，当值为“follow”时只返回用户关注、粉丝数，否则都返回。
+ * 返回类型：
+ *   本API会检测HTTP请求头中“accept”的值，以返回不同类型的数据。
+ *   如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据。
+ *   如果包含“image”（比如在<img>标签的“src”参数填写本API网址），且填写了有效的“mid”参数，就返回对应用户的头像数据；如果未填写参数，就返回随机头像。
+ *   否则，返回json。
+ * 响应代码：
+ *   200：用户存在，或者未填写“mid”参数且返回类型为HTML或图片
+ *   404：用户不存在
+ *   429（注意不是412）：请求太频繁，已被B站的API拦截
+ *   400：UID无效，或者因其他原因请求失败
  * 作者：wuziqian211
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
@@ -20,6 +25,11 @@ const {readFileSync} = require('fs');
 const {join} = require('path');
 const file = fileName => readFileSync(join(__dirname, '..', fileName));
 const URLEncode = require('urlencode');
+const toHTTPS = url => {
+  let u = url.split(':');
+  u[0] = 'https'; // 将协议改成HTTPS
+  return u.join(':');
+};
 const HTML = require('../assets/html');
 module.exports = (req, res) => {
   const sendHTML = data => res.status(data.status).send(HTML({title: data.title, data: `
@@ -45,7 +55,8 @@ module.exports = (req, res) => {
               sendHTML({status: 200, title: `UID${req.query.mid} 的关注、粉丝数`, face: ')', content: `关注数：${fjson.data.following}<br />粉丝数：${fjson.data.follower}`, mid: req.query.mid, tips: 'OK'});
               break;
             case -412:
-              sendHTML({status: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
+              res.setHeader('Retry-After', '1800');
+              sendHTML({status: 429, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
               break;
             case -404:
               sendHTML({status: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
@@ -59,7 +70,7 @@ module.exports = (req, res) => {
               res.status(200).json({code: 0, data: {following: fjson.data.following, follower: fjson.data.follower}});
               break;
             case -412:
-              res.status(412).json({code: -412});
+              res.status(429).setHeader('Retry-After', '1800').json({code: -412});
               break;
             case -404:
               res.status(404).json({code: -404});
@@ -74,9 +85,7 @@ module.exports = (req, res) => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
             case 0:
-              let t = json.data.face.split(':');
-              t[0] = 'https'; // 将头像地址的协议改成HTTPS
-              const c = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}" style="text-decoration: none;"><img class="uface" alt="${json.data.name} 的头像" src="${t.join(':')}" referrerpolicy="no-referrer" /> ${json.data.name}</a> <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295" style="text-decoration: none;"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>`;
+              const c = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}" style="text-decoration: none;"><img class="uface" alt="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> ${json.data.name}</a> <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295" style="text-decoration: none;"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>`;
               if (req.query.type === 'info') { // 仅获取用户信息
                 sendHTML({status: 200, title: `${json.data.name} 的用户信息`, face: ')', content: c, mid: req.query.mid, tips: 'OK'});
               } else {
@@ -90,7 +99,8 @@ module.exports = (req, res) => {
               }
               break;
             case -412:
-              sendHTML({status: 412, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
+              res.setHeader('Retry-After', '1800');
+              sendHTML({status: 429, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
               break;
             case -404:
               sendHTML({status: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
@@ -100,13 +110,11 @@ module.exports = (req, res) => {
           }
         } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型含图片（不含HTML），获取头像
           if (json.code === 0) {
-            let t = json.data.face.split(':');
-            t[0] = 'https'; // 将头像地址的协议改成HTTPS
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
-              res.status(307).setHeader('Location', t.join(':')).setHeader('Refresh', `0; url=${t.join(':')}`).json({code: 307, data: {url: t.join(':')}});
+              res.status(307).setHeader('Location', toHTTPS(json.data.face)).setHeader('Refresh', `0; url=${toHTTPS(json.data.face)}`).json({code: 307, data: {url: toHTTPS(json.data.face)}});
             } else {
-              fetch(t.join(':')).then(resp => { // 获取B站服务器的头像
-                const a = t.join(':').split('.');
+              fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器的头像
+                const a = toHTTPS(json.data.face).split('.');
                 const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
                 res.status(resp.status).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                 return resp.buffer();
@@ -118,22 +126,20 @@ module.exports = (req, res) => {
         } else { // 接受类型既不含HTML，也不含图片，返回json
           switch (json.code) {
             case 0:
-              let t = json.data.face.split(':');
-              t[0] = 'https'; // 将头像地址的协议改成HTTPS
               if (req.query.type === 'info') { // 仅获取用户信息
-                res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: t.join(':'), level: json.data.level}});
+                res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: toHTTPS(json.data.face), level: json.data.level}});
               } else {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
-                    res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: t.join(':'), level: json.data.level, following: fjson.data.following, follower: fjson.data.follower}});
+                    res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: toHTTPS(json.data.face), level: json.data.level, following: fjson.data.following, follower: fjson.data.follower}});
                   } else {
-                    res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: t.join(':'), level: json.data.level}});
+                    res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: toHTTPS(json.data.face), level: json.data.level}});
                   }
                 });
               }
               break;
             case -412:
-              res.status(412).json({code: -412});
+              res.status(429).setHeader('Retry-After', '1800').json({code: -412});
               break;
             case -404:
               res.status(404).json({code: -404});
