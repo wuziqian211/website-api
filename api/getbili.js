@@ -156,7 +156,7 @@ module.exports = (req, res) => {
         const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
         res.status(200).setHeader('Content-Type', 'image/jpeg').send(file(`assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
       } else { // 设置了UID参数但无效，返回默认头像
-        res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));      
+        res.status(400).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));      
       }
     } else { // 接受类型既不含HTML，也不含图片，返回json
       res.status(400).json({code: -400});
