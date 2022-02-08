@@ -1,25 +1,28 @@
-/* 获取哔哩哔哩用户信息及其关注、粉丝数
- * https://api.wuziqian211.top/api/getbili
+/* 获取哔哩哔哩视频信息
+ * https://api.wuziqian211.top/api/getvideo
  * 本API主要的目的是，帮助那些想得到B站API的数据，却因为一些安全原因而无法获取数据的网站与程序等。
  * 如果您的网站、程序等能正常调用B站API，最好直接使用B站API，会更快一些。
  * 请求参数（区分大小写）：
- *   mid：您想获取用户信息及关注、粉丝数的用户的UID。
- *   allow_redirect：如果包含本参数，则获取头像数据时可能会重定向到B站服务器的头像地址。
- *   type：当本参数的值为“info”时只返回用户信息，当值为“follow”时只返回用户关注、粉丝数，否则都返回。
+ *   aid：您想获取视频信息的AV号。
+ *   bvid：您想获取视频信息的BV号。
+ *   cid：该视频分P的cid。
+ *   p：该视频的第几个分P。
+ *   其中，“aid”与“bvid”只能填写其中一个，“cid”与“p”只能填写其中一个或者不填。
  * 返回类型：
  *   本API会检测HTTP请求头中“accept”的值，以返回不同类型的数据。
  *   如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据。
  *   如果包含“image”（比如在<img>标签的“src”参数填写本API网址），且填写了有效的“mid”参数，就返回对应用户的头像数据；如果未填写参数，就返回随机头像。
  *   否则，返回json。
  * 响应代码：
- *   200：用户存在，或者未填写“mid”参数且返回类型为HTML或图片
- *   404：用户不存在
+ *   200：视频存在
+ *   404：视频不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
- *   400：UID无效，或者因其他原因请求失败
+ *   400：参数无效，或者因其他原因请求失败
  * 作者：wuziqian211
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
  */
+/* 警告：本API尚未公开，目前仅供测试
 const fetch = require('node-fetch');
 const {readFileSync} = require('fs');
 const {join} = require('path');
@@ -116,13 +119,8 @@ module.exports = (req, res) => {
               fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器的头像
                 const a = toHTTPS(json.data.face).split('.');
                 const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
-                if (resp.status === 0) {
-                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
-                  return resp.buffer();
-                } else {
-                  res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', `inline;filename=${filename}`);
-                  return file('assets/noface.jpg');
-                }
+                res.status(resp.status).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                return resp.buffer();
               }).then(buffer => res.send(buffer));
             }
           } else { // 用户信息获取失败，返回默认头像
@@ -173,4 +171,8 @@ module.exports = (req, res) => {
       res.status(400).json({code: -400});
     }
   }
+};
+*/
+module.exports = (req, res) => {
+  res.status(404).json({code: -404, msg: '本 API 尚未公开'});
 };
