@@ -116,7 +116,7 @@ module.exports = (req, res) => {
               fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器的头像
                 const a = toHTTPS(json.data.face).split('.');
                 const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
-                if (resp.status === 0) {
+                if (resp.status === 200) {
                   res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                   return resp.buffer();
                 } else {
