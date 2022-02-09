@@ -44,7 +44,7 @@ module.exports = (req, res) => {
           <input type="submit" value="获取" />
         </div>
       </form>
-      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/">返回 API 首页</a></p>
+      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/api/">返回 API 首页</a></p>
       <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>`})); // 将HTML数据发送到客户端
   if (/^[0-9]+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
