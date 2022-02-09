@@ -18,9 +18,5 @@
   "rewrites": [
     {"source": "/", "destination": "/api/index.js"},
     {"source": "/(.*)", "destination": "/api/404.js"}
-  ],
-  "redirects": [
-    {"source": "/getbili.js", "destination": "/api/getbili"},
-    {"source": "/modules.js", "destination": "/api/modules"}
   ]
 }
