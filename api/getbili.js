@@ -56,13 +56,13 @@ module.exports = (req, res) => {
               break;
             case -412:
               res.setHeader('Retry-After', '1800');
-              sendHTML({status: 429, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截qwq<br />请稍后重试awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
+              sendHTML({status: 429, title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />请稍后重试 awa', mid: req.query.mid, tips: 'REQUEST_TOO_FAST'});
               break;
             case -404:
               sendHTML({status: 404, title: '用户不存在', face: '(', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid, tips: 'NOT_FOUND'});
               break;
             default:
-              sendHTML({status: 400, title: '获取用户关注、粉丝数失败', face: '(', content: `获取 UID${req.query.mid} 的关注、粉丝数失败，请稍后重试awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
+              sendHTML({status: 400, title: '获取用户关注、粉丝数失败', face: '(', content: `获取 UID${req.query.mid} 的关注、粉丝数失败，请稍后重试 awa`, mid: req.query.mid, tips: 'BAD_REQUEST'});
           }
         } else { // 接受类型不含HTML，返回json
           switch (fjson.code) {
@@ -160,7 +160,7 @@ module.exports = (req, res) => {
       if (!req.query.mid) { // 没有设置UID参数
         sendHTML({status: 200, title: '获取哔哩哔哩用户信息及关注、粉丝数', face: ')', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />用法：${process.env.URL}/api/getbili?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getbili.js">本 API 源码</a>。`, mid: '', tips: 'OK'});
       } else { // 设置了UID参数但无效
-        sendHTML({status: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧awa', mid: '', tips: 'BAD_REQUEST'});
+        sendHTML({status: 400, title: 'UID 无效', face: '(', content: '您输入的 UID 无效！<br />请输入一个正确的 UID 吧 awa', mid: '', tips: 'BAD_REQUEST'});
       }
     } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），获取头像
       if (!req.query.mid) { // 没有设置UID参数，返回随机头像
