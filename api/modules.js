@@ -25,14 +25,15 @@ module.exports = (req, res) => {
             users = friends.slice(i, i + 50);
             await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => info = info.concat(json.data));
           }
-        })();
-        var html = '';
-        info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
+        })().then(() => {
+          var html = '';
+          info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(h.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(h.name)}</p><p>${encodeHTML(h.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${h.mid}"></a>
 </div>`);
-        res.status(200).json({code: 0, data: html});
+          res.status(200).json({code: 0, data: html});
+        });
         break;
       case 'update':
         if (parseInt(req.query.version) > 0) {
