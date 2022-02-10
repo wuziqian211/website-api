@@ -1,8 +1,8 @@
-/* 本API仅供内部使用，并不是对外公开的 */
+/* 本API仅供内部使用，并不对外公开 */
 const fetch = require('node-fetch');
 const HTML = require('../assets/html');
 const encodeHTML = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     switch (req.query.id) {
       case 'token':
@@ -19,24 +19,18 @@ module.exports = (req, res) => {
          518970483, 519795342, 521209706, 523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594,
          2095498218];
         var info = [];
-        const F = async () => {
-          let users;
-          for (let i = 0; i >= friends.length - 1; i += 50) {
-            users = friends.slice(i, i + 50);
-            let f = await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`);
-            let json = await f.json();
-            info = info.concat(json.data);
-          }
-        };
-        F().then(() => {
-          var html = '';
-          info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
+        let users;
+        for (let i = 0; i >= friends.length - 1; i += 50) {
+          users = friends.slice(i, i + 50);
+          await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => info = info.concat(json.data));
+        }
+        var html = '';
+        info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(h.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(h.name)}</p><p>${encodeHTML(h.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${h.mid}"></a>
 </div>`);
-          res.status(200).json({code: 0, data: html});
-        });
+        res.status(200).json({code: 0, data: html});
         break;
       case 'update':
         if (parseInt(req.query.version) > 0) {
