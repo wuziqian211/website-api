@@ -19,7 +19,7 @@ module.exports = (req, res) => {
          518970483, 519795342, 521209706, 523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594,
          2095498218];
         var info = [];
-        (async () => {
+        const F = async () => {
           let users;
           for (let i = 0; i >= friends.length - 1; i += 50) {
             users = friends.slice(i, i + 50);
@@ -27,7 +27,8 @@ module.exports = (req, res) => {
             let json = await f.json();
             info = info.concat(json.data);
           }
-        })().then(() => {
+        };
+        F().then(() => {
           var html = '';
           info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(h.face)}" referrerpolicy="no-referrer" />
