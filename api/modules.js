@@ -9,8 +9,8 @@ module.exports = (req, res) => {
         res.status(200).json({code: 0, data: {token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='}});
         break;
       case 'friends':
-        let users = [];
-        let html = [];
+        var users = [];
+        var html = [];
         [12767, 72104, 3090720, 8047632, 37098548, 37544886, 85819912, 96240239, 98787659, 106286557,
          185273255, 282022569, 286202861, 295389941, 298030824, 322989832, 324042405, 333655227, 343836794, 346030399,
          354097337, 354758619, 355778940, 358201006, 361417173, 363763511, 374807175, 384755513, 389623999, 389874232,
@@ -18,10 +18,10 @@ module.exports = (req, res) => {
          429986248, 430942433, 430967737, 432258909, 433751453, 433849994, 434605889, 440004933, 444281310, 446836354,
          448189858, 453899463, 454258954, 454719152, 455568817, 457843315, 474899885, 479611798, 480015861, 481731410,
          481823642, 485821637, 496300862, 510272506, 512787858, 513778858, 515586861, 518970483, 519795342, 521209706,
-         523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594, 2095498218].forEach(async (uid, index, array) => {
+         523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594, 2095498218].forEach((uid, index, array) => {
           users.push(uid);
           if ((index + 1) % 20 === 0 || index === array.length - 1) {
-            await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
+            fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
