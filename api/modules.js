@@ -20,7 +20,7 @@ module.exports = (req, res) => {
          481823642, 485821637, 496300862, 510272506, 512787858, 513778858, 515586861, 518970483, 519795342, 521209706,
          523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594, 2095498218].forEach(async (uid, index, array) => {
           users.push(uid);
-          if ((index + 1) % 50 === 0 || index === array.length - 1) {
+          if ((index + 1) % 20 === 0 || index === array.length - 1) {
             await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
