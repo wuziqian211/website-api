@@ -18,10 +18,10 @@ module.exports = (req, res) => {
          429986248, 430942433, 430967737, 432258909, 433751453, 433849994, 434605889, 440004933, 444281310, 446836354,
          448189858, 453899463, 454258954, 454719152, 455568817, 457843315, 474899885, 479611798, 480015861, 481731410,
          481823642, 485821637, 496300862, 510272506, 512787858, 513778858, 515586861, 518970483, 519795342, 521209706,
-         523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594, 2095498218].forEach((uid, index, array) => {
+         523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594, 2095498218].forEach(async (uid, index, array) => {
           users.push(uid);
           if ((index + 1) % 50 === 0 || index === array.length - 1) {
-            fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
+            await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
