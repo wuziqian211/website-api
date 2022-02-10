@@ -9,32 +9,30 @@ module.exports = (req, res) => {
         res.status(200).json({code: 0, data: {token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='}});
         break;
       case 'friends':
-        var users = [];
-        var html = [];
-        [12767, 72104, 3090720, 8047632, 37098548, 37544886, 85819912, 96240239, 98787659, 106286557,
+        const friends = [12767, 72104, 3090720, 8047632, 37098548, 37544886, 85819912, 96240239, 98787659, 106286557,
          185273255, 282022569, 286202861, 295389941, 298030824, 322989832, 324042405, 333655227, 343836794, 346030399,
          354097337, 354758619, 355778940, 358201006, 361417173, 363763511, 374807175, 384755513, 389623999, 389874232,
          395253454, 397872234, 398217201, 400067046, 404658588, 405966864, 413092448, 415240328, 424674753, 425503913,
          429986248, 430942433, 430967737, 432258909, 433751453, 433849994, 434605889, 440004933, 444281310, 446836354,
-         448189858, 449328503, 453899463, 454258954, 454719152, 455568817, 457843315, 473999894, 474899885, 479611798, 
-         480015861, 481731410, 481823642, 485821637, 496300862, 506418994, 510272506, 512787858, 513778858, 515586861, 
+         448189858, 449328503, 453899463, 454258954, 454719152, 455568817, 457843315, 473999894, 474899885, 479611798,
+         480015861, 481731410, 481823642, 485821637, 496300862, 506418994, 510272506, 512787858, 513778858, 515586861,
          518970483, 519795342, 521209706, 523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594,
-         2095498218].forEach(async (uid, index, array) => {
-          users.push(uid);
-          if ((index + 1) % 50 === 0 || index === array.length - 1) {
-            await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
-              json.data.forEach(u => html.push(`<div class="link-grid-container">
-<img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
-<p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
-<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
-</div>`));
-              users = [];
-            });
+         2095498218];
+        var info = [];
+        (async () => {
+          let users;
+          for (let i = 0; i >= friends.length - 1; i += 50) {
+            users = friends.slice(i, i + 50);
+            await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => info = info.concat(json.data));
           }
-        });
-        var d = '';
-        html.sort(() => 0.5 - Math.random()).forEach(h => d += h);
-        res.status(200).json({code: 0, data: d});
+        })();
+        var html = '';
+        info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
+<img class="link-grid-image" src="${encodeHTML(h.face)}" referrerpolicy="no-referrer" />
+<p>${encodeHTML(h.name)}</p><p>${encodeHTML(h.sign)}</p>
+<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${h.mid}"></a>
+</div>`);
+        res.status(200).json({code: 0, data: html});
         break;
       case 'update':
         if (parseInt(req.query.version) > 0) {
