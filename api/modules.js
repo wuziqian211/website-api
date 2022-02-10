@@ -29,7 +29,7 @@ module.exports = (req, res) => {
             users = [];
           }
         });
-        let d = '';
+        var d = '';
         html.sort(() => 0.5 - Math.random()).forEach(h => d += h);
         res.status(200).json({code: 0, data: d});
         break;
