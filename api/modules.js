@@ -23,7 +23,9 @@ module.exports = (req, res) => {
           let users;
           for (let i = 0; i >= friends.length - 1; i += 50) {
             users = friends.slice(i, i + 50);
-            await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => info = info.concat(json.data));
+            let f = await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`);
+            let json = await f.json();
+            info = info.concat(json.data));
           }
         })().then(() => {
           var html = '';
