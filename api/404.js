@@ -1,5 +1,4 @@
-module.exports = (req, res) => {
-  res.status(404).send(`<!DOCTYPE html>
+module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -21,4 +20,3 @@ module.exports = (req, res) => {
     </div>
   </body>
 </html>`);
-};
