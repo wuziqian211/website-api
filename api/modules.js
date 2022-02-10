@@ -2,7 +2,7 @@
 const fetch = require('node-fetch');
 const HTML = require('../assets/html');
 const encodeHTML = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-module.exports = async (req, res) => {
+module.exports = (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     switch (req.query.id) {
       case 'token':
@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
          523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594, 2095498218].forEach((uid, index, array) => {
           users.push(uid);
           if ((index + 1) % 50 === 0 || index === array.length - 1) {
-            await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
+            fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => json.data.forEach(u => html.push(`<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
