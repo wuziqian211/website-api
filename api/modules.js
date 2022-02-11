@@ -20,20 +20,20 @@ module.exports = (req, res) => {
          2095498218];
         var info = [];
         const get = users => {
-          fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
-            info = info.concat(json.data);
-            if (users.length > 0) {
+          if (users.length > 0) {
+            fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
+              info = info.concat(json.data);
               get(users.slice(50));
-            } else {
-              let html = '';
-              info.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container">
+            });
+          } else {
+            let html = '';
+            info.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container">
 <img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
 <p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
 </div>`);
-              res.status(200).json({code: 0, data: html});
-            }
-          });
+            res.status(200).json({code: 0, data: html});
+          }
         };
         get(friends);
         break;
