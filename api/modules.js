@@ -2,7 +2,7 @@
 const fetch = require('node-fetch');
 const HTML = require('../assets/html');
 const encodeHTML = str => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-module.exports = async (req, res) => {
+module.exports = (req, res) => {
   if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
     switch (req.query.id) {
       case 'token':
