@@ -61,7 +61,7 @@ module.exports = (req, res) => {
   } else {
     switch (req.query.id) {
       case 'friends':
-        res.status(307).setHeader('Location', 'https://wuziqian211.top/about/').setHeader('Refresh', `0; url=https://wuziqian211.top/about/`).json({code: 307, data: {url: 'https://wuziqian211.top/about/'}});
+        res.status(308).setHeader('Location', 'https://wuziqian211.top/about/').setHeader('Refresh', `0; url=https://wuziqian211.top/about/`).json({code: 308, data: {url: 'https://wuziqian211.top/about/'}});
         break;
       default:
         res.status(404).send(HTML({title: 'API 不存在', data: `
