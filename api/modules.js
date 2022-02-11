@@ -19,18 +19,23 @@ module.exports = async (req, res) => {
          518970483, 519795342, 521209706, 523423693, 526705577, 535362423, 597242903, 598397900, 624532985, 1498694594,
          2095498218];
         var info = [];
-        let users;
-        for (let i = 0; i >= friends.length - 1; i += 50) {
-          users = friends.slice(i, i + 50);
-          await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => info = info.concat(json.data));
-        }
-        var html = '';
-        info.sort(() => 0.5 - Math.random()).forEach(h => html += `<div class="link-grid-container">
-<img class="link-grid-image" src="${encodeHTML(h.face)}" referrerpolicy="no-referrer" />
-<p>${encodeHTML(h.name)}</p><p>${encodeHTML(h.sign)}</p>
-<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${h.mid}"></a>
+        const get = users => {
+          fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
+            info = info.concat(json.data);
+            if (users.length > 0) {
+              get(users.slice(50));
+            } else {
+              let html = '';
+              info.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container">
+<img class="link-grid-image" src="${encodeHTML(u.face)}" referrerpolicy="no-referrer" />
+<p>${encodeHTML(u.name)}</p><p>${encodeHTML(u.sign)}</p>
+<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
 </div>`);
-        res.status(200).json({code: 0, data: html});
+              res.status(200).json({code: 0, data: html});
+            }
+          });
+        };
+        get(friends);
         break;
       case 'update':
         if (parseInt(req.query.version) > 0) {
