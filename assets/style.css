@@ -24,6 +24,9 @@ a {
 .home {
   font-size: 16px;
 }
+.noul {
+  text-decoration: none;
+}
 .uface {
   height: 60px;
   border-radius: 50%;
@@ -32,6 +35,10 @@ a {
 .ulevel {
   height: 30px;
   vertical-align: -7.5px;
+}
+.vpic {
+  height: 100px;
+  vertical-align: middle;
 }
 @media (prefers-color-scheme: dark) {
   body {
