@@ -145,7 +145,7 @@ module.exports = (req, res) => {
     }
   } else { // 视频ID无效
     if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
-      if (!vid) { // 没有设置参数“vid”
+      if (!req.query.vid) { // 没有设置参数“vid”
         res.status(200);
         sendHTML({title: '获取哔哩哔哩视频信息', face: ')', content: `本 API 可以获取指定 B 站视频的信息。<br />用法：${process.env.URL}/api/getvideo?vid={您想获取信息的视频的 AV 或 BV 号}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: '', tips: 'OK'});
       } else { // 设置了“vid”参数但无效
