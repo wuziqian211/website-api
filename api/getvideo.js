@@ -55,7 +55,7 @@ const toAV = vid => {
   }
 };
 const HTML = require('../assets/html');
-const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\n/g, '<br />') : '';
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const sendHTML = data => res.send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
@@ -81,13 +81,14 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `视频 ${json.data.title} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}<br />投稿时间：${getTime(json.data.ctime)}<br />发布时间：${getTime(json.data.pubdate)}<br />简介：<br />${encodeHTML(json.data.desc)}`, vid: req.query.vid, tips: 'OK'});
+              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br /><table><thead><tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr></thead><tbody><tr><td>${json.data.stat.view}</td><td>${json.data.stat.danmaku}</td><td>${json.data.stat.reply}</td><td>${json.data.stat.like}</td><td>${json.data.stat.coin}</td><td>${json.data.stat.favorite}</td><td>${json.data.stat.share}</td></tr></tbody></table><br /><s>投稿时间：${getTime(json.data.ctime)}</s><br />发布时间：${getTime(json.data.pubdate)}<br />简介：<br />${encodeHTML(json.data.desc)}`, vid: req.query.vid, tips: 'OK'});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
               sendHTML({title: '操作太频繁', face: '(', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />请稍后重试 awa', vid: req.query.vid, tips: 'REQUEST_TOO_FAST'});
               break;
             case -404:
+            case 62002:
               res.status(404);
               sendHTML({title: '视频不存在', face: '(', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid, tips: 'NOT_FOUND'});
               break;
