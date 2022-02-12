@@ -38,6 +38,7 @@ const getTime = ts => {
   return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日 ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
 const toAV = vid => {
+  if (typeof vid !== 'string') return;
   if (vid.length === 12 && vid.slice(0, 2) === 'BV' && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否是BV号
     // BV号转AV号，改编自www.zhihu.com/question/381784377/answer/1099438784
     const tr = {f: 0, Z: 1, o: 2, d: 3, R: 4, "9": 5, X: 6, Q: 7, D: 8, S: 9, U: 10, m: 11, "2": 12, "1": 13, y: 14, C: 15, k: 16, r: 17, "6": 18, z: 19, B: 20, q: 21, i: 22, v: 23, e: 24, Y: 25, a: 26, h: 27, "8": 28, b: 29, t: 30, "4": 31, x: 32, s: 33, W: 34, p: 35, H: 36, n: 37, J: 38, E: 39, "7": 40, j: 41, L: 42, "5": 43, V: 44, G: 45, "3": 46, g: 47, u: 48, M: 49, T: 50, K: 51, N: 52, P: 53, A: 54, w: 55, c: 56, F: 57};
