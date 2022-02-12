@@ -55,6 +55,7 @@ const toAV = vid => {
   }
 };
 const HTML = require('../assets/html');
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const sendHTML = data => res.send(HTML({title: data.title, data: `
       <span class="face animate__animated animate__fadeIn animate__faster">:${data.face}</span>
@@ -80,7 +81,7 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `视频 ${json.data.title} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${json.data.title} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${json.data.title}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}<br />投稿时间：${getTime(json.data.ctime)}<br />发布时间：${getTime(json.data.pubdate)}<br />简介：${json.data.desc}`, vid: vid, tips: 'OK'});
+              sendHTML({title: `视频 ${json.data.title} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}<br />投稿时间：${getTime(json.data.ctime)}<br />发布时间：${getTime(json.data.pubdate)}<br />简介：<br />${encodeHTML(json.data.desc)}`, vid: vid, tips: 'OK'});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
