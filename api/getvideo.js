@@ -96,11 +96,11 @@ module.exports = (req, res) => {
               break;
             case -403:
               res.status(403);
-              sendHTML({title: '获取视频信息需登录', face: '(', content: '这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}">这个视频的信息</a>哟 awa', vid: req.query.vid, tips: 'FORBIDDEN'});
+              sendHTML({title: '获取视频信息需登录', face: '(', content: `这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid, tips: 'FORBIDDEN'});
               break;
             default:
               res.status(400);
-              sendHTML({title: '获取视频信息失败', face: '(', content: `获取视频信息失败，请稍后重试 awa`, vid: req.query.vid, tips: 'BAD_REQUEST'});
+              sendHTML({title: '获取视频信息失败', face: '(', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid, tips: 'BAD_REQUEST'});
           }
         } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型含图片（不含HTML），获取封面
           if (json.code === 0) {
