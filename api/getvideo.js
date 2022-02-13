@@ -96,7 +96,7 @@ module.exports = (req, res) => {
               break;
             case -403:
               res.status(403);
-              sendHTML({title: '获取视频信息需登录', face: '(', content: '这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取这个视频的信息哟 awa', vid: req.query.vid, tips: 'FORBIDDEN'});
+              sendHTML({title: '获取视频信息需登录', face: '(', content: '这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}">这个视频的信息</a>哟 awa', vid: req.query.vid, tips: 'FORBIDDEN'});
               break;
             default:
               res.status(400);
