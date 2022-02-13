@@ -40,8 +40,17 @@ a {
   height: 100px;
   vertical-align: middle;
 }
-th {
+.table {
+  overflow: auto;
+}
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+th, td {
   text-align: center;
+  border: 1px solid #FFF;
+  padding: 8px;
 }
 @media (prefers-color-scheme: dark) {
   body {
