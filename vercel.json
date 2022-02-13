@@ -2,6 +2,9 @@
   "functions": {
     "api/getbili.js": {
       "includeFiles": "assets/*"
+    },
+    "api/getvideo.js": {
+      "includeFiles": "assets/*"
     }
   },
   "headers": [
