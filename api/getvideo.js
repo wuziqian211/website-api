@@ -165,7 +165,7 @@ module.exports = (req, res) => {
         sendHTML({title: '视频 ID 无效', face: '(', content: '您输入的视频的 AV 或 BV 号无效！<br />请输入一个正确的 AV 或 BV 号吧 awa', vid: '', tips: 'BAD_REQUEST'});
       }
     } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
-      res.status(400).setHeader('Content-Type', 'image/png').send(file('nopic.png'));
+      res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
     } else { // 接受类型既不含HTML，也不含图片，返回json
       res.status(400).json({code: -400});
     }
