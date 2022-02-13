@@ -40,6 +40,9 @@ a {
   height: 100px;
   vertical-align: middle;
 }
+th {
+  text-align: center;
+}
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #000064;

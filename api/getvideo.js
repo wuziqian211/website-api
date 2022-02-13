@@ -35,7 +35,7 @@ const toHTTPS = url => {
 const getTime = ts => {
   let t = new Date(ts * 1000);
   let d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
-  return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日 ${d.getHours()}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+  return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
 const toAV = vid => {
   if (typeof vid !== 'string') return;
@@ -81,7 +81,7 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br /><table><thead><tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr></thead><tbody><tr><td>${json.data.stat.view}</td><td>${json.data.stat.danmaku}</td><td>${json.data.stat.reply}</td><td>${json.data.stat.like}</td><td>${json.data.stat.coin}</td><td>${json.data.stat.favorite}</td><td>${json.data.stat.share}</td></tr></tbody></table><br /><s>投稿时间：${getTime(json.data.ctime)}</s><br />发布时间：${getTime(json.data.pubdate)}<br />简介：<br />${encodeHTML(json.data.desc)}`, vid: req.query.vid, tips: 'OK'});
+              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br /></p><table class="animate__animated animate__fadeIn animate__faster"><thead><tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr></thead><tbody><tr><td>${json.data.stat.view}</td><td>${json.data.stat.danmaku}</td><td>${json.data.stat.reply}</td><td>${json.data.stat.like}</td><td>${json.data.stat.coin}</td><td>${json.data.stat.favorite}</td><td>${json.data.stat.share}</td></tr></tbody></table><p class="content animate__animated animate__fadeIn animate__faster"><s>投稿时间：${getTime(json.data.ctime)}（可能不准确）</s><br />发布时间：${getTime(json.data.pubdate)}<br />简介：<br />${encodeHTML(json.data.desc)}`, vid: req.query.vid, tips: 'OK'});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
