@@ -79,9 +79,7 @@ module.exports = (req, res) => {
   if (vid != undefined) { // 判断视频ID是否有效
     if (req.query.video == undefined) { // 获取视频信息
       fetch(`https://api.bilibili.com/x/web-interface/view?aid=${vid}`).then(resp => resp.json()).then(json => {
-/*
         if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
-*/
           switch (json.code) {
             case 0:
               res.status(200);
@@ -149,8 +147,8 @@ module.exports = (req, res) => {
             default:
               res.status(400).json({code: json.code});
           }
-        }
 */
+        }
       });
 /* 尚未完成
     } else { // 获取视频数据
