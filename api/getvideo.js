@@ -6,6 +6,7 @@
  *   vid：您想获取视频信息的AV或BV号。
  *   cid：该视频分P的cid。
  *   p：该视频的第几个分P。
+ *   allow_redirect：如果存在本参数，则获取封面或视频数据时可能会重定向到B站服务器的地址。
  *   video：如果存在本参数，则无论如何总是返回视频数据。
  *   其中，“cid”与“p”只能填写其中一个或者不填。
  * 返回类型：
@@ -17,8 +18,10 @@
  * 响应代码：
  *   200：视频存在
  *   404：视频不存在
+ *   403：视频需登录才能获取信息
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
  *   400：参数无效，或者因其他原因请求失败
+ *   307：临时重定向
  * 作者：wuziqian211
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
@@ -27,6 +30,7 @@ const fetch = require('node-fetch');
 const {readFileSync} = require('fs');
 const {join} = require('path');
 const file = fileName => readFileSync(join(__dirname, '..', fileName));
+const URLEncode = require('urlencode');
 const toHTTPS = url => {
   let u = url.split(':');
   u[0] = 'https'; // 将协议改成HTTPS
@@ -39,7 +43,7 @@ const getTime = ts => {
 };
 const toAV = vid => {
   if (typeof vid !== 'string') return;
-  if (vid.length === 12 && vid.slice(0, 2) === 'BV' && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否是BV号
+  if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否是BV号
     // BV号转AV号，改编自www.zhihu.com/question/381784377/answer/1099438784
     const tr = {f: 0, Z: 1, o: 2, d: 3, R: 4, "9": 5, X: 6, Q: 7, D: 8, S: 9, U: 10, m: 11, "2": 12, "1": 13, y: 14, C: 15, k: 16, r: 17, "6": 18, z: 19, B: 20, q: 21, i: 22, v: 23, e: 24, Y: 25, a: 26, h: 27, "8": 28, b: 29, t: 30, "4": 31, x: 32, s: 33, W: 34, p: 35, H: 36, n: 37, J: 38, E: 39, "7": 40, j: 41, L: 42, "5": 43, V: 44, G: 45, "3": 46, g: 47, u: 48, M: 49, T: 50, K: 51, N: 52, P: 53, A: 54, w: 55, c: 56, F: 57};
     let av = 0;
@@ -92,31 +96,35 @@ module.exports = (req, res) => {
               res.status(404);
               sendHTML({title: '视频不存在', face: '(', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid, tips: 'NOT_FOUND'});
               break;
+            case -403:
+              res.status(403);
+              sendHTML({title: '获取视频信息需登录', face: '(', content: '这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取这个视频的信息哟 awa', vid: req.query.vid, tips: 'FORBIDDEN'});
+              break;
             default:
               res.status(400);
               sendHTML({title: '获取视频信息失败', face: '(', content: `获取视频信息失败，请稍后重试 awa`, vid: req.query.vid, tips: 'BAD_REQUEST'});
           }
-/* 尚未完成
         } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型含图片（不含HTML），获取封面
           if (json.code === 0) {
-            if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
-              res.status(307).setHeader('Location', toHTTPS(json.data.face)).json({code: 307, data: {url: toHTTPS(json.data.face)}});
+            if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
+              res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
             } else {
-              fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器的头像
-                const a = toHTTPS(json.data.face).split('.');
-                const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
+              fetch(toHTTPS(json.data.pic)).then(resp => { // 获取B站服务器存储的封面
+                const a = toHTTPS(json.data.pic).split('.');
+                const filename = URLEncode(`${json.data.title} 的封面.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
                 if (resp.status === 200) {
                   res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                   return resp.buffer();
                 } else {
-                  res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', `inline;filename=${filename}`);
-                  return file('assets/noface.jpg');
+                  res.status(404).setHeader('Content-Type', 'image/png').setHeader('Content-Disposition', `inline;filename=${filename}`);
+                  return file('assets/nopic.png');
                 }
               }).then(buffer => res.send(buffer));
             }
-          } else { // 用户信息获取失败，返回默认头像
-            res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(file('assets/noface.jpg')); // 用户不存在.jpg
+          } else { // 视频信息获取失败，返回默认封面
+            res.status(404).setHeader('Content-Type', 'image/png').setHeader('Content-Disposition', 'inline;filename=%E8%A7%86%E9%A2%91%E4%B8%8D%E5%AD%98%E5%9C%A8.png').send(file('assets/nopic.png')); // 视频不存在.png
           }
+/* 尚未完成
         } else { // 接受类型既不含HTML，也不含图片，返回json
           switch (json.code) {
             case 0:
@@ -144,6 +152,10 @@ module.exports = (req, res) => {
         }
 */
       });
+/* 尚未完成
+    } else { // 获取视频数据
+      
+*/
     }
   } else { // 视频ID无效
     if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
@@ -154,10 +166,8 @@ module.exports = (req, res) => {
         res.status(400);
         sendHTML({title: '视频 ID 无效', face: '(', content: '您输入的视频的 AV 或 BV 号无效！<br />请输入一个正确的 AV 或 BV 号吧 awa', vid: '', tips: 'BAD_REQUEST'});
       }
-/*
-    } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），获取封面
-      res.status(400).setHeader('Content-Type', 'image/jpeg').send(file(`assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
-*/
+    } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
+      res.status(400).setHeader('Content-Type', 'image/png').send(file('nopic.png'));
     } else { // 接受类型既不含HTML，也不含图片，返回json
       res.status(400).json({code: -400});
     }

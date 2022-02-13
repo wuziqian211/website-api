@@ -16,6 +16,7 @@
  *   404：用户不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
  *   400：UID无效，或者因其他原因请求失败
+ *   307：临时重定向
  * 作者：wuziqian211
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
@@ -119,7 +120,7 @@ module.exports = (req, res) => {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
               res.status(307).setHeader('Location', toHTTPS(json.data.face)).json({code: 307, data: {url: toHTTPS(json.data.face)}});
             } else {
-              fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器的头像
+              fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器存储的头像
                 const a = toHTTPS(json.data.face).split('.');
                 const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
                 if (resp.status === 200) {

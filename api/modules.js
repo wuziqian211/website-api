@@ -63,7 +63,7 @@ module.exports = (req, res) => {
     switch (req.query.id) {
       case 'friends':
         const url = 'https://wuziqian211.top/about/#%E6%9C%8B%E5%8F%8B%E4%BB%AC';
-        res.status(308).setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({code: 308, data: {url: url}});
+        res.status(307).setHeader('Location', url).json({code: 307, data: {url: url}});
         break;
       default:
         res.status(404).send(HTML({title: 'API 不存在', data: `
