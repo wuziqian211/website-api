@@ -8,7 +8,7 @@
  *   p：该视频的第几个分P。
  *   allow_redirect：如果存在本参数，则获取封面或视频数据时可能会重定向到B站服务器的地址。
  *   video：如果存在本参数，则无论如何总是返回视频数据。
- *   其中，“cid”与“p”只能填写其中一个或者不填。
+ *   其中，“cid”与“p”只能在获取视频数据时填写，且只能填写其中一个，如果不填，默认为P1。
  * 返回类型：
  *   如果请求参数中包含“video”这个项，则无论如何，本API总是返回视频数据。
  *   否则，本API会检测HTTP请求头中“accept”的值：
@@ -41,10 +41,15 @@ const getTime = ts => {
   let d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
+/* 已弃用
 const toAV = vid => {
   if (typeof vid !== 'string') return;
-  if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否是BV号
-    // BV号转AV号，改编自www.zhihu.com/question/381784377/answer/1099438784
+  if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
+    return parseInt(vid.slice(2)); // 返回剩余部分
+  } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
+    return parseInt(vid); // 直接返回
+  } else if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否为BV号
+    // BV号转AV号，改编自zhihu.com/question/381784377/answer/1099438784
     const tr = {f: 0, Z: 1, o: 2, d: 3, R: 4, "9": 5, X: 6, Q: 7, D: 8, S: 9, U: 10, m: 11, "2": 12, "1": 13, y: 14, C: 15, k: 16, r: 17, "6": 18, z: 19, B: 20, q: 21, i: 22, v: 23, e: 24, Y: 25, a: 26, h: 27, "8": 28, b: 29, t: 30, "4": 31, x: 32, s: 33, W: 34, p: 35, H: 36, n: 37, J: 38, E: 39, "7": 40, j: 41, L: 42, "5": 43, V: 44, G: 45, "3": 46, g: 47, u: 48, M: 49, T: 50, K: 51, N: 52, P: 53, A: 54, w: 55, c: 56, F: 57};
     let av = 0;
     for (let i = 0; i < 6; i++) {
@@ -52,11 +57,27 @@ const toAV = vid => {
     }
     return (av - 8728348608) ^ 177451812;
   }
-  if (vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') { // 判断参数值的开头是否是“av”或“AV”
-    return /^\d+$/.test(vid.slice(2)) ? vid.slice(2) : undefined;
+};
+*/
+const toBV = vid => {
+  if (typeof vid !== 'string') return;
+  if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
+    var av = parseInt(vid.slice(2));
+  } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
+    var av = parseInt(vid);
+  } else if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否为BV号
+    return 'BV' + vid.slice(2); // 直接返回
   } else {
-    return /^\d+$/.test(vid) ? vid : undefined;
+    return;
   }
+  // AV号转BV号，改编自zhihu.com/question/381784377/answer/1099438784
+  const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
+  const t = (av ^ 177451812) + 8728348608;
+  let bv = ['B', 'V', '1', , ,'4', , '1', , '7', , ,];
+  for (let i = 0; i < 6; i++) {
+    bv[[11, 10, 3, 8, 4, 6][i]] = table[Math.floor(t / (58 ** i)) % 58];
+  }
+  return bv.join('');
 };
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
@@ -75,15 +96,34 @@ module.exports = (req, res) => {
       </form>
       <p class="home animate__animated animate__fadeIn animate__faster"><a href="/api/">返回 API 首页</a></p>
       <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>`})); // 将HTML数据发送到客户端
-  const vid = toAV(req.query.vid); // 将视频ID转换成AV号
+  const vid = toBV(req.query.vid); // 将视频ID转换成BV号
   if (vid != undefined) { // 判断视频ID是否有效
     if (req.query.video == undefined) { // 获取视频信息
-      fetch(`https://api.bilibili.com/x/web-interface/view?aid=${vid}`).then(resp => resp.json()).then(json => {
+      fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br /></p><div class="table animate__animated animate__fadeIn animate__faster"><table><thead><tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr></thead><tbody><tr><td>${json.data.stat.view}</td><td>${json.data.stat.danmaku}</td><td>${json.data.stat.reply}</td><td>${json.data.stat.like}</td><td>${json.data.stat.coin}</td><td>${json.data.stat.favorite}</td><td>${json.data.stat.share}</td></tr></tbody></table></div><p class="content animate__animated animate__fadeIn animate__faster"><s>投稿时间：${getTime(json.data.ctime)}（可能不准确）</s><br />发布时间：${getTime(json.data.pubdate)}<br />简介：<br />${encodeHTML(json.data.desc)}`, vid: req.query.vid, tips: 'OK'});
+              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `
+        <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />
+        ${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}
+      </p>
+      <div class="table animate__animated animate__fadeIn animate__faster">
+        <table>
+          <thead>
+            <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>${json.data.stat.view}</td><td>${json.data.stat.danmaku}</td><td>${json.data.stat.reply}</td><td>${json.data.stat.like}</td><td>${json.data.stat.coin}</td><td>${json.data.stat.favorite}</td><td>${json.data.stat.share}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="content animate__animated animate__fadeIn animate__faster">
+        <s>投稿时间：${getTime(json.data.ctime)}（可能不准确）</s><br />
+        发布时间：${getTime(json.data.pubdate)}<br />
+        简介：<br />
+        ${encodeHTML(json.data.desc)}
+      `, vid: req.query.vid, tips: 'OK'});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
@@ -96,7 +136,7 @@ module.exports = (req, res) => {
               break;
             case -403:
               res.status(403);
-              sendHTML({title: '获取视频信息需登录', face: '(', content: `这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid, tips: 'FORBIDDEN'});
+              sendHTML({title: '获取视频信息需登录', face: '(', content: `这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid, tips: 'FORBIDDEN'});
               break;
             default:
               res.status(400);
