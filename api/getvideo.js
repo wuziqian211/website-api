@@ -1,7 +1,8 @@
 /* 获取哔哩哔哩视频信息（尚未完成）
- * https://api.wuziqian211.top/api/getvideo
- * 本API主要的目的是，帮助那些想得到B站API的数据，却因为一些安全原因而无法获取数据的网站与程序等。
- * 如果您的网站、程序等能正常调用B站API，最好直接使用B站API，会更快一些。
+ *   https://api.wuziqian211.top/api/getvideo
+ * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、视频信息与视频数据，仅转发B站服务器的返回内容。
+ * 特别注意：请勿将本API用于非法用途！
+ * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
  * 请求参数（区分大小写）：
  *   vid：您想获取视频信息的AV或BV号。
  *   cid：该视频分P的cid。
@@ -36,29 +37,12 @@ const toHTTPS = url => {
   u[0] = 'https'; // 将协议改成HTTPS
   return u.join(':');
 };
-const getTime = ts => {
+const getDate = ts => {
   let t = new Date(ts * 1000);
   let d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
-/* 已弃用
-const toAV = vid => {
-  if (typeof vid !== 'string') return;
-  if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
-    return parseInt(vid.slice(2)); // 返回剩余部分
-  } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
-    return parseInt(vid); // 直接返回
-  } else if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否为BV号
-    // BV号转AV号，改编自zhihu.com/question/381784377/answer/1099438784
-    const tr = {f: 0, Z: 1, o: 2, d: 3, R: 4, "9": 5, X: 6, Q: 7, D: 8, S: 9, U: 10, m: 11, "2": 12, "1": 13, y: 14, C: 15, k: 16, r: 17, "6": 18, z: 19, B: 20, q: 21, i: 22, v: 23, e: 24, Y: 25, a: 26, h: 27, "8": 28, b: 29, t: 30, "4": 31, x: 32, s: 33, W: 34, p: 35, H: 36, n: 37, J: 38, E: 39, "7": 40, j: 41, L: 42, "5": 43, V: 44, G: 45, "3": 46, g: 47, u: 48, M: 49, T: 50, K: 51, N: 52, P: 53, A: 54, w: 55, c: 56, F: 57};
-    let av = 0;
-    for (let i = 0; i < 6; i++) {
-      av += tr[vid[[11, 10, 3, 8, 4, 6][i]]] * 58 ** i;
-    }
-    return (av - 8728348608) ^ 177451812;
-  }
-};
-*/
+const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}` : '';
 const toBV = vid => {
   if (typeof vid !== 'string') return;
   if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
@@ -97,16 +81,21 @@ module.exports = (req, res) => {
       <p class="home animate__animated animate__fadeIn animate__faster"><a href="/api/">返回 API 首页</a></p>
       <span class="tips animate__animated animate__fadeIn animate__faster">${data.tips}</span>`})); // 将HTML数据发送到客户端
   const vid = toBV(req.query.vid); // 将视频ID转换成BV号
-  if (vid != undefined) { // 判断视频ID是否有效
+  if (vid) { // 判断视频ID是否有效
     if (req.query.video == undefined) { // 获取视频信息
       fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
         if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
+              if (json.data.rights.is_cooperation) {
+                let staffHTML = '';
+                json.data.staff.forEach(u => staffHTML += `        <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> ${u.name}</a>&emsp;${u.title}<br />
+`)
+              }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `
         <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />
-        ${json.data.videos}P&emsp;共 ${json.data.duration} 秒&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}
+        ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}
       </p>
       <div class="table animate__animated animate__fadeIn animate__faster">
         <table>
@@ -119,8 +108,10 @@ module.exports = (req, res) => {
         </table>
       </div>
       <p class="content animate__animated animate__fadeIn animate__faster">
-        <s>投稿时间：${getTime(json.data.ctime)}（可能不准确）</s><br />
-        发布时间：${getTime(json.data.pubdate)}<br />
+        ${json.data.rights.is_cooperation ? `合作成员信息：<br />
+${staffHTML}` : `UP主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a><br />
+        `}<s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
+        发布时间：${getDate(json.data.pubdate)}<br />
         简介：<br />
         ${encodeHTML(json.data.desc)}
       `, vid: req.query.vid, tips: 'OK'});

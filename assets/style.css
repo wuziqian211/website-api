@@ -6,7 +6,7 @@ body {
   text-align: justify;
   padding: 90px 0 0 90px;
 }
-.face {
+img.face {
   font-size: 100px;
 }
 .tips {
@@ -24,23 +24,23 @@ a {
 .home {
   font-size: 16px;
 }
-.noul {
+a.noul {
   text-decoration: none;
 }
-.uface {
+img.uface {
   height: 60px;
   border-radius: 50%;
   vertical-align: middle;
 }
-.ulevel {
+img.ulevel {
   height: 30px;
   vertical-align: -7.5px;
 }
-.vpic {
+img.vpic {
   height: 100px;
   vertical-align: middle;
 }
-.table {
+div.table {
   overflow: auto;
 }
 table {
