@@ -89,9 +89,9 @@ module.exports = (req, res) => {
             case 0:
               res.status(200);
               if (json.data.rights.is_cooperation) {
-                let staffHTML = '';
-                json.data.staff.forEach(u => staffHTML += `        <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> ${u.name}</a>&emsp;${u.title}<br />
-`)
+                var staffHTML = '';
+                json.data.staff.forEach(u => staffHTML += `<br />
+        <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> ${u.name}</a>&emsp;${u.title}`);
               }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `
         <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />
@@ -108,9 +108,8 @@ module.exports = (req, res) => {
         </table>
       </div>
       <p class="content animate__animated animate__fadeIn animate__faster">
-        ${json.data.rights.is_cooperation ? `合作成员信息：<br />
-${staffHTML}` : `UP主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a><br />
-        `}<s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
+        ${json.data.rights.is_cooperation ? `合作成员信息：${staffHTML}` : `UP主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
+        <s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
         发布时间：${getDate(json.data.pubdate)}<br />
         简介：<br />
         ${encodeHTML(json.data.desc)}
