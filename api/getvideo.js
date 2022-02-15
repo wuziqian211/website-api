@@ -89,6 +89,9 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
+              let pagesHTML = '';
+              json.data.pages.forEach(p => pagesHTML += `<br />
+        P${p.page}&emsp;${encodeHTML(p.part)}&emsp;${getTime(p.duration)}`);
               if (json.data.rights.is_cooperation) {
                 var staffHTML = '';
                 json.data.staff.forEach(u => staffHTML += `<br />
@@ -96,7 +99,7 @@ module.exports = (req, res) => {
               }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, face: ')', content: `
         <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />
-        ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}
+        ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${pagesHTML}
       </p>
       <div class="table animate__animated animate__fadeIn animate__faster">
         <table>
@@ -171,8 +174,8 @@ module.exports = (req, res) => {
       }
     });
   } else { // 视频ID无效
-    if (req.query.type == 'data') {
-      res.status(400).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+    if (req.query.type === 'data') {
+      res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 400).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
     } else {
       if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
