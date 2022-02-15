@@ -6,7 +6,7 @@
  * 请求参数（区分大小写）：
  *   mid：您想获取用户信息及关注、粉丝数的用户的UID。
  *   allow_redirect：如果存在本参数，则获取头像数据时可能会重定向到B站服务器的头像地址。
- *   type：当本参数的值为“info”时只返回用户信息，当值为“follow”时只返回用户关注、粉丝数，否则都返回。
+ *   type：如果本参数的值为“info”，只返回用户信息；如果值为“follow”，只返回用户关注、粉丝数；否则都返回。
  * 返回类型：
  *   本API会检测HTTP请求头中“accept”的值，以返回不同类型的数据。
  *   如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据。
@@ -14,10 +14,10 @@
  *   否则，返回json。
  * 响应代码：
  *   200：用户存在，或者未填写“mid”参数且返回类型为HTML或图片
+ *   307：临时重定向
  *   404：用户不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
  *   400：UID无效，或者因其他原因请求失败
- *   307：临时重定向
  * 作者：wuziqian211
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
@@ -81,7 +81,7 @@ module.exports = (req, res) => {
               res.status(404).json({code: -404});
               break;
             default:
-              res.status(400).json({code: fjson.code});
+              res.status(400).json({code: fjson.code, message: fjson.message});
           }
         }
       });
@@ -140,13 +140,13 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               if (req.query.type === 'info') { // 仅获取用户信息
-                res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: toHTTPS(json.data.face), level: json.data.level}});
+                res.status(200).json({code: 0, data: json.data});
               } else {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
-                    res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: toHTTPS(json.data.face), level: json.data.level, following: fjson.data.following, follower: fjson.data.follower}});
+                    res.status(200).json({code: 0, data: Object.assign(json.data, {following: fjson.data.following, follower: fjson.data.follower})});
                   } else {
-                    res.status(200).json({code: 0, data: {name: json.data.name, sex: json.data.sex, face: toHTTPS(json.data.face), level: json.data.level}});
+                    res.status(200).json({code: 0, data: json.data});
                   }
                 });
               }
@@ -158,7 +158,7 @@ module.exports = (req, res) => {
               res.status(404).json({code: -404});
               break;
             default:
-              res.status(400).json({code: json.code});
+              res.status(400).json({code: json.code, message: json.message});
           }
         }
       });
@@ -180,7 +180,7 @@ module.exports = (req, res) => {
         res.status(400).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));      
       }
     } else { // 接受类型既不含HTML，也不含图片，返回json
-      res.status(400).json({code: -400});
+      res.status(400).json({code: -400, message: '请求错误'});
     }
   }
 };
