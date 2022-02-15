@@ -108,7 +108,7 @@ module.exports = (req, res) => {
         </table>
       </div>
       <p class="content animate__animated animate__fadeIn animate__faster">
-        ${json.data.rights.is_cooperation ? `合作成员信息：${staffHTML}` : `UP主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
+        ${json.data.rights.is_cooperation ? `合作成员信息：${staffHTML}` : `UP 主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
         <s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
         发布时间：${getDate(json.data.pubdate)}<br />
         简介：<br />
