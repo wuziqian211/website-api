@@ -3,7 +3,20 @@ const fetch = require('node-fetch');
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
 module.exports = (req, res) => {
-  if ((!req.headers.accept || req.headers.accept.indexOf('html') === -1) && req.headers['x-pjax'] !== 'true') {
+  if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') {
+    switch (req.query.id) {
+      case 'friends':
+        const url = 'https://wuziqian211.top/about/#%E6%9C%8B%E5%8F%8B%E4%BB%AC';
+        res.status(307).setHeader('Location', url).json({code: 307, data: {url: url}});
+        break;
+      default:
+        res.status(404).send(HTML({title: 'API 不存在', data: `
+      <span class="face animate__animated animate__fadeIn animate__faster">:(</span>
+      <p class="content animate__animated animate__fadeIn animate__faster">您访问的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表</p>
+      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/api/">返回 API 首页</a></p>
+      <span class="tips animate__animated animate__fadeIn animate__faster">NOT_FOUND</span>`}));
+    }
+  } else {
     switch (req.query.id) {
       case 'token':
         res.status(200).json({code: 0, data: {token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU='}});
@@ -58,19 +71,6 @@ module.exports = (req, res) => {
         break;
       default:
         res.status(400).json({code: -400});
-    }
-  } else {
-    switch (req.query.id) {
-      case 'friends':
-        const url = 'https://wuziqian211.top/about/#%E6%9C%8B%E5%8F%8B%E4%BB%AC';
-        res.status(307).setHeader('Location', url).json({code: 307, data: {url: url}});
-        break;
-      default:
-        res.status(404).send(HTML({title: 'API 不存在', data: `
-      <span class="face animate__animated animate__fadeIn animate__faster">:(</span>
-      <p class="content animate__animated animate__fadeIn animate__faster">您访问的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表</p>
-      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/api/">返回 API 首页</a></p>
-      <span class="tips animate__animated animate__fadeIn animate__faster">NOT_FOUND</span>`}));
     }
   }
 };

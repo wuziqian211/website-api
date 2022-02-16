@@ -1,10 +1,10 @@
-/* 获取哔哩哔哩视频信息（尚未完成）
+/* 获取哔哩哔哩视频信息及数据（尚未完成）
  *   https://api.wuziqian211.top/api/getvideo
- * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、视频信息与视频数据，仅转发B站服务器的返回内容。
+ * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、视频信息及数据等，仅转发B站服务器的返回内容。
  * 特别注意：请勿将本API用于非法用途！
  * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
  * 请求参数（区分大小写）：
- *   vid：您想获取视频信息的AV或BV号。
+ *   vid：您想获取视频信息或数据的AV或BV号。
  *   cid：该视频分P的cid。
  *   p：该视频的第几个分P。
  *   allow_redirect：如果存在本参数，则获取封面或视频数据时可能会重定向到B站服务器的地址。
@@ -85,7 +85,7 @@ module.exports = (req, res) => {
     fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
       if (req.query.type === 'data') { // 获取视频数据
       } else { // 获取视频信息
-        if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+        if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
@@ -136,7 +136,7 @@ module.exports = (req, res) => {
               res.status(400);
               sendHTML({title: '获取视频信息失败', face: '(', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid, tips: 'BAD_REQUEST'});
           }
-        } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型含图片（不含HTML），获取封面
+        } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
           if (json.code === 0) {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
               res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
@@ -181,7 +181,7 @@ module.exports = (req, res) => {
     if (req.query.type === 'data') {
       res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 400).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
     } else {
-      if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
+      if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频信息', face: ')', content: `本 API 可以获取指定 B 站视频的信息。<br />用法：${process.env.URL}/api/getvideo?vid={您想获取信息的视频的 AV 或 BV 号}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: '', tips: 'OK'});
@@ -189,7 +189,7 @@ module.exports = (req, res) => {
           res.status(400);
           sendHTML({title: '视频 ID 无效', face: '(', content: '您输入的视频的 AV 或 BV 号无效！<br />请输入一个正确的 AV 或 BV 号吧 awa', vid: '', tips: 'BAD_REQUEST'});
         }
-      } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1) { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
+      } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
         res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
       } else { // 接受类型既不含HTML，也不含图片，返回json
         res.status(400).json({code: -400, message: '请求错误'});
