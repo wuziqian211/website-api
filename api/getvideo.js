@@ -165,7 +165,11 @@ module.exports = (req, res) => {
               res.status(429).setHeader('Retry-After', '600').json({code: -412});
               break;
             case -404:
+            case 62002:
               res.status(404).json({code: -404});
+              break;
+            case -403:
+              res.status(403).json({code: -403});
               break;
             default:
               res.status(400).json({code: json.code, message: json.message});
