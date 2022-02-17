@@ -84,6 +84,13 @@ module.exports = (req, res) => {
   if (vid) { // 判断视频ID是否有效
     fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
       if (req.query.type === 'data') { // 获取视频数据
+        if (json.code === 0) {
+/* 尚未完善
+*/
+          res.status(500).json({code: -500, message: 'Internal Server Error'});
+        } else {
+          res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+        }
       } else { // 获取视频信息
         if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
