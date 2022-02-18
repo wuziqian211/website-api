@@ -1,13 +1,13 @@
-/* 获取哔哩哔哩视频信息及数据（尚未完成）
+/* 获取哔哩哔哩视频信息及数据
  *   https://api.wuziqian211.top/api/getvideo
  * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、视频信息及数据等，仅转发B站服务器的返回内容。
- * 特别注意：请勿将本API用于非法用途！
+ * 特别注意：请勿将本API用于非法用途！获取的视频的数据仅供预览，要下载视频，请使用其他工具。
  * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
  * 请求参数（区分大小写）：
  *   vid：您想获取视频信息或数据的AV或BV号。
  *   cid：该视频分P的cid。
  *   p：该视频的第几个分P。
- *   allow_redirect：如果存在本参数，则获取封面或视频数据时可能会重定向到B站服务器的地址。
+ *   allow_redirect：如果存在本参数，则获取封面数据时可能会重定向到B站服务器的封面地址。
  *   type：如果本参数的值为“data”，则返回视频数据，否则返回视频信息。
  *   其中，“cid”与“p”只能在获取视频数据时填写，且只能填写其中一个，如果不填，默认为P1。
  * 返回类型：
@@ -23,6 +23,7 @@
  *   404：视频不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
  *   400：视频ID无效，或者因其他原因请求失败
+ *   500/504：视频太大，本API无法发送数据
  * 作者：wuziqian211
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
@@ -84,11 +85,35 @@ module.exports = (req, res) => {
   if (vid) { // 判断视频ID是否有效
     fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
       if (req.query.type === 'data') { // 获取视频数据
-        if (json.code === 0) {
-/* 尚未完善
-*/
-          res.status(500).json({code: -500, message: 'Internal Server Error'});
-        } else {
+        if (json.code === 0) { // 视频有效
+          var cid;
+          if (/^\d+$/.test(req.query.cid)) {
+            json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : {});
+          } else if (/^\d+$/.test(req.query.p) && parseInt(req.query.p) > 0 && parseInt(req.query.p) <= json.data.pages.length) {
+            cid = json.data.pages[parseInt(req.query.p) - 1].cid;
+          }
+          if (!cid) cid = json.data.cid;
+          fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=6&fnval=1&fnver=0`).then(resp => resp.json()).then(vjson => {
+            if (vjson.code === 0) { // 视频地址获取成功
+              if (vjson.data.durl[0].size > 5000000) {
+                res.status(500).send('<!DOCTYPE html><html><body><div>抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />如想下载视频，请使用其他工具哟 awa</div></body></html>');
+              } else {
+                fetch(vjson.data.durl[0].url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.60.0 (bbcallen@gmail.com)'}}).then(resp => {
+                  const filename = URLEncode(`${json.data.title}.mp4`, 'UTF-8'); // 设置视频的文件名
+                  if (resp.status === 200) {
+                    res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                    return resp.buffer();
+                  } else {
+                    res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').setHeader('Content-Disposition', `inline;filename=${filename}`);
+                      return file('assets/error.mp4');
+                  }
+                }).then(buffer => res.send(buffer));
+              }
+            } else { // 视频地址获取失败
+              res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+            }
+          });
+        } else { // 视频无效
           res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
         }
       } else { // 获取视频信息
