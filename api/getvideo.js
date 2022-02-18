@@ -95,7 +95,7 @@ module.exports = (req, res) => {
           if (!cid) cid = json.data.cid;
           fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=6&fnval=1&fnver=0`).then(resp => resp.json()).then(vjson => {
             if (vjson.code === 0) { // 视频地址获取成功
-              if (vjson.data.durl[0].size > 5242880) {
+              if (vjson.data.durl[0].size > 5000000) {
                 res.status(500).send('<!DOCTYPE html><html><body><div>抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />如想下载视频，请使用其他工具哟 awa</div></body></html>');
               } else {
                 fetch(vjson.data.durl[0].url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.60.0 (bbcallen@gmail.com)'}}).then(resp => {
