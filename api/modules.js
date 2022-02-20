@@ -11,10 +11,7 @@ module.exports = (req, res) => {
         break;
       default:
         res.status(404).send(HTML({title: 'API 不存在', data: `
-      <span class="face animate__animated animate__fadeIn animate__faster">:(</span>
-      <p class="content animate__animated animate__fadeIn animate__faster">您访问的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表</p>
-      <p class="home animate__animated animate__fadeIn animate__faster"><a href="/api/">返回 API 首页</a></p>
-      <span class="tips animate__animated animate__fadeIn animate__faster">NOT_FOUND</span>`}));
+      <p class="content animate__animated animate__fadeIn animate__faster">您访问的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表</p>`}));
     }
   } else {
     switch (req.query.id) {

@@ -1,28 +1,30 @@
 body {
-  background-color: #0078B7;
-  color: #FFF;
+  background-color: #FFF;
+  color: #111;
   font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
   overflow-wrap: break-word;
   text-align: justify;
-  padding: 90px 0 0 90px;
+  margin: 0;
 }
-.face {
-  font-size: 100px;
+header {
+  height: 100px;
+  background-color: #EEE;
 }
-.tips {
-  display: inline-block;
-  padding-top: 10px;
-  font-size: 14px;
-  line-height: 20px;
+.header {
+  width: 1200px;
+  margin: 0 auto;
+  font-size: 40px;
+  padding: 20px;
+}
+.main {
+  width: 1200px;
+  margin: 0 auto;
 }
 a {
-  color: #FFF;
+  color: #111;
 }
 .content {
-  font-size: 24px;
-}
-.home {
-  font-size: 16px;
+  font-size: 20px;
 }
 a.noul {
   text-decoration: none;
@@ -55,5 +57,12 @@ th, td {
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #000064;
+    color: #CCC;
+  }
+  a {
+    color: #CCC;
+  }
+  header {
+    background-color: #333;
   }
 }
