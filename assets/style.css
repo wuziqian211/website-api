@@ -59,7 +59,7 @@ th, td {
     width: 900px;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   header {
     height: 75px;
   }
@@ -86,8 +86,6 @@ th, td {
     background-color: #333;
   }
   th, td {
-    text-align: center;
     border: 1px solid #CCC;
-    padding: 8px;
   }
 }
