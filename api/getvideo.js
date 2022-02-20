@@ -93,9 +93,10 @@ module.exports = (req, res) => {
           fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=6&fnval=1&fnver=0`).then(resp => resp.json()).then(vjson => {
             if (vjson.code === 0) { // 视频地址获取成功
               if (vjson.data.durl[0].size > 5000000) {
-                res.status(500).send('<!DOCTYPE html><html><body><div>抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />如想下载视频，请使用其他工具哟 awa</div></body></html>');
+                res.status(500);
+                sendHTML({title: '视频太大', content: '抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />如想下载视频，请使用其他工具哟 awa', vid: req.query.vid});
               } else {
-                fetch(vjson.data.durl[0].url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.60.0 (bbcallen@gmail.com)'}}).then(resp => {
+                fetch(vjson.data.durl[0].url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
                   const filename = URLEncode(`${json.data.title}.mp4`, 'UTF-8'); // 设置视频的文件名
                   if (resp.status === 200) {
                     res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
