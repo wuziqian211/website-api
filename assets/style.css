@@ -76,7 +76,7 @@ th, td {
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #000064;
+    background-color: #222;
     color: #CCC;
   }
   a {
