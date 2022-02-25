@@ -100,6 +100,10 @@ div.main.loading {
   -webkit-animation-name: backOutUp;
   animation-name: backOutUp;
 }
+mark {
+  border-radius: 5px;
+  color: #111;
+}
 a {
   color: #111;
 }
@@ -158,11 +162,15 @@ form {
     background-color: #222;
     color: #CCC;
   }
-  a {
+  mark {
+    background-color: #990;
     color: #CCC;
   }
   header {
     background-color: #333;
+  }
+  a {
+    color: #CCC;
   }
   th, td {
     border: 1px solid #CCC;
