@@ -8,12 +8,11 @@ module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
     <title>页面不存在 | wuziqian211's Blog</title>
     <link rel="stylesheet" href="${process.env.URL}/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="${process.env.URL}/assets/animate.min.css" />
   </head>
   <body>
     <header><div class="header"><a class="noul" href="https://wuziqian211.top/">wuziqian211's Blog</a></div></header>
     <div class="main">
-      <p class="content animate__animated animate__fadeIn animate__faster">您似乎输入错了网址！您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？</p>
+      您似乎输入错了网址！您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？
     </div>
   </body>
 </html>`);
