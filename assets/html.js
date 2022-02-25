@@ -16,10 +16,8 @@ module.exports = data => `<!DOCTYPE html>
     </div>
     <script>
       const pjax = new Pjax({selectors: ['title', '.main'], cacheBust: false});
-      document.addEventListener('pjax:send', () => document.querySelectorAll('.animate__animated').forEach(e => {
-        e.classList.remove('animate__fadeIn');
-        e.classList.add('animate__fadeOut');
-      }));
+      document.addEventListener('pjax:send', () => document.querySelector('.main').classList.add('loading'));
+      document.addEventListener('pjax:done', () => document.querySelector('.main').classList.remove('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
   </body>

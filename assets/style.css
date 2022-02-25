@@ -14,6 +14,22 @@
     opacity: 1;
   }
 }
+@-webkit-keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 body {
   background-color: #FFF;
   color: #111;
@@ -23,7 +39,6 @@ body {
   margin: 0;
 }
 header {
-  height: 100px;
   background-color: #EEE;
 }
 div.header {
@@ -42,6 +57,10 @@ div.main {
   animation-name: fadeIn;
   -webkit-animation-duration: 0.5s;
   animation-duration: 0.5s;
+}
+div.main.loading {
+  -webkit-animation-name: fadeOut;
+  animation-name: fadeOut;
 }
 a {
   color: #111;
@@ -85,9 +104,6 @@ form {
   }
 }
 @media (max-width: 960px) {
-  header {
-    height: 75px;
-  }
   div.header {
     width: auto;
     font-size: 30px;
