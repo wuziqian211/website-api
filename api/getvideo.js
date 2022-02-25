@@ -94,8 +94,8 @@ module.exports = (req, res) => {
             if (vjson.code === 0) { // 视频地址获取成功
               if (vjson.data.durl[0].size > 5000000) {
                 res.status(500);
-                sendHTML({title: '视频太大', content: '抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
-      如想下载视频，请使用其他工具哟 awa', vid: req.query.vid});
+                sendHTML({title: '视频太大', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
+      如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
               } else {
                 fetch(vjson.data.durl[0].url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
                   const filename = URLEncode(`${json.data.title}.mp4`, 'UTF-8'); // 设置视频的文件名
@@ -148,8 +148,8 @@ module.exports = (req, res) => {
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />
-      请稍后重试 awa', vid: req.query.vid});
+              sendHTML({title: '操作太频繁', content: `您的请求过于频繁，已被 B 站拦截 qwq<br />
+      请稍后重试 awa`, vid: req.query.vid});
               break;
             case -404:
             case 62002:
@@ -218,8 +218,8 @@ module.exports = (req, res) => {
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
-          sendHTML({title: '视频 ID 无效', content: '您输入的视频的 AV 或 BV 号无效！<br />
-      请输入一个正确的 AV 或 BV 号吧 awa', vid: ''});
+          sendHTML({title: '视频 ID 无效', content: `您输入的视频的 AV 或 BV 号无效！<br />
+      请输入一个正确的 AV 或 BV 号吧 awa`, vid: ''});
         }
       } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
         res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));

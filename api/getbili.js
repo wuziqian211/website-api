@@ -57,8 +57,8 @@ module.exports = (req, res) => {
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />
-      请稍后重试 awa', mid: req.query.mid});
+              sendHTML({title: '操作太频繁', content: `您的请求过于频繁，已被 B 站拦截 qwq<br />
+      请稍后重试 awa`, mid: req.query.mid});
               break;
             case -404:
               res.status(404);
@@ -107,8 +107,8 @@ module.exports = (req, res) => {
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />
-      请稍后重试 awa', mid: req.query.mid});
+              sendHTML({title: '操作太频繁', content: `您的请求过于频繁，已被 B 站拦截 qwq<br />
+      请稍后重试 awa`, mid: req.query.mid});
               break;
             case -404:
               res.status(404);
@@ -174,8 +174,8 @@ module.exports = (req, res) => {
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getbili.js">本 API 源码</a>。`, mid: ''});
       } else { // 设置了UID参数但无效
         res.status(400);
-        sendHTML({title: 'UID 无效', content: '您输入的 UID 无效！<br />
-      请输入一个正确的 UID 吧 awa', mid: ''});
+        sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />
+      请输入一个正确的 UID 吧 awa`, mid: ''});
       }
     } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），获取头像
       if (!req.query.mid) { // 没有设置UID参数，返回随机头像
