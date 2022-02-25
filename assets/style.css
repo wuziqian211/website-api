@@ -112,7 +112,7 @@ form {
   }
   div.main {
     width: auto;
-    margin: 0 20px;
+    margin: 20px;
   }
 }
 @media (prefers-color-scheme: dark) {
