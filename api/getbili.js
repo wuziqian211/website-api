@@ -52,8 +52,8 @@ module.exports = (req, res) => {
           switch (fjson.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `关注数：${fjson.data.following}<br />
-      粉丝数：${fjson.data.follower}`, mid: req.query.mid});
+              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong>关注数：</strong>${fjson.data.following}<br />
+      <strong>粉丝数：</strong>${fjson.data.follower}`, mid: req.query.mid});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
@@ -97,8 +97,8 @@ module.exports = (req, res) => {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
                     sendHTML({title: `${json.data.name} 的用户信息及关注、粉丝数`, content: c + `<br />
-      关注数：${fjson.data.following}<br />
-      粉丝数：${fjson.data.follower}`, mid: req.query.mid});
+      <strong>关注数：</strong>${fjson.data.following}<br />
+      <strong>粉丝数：</strong>${fjson.data.follower}`, mid: req.query.mid});
                   } else {
                     sendHTML({title: `${json.data.name} 的用户信息`, content: c, mid: req.query.mid});
                   }
@@ -170,7 +170,7 @@ module.exports = (req, res) => {
       if (!req.query.mid) { // 没有设置UID参数
         res.status(200);
         sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />
-      用法：${process.env.URL}/api/getbili?mid={您想获取信息及关注、粉丝数的用户的 UID}<br />
+      用法：${process.env.URL}/api/getbili?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getbili.js">本 API 源码</a>。`, mid: ''});
       } else { // 设置了UID参数但无效
         res.status(400);

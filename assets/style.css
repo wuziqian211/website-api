@@ -93,8 +93,8 @@ div.main {
   animation-fill-mode: both;
   -webkit-animation-name: backInDown;
   animation-name: backInDown;
-  -webkit-animation-duration: 0.5s;
-  animation-duration: 0.5s;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
 }
 div.main.loading {
   -webkit-animation-name: backOutUp;

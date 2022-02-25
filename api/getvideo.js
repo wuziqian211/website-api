@@ -140,10 +140,10 @@ module.exports = (req, res) => {
           </tbody>
         </table>
       </div>
-      ${json.data.rights.is_cooperation ? `合作成员信息：${staffHTML}` : `UP 主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
-      <s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
-      发布时间：${getDate(json.data.pubdate)}<br />
-      简介：<br />
+      ${json.data.rights.is_cooperation ? `<strong>合作成员信息：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
+      <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
+      <strong>发布时间：</strong>${getDate(json.data.pubdate)}<br />
+      <strong>简介：</strong><br />
       ${encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
             case -412:
@@ -214,7 +214,7 @@ module.exports = (req, res) => {
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频信息', content: `本 API 可以获取指定 B 站视频的信息。<br />
-      用法：${process.env.URL}/api/getvideo?vid={您想获取信息的视频的 AV 或 BV 号}<br />
+      用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频的 AV 或 BV 号</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
