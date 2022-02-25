@@ -8,7 +8,6 @@ module.exports = data => `<!DOCTYPE html>
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="/assets/animate.min.css" />
     <script src="/assets/pjax.min.js"></script>
   </head>
   <body>

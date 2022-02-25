@@ -18,7 +18,7 @@
  *     否则，返回json。
  * 响应代码：
  *   200：视频存在
- *   307：临时重定向
+ *   307（注意不是302）：临时重定向
  *   403：视频需登录才能获取信息
  *   404：视频不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
@@ -68,8 +68,8 @@ const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const sendHTML = data => res.send(HTML({title: data.title, data: `
-      <p class="content animate__animated animate__fadeIn animate__faster">${data.content}</p>
-      <form class="animate__animated animate__fadeIn animate__faster" action="/api/getvideo" method="GET">
+      ${data.content}
+      <form action="/api/getvideo" method="GET">
         <div>
           <label for="vid">请输入您想要获取信息的视频的 AV 或 BV 号：</label>
         </div>
@@ -94,7 +94,8 @@ module.exports = (req, res) => {
             if (vjson.code === 0) { // 视频地址获取成功
               if (vjson.data.durl[0].size > 5000000) {
                 res.status(500);
-                sendHTML({title: '视频太大', content: '抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />如想下载视频，请使用其他工具哟 awa', vid: req.query.vid});
+                sendHTML({title: '视频太大', content: '抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
+      如想下载视频，请使用其他工具哟 awa', vid: req.query.vid});
               } else {
                 fetch(vjson.data.durl[0].url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
                   const filename = URLEncode(`${json.data.title}.mp4`, 'UTF-8'); // 设置视频的文件名
@@ -127,11 +128,9 @@ module.exports = (req, res) => {
                 json.data.staff.forEach(u => staffHTML += `<br />
         <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> ${u.name}</a>&emsp;${u.title}`);
               }
-              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, content: `
-        <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />
-        ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${pagesHTML}
-      </p>
-      <div class="table animate__animated animate__fadeIn animate__faster">
+              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> ${encodeHTML(json.data.title)}</a><br />
+      ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${pagesHTML}
+      <div class="table">
         <table>
           <thead>
             <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
@@ -141,17 +140,16 @@ module.exports = (req, res) => {
           </tbody>
         </table>
       </div>
-      <p class="content animate__animated animate__fadeIn animate__faster">
-        ${json.data.rights.is_cooperation ? `合作成员信息：${staffHTML}` : `UP 主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
-        <s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
-        发布时间：${getDate(json.data.pubdate)}<br />
-        简介：<br />
-        ${encodeHTML(json.data.desc)}
-      `, vid: req.query.vid});
+      ${json.data.rights.is_cooperation ? `合作成员信息：${staffHTML}` : `UP 主：<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${json.data.owner.name}</a>`}<br />
+      <s>投稿时间：${getDate(json.data.ctime)}（可能不准确）</s><br />
+      发布时间：${getDate(json.data.pubdate)}<br />
+      简介：<br />
+      ${encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />请稍后重试 awa', vid: req.query.vid});
+              sendHTML({title: '操作太频繁', content: '您的请求过于频繁，已被 B 站拦截 qwq<br />
+      请稍后重试 awa', vid: req.query.vid});
               break;
             case -404:
             case 62002:
@@ -160,7 +158,8 @@ module.exports = (req, res) => {
               break;
             case -403:
               res.status(403);
-              sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid});
+              sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
+      您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid});
               break;
             default:
               res.status(400);
@@ -214,10 +213,13 @@ module.exports = (req, res) => {
       if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
-          sendHTML({title: '获取哔哩哔哩视频信息', content: `本 API 可以获取指定 B 站视频的信息。<br />用法：${process.env.URL}/api/getvideo?vid={您想获取信息的视频的 AV 或 BV 号}<br />更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
+          sendHTML({title: '获取哔哩哔哩视频信息', content: `本 API 可以获取指定 B 站视频的信息。<br />
+      用法：${process.env.URL}/api/getvideo?vid={您想获取信息的视频的 AV 或 BV 号}<br />
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
-          sendHTML({title: '视频 ID 无效', content: '您输入的视频的 AV 或 BV 号无效！<br />请输入一个正确的 AV 或 BV 号吧 awa', vid: ''});
+          sendHTML({title: '视频 ID 无效', content: '您输入的视频的 AV 或 BV 号无效！<br />
+      请输入一个正确的 AV 或 BV 号吧 awa', vid: ''});
         }
       } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
         res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));

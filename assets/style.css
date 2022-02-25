@@ -1,3 +1,19 @@
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 body {
   background-color: #FFF;
   color: #111;
@@ -10,21 +26,25 @@ header {
   height: 100px;
   background-color: #EEE;
 }
-.header {
+div.header {
   width: 1200px;
   margin: 0 auto;
   font-size: 40px;
   padding: 20px;
 }
-.main {
+div.main {
   width: 1200px;
-  margin: 0 auto;
+  margin: 20px auto;
+  font-size: 20px;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 0.5s;
+  animation-duration: 0.5s;
 }
 a {
   color: #111;
-}
-.content {
-  font-size: 20px;
 }
 a.noul {
   text-decoration: none;
@@ -46,6 +66,7 @@ div.table {
   overflow: auto;
 }
 table {
+  margin: 20px 0;
   border-spacing: 0;
   border-collapse: collapse;
 }
@@ -54,8 +75,12 @@ th, td {
   border: 1px solid #111;
   padding: 8px;
 }
+form {
+  margin: 10px 0;
+  font-size: 16px;
+}
 @media (max-width: 1440px) {
-  .header, .main {
+  div.header, div.main {
     width: 900px;
   }
 }
@@ -63,13 +88,13 @@ th, td {
   header {
     height: 75px;
   }
-  .header {
+  div.header {
     width: auto;
     font-size: 30px;
     padding: 15px;
     text-align: center;
   }
-  .main {
+  div.main {
     width: auto;
     margin: 0 20px;
   }
