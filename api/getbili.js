@@ -93,7 +93,7 @@ module.exports = (req, res) => {
               res.status(200);
               const c = `<style>
         body {
-          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed;
+          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #FFF;
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
         }
@@ -104,6 +104,9 @@ module.exports = (req, res) => {
           background-color: rgba(255, 255, 255, 0.5);
         }
         @media (prefers-color-scheme: dark) {
+          body {
+            background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #222;
+          }
           header {
             background-color: rgba(51, 51, 51, 0.5);
           }
