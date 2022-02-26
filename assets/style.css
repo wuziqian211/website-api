@@ -74,7 +74,7 @@ html {
 body {
   background-color: #FFF;
   color: #111;
-  font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
+  font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow-wrap: break-word;
   text-align: justify;
   min-height: 100%;
@@ -131,6 +131,7 @@ img.ulevel {
 }
 img.vpic {
   height: 100px;
+  border-radius: 10px;
   vertical-align: middle;
 }
 div.table {
