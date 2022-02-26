@@ -90,7 +90,22 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              const c = `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.name}</strong></a> <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>`;
+              const c = `<style>
+        body {
+          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed;
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+        }
+        main {
+          background-color: rgba(255, 255, 255, 0.5);
+        }
+        @media (prefers-color-scheme: dark) {
+          main {
+            background-color: rgba(34, 34, 34, 0.5);
+          }
+        }
+      </style>
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.name}</strong></a> <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>`;
               if (req.query.type === 'info') { // 仅获取用户信息
                 sendHTML({title: `${json.data.name} 的用户信息`, content: c, mid: req.query.mid});
               } else {

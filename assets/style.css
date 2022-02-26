@@ -91,9 +91,10 @@ div.header {
 }
 main {
   width: 1200px;
+  padding: 10px;
   margin: 20px auto;
   font-size: 20px;
-  border-radius: 5px;
+  border-radius: 20px;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
   -webkit-animation-name: backInDown;
@@ -159,7 +160,7 @@ form {
   }
   main {
     width: auto;
-    margin: 20px;
+    margin: 10px;
   }
 }
 @media (prefers-color-scheme: dark) {
