@@ -15,9 +15,8 @@ module.exports = data => `<!DOCTYPE html>
     <main>${data.data}
     </main>
     <script>
-      const pjax = new Pjax({selectors: ['title', '.main'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', 'main'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
-      document.addEventListener('pjax:complete', () => document.querySelector('main').classList.remove('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
   </body>
