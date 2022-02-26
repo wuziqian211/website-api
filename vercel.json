@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/getbili.js": {
+    "api/getuser.js": {
       "includeFiles": "assets/*"
     },
     "api/getvideo.js": {
