@@ -32,6 +32,7 @@ const toHTTPS = url => {
   u[0] = 'https'; // 将协议改成HTTPS
   return u.join(':');
 };
+const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
@@ -53,8 +54,8 @@ module.exports = (req, res) => {
           switch (fjson.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong>关注数：</strong>${fjson.data.following}<br />
-      <strong>粉丝数：</strong>${fjson.data.follower}`, mid: req.query.mid});
+              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong>关注数：</strong>${getNumber(fjson.data.following)}<br />
+      <strong>粉丝数：</strong>${getNumber(fjson.data.follower)}`, mid: req.query.mid});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
@@ -125,8 +126,8 @@ module.exports = (req, res) => {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
                     sendHTML({title: `${json.data.name} 的用户信息及关注、粉丝数`, content: c + `<br />
-      <strong>关注数：</strong>${fjson.data.following}<br />
-      <strong>粉丝数：</strong>${fjson.data.follower}`, mid: req.query.mid});
+      <strong>关注数：</strong>${getNumber(fjson.data.following)}<br />
+      <strong>粉丝数：</strong>${getNumber(fjson.data.follower)}`, mid: req.query.mid});
                   } else {
                     sendHTML({title: `${json.data.name} 的用户信息`, content: c, mid: req.query.mid});
                   }

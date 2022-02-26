@@ -44,6 +44,7 @@ const getDate = ts => {
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}` : '';
+const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
 const toBV = vid => {
   if (typeof vid !== 'string') return;
   if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
@@ -126,7 +127,7 @@ module.exports = (req, res) => {
               if (json.data.rights.is_cooperation) {
                 var staffHTML = '';
                 json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}&emsp;${u.follower} 粉丝`);
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}&emsp;${getNumber(u.follower)} 粉丝`);
               }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, content: `<style>
         body {
@@ -163,7 +164,7 @@ module.exports = (req, res) => {
             <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
           </thead>
           <tbody>
-            <tr><td>${json.data.stat.view}</td><td>${json.data.stat.danmaku}</td><td>${json.data.stat.reply}</td><td>${json.data.stat.like}</td><td>${json.data.stat.coin}</td><td>${json.data.stat.favorite}</td><td>${json.data.stat.share}</td></tr>
+            <tr><td>${getNumber(json.data.stat.view)}</td><td>${getNumber(json.data.stat.danmaku)}</td><td>${getNumber(json.data.stat.reply)}</td><td>${getNumber(json.data.stat.like)}</td><td>${getNumber(json.data.stat.coin)}</td><td>${getNumber(json.data.stat.favorite)}</td><td>${getNumber(json.data.stat.share)}</td></tr>
           </tbody>
         </table>
       </div>
