@@ -126,7 +126,7 @@ module.exports = (req, res) => {
               if (json.data.rights.is_cooperation) {
                 var staffHTML = '';
                 json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}`);
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}&emsp;${u.follower} 粉丝`);
               }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, content: `<style>
         body {
@@ -153,7 +153,10 @@ module.exports = (req, res) => {
         }
       </style>
       <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a><br />
-      ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${pagesHTML}
+      ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
+      <strong>分区：</strong>${json.data.tname}<br />
+      <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
+      <strong>发布时间：</strong>${getDate(json.data.pubdate)}${pagesHTML}
       <div class="table">
         <table>
           <thead>
@@ -164,9 +167,7 @@ module.exports = (req, res) => {
           </tbody>
         </table>
       </div>
-      ${json.data.rights.is_cooperation ? `<strong>合作成员信息：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.owner.name}</strong></a>`}<br />
-      <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
-      <strong>发布时间：</strong>${getDate(json.data.pubdate)}<br />
+      ${json.data.rights.is_cooperation ? `<strong>合作成员：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.owner.name}</strong></a>`}<br />
       <strong>简介：</strong><br />
       ${encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
