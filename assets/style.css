@@ -68,12 +68,16 @@
   }
 }
 
+html {
+  height: 100%;
+}
 body {
   background-color: #FFF;
   color: #111;
   font-family: "Segoe UI", "Arial", "Microsoft Yahei", Helvetica, sans-serif;
   overflow-wrap: break-word;
   text-align: justify;
+  min-height: 100%;
   margin: 0;
 }
 header {
@@ -88,7 +92,7 @@ div.header {
 main {
   width: 1200px;
   padding: 10px;
-  margin: 20px auto;
+  margin: 20px auto 0 auto;
   font-size: 20px;
   border-radius: 20px;
   -webkit-animation-fill-mode: both;
