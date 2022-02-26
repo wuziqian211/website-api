@@ -137,6 +137,11 @@ module.exports = (req, res) => {
         main {
           background-color: rgba(255, 255, 255, 0.5);
         }
+        @media (prefers-color-scheme: dark) {
+          main {
+            background-color: rgba(34, 34, 34, 0.5);
+          }
+        }
       </style>
       <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a><br />
       ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${pagesHTML}
