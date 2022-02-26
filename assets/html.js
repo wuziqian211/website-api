@@ -12,12 +12,11 @@ module.exports = data => `<!DOCTYPE html>
   </head>
   <body>
     <header><div class="header"><a class="noul" href="/api/">wuziqian211's Blog API</a></div></header>
-    <div class="main">${data.data}
-    </div>
+    <main>${data.data}
+    </main>
     <script>
       const pjax = new Pjax({selectors: ['title', '.main'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('.main').classList.add('loading'));
-      document.addEventListener('pjax:done', () => document.querySelector('.main').classList.remove('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
   </body>

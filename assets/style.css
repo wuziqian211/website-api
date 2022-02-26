@@ -68,6 +68,9 @@
   }
 }
 
+html {
+  height: 100%;
+}
 body {
   background-color: #FFF;
   color: #111;
@@ -75,6 +78,7 @@ body {
   overflow-wrap: break-word;
   text-align: justify;
   margin: 0;
+  height: 100%;
 }
 header {
   background-color: #EEE;
@@ -85,10 +89,11 @@ div.header {
   font-size: 40px;
   padding: 20px;
 }
-div.main {
+main {
   width: 1200px;
   margin: 20px auto;
   font-size: 20px;
+  border-radius: 5px;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
   -webkit-animation-name: backInDown;
@@ -96,7 +101,7 @@ div.main {
   -webkit-animation-duration: 1s;
   animation-duration: 1s;
 }
-div.main.loading {
+main.loading {
   -webkit-animation-name: backOutUp;
   animation-name: backOutUp;
 }
@@ -141,7 +146,7 @@ form {
   font-size: 16px;
 }
 @media (max-width: 1440px) {
-  div.header, div.main {
+  div.header, main {
     width: 900px;
   }
 }
@@ -152,7 +157,7 @@ form {
     padding: 15px;
     text-align: center;
   }
-  div.main {
+  main {
     width: auto;
     margin: 20px;
   }
