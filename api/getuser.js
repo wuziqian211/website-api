@@ -1,5 +1,5 @@
 /* 获取哔哩哔哩用户信息及其关注、粉丝数
- *   https://api.wuziqian211.top/api/getbili
+ *   https://api.wuziqian211.top/api/getuser
  * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、用户信息等，仅转发B站服务器的返回内容。
  * 特别注意：请勿将本API用于非法用途！
  * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
@@ -37,7 +37,7 @@ const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').r
 module.exports = (req, res) => {
   const sendHTML = data => res.send(HTML({title: data.title, data: `
       ${data.content}
-      <form action="/api/getbili" method="GET">
+      <form action="/api/getuser" method="GET">
         <div>
           <label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label>
         </div>
@@ -198,8 +198,8 @@ module.exports = (req, res) => {
       if (!req.query.mid) { // 没有设置UID参数
         res.status(200);
         sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />
-      用法：${process.env.URL}/api/getbili?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getbili.js">本 API 源码</a>。`, mid: ''});
+      用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.js">本 API 源码</a>。`, mid: ''});
       } else { // 设置了UID参数但无效
         res.status(400);
         sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />
