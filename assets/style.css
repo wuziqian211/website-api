@@ -121,6 +121,10 @@ img.uface {
   border-radius: 50%;
   vertical-align: middle;
 }
+img.usex {
+  height: 40px;
+  vertical-align: middle;
+}
 img.ulevel {
   height: 30px;
   vertical-align: -7.5px;

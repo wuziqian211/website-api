@@ -33,6 +33,7 @@ const toHTTPS = url => {
   return u.join(':');
 };
 const HTML = require('../assets/html');
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const sendHTML = data => res.send(HTML({title: data.title, data: `
       ${data.content}
@@ -105,7 +106,10 @@ module.exports = (req, res) => {
           }
         }
       </style>
-      <img style="display: none;" src="${toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" /><a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.name}</strong></a> <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>`;
+      <img style="display: none;" src="${toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.name}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" src="/assets/female.png" />' : ''} <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" src="/assets/level_${json.data.level}.svg" /></a>${json.data.silence ? '&emsp;已被封禁' : ''}<br />
+      <strong>个性签名：</strong><br />
+      ${encodeHTML(json.data.sign)}`;
               if (req.query.type === 'info') { // 仅获取用户信息
                 sendHTML({title: `${json.data.name} 的用户信息`, content: c, mid: req.query.mid});
               } else {
