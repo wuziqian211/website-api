@@ -130,14 +130,20 @@ module.exports = (req, res) => {
               }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, content: `<style>
         body {
-          background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed;
+          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed;
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
+        }
+        header {
+          background-color: rgba(238, 238, 238, 0.5);
         }
         main {
           background-color: rgba(255, 255, 255, 0.5);
         }
         @media (prefers-color-scheme: dark) {
+          header {
+            background-color: rgba(51, 51, 51, 0.5);
+          }
           main {
             background-color: rgba(34, 34, 34, 0.5);
           }
