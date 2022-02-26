@@ -130,7 +130,7 @@ module.exports = (req, res) => {
               }
               sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, content: `<style>
         body {
-          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed;
+          background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed;
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
         }
