@@ -68,7 +68,7 @@ const toBV = vid => {
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
-  const sendHTML = data => res.send(HTML({title: data.title, head: data.head, body: `
+  const sendHTML = data => res.send(HTML({title: data.title, style: data.style, body: `
       ${data.content}
       <form action="/api/getvideo" method="GET">
         <div>
@@ -129,8 +129,7 @@ module.exports = (req, res) => {
                 json.data.staff.forEach(u => staffHTML += `<br />
       <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}&emsp;${getNumber(u.follower)} 粉丝`);
               }
-              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, head: `
-    <style>
+              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, style: `
       body {
         background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed #FFF;
         backdrop-filter: blur(20px);
@@ -153,7 +152,7 @@ module.exports = (req, res) => {
           background-color: rgba(34, 34, 34, 0.5);
         }
       }
-    </style>`, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a><br />
+    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a><br />
       ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
       <strong>分区：</strong>${json.data.tname}<br />
       <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
