@@ -8,11 +8,11 @@ module.exports = data => `<!DOCTYPE html>
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <script src="/assets/pjax.min.js"></script>
+    <script src="/assets/pjax.min.js"></script>${data.head ? data.head : ''}
   </head>
   <body>
     <header><div class="header"><a class="noul" href="/api/">wuziqian211's Blog API</a></div></header>
-    <main>${data.data}
+    <main>${data.body}
     </main>
     <script>
       const pjax = new Pjax({selectors: ['title', 'main'], cacheBust: false});

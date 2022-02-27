@@ -36,7 +36,7 @@ const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
-  const sendHTML = data => res.send(HTML({title: data.title, data: `
+  const sendHTML = data => res.send(HTML({title: data.title, head: data.head, body: `
       ${data.content}
       <form action="/api/getuser" method="GET">
         <div>
@@ -92,44 +92,45 @@ module.exports = (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              const c = `<style>
+              const h = `
+    <style>
+      body {
+        background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #FFF;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      header {
+        background-color: rgba(238, 238, 238, 0.5);
+      }
+      main {
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+      @media (prefers-color-scheme: dark) {
         body {
-          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #FFF;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #222;
         }
         header {
-          background-color: rgba(238, 238, 238, 0.5);
+          background-color: rgba(51, 51, 51, 0.5);
         }
         main {
-          background-color: rgba(255, 255, 255, 0.5);
+          background-color: rgba(34, 34, 34, 0.5);
         }
-        @media (prefers-color-scheme: dark) {
-          body {
-            background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #222;
-          }
-          header {
-            background-color: rgba(51, 51, 51, 0.5);
-          }
-          main {
-            background-color: rgba(34, 34, 34, 0.5);
-          }
-        }
-      </style>
-      <img style="display: none;" src="${toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
+      }
+    </style>`;
+              const c = `<img style="display: none;" src="${toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
       <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.name}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.level}" title="${json.data.level} 级" src="/assets/level_${json.data.level}.svg" /></a>${json.data.silence ? '&emsp;已被封禁' : ''}<br />
       <strong>个性签名：</strong><br />
       ${encodeHTML(json.data.sign)}`;
               if (req.query.type === 'info') { // 仅获取用户信息
-                sendHTML({title: `${json.data.name} 的用户信息`, content: c, mid: req.query.mid});
+                sendHTML({title: `${json.data.name} 的用户信息`, head: h, content: c, mid: req.query.mid});
               } else {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
-                    sendHTML({title: `${json.data.name} 的用户信息及关注、粉丝数`, content: c + `<br />
+                    sendHTML({title: `${json.data.name} 的用户信息及关注、粉丝数`, head: h, content: c + `<br />
       <strong>关注数：</strong>${getNumber(fjson.data.following)}<br />
       <strong>粉丝数：</strong>${getNumber(fjson.data.follower)}`, mid: req.query.mid});
                   } else {
-                    sendHTML({title: `${json.data.name} 的用户信息`, content: c, mid: req.query.mid});
+                    sendHTML({title: `${json.data.name} 的用户信息`, head: h, content: c, mid: req.query.mid});
                   }
                 });
               }

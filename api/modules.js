@@ -10,7 +10,7 @@ module.exports = (req, res) => {
         res.status(307).setHeader('Location', url).json({code: 307, data: {url: url}});
         break;
       default:
-        res.status(404).send(HTML({title: 'API 不存在', data: `
+        res.status(404).send(HTML({title: 'API 不存在', body: `
       您访问的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表`}));
     }
   } else {
