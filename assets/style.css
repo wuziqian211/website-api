@@ -93,7 +93,7 @@ div.header {
 main {
   width: 1200px;
   padding: 10px;
-  margin: 20px auto 0 auto;
+  margin: 20px auto 0;
   font-size: 20px;
   border-radius: 20px;
   -webkit-animation-fill-mode: both;
@@ -149,8 +149,11 @@ th, td {
   padding: 8px;
 }
 form {
-  margin: 10px 0;
+  margin: 10px 0 0;
   font-size: 16px;
+}
+input {
+  font-family: inherit;
 }
 @media (max-width: 1440px) {
   div.header, main {
@@ -185,6 +188,6 @@ form {
     color: #CCC;
   }
   th, td {
-    border: 1px solid #CCC;
+    border-color: #CCC;
   }
 }

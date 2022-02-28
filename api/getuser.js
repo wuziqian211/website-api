@@ -106,7 +106,7 @@ module.exports = (req, res) => {
       }
       @media (prefers-color-scheme: dark) {
         body {
-          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #222;
+          background-color: #222;
         }
         header {
           background-color: rgba(51, 51, 51, 0.5);
