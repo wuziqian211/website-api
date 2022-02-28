@@ -9,14 +9,14 @@ module.exports = data => `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <script src="/assets/pjax.min.js"></script>
-    <style>${data.style || ''}</style>
+    <style extra>${data.style || ''}</style>
   </head>
   <body>
     <header><div class="header"><a class="noul" href="/api/">wuziqian211's Blog API</a></div></header>
     <main>${data.body}
     </main>
     <script>
-      const pjax = new Pjax({selectors: ['title', 'style', 'main'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', 'style[extra]', 'main'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
