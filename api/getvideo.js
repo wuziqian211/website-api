@@ -122,7 +122,7 @@ module.exports = (req, res) => {
             case 0:
               res.status(200);
               let pagesHTML = '';
-              json.data.pages.forEach(p => pagesHTML += `<br />
+              json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
       <strong>P${p.page}&emsp;${encodeHTML(p.part)}</strong>&emsp;${getTime(p.duration)}`);
               if (json.data.rights.is_cooperation) {
                 var staffHTML = '';
