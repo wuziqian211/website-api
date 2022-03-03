@@ -1,6 +1,7 @@
+'use strict';
 const HTML = require('../assets/html');
 module.exports = (req, res) => {
-  if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') {
+  if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') {
     res.status(200).send(HTML({title: '欢迎来到 API 页面', body: `
       欢迎您来到 API 页面！<br />
       这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。<br />

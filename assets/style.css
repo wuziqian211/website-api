@@ -155,12 +155,12 @@ form {
 input {
   font-family: inherit;
 }
-@media (max-width: 1440px) {
+@media (max-width: 1439px) {
   div.header, main {
     width: 900px;
   }
 }
-@media (max-width: 960px) {
+@media (max-width: 959px) {
   div.header {
     width: auto;
     font-size: 30px;

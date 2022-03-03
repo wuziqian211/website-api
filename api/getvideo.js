@@ -28,6 +28,7 @@
  *   https://wuziqian211.top/
  *   https://space.bilibili.com/425503913
  */
+'use strict';
 const fetch = require('node-fetch');
 const {readFileSync} = require('fs');
 const {join} = require('path');
@@ -86,11 +87,11 @@ module.exports = (req, res) => {
         if (json.code === 0) { // 视频有效
           var cid;
           if (/^\d+$/.test(req.query.cid)) {
-            json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : {});
+            json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : void 0);
           } else if (/^\d+$/.test(req.query.p) && parseInt(req.query.p) > 0 && parseInt(req.query.p) <= json.data.pages.length) {
             cid = json.data.pages[parseInt(req.query.p) - 1].cid;
           }
-          if (!cid) cid = json.data.cid;
+          cid = cid || json.data.cid;
           fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=6&fnval=1&fnver=0`).then(resp => resp.json()).then(vjson => {
             if (vjson.code === 0) { // 视频地址获取成功
               if (vjson.data.durl[0].size > 5000000) {
@@ -117,7 +118,7 @@ module.exports = (req, res) => {
           res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
         }
       } else { // 获取视频信息
-        if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+        if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
@@ -190,7 +191,7 @@ module.exports = (req, res) => {
               res.status(400);
               sendHTML({title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid});
           }
-        } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
+        } else if (req.headers.accept?.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
           if (json.code === 0) {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
               res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
@@ -235,7 +236,7 @@ module.exports = (req, res) => {
     if (req.query.type === 'data') {
       res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 400).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
     } else {
-      if ((req.headers.accept && req.headers.accept.indexOf('html') !== -1) || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
+      if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频信息', content: `本 API 可以获取指定 B 站视频的信息。<br />
@@ -246,7 +247,7 @@ module.exports = (req, res) => {
           sendHTML({title: '视频 ID 无效', content: `您输入的视频的 AV 或 BV 号无效！<br />
       请输入一个正确的 AV 或 BV 号吧 awa`, vid: ''});
         }
-      } else if (req.headers.accept && req.headers.accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
+      } else if (req.headers.accept?.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
         res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
       } else { // 接受类型既不含HTML，也不含图片，返回json
         res.status(400).json({code: -400, message: '请求错误'});
