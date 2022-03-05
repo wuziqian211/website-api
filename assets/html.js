@@ -22,11 +22,9 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <main>${data.body}
     </main>
     <footer>
-      <div class="footer">
-        &copy; 2021 - 2022 wuziqian211<br />
-        耗时 <span class="ttime">${new Date().getTime() - st}</span> ms<br />
-        本 API 已稳定运行 <span class="rtime">${getTime(new Date().getTime() / 1000 - 1636619300)}</span>
-      </div>
+      &copy; 2021 - 2022 wuziqian211<br />
+      执行耗时 <span class="ttime">${new Date().getTime() - st}</span> ms<br />
+      本站已稳定运行 <span class="rtime">${getTime(new Date().getTime() / 1000 - 1636619300)}</span>
     </footer>
     <script>
       const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.ttime'], cacheBust: false});

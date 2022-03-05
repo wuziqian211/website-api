@@ -165,16 +165,10 @@ input {
   font-family: inherit;
 }
 footer {
-  background-color: rgba(128, 128, 128, 0.75);
-  color: #FFF;
-}
-div.footer {
-  width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  text-align: center;
 }
 @media (max-width: 1439px) {
-  div.header, div.footer, main {
+  div.header, main {
     width: 900px;
   }
 }
@@ -184,9 +178,6 @@ div.footer {
     font-size: 30px;
     padding: 15px;
     text-align: center;
-  }
-  div.footer {
-    width: auto;
   }
   main {
     width: auto;
