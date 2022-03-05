@@ -22,11 +22,11 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <footer>
       <div class="footer">
         &copy; 2021 - 2022 wuziqian211<br />
-        页面生成时间：${new Date().getTime() - st} ms
+        页面生成时间：<span class="generation-time">${new Date().getTime() - st}</span> ms
       </div>
     </footer>
     <script>
-      const pjax = new Pjax({selectors: ['title', 'style.extra', 'main'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.generation-time'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
