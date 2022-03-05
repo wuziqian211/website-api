@@ -1,5 +1,5 @@
 'use strict';
-const getTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 时 ${Math.floor(ts % 3600 / 60)} 分 ${Math.floor(ts % 60)} 秒`;
+const getTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 module.exports = (st, data) => `<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -32,7 +32,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
       const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.ttime'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
-      const getTime = ts => \`$\{Math.floor(ts / 86400)} 天 $\{Math.floor(ts % 86400 / 3600)} 时 $\{Math.floor(ts % 3600 / 60)} 分 $\{Math.floor(ts % 60)} 秒\`;
+      const getTime = ts => \`$\{Math.floor(ts / 86400)} 天 $\{Math.floor(ts % 86400 / 3600)} 小时 $\{Math.floor(ts % 3600 / 60)} 分钟 $\{Math.floor(ts % 60)} 秒\`;
       const rtime = document.querySelector('.rtime');
       setInterval(() => rtime.innerText = getTime(new Date().getTime() / 1000 - 1636619300), 1000);
     </script>
