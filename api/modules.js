@@ -1,10 +1,10 @@
 /* 本API仅供内部使用，并不对外公开 */
 'use strict';
-const st = new Date().getTime();
 const fetch = require('node-fetch');
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
 module.exports = (req, res) => {
+  const st = new Date().getTime();
   if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') {
     switch (req.query.id) {
       case 'friends':
