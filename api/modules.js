@@ -1,5 +1,6 @@
 /* 本API仅供内部使用，并不对外公开 */
 'use strict';
+const st = new Date().getTime();
 const fetch = require('node-fetch');
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
@@ -11,7 +12,7 @@ module.exports = (req, res) => {
         res.status(307).setHeader('Location', url).json({code: 307, data: {url: url}});
         break;
       default:
-        res.status(404).send(HTML({title: 'API 不存在', body: `
+        res.status(404).send(HTML(st, {title: 'API 不存在', body: `
       您访问的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表`}));
     }
   } else {

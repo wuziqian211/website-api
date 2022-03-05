@@ -1,4 +1,4 @@
-module.exports = data => `<!DOCTYPE html>
+module.exports = (st, data) => `<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -12,9 +12,19 @@ module.exports = data => `<!DOCTYPE html>
     <style class="extra">${data.style || ''}</style>
   </head>
   <body>
-    <header><div class="header"><a class="noul" href="/api/">wuziqian211's Blog API</a></div></header>
+    <header>
+      <div class="header">
+        <a class="noul" href="/api/">wuziqian211's Blog API</a>
+      </div>
+    </header>
     <main>${data.body}
     </main>
+    <footer>
+      <div class="footer">
+        &copy; 2021 - 2022 wuziqian211<br />
+        页面生成时间：${new Date().getTime() - st} ms
+      </div>
+    </footer>
     <script>
       const pjax = new Pjax({selectors: ['title', 'style.extra', 'main'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));

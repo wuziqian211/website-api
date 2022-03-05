@@ -29,6 +29,7 @@
  *   https://space.bilibili.com/425503913
  */
 'use strict';
+const st = new Date().getTime();
 const fetch = require('node-fetch');
 const {readFileSync} = require('fs');
 const {join} = require('path');
@@ -69,7 +70,7 @@ const toBV = vid => {
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
-  const sendHTML = data => res.send(HTML({title: data.title, style: data.style, body: `
+  const sendHTML = data => res.send(HTML(st, {title: data.title, style: data.style, body: `
       ${data.content}
       <form action="/api/getvideo" method="GET">
         <div>
@@ -88,7 +89,7 @@ module.exports = (req, res) => {
           var cid;
           if (/^\d+$/.test(req.query.cid)) {
             json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : void 0);
-          } else if (/^\d+$/.test(req.query.p) && parseInt(req.query.p) > 0 && parseInt(req.query.p) <= json.data.pages.length) {
+          } else if (/^\d+$/.test(req.query.p)) {
             cid = json.data.pages[parseInt(req.query.p) - 1].cid;
           }
           cid = cid || json.data.cid;
@@ -106,7 +107,7 @@ module.exports = (req, res) => {
                     return resp.buffer();
                   } else {
                     res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').setHeader('Content-Disposition', `inline;filename=${filename}`);
-                      return file('assets/error.mp4');
+                    return file('assets/error.mp4');
                   }
                 }).then(buffer => res.send(buffer));
               }

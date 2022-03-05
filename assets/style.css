@@ -155,8 +155,17 @@ form {
 input {
   font-family: inherit;
 }
+footer {
+  background-color: rgba(128, 128, 128, 0.5);
+  color: #FFF;
+}
+div.footer {
+  width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 @media (max-width: 1439px) {
-  div.header, main {
+  div.header, div.footer, main {
     width: 900px;
   }
 }
@@ -166,6 +175,9 @@ input {
     font-size: 30px;
     padding: 15px;
     text-align: center;
+  }
+  div.footer {
+    width: auto;
   }
   main {
     width: auto;
