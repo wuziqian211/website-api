@@ -93,7 +93,7 @@ div.header {
 main {
   width: 1200px;
   padding: 10px;
-  margin: 20px auto 0;
+  margin: 20px auto;
   font-size: 20px;
   border-radius: 20px;
   -webkit-animation-fill-mode: both;
@@ -156,7 +156,7 @@ input {
   font-family: inherit;
 }
 footer {
-  background-color: rgba(128, 128, 128, 0.5);
+  background-color: rgba(128, 128, 128, 0.75);
   color: #FFF;
 }
 div.footer {
