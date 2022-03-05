@@ -1,3 +1,5 @@
+'use strict';
+const getTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 时 ${Math.floor(ts % 3600 / 60)} 分 ${Math.floor(ts % 60)} 秒`;
 module.exports = (st, data) => `<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -22,11 +24,12 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <footer>
       <div class="footer">
         &copy; 2021 - 2022 wuziqian211<br />
-        页面生成时间：<span class="generation-time">${new Date().getTime() - st}</span> ms
+        耗时 <span class="ttime">${new Date().getTime() - st}</span> ms
+        本 API 已稳定运行 ${getTime(new Date().getTime() / 1000 - 1636619300)}
       </div>
     </footer>
     <script>
-      const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.generation-time'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.ttime'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
     </script>
