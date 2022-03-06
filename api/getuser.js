@@ -110,6 +110,7 @@ module.exports = (req, res) => {
         body {
           background-color: #222;
           backdrop-filter: blur(20px) brightness(0.5);
+          -webkit-backdrop-filter: blur(20px) brightness(0.5);
         }
         header {
           background-color: rgba(51, 51, 51, 0.5);
