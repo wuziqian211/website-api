@@ -121,7 +121,7 @@ module.exports = (req, res) => {
                 sendHTML({title: '视频获取失败', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
       如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
               }
-            );
+            });
           };
           get(0);
         } else { // 视频无效
