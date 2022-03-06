@@ -37,7 +37,7 @@ const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
-  const st = new Date().getTime();
+  const st = Date.now();
   const sendHTML = data => res.send(HTML(st, {title: data.title, style: data.style, body: `
       ${data.content}
       <form action="/api/getuser" method="GET">
