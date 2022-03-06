@@ -94,15 +94,17 @@ module.exports = (req, res) => {
           }
           cid = cid || json.data.cid;
           const q = [6, 16, 32, 64];
-          const get = (n, u) => {
+          var u;
+          const get = n => {
             fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`).then(resp => resp.json()).then(vjson => {
-              if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB）
-                if (n < q.length - 1) {
-                  get(n + 1, vjson.data.durl[0].url);
+              if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
+                u = vjson.data.durl[0].url;
+                if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
+                  get(n + 1); // 继续尝试获取更高分辨率的视频
                   return;
                 }
               }
-              if (u) { // 视频获取成功
+              if (u) { // 当前分辨率的视频获取失败，或者已经达到最高分辨率了，但上一分辨率的视频获取成功
                 fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
                   const t = u.slice(0, u.indexOf('?'));
                   const filename = URLEncode(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`, 'UTF-8'); // 设置视频的文件名
