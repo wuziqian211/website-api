@@ -95,7 +95,7 @@ module.exports = (req, res) => {
           cid = cid || json.data.cid;
           const q = [6, 16, 32, 64];
           const get = async n => {
-            if (n >= q.length) return;
+            if (cid && n >= q.length) return;
             const vjson = await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`).then(resp => resp.json());
             if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB）
               return get(n + 1) || vjson.data.durl[0].url;
@@ -161,7 +161,7 @@ module.exports = (req, res) => {
           background-color: rgba(34, 34, 34, 0.5);
         }
       }
-    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a><br />
+    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? `&emsp;已与 <a href="/api/getvideo?vid=${json.data.forward}">av${json.data.forward}</a> 撞车` : ''}<br />
       ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
       <strong>分区：</strong>${json.data.tname}<br />
       <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
