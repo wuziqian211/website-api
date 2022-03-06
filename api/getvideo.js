@@ -98,7 +98,9 @@ module.exports = (req, res) => {
             if (!cid || n >= q.length) return;
             let vjson = await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`).then(resp => resp.json());
             if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB）
-              return get(n + 1) || vjson.data.durl[0].url;
+              var url;
+              get(n + 1).then(u => url = u);
+              return url || vjson.data.durl[0].url;
             } else {
               return;
             }
