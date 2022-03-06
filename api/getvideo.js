@@ -94,7 +94,7 @@ module.exports = (req, res) => {
           }
           cid = cid || json.data.cid;
           const q = [6, 16, 32, 64];
-          const get = n => {
+          const get = async n => {
             if (n >= q.length) return;
             const vjson = await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`).then(resp => resp.json());
             if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB）
