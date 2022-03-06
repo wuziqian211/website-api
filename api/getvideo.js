@@ -106,7 +106,7 @@ module.exports = (req, res) => {
                       res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                       return resp.buffer();
                     } else {
-                      res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').setHeader('Content-Disposition', `inline;filename=${filename}`);
+                      res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                       return file('assets/error.mp4');
                     }
                   }).then(buffer => res.send(buffer));
@@ -115,7 +115,7 @@ module.exports = (req, res) => {
                   sendHTML({title: '视频获取失败', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
       如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
                 }
-              } else {
+              } else { 视频地址获取失败，或大小超过了5MB
                 if (n > 0) return;
                 res.status(500);
                 sendHTML({title: '视频获取失败', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
