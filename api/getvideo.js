@@ -94,29 +94,27 @@ module.exports = (req, res) => {
           }
           cid = cid || json.data.cid;
           const q = [6, 16, 32, 64];
-          const get = n => {
-            if (!cid || n >= q.length) return;
+          const get = (n, u) => {
             fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`).then(resp => resp.json()).then(vjson => {
               if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB）
-                const url = get(n + 1) || vjson.data.durl[0].url;
-                if (url) { // 视频获取成功
-                  fetch(url, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
-                    const filename = URLEncode(`${json.data.title}.mp4`, 'UTF-8'); // 设置视频的文件名
-                    if (resp.status === 200) {
-                      res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
-                      return resp.buffer();
-                    } else {
-                      res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
-                      return file('assets/error.mp4');
-                    }
-                  }).then(buffer => res.send(buffer));
-                } else { // 视频获取失败
-                  res.status(500);
-                  sendHTML({title: '视频获取失败', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
-      如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
+                if (n < q.length - 1) {
+                  get(n + 1, vjson.data.durl[0].url);
+                  return;
                 }
-              } else { // 视频地址获取失败，或大小超过了5MB
-                if (n > 0) return;
+              }
+              if (u) { // 视频获取成功
+                fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
+                  const t = u.slice(0, u.indexOf('?'));
+                  const filename = URLEncode(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`, 'UTF-8'); // 设置视频的文件名
+                  if (resp.status === 200) {
+                    res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                    return resp.buffer();
+                  } else {
+                    res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                    return file('assets/error.mp4');
+                  }
+                }).then(buffer => res.send(buffer));
+              } else { // 视频获取失败
                 res.status(500);
                 sendHTML({title: '视频获取失败', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
       如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
