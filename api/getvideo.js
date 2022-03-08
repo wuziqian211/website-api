@@ -90,7 +90,7 @@ module.exports = (req, res) => {
           if (/^\d+$/.test(req.query.cid)) {
             json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : void 0);
           } else if (/^\d+$/.test(req.query.p)) {
-            cid = json.data.pages[parseInt(req.query.p) - 1].cid;
+            cid = json.data.pages[parseInt(req.query.p) - 1]?.cid;
           }
           cid = cid || json.data.cid;
           const q = [6, 16, 32, 64];
@@ -118,7 +118,7 @@ module.exports = (req, res) => {
                 }).then(buffer => res.send(buffer));
               } else { // 视频获取失败
                 res.status(500);
-                sendHTML({title: '视频获取失败', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
+                sendHTML({title: '视频太大', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
       如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
               }
             });
@@ -251,7 +251,7 @@ module.exports = (req, res) => {
       if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
-          sendHTML({title: '获取哔哩哔哩视频信息', content: `本 API 可以获取指定 B 站视频的信息。<br />
+          sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
       用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频的 AV 或 BV 号</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
