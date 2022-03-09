@@ -87,7 +87,7 @@ body {
   text-align: justify;
   min-height: 100%;
   margin: 0;
-  transition: background 1s ease;
+  transition: background 0.5s ease 0.5s;
 }
 header {
   background-color: #EEE;
