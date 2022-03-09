@@ -11,7 +11,16 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <script src="/assets/pjax.min.js"></script>
-    <style class="extra">${data.style || ''}</style>
+    <style class="extra">${data.style || `
+      body {
+        background: #FFF;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #222;
+        }
+      }
+    `}</style>
   </head>
   <body>
     <header>
