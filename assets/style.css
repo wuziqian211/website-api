@@ -80,6 +80,7 @@ html {
   height: 100%;
 }
 body {
+  background: #FFF;
   color: #111;
   font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow-wrap: break-word;
@@ -190,6 +191,7 @@ footer {
     background-color: #CCC;
   }
   body {
+    background: #222;
     color: #CCC;
   }
   mark {
