@@ -10,9 +10,16 @@ module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
   </head>
   <body>
-    <header><div class="header"><a class="noul" href="https://wuziqian211.top/">wuziqian211's Blog</a></div></header>
+    <header>
+      <div class="header">
+        <a class="noul" href="https://wuziqian211.top/">wuziqian211's Blog</a>
+      </div>
+    </header>
     <main>
       您似乎输入错了网址！您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？
     </main>
+    <footer>
+      &copy; 2021 - 2022 wuziqian211
+    </footer>
   </body>
 </html>`);
