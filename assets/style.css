@@ -56,9 +56,6 @@ a.noul {
 a:hover {
   color: inherit;
 }
-a.noul:hover {
-  text-decoration: underline;
-}
 img.uface {
   height: 60px;
   border-radius: 50%;
