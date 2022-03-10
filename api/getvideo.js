@@ -82,6 +82,7 @@ module.exports = (req, res) => {
         </div>
       </form>
     `})); // 将HTML数据发送到客户端
+  const accept = req.headers.accept || '*/*';
   const vid = toBV(req.query.vid); // 将视频ID转换成BV号
   if (vid) { // 判断视频ID是否有效
     fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
@@ -129,7 +130,7 @@ module.exports = (req, res) => {
           res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
         }
       } else { // 获取视频信息
-        if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+        if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
@@ -204,7 +205,7 @@ module.exports = (req, res) => {
               res.status(400);
               sendHTML({title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid});
           }
-        } else if (req.headers.accept?.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
+        } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
           if (json.code === 0) {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
               res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
@@ -249,7 +250,7 @@ module.exports = (req, res) => {
     if (req.query.type === 'data') {
       res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 400).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
     } else {
-      if (req.headers.accept?.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
@@ -260,7 +261,7 @@ module.exports = (req, res) => {
           sendHTML({title: '视频 ID 无效', content: `您输入的视频的 AV 或 BV 号无效！<br />
       请输入一个正确的 AV 或 BV 号吧 awa`, vid: ''});
         }
-      } else if (req.headers.accept?.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
+      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
         res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
       } else { // 接受类型既不含HTML，也不含图片，返回json
         res.status(400).json({code: -400, message: '请求错误'});
