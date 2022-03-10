@@ -1,5 +1,5 @@
 ::-webkit-scrollbar {
-  background-color: #FFF;
+  background-color: inherit;
   width: 10px;
 }
 ::-webkit-scrollbar-thumb {
@@ -43,17 +43,21 @@ main.loading {
 }
 mark {
   border-radius: 5px;
-  color: #222;
+  color: inherit;
 }
 a {
   color: #555;
   transition: color 0.5s ease;
 }
 a.noul {
+  color: inherit;
   text-decoration: none;
 }
 a:hover {
-  color: #222;
+  color: inherit;
+}
+a.noul:hover {
+  text-decoration: underline;
 }
 img.uface {
   height: 60px;
@@ -114,9 +118,6 @@ footer {
   }
 }
 @media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar {
-    background-color: #222;
-  }
   ::-webkit-scrollbar-thumb {
     background-color: #CCC;
   }
@@ -128,13 +129,10 @@ footer {
     background-color: #333;
   }
   mark {
-    background-color: #990;
+    background-color: #880;
   }
   a {
     color: #AAA;
-  }
-  a:hover {
-    color: #CCC;
   }
   th, td {
     border-color: #CCC;
