@@ -80,7 +80,8 @@ module.exports = (req, res) => {
           <input type="text" name="vid" id="vid" value="${data.vid}" maxlength="12" autocomplete="off" />
           <input type="submit" value="获取" />
         </div>
-      </form>`})); // 将HTML数据发送到客户端
+      </form>
+    `})); // 将HTML数据发送到客户端
   const vid = toBV(req.query.vid); // 将视频ID转换成BV号
   if (vid) { // 判断视频ID是否有效
     fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {

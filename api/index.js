@@ -9,7 +9,8 @@ module.exports = (req, res) => {
       <br />
       可用 API：<br />
       <a href="/api/getuser">获取哔哩哔哩用户信息及其关注、粉丝数</a><br />
-      <a href="/api/getvideo">获取哔哩哔哩视频信息及数据</a>`}));
+      <a href="/api/getvideo">获取哔哩哔哩视频信息及数据</a>
+    `}));
   } else {
     res.status(404).json({code: -404});
   }
