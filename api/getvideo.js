@@ -46,25 +46,24 @@ const getDate = ts => {
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}` : '';
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
+const tobv = aid => { // AV号转BV号，改编自zhihu.com/question/381784377/answer/1099438784
+  const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
+  const t = (aid ^ 177451812) + 8728348608;
+  let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
+  for (let i = 0; i < 6; i++) {
+    bvid[[11, 10, 3, 8, 4, 6][i]] = table[Math.floor(t / (58 ** i)) % 58];
+  }
+  return bvid.join('');
+};
 const toBV = vid => {
   if (typeof vid !== 'string') return;
   if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
-    var av = parseInt(vid.slice(2));
+    return tobv(parseInt(vid.slice(2)));
   } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
-    var av = parseInt(vid);
+    return tobv(parseInt(vid));
   } else if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否为BV号
     return 'BV' + vid.slice(2); // 直接返回
-  } else {
-    return;
   }
-  // AV号转BV号，改编自zhihu.com/question/381784377/answer/1099438784
-  const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
-  const t = (av ^ 177451812) + 8728348608;
-  let bv = ['B', 'V', '1', , ,'4', , '1', , '7', , ,];
-  for (let i = 0; i < 6; i++) {
-    bv[[11, 10, 3, 8, 4, 6][i]] = table[Math.floor(t / (58 ** i)) % 58];
-  }
-  return bv.join('');
 };
 const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
@@ -167,7 +166,7 @@ module.exports = (req, res) => {
           background-color: rgba(34, 34, 34, 0.5);
         }
       }
-    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? `&emsp;已与 <a href="/api/getvideo?vid=${json.data.forward}">av${json.data.forward}</a> 撞车` : ''}<br />
+    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? `&emsp;已与 <a href="/api/getvideo?vid=${tobv(json.data.forward)}">${tobv(json.data.forward)}</a> 撞车` : ''}<br />
       ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
       <strong>分区：</strong>${json.data.tname}<br />
       <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
