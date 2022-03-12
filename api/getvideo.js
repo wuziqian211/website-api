@@ -1,7 +1,7 @@
 /* 获取哔哩哔哩视频信息及数据
  *   https://api.wuziqian211.top/api/getvideo
- * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、视频信息及数据等，仅转发B站服务器的返回内容。
- * 特别注意：请勿将本API用于非法用途！获取的视频的数据仅供预览，要下载视频，请使用其他工具。
+ * 本API允许任何合法网站与程序等调用，但本站不会存储任何访问记录，视频的信息、数据等，仅转发与处理B站API的返回数据。
+ * 特别注意：请勿将本API用于非法用途！获取的视频的数据仅供预览，要下载视频，请使用其他工具，本API只能获取大小不超过5MB（1MB=1000KB）的视频。
  * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
  * 请求参数（区分大小写）：
  *   vid：您想获取视频信息或数据的AV或BV号。
@@ -12,14 +12,14 @@
  *   其中，“cid”与“p”只能在获取视频数据时填写，且只能填写其中一个，如果不填，默认为P1。
  * 返回类型：
  *   如果请求参数“type”的值为“data”，则返回视频数据。
- *   否则，本API会检测HTTP请求头中“accept”的值：
- *     如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据；
- *     如果包含“image”（比如在<img>标签的“src”参数填写本API网址），且填写了有效的“id”参数，就返回对应视频的封面；
+ *   否则，本API会检测HTTP请求头中“accept”与“sec-fetch-dest”的值：
+ *     如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如浏览器直接访问本API页面），则返回HTML数据;
+ *     如果“accept”的值包含“image”，或者“sec-fetch-dest”的值为“image”（比如在<img>标签的“src”参数填写本API网址），而且填写了有效的“vid”参数，则返回对应视频的封面；
  *     否则，返回json。
- * 响应代码：
+ * 响应代码（填写参数时）：
  *   200：视频存在
  *   307（注意不是302）：临时重定向
- *   403：视频需登录才能获取信息
+ *   403：需登录才能获取该视频的信息，本API无能为力
  *   404：视频不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
  *   400：视频ID无效，或者因其他原因请求失败
@@ -46,7 +46,7 @@ const getDate = ts => {
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}` : '';
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
-const tobv = aid => { // AV号转BV号，改编自zhihu.com/question/381784377/answer/1099438784
+const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
   const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
   const t = (aid ^ 177451812) + 8728348608;
   let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
@@ -119,7 +119,7 @@ module.exports = (req, res) => {
                 }).then(buffer => res.send(buffer));
               } else { // 视频获取失败
                 res.status(500);
-                sendHTML({title: '视频太大', content: `抱歉，因为视频太大，本 API 无法向您发送那么长的数据 qwq<br />
+                sendHTML({title: '视频太大', content: `抱歉，由于您想要获取数据的视频太大，本 API 无法向您发送那么大的数据哟 qwq<br />
       如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
               }
             });
@@ -187,8 +187,7 @@ module.exports = (req, res) => {
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: `您的请求过于频繁，已被 B 站拦截 qwq<br />
-      请稍后重试 awa`, vid: req.query.vid});
+              sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: req.query.vid});
               break;
             case -404:
             case 62002:
@@ -211,7 +210,7 @@ module.exports = (req, res) => {
             } else {
               fetch(toHTTPS(json.data.pic)).then(resp => { // 获取B站服务器存储的封面
                 const a = toHTTPS(json.data.pic).split('.');
-                const filename = URLEncode(`${json.data.title} 的封面.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
+                const filename = URLEncode(`${json.data.title} 的封面.${a[a.length - 1]}`, 'UTF-8'); // 设置封面的文件名
                 if (resp.status === 200) {
                   res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                   return resp.buffer();
@@ -257,7 +256,7 @@ module.exports = (req, res) => {
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
-          sendHTML({title: '视频 ID 无效', content: `您输入的视频的 AV 或 BV 号无效！<br />
+          sendHTML({title: '视频 ID 无效', content: `您输入的 AV 或 BV 号无效！<br />
       请输入一个正确的 AV 或 BV 号吧 awa`, vid: ''});
         }
       } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面

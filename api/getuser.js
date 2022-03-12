@@ -1,6 +1,6 @@
-/* 获取哔哩哔哩用户信息及其关注、粉丝数
+/* 获取哔哩哔哩用户信息及关注、粉丝数
  *   https://api.wuziqian211.top/api/getuser
- * 本API允许任何合法来源的网站与程序等调用，但本网站不会存储任何日志、用户信息等，仅转发B站服务器的返回内容。
+ * 本API允许任何合法网站与程序等调用，但本站不会存储任何访问记录，用户的信息及关注、粉丝数等，仅转发与处理B站API的返回数据。
  * 特别注意：请勿将本API用于非法用途！
  * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
  * 请求参数（区分大小写）：
@@ -8,12 +8,12 @@
  *   allow_redirect：如果存在本参数，则获取头像数据时可能会重定向到B站服务器的头像地址。
  *   type：如果本参数的值为“info”，只返回用户信息；如果值为“follow”，只返回用户关注、粉丝数；否则都返回。
  * 返回类型：
- *   本API会检测HTTP请求头中“accept”的值，以返回不同类型的数据。
- *   如果“accept”的值包含“html”（比如浏览器直接访问本API页面），则返回HTML数据。
- *   如果包含“image”（比如在<img>标签的“src”参数填写本API网址），且填写了有效的“mid”参数，就返回对应用户的头像数据；如果未填写参数，就返回随机头像。
+ *   本API会根据HTTP请求头中“accept”与“sec-fetch-dest”的值，返回不同类型的数据。
+ *   如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如浏览器直接访问本API页面），则返回HTML数据。
+ *   如果“accept”的值包含“image”，或者“sec-fetch-dest”的值为“image”（比如在<img>标签的“src”参数填写本API网址），那么：如果填写了有效的“mid”参数，则返回对应用户的头像数据；如果未填写参数，则返回随机头像。
  *   否则，返回json。
- * 响应代码：
- *   200：用户存在，或者未填写“mid”参数且返回类型为HTML或图片
+ * 响应代码（填写参数时）：
+ *   200：用户存在
  *   307（注意不是302）：临时重定向
  *   404：用户不存在
  *   429（注意不是412）：请求太频繁，已被B站的API拦截
@@ -63,8 +63,7 @@ module.exports = (req, res) => {
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: `您的请求过于频繁，已被 B 站拦截 qwq<br />
-      请稍后重试 awa`, mid: req.query.mid});
+              sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: req.query.mid});
               break;
             case -404:
               res.status(404);
@@ -131,19 +130,18 @@ module.exports = (req, res) => {
               } else {
                 fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`).then(resp => resp.json()).then(fjson => {
                   if (fjson.code === 0) {
-                    sendHTML({title: `${json.data.name} 的用户信息及关注、粉丝数`, style: s, content: c + `<br />
+                    sendHTML({title: `用户 ${json.data.name} 的信息及关注、粉丝数`, style: s, content: c + `<br />
       <strong>关注数：</strong>${getNumber(fjson.data.following)}<br />
       <strong>粉丝数：</strong>${getNumber(fjson.data.follower)}`, mid: req.query.mid});
                   } else {
-                    sendHTML({title: `${json.data.name} 的用户信息`, style: s, content: c, mid: req.query.mid});
+                    sendHTML({title: `用户 ${json.data.name} 的信息`, style: s, content: c, mid: req.query.mid});
                   }
                 });
               }
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '操作太频繁', content: `您的请求过于频繁，已被 B 站拦截 qwq<br />
-      请稍后重试 awa`, mid: req.query.mid});
+              sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: req.query.mid});
               break;
             case -404:
               res.status(404);
@@ -204,7 +202,7 @@ module.exports = (req, res) => {
     if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
       if (!req.query.mid) { // 没有设置UID参数
         res.status(200);
-        sendHTML({title: '获取哔哩哔哩用户信息及其关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及其关注、粉丝数。<br />
+        sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
       用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.js">本 API 源码</a>。`, mid: ''});
       } else { // 设置了UID参数但无效
