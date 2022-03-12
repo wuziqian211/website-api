@@ -23,7 +23,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <footer>
       &copy; 2021 - 2022 wuziqian211<br />
       执行耗时 <span class="time-taken">${Date.now() - st}</span> ms<br />
-      本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636619300)}</span>
+      本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816554)}</span>
     </footer>
     <script>
       const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.time-taken'], cacheBust: false});
@@ -31,7 +31,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
       const getTime = ts => \`\${Math.floor(ts / 86400)} 天 \${Math.floor(ts % 86400 / 3600)} 小时 \${Math.floor(ts % 3600 / 60)} 分钟 \${Math.floor(ts % 60)} 秒\`;
       const runningtime = document.querySelector('.running-time');
-      setInterval(() => runningtime.innerText = getTime(Date.now() / 1000 - 1636619300), 1000);
+      setInterval(() => runningtime.innerText = getTime(Date.now() / 1000 - 1636816554), 1000);
     </script>
   </body>
 </html>`;
