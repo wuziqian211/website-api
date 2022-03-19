@@ -71,12 +71,12 @@ module.exports = (req, res) => {
   const st = Date.now();
   const sendHTML = data => res.send(HTML(st, {title: data.title, style: data.style, body: `
       ${data.content}
-      <form action="/api/getvideo" method="GET">
+      <form action="/api/getvideo" method="get">
         <div>
           <label for="vid">请输入您想要获取信息的视频的 AV 或 BV 号：</label>
         </div>
         <div>
-          <input type="text" name="vid" id="vid" value="${data.vid}" maxlength="12" autocomplete="off" />
+          <input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…" pattern="^[0-9A-HJ-NP-Za-km-z]+$" maxlength="12" autocomplete="off" spellcheck="false" autofocus />
           <input type="submit" value="获取" />
         </div>
       </form>
