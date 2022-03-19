@@ -51,7 +51,7 @@ module.exports = (req, res) => {
             res.status(200).json({code: 0, data: html});
           }
         };
-        get(friends);
+        get(friends.sort(() => 0.5 - Math.random()));
         break;
       case 'update':
         if (parseInt(req.query.version) > 0) {

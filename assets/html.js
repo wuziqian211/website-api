@@ -26,12 +26,12 @@ module.exports = (st, data) => `<!DOCTYPE html>
       本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816554)}</span>
     </footer>
     <script>
-      const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', '.time-taken'], cacheBust: false});
+      const pjax = new Pjax({selectors: ['title', 'style.extra', 'main', 'span.time-taken'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
       const getTime = ts => \`\${Math.floor(ts / 86400)} 天 \${Math.floor(ts % 86400 / 3600)} 小时 \${Math.floor(ts % 3600 / 60)} 分钟 \${Math.floor(ts % 60)} 秒\`;
-      const runningtime = document.querySelector('.running-time');
-      setInterval(() => runningtime.innerText = getTime(Date.now() / 1000 - 1636816554), 1000);
+      const runningTime = document.querySelector('span.running-time');
+      setInterval(() => runningTime.innerText = getTime(Date.now() / 1000 - 1636816554), 1000);
     </script>
   </body>
 </html>`;
