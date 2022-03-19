@@ -75,7 +75,7 @@ module.exports = (req, res) => {
         <div>
           <label for="vid">请输入您想要获取信息的视频的 AV 或 BV 号：</label>
         </div>
-        <div>2
+        <div>
           <input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…" pattern="^[0-9A-HJ-NP-Za-km-z]+$" maxlength="12" autocomplete="off" spellcheck="false" />
           <input type="submit" value="获取" />
         </div>
