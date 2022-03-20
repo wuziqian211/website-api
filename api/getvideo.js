@@ -48,10 +48,10 @@ const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 36
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
 const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
   const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
-  const t = (aid ^ 177451812) + 8728348608;
+  const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
   let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
   for (let i = 0; i < 6; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = table[Math.floor(t / (58 ** i)) % 58];
+    bvid[[11, 10, 3, 8, 4, 6][i]] = table[Math.floor(t / (58n ** BigInt(i))) % 58n];
   }
   return bvid.join('');
 };
