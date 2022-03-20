@@ -102,10 +102,10 @@ module.exports = (req, res) => {
         -webkit-backdrop-filter: blur(20px);
       }
       header {
-        background-color: rgba(238, 238, 238, 0.5);
+        background: #EEEEEE80;
       }
       main {
-        background-color: rgba(255, 255, 255, 0.5);
+        background: #FFFFFF80;
       }
       @media (prefers-color-scheme: dark) {
         body {
@@ -114,10 +114,10 @@ module.exports = (req, res) => {
           -webkit-backdrop-filter: blur(20px) brightness(0.5);
         }
         header {
-          background-color: rgba(51, 51, 51, 0.5);
+          background: #33333380;
         }
         main {
-          background-color: rgba(34, 34, 34, 0.5);
+          background: #22222280;
         }
       }
     `;

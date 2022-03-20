@@ -148,10 +148,10 @@ module.exports = (req, res) => {
         -webkit-backdrop-filter: blur(20px);
       }
       header {
-        background-color: rgba(238, 238, 238, 0.5);
+        background: #EEEEEE80;
       }
       main {
-        background-color: rgba(255, 255, 255, 0.5);
+        background: #FFFFFF80;
       }
       @media (prefers-color-scheme: dark) {
         body {
@@ -160,10 +160,10 @@ module.exports = (req, res) => {
           -webkit-backdrop-filter: blur(20px) brightness(0.5);
         }
         header {
-          background-color: rgba(51, 51, 51, 0.5);
+          background: #33333380;
         }
         main {
-          background-color: rgba(34, 34, 34, 0.5);
+          background: #22222280;
         }
       }
     `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? `&emsp;已与 <a href="/api/getvideo?vid=${tobv(json.data.forward)}">${tobv(json.data.forward)}</a> 撞车` : ''}<br />

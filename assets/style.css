@@ -1,14 +1,14 @@
 ::-webkit-scrollbar {
-  background-color: inherit;
+  background: inherit;
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #222;
+  background: #222;
   border-radius: 5px;
 }
 ::selection {
-  background-color: #222;
+  background: #222;
   color: #CCC;
 }
 html {
@@ -25,7 +25,7 @@ body {
   transition: background 0.5s ease 0.5s;
 }
 header {
-  background-color: #EEE;
+  background: #EEE;
 }
 div.header {
   width: 1200px;
@@ -48,6 +48,7 @@ main.loading {
 }
 mark {
   border-radius: 5px;
+  background: #FF0;
   color: inherit;
 }
 a {
@@ -103,14 +104,15 @@ input {
   border-radius: 5px;
   height: 20px;
   box-sizing: content-box;
-  background-color: #EEE;
-  transition: background-color 0.5s ease;
+  background: inherit;
+  color: #222;
+  transition: background 0.5s ease;
 }
 input:hover, input[type="text"]:focus, input[type="number"]:focus {
-  background-color: inherit;
+  background: #FFFFFF80;
 }
 input[type="submit"]:active {
-  background-color: #DDD;
+  background: #DDDDDD80;
 }
 footer {
   text-align: center;
@@ -135,17 +137,17 @@ footer {
 }
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-thumb {
-    background-color: #CCC;
+    background: #CCC;
   }
   body {
     background: #222;
     color: #CCC;
   }
   header {
-    background-color: #333;
+    background: #333;
   }
   mark {
-    background-color: #880;
+    background: #880;
   }
   a {
     color: #AAA;
@@ -155,11 +157,13 @@ footer {
   }
   input {
     border-color: #CCC;
-    background-color: #111;
     color: #CCC;
   }
+  input:hover, input[type="text"]:focus, input[type="number"]:focus {
+    background: #22222280;
+  }
   input[type="submit"]:active {
-    background-color: #000;
+    background: #00000080;
   }
 }
 
