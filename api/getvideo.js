@@ -51,7 +51,7 @@ const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
   let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
   for (let i = 0; i < 6; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = table[Math.floor(t / (58n ** BigInt(i))) % 58n];
+    bvid[[11, 10, 3, 8, 4, 6][i]] = table[parseInt(t / (58n ** BigInt(i)) % 58n)];
   }
   return bvid.join('');
 };
