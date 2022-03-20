@@ -105,7 +105,7 @@ input {
   height: 20px;
   box-sizing: content-box;
   background: inherit;
-  color: #222;
+  color: inherit;
   transition: background 0.5s ease;
 }
 input:hover, input[type="text"]:focus, input[type="number"]:focus {
@@ -157,7 +157,6 @@ footer {
   }
   input {
     border-color: #CCC;
-    color: #CCC;
   }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
     background: #22222280;
