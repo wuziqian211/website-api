@@ -50,17 +50,17 @@ const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question
   const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
   let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
-  for (let i = 0; i < 6; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = table[parseInt(t / (58n ** BigInt(i)) % 58n)];
+  for (let i = 0n; i < 6n; i++) {
+    bvid[[11, 10, 3, 8, 4, 6][i]] = table[t / (58n ** i) % 58n];
   }
   return bvid.join('');
 };
 const toBV = vid => {
   if (typeof vid !== 'string') return;
   if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
-    return tobv(parseInt(vid.slice(2)));
+    return tobv(vid.slice(2));
   } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
-    return tobv(parseInt(vid));
+    return tobv(vid);
   } else if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否为BV号
     return 'BV' + vid.slice(2); // 直接返回
   }
