@@ -11,18 +11,20 @@
   background: #222;
   color: #CCC;
 }
+* {
+  color: #222;
+  font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow-wrap: break-word;
+  text-align: justify;
+  transition: background 0.5s ease, color 0.5s ease;
+}
 html {
   height: 100%;
 }
 body {
   background: #FFF;
-  color: #222;
-  font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
-  overflow-wrap: break-word;
-  text-align: justify;
   min-height: 100%;
   margin: 0;
-  transition: background 0.5s ease 0.5s;
 }
 header {
   background: #EEE;
@@ -49,11 +51,9 @@ main.loading {
 mark {
   border-radius: 5px;
   background: #FF0;
-  color: inherit;
 }
 a {
   color: #555;
-  transition: color 0.5s ease;
 }
 a.noul {
   color: inherit;
@@ -105,8 +105,6 @@ input {
   height: 20px;
   box-sizing: content-box;
   background: inherit;
-  color: inherit;
-  transition: background 0.5s ease;
 }
 input:hover, input[type="text"]:focus, input[type="number"]:focus {
   background: #FFFFFF80;
@@ -139,9 +137,11 @@ footer {
   ::-webkit-scrollbar-thumb {
     background: #CCC;
   }
+  * {
+    color: #CCC;
+  }
   body {
     background: #222;
-    color: #CCC;
   }
   header {
     background: #333;
@@ -152,10 +152,7 @@ footer {
   a {
     color: #AAA;
   }
-  th, td {
-    border-color: #CCC;
-  }
-  input {
+  th, td, input {
     border-color: #CCC;
   }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
