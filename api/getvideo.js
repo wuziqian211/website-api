@@ -141,6 +141,7 @@ module.exports = (req, res) => {
           } else {
             res.status(404);
             sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: req.query.vid});
+          }
         }
       } else { // 获取视频信息
         if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
