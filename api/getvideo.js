@@ -69,7 +69,7 @@ const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const st = Date.now();
-  const sendHTML = data => res.send(HTML(st, {title: data.title, style: data.style, body: `
+  const renderHTML = data => HTML(st, {title: data.title, style: data.style, body: `
       ${data.content}
       <form action="/api/getvideo" method="get">
         <div>
@@ -80,7 +80,8 @@ module.exports = (req, res) => {
           <input type="submit" value="获取" />
         </div>
       </form>
-    `})); // 将HTML数据发送到客户端
+    `}); // “渲染”HTML
+  const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(renderHTML(data)); // 将HTML数据发送到客户端
   const accept = req.headers.accept || '*/*';
   const vid = toBV(req.query.vid); // 将视频ID转换成BV号
   if (vid) { // 判断视频ID是否有效
@@ -113,20 +114,33 @@ module.exports = (req, res) => {
                     res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
                     return resp.buffer();
                   } else {
-                    res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4');
-                    return file('assets/error.mp4');
+                    if (req.headers['sec-fetch-dest'] === 'video') {
+                      res.status(200).setHeader('Content-Type', 'video/mp4');
+                      return file('assets/error.mp4');
+                    } else {
+                      res.status(404);
+                      return renderHTML({title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid});
+                    }
                   }
                 }).then(buffer => res.send(buffer));
               } else { // 视频获取失败
-                res.status(500);
-                sendHTML({title: '视频太大', content: `抱歉，由于您想要获取数据的视频太大，本 API 无法向您发送那么大的数据哟 qwq<br />
-      如想下载视频，请使用其他工具哟 awa`, vid: req.query.vid});
+                if (req.headers['sec-fetch-dest'] === 'video') {
+                  res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+                } else {
+                  res.status(500);
+                  sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
+      如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
+                }
               }
             });
           };
           get(0);
         } else { // 视频无效
-          res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 404).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+          if (req.headers['sec-fetch-dest'] === 'video') {
+            res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+          } else {
+            res.status(404);
+            sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: req.query.vid});
         }
       } else { // 获取视频信息
         if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
@@ -171,16 +185,14 @@ module.exports = (req, res) => {
       <strong>分区：</strong>${json.data.tname}<br />
       <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
       <strong>发布时间：</strong>${getDate(json.data.pubdate)}${pagesHTML}
-      <div class="table">
-        <table>
-          <thead>
-            <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>${getNumber(json.data.stat.view)}</td><td>${getNumber(json.data.stat.danmaku)}</td><td>${getNumber(json.data.stat.reply)}</td><td>${getNumber(json.data.stat.like)}</td><td>${getNumber(json.data.stat.coin)}</td><td>${getNumber(json.data.stat.favorite)}</td><td>${getNumber(json.data.stat.share)}</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <table>
+        <thead>
+          <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>${getNumber(json.data.stat.view)}</td><td>${getNumber(json.data.stat.danmaku)}</td><td>${getNumber(json.data.stat.reply)}</td><td>${getNumber(json.data.stat.like)}</td><td>${getNumber(json.data.stat.coin)}</td><td>${getNumber(json.data.stat.favorite)}</td><td>${getNumber(json.data.stat.share)}</td></tr>
+        </tbody>
+      </table>
       ${json.data.rights.is_cooperation ? `<strong>合作成员：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.owner.name}</strong></a>`}<br />
       <strong>简介：</strong><br />
       ${encodeHTML(json.data.desc)}`, vid: req.query.vid});
@@ -245,25 +257,21 @@ module.exports = (req, res) => {
       }
     });
   } else { // 视频ID无效
-    if (req.query.type === 'data') {
-      res.status(req.headers['sec-fetch-dest'] === 'video' ? 200 : 400).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
-    } else {
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
-        if (!req.query.vid) { // 没有设置参数“vid”
-          res.status(200);
-          sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
+    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
+      if (!req.query.vid) { // 没有设置参数“vid”
+        res.status(200);
+        sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
       用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频的 AV 或 BV 号</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
-        } else { // 设置了“vid”参数但无效
-          res.status(400);
-          sendHTML({title: '视频 ID 无效', content: `您输入的 AV 或 BV 号无效！<br />
+      } else { // 设置了“vid”参数但无效
+        res.status(400);
+        sendHTML({title: '视频 ID 无效', content: `您输入的 AV 或 BV 号无效！<br />
       请输入一个正确的 AV 或 BV 号吧 awa`, vid: ''});
-        }
-      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
-        res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
-      } else { // 接受类型既不含HTML，也不含图片，返回json
-        res.status(400).json({code: -400, message: '请求错误'});
       }
+    } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
+      res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
+    } else { // 接受类型既不含HTML，也不含图片，返回json
+      res.status(400).json({code: -400, message: '请求错误'});
     }
   }
 };
