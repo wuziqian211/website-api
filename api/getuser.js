@@ -23,22 +23,18 @@
  *   https://space.bilibili.com/425503913
  */
 'use strict';
-const fetch = require('node-fetch');
-const {readFileSync} = require('fs');
-const {join} = require('path');
+const fetch = require('node-fetch'), {readFileSync} = require('fs'), {join} = require('path'), URLEncode = require('urlencode'), HTML = require('../assets/html');
 const file = fileName => readFileSync(join(__dirname, '..', fileName));
-const URLEncode = require('urlencode');
 const toHTTPS = url => {
   let u = url.split(':');
   u[0] = 'https'; // 将协议改成HTTPS
   return u.join(':');
 };
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
-const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const st = Date.now();
-  const sendHTML = data => res.send(HTML(st, {title: data.title, style: data.style, body: `
+  const renderHTML = data => HTML(st, {title: data.title, style: data.style, body: `
       ${data.content}
       <form action="/api/getuser" method="get">
         <div>
@@ -49,7 +45,8 @@ module.exports = (req, res) => {
           <input type="submit" value="获取" />
         </div>
       </form>
-    `})); // 将HTML数据发送到客户端
+    `}); // “渲染”HTML
+  const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(renderHTML(data)); // 将HTML数据发送到客户端
   const accept = req.headers.accept || '*/*';
   if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
@@ -159,17 +156,17 @@ module.exports = (req, res) => {
               fetch(toHTTPS(json.data.face)).then(resp => { // 获取B站服务器存储的头像
                 const a = toHTTPS(json.data.face).split('.');
                 const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
-                if (resp.status === 200) {
-                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                if (resp.ok) {
+                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
                   return resp.buffer();
                 } else {
-                  res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', `inline;filename=${filename}`);
+                  res.status(404).setHeader('Content-Type', 'image/jpeg');
                   return file('assets/noface.jpg');
                 }
               }).then(buffer => res.send(buffer));
             }
           } else { // 用户信息获取失败，返回默认头像
-            res.status(404).setHeader('Content-Type', 'image/jpeg').setHeader('Content-Disposition', 'inline;filename=%E7%94%A8%E6%88%B7%E4%B8%8D%E5%AD%98%E5%9C%A8.jpg').send(file('assets/noface.jpg')); // 用户不存在.jpg
+            res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));
           }
         } else { // 接受类型既不含HTML，也不含图片，返回json
           switch (json.code) {

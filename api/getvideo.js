@@ -29,11 +29,8 @@
  *   https://space.bilibili.com/425503913
  */
 'use strict';
-const fetch = require('node-fetch');
-const {readFileSync} = require('fs');
-const {join} = require('path');
+const fetch = require('node-fetch'), {readFileSync} = require('fs'), {join} = require('path'), URLEncode = require('urlencode'), HTML = require('../assets/html');
 const file = fileName => readFileSync(join(__dirname, '..', fileName));
-const URLEncode = require('urlencode');
 const toHTTPS = url => {
   let u = url.split(':');
   u[0] = 'https'; // 将协议改成HTTPS
@@ -65,7 +62,6 @@ const toBV = vid => {
     return 'BV' + vid.slice(2); // 直接返回
   }
 };
-const HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
 module.exports = (req, res) => {
   const st = Date.now();
@@ -110,8 +106,8 @@ module.exports = (req, res) => {
                 fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
                   const t = u.slice(0, u.indexOf('?'));
                   const filename = URLEncode(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`, 'UTF-8'); // 设置视频的文件名
-                  if (resp.status === 200) {
-                    res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                  if (resp.ok) {
+                    res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
                     return resp.buffer();
                   } else {
                     if (req.headers['sec-fetch-dest'] === 'video') {
@@ -225,16 +221,16 @@ module.exports = (req, res) => {
                 const a = toHTTPS(json.data.pic).split('.');
                 const filename = URLEncode(`${json.data.title} 的封面.${a[a.length - 1]}`, 'UTF-8'); // 设置封面的文件名
                 if (resp.status === 200) {
-                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline;filename=${filename}`);
+                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
                   return resp.buffer();
                 } else {
-                  res.status(404).setHeader('Content-Type', 'image/png').setHeader('Content-Disposition', `inline;filename=${filename}`);
+                  res.status(404).setHeader('Content-Type', 'image/png');
                   return file('assets/nopic.png');
                 }
               }).then(buffer => res.send(buffer));
             }
           } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').setHeader('Content-Disposition', 'inline;filename=%E8%A7%86%E9%A2%91%E4%B8%8D%E5%AD%98%E5%9C%A8.png').send(file('assets/nopic.png')); // 视频不存在.png
+            res.status(404).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
           }
         } else { // 接受类型既不含HTML，也不含图片，返回json
           switch (json.code) {

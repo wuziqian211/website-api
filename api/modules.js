@@ -1,7 +1,6 @@
 /* 本API仅供内部使用，并不对外公开 */
 'use strict';
-const fetch = require('node-fetch');
-const HTML = require('../assets/html');
+const fetch = require('node-fetch'), HTML = require('../assets/html');
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
 module.exports = (req, res) => {
   const st = Date.now();
