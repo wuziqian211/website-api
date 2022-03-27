@@ -36,12 +36,10 @@ module.exports = (req, res) => {
                          535362423, 589865539, 597242903, 598397900, 624532985, 694241611, 1132879610, 1456149763, 1498694594, 1980000209,
                          2095498218];
         var info = [];
-        const get = users => {
+        const get = async users => {
           if (users.length > 0) {
-            fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}&build=0&mobi_app=web`).then(resp => resp.json()).then(json => {
-              info = info.concat(json.data);
-              get(users.slice(50));
-            });
+            info = info.concat((await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}&build=0&mobi_app=web`)).json()).data);
+            get(users.slice(50));
           } else {
             let html = '';
             info.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container">
