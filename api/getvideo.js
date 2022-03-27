@@ -63,9 +63,9 @@ const toBV = vid => {
   }
 };
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const st = Date.now();
-  const renderHTML = data => HTML(st, {title: data.title, style: data.style, body: `
+  const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(HTML(st, {title: data.title, style: data.style, body: `
       ${data.content}
       <form action="/api/getvideo" method="get">
         <div>
@@ -76,83 +76,78 @@ module.exports = (req, res) => {
           <input type="submit" value="获取" />
         </div>
       </form>
-    `}); // “渲染”HTML
-  const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(renderHTML(data)); // 将HTML数据发送到客户端
+    `})); // 将HTML数据发送到客户端
   const accept = req.headers.accept || '*/*';
   const vid = toBV(req.query.vid); // 将视频ID转换成BV号
   if (vid) { // 判断视频ID是否有效
-    fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`).then(resp => resp.json()).then(json => {
-      if (req.query.type === 'data') { // 获取视频数据
-        if (json.code === 0 && json.data.pages) { // 视频有效
-          var cid;
-          if (/^\d+$/.test(req.query.cid)) {
-            json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : void 0);
-          } else if (/^\d+$/.test(req.query.p)) {
-            cid = json.data.pages[parseInt(req.query.p) - 1]?.cid;
-          }
-          cid = cid || json.data.cid;
-          const q = [6, 16, 32, 64];
-          var u;
-          const get = n => {
-            fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`).then(resp => resp.json()).then(vjson => {
-              if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
-                u = vjson.data.durl[0].url;
-                if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
-                  get(n + 1); // 继续尝试获取更高分辨率的视频
-                  return;
-                }
-              }
-              if (u) { // 当前分辨率的视频获取失败，或者已经达到最高分辨率了，但上一分辨率的视频获取成功
-                fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}}).then(resp => {
-                  const t = u.slice(0, u.indexOf('?'));
-                  const filename = URLEncode(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`, 'UTF-8'); // 设置视频的文件名
-                  if (resp.ok) {
-                    res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
-                    return resp.buffer();
-                  } else {
-                    if (req.headers['sec-fetch-dest'] === 'video') {
-                      res.status(200).setHeader('Content-Type', 'video/mp4');
-                      return file('assets/error.mp4');
-                    } else {
-                      res.status(404);
-                      return renderHTML({title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid});
-                    }
-                  }
-                }).then(buffer => res.send(buffer));
-              } else { // 视频获取失败
-                if (req.headers['sec-fetch-dest'] === 'video') {
-                  res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
-                } else {
-                  res.status(500);
-                  sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
-      如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
-                }
-              }
-            });
-          };
-          get(0);
-        } else { // 视频无效
-          if (req.headers['sec-fetch-dest'] === 'video') {
-            res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
-          } else {
-            res.status(404);
-            sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: req.query.vid});
-          }
+    const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json();
+    if (req.query.type === 'data') { // 获取视频数据
+      if (json.code === 0 && json.data.pages) { // 视频有效
+        var cid;
+        if (/^\d+$/.test(req.query.cid)) {
+          json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : void 0);
+        } else if (/^\d+$/.test(req.query.p)) {
+          cid = json.data.pages[parseInt(req.query.p) - 1]?.cid;
         }
-      } else { // 获取视频信息
-        if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
-          switch (json.code) {
-            case 0:
-              res.status(200);
-              let pagesHTML = '';
-              json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
-      <strong>P${p.page}&emsp;${encodeHTML(p.part)}</strong>&emsp;${getTime(p.duration)}`);
-              if (json.data.rights.is_cooperation) {
-                var staffHTML = '';
-                json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}&emsp;${getNumber(u.follower)} 粉丝`);
+        cid = cid || json.data.cid;
+        const q = [6, 16, 32, 64];
+        var u;
+        const get = async n => {
+          const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json();
+          if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
+            u = vjson.data.durl[0].url;
+            if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
+              get(n + 1); // 继续尝试获取更高分辨率的视频
+              return;
+            }
+          }
+          if (u) { // 当前分辨率的视频获取失败，或者已经达到最高分辨率了，但上一分辨率的视频获取成功
+            const t = u.slice(0, u.indexOf('?'));
+            const filename = URLEncode(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`, 'UTF-8'); // 设置视频的文件名
+            const resp = await fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.61.0 (bbcallen@gmail.com)'}});
+            if (resp.ok) {
+              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(await resp.buffer());
+            } else {
+              if (req.headers['sec-fetch-dest'] === 'video') {
+                res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+              } else {
+                res.status(404);
+                sendHTML({title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid});
               }
-              sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, style: `
+            }
+          } else { // 视频获取失败
+            if (req.headers['sec-fetch-dest'] === 'video') {
+              res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+            } else {
+              res.status(500);
+              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
+      如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
+            }
+          }
+        };
+        get(0);
+      } else { // 视频无效
+        if (req.headers['sec-fetch-dest'] === 'video') {
+          res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
+        } else {
+          res.status(404);
+          sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: req.query.vid});
+        }
+      }
+    } else { // 获取视频信息
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+        switch (json.code) {
+          case 0:
+            res.status(200);
+            let pagesHTML = '';
+            json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
+      <strong>P${p.page}&emsp;${encodeHTML(p.part)}</strong>&emsp;${getTime(p.duration)}`);
+            if (json.data.rights.is_cooperation) {
+              var staffHTML = '';
+              json.data.staff.forEach(u => staffHTML += `<br />
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${u.name} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${u.name}</strong></a>&emsp;${u.title}&emsp;${getNumber(u.follower)} 粉丝`);
+            }
+            sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, style: `
       body {
         background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed #FFF;
         backdrop-filter: blur(20px);
@@ -193,66 +188,62 @@ module.exports = (req, res) => {
       ${json.data.rights.is_cooperation ? `<strong>合作成员：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${json.data.owner.name} 的头像" src="${toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.owner.name}</strong></a>`}<br />
       <strong>简介：</strong><br />
       ${encodeHTML(json.data.desc)}`, vid: req.query.vid});
-              break;
-            case -412:
-              res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: req.query.vid});
-              break;
-            case -404:
-            case 62002:
-              res.status(404);
-              sendHTML({title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid});
-              break;
-            case -403:
-              res.status(403);
-              sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
+            break;
+          case -412:
+            res.status(429).setHeader('Retry-After', '600');
+            sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: req.query.vid});
+            break;
+          case -404:
+          case 62002:
+            res.status(404);
+            sendHTML({title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid});
+            break;
+          case -403:
+            res.status(403);
+            sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid});
-              break;
-            default:
-              res.status(400);
-              sendHTML({title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid});
-          }
-        } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
-          if (json.code === 0) {
-            if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
-              res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
+            break;
+          default:
+            res.status(400);
+            sendHTML({title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid});
+        }
+      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
+        if (json.code === 0) {
+          if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
+            res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
+          } else {
+            const a = toHTTPS(json.data.pic).split('.');
+            const filename = URLEncode(`${json.data.title} 的封面.${a[a.length - 1]}`, 'UTF-8'); // 设置封面的文件名
+            const resp = await fetch(toHTTPS(json.data.pic)); // 获取B站服务器存储的封面
+            if (resp.status === 200) {
+              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(await resp.buffer());
             } else {
-              fetch(toHTTPS(json.data.pic)).then(resp => { // 获取B站服务器存储的封面
-                const a = toHTTPS(json.data.pic).split('.');
-                const filename = URLEncode(`${json.data.title} 的封面.${a[a.length - 1]}`, 'UTF-8'); // 设置封面的文件名
-                if (resp.status === 200) {
-                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
-                  return resp.buffer();
-                } else {
-                  res.status(404).setHeader('Content-Type', 'image/png');
-                  return file('assets/nopic.png');
-                }
-              }).then(buffer => res.send(buffer));
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
             }
-          } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
           }
-        } else { // 接受类型既不含HTML，也不含图片，返回json
-          switch (json.code) {
-            case 0:
-              res.status(200).json({code: 0, data: json.data});
-              break;
-            case -412:
-              res.status(429).setHeader('Retry-After', '600').json({code: -412});
-              break;
-            case -404:
-            case 62002:
-              res.status(404).json({code: -404});
-              break;
-            case -403:
-              res.status(403).json({code: -403});
-              break;
-            default:
-              res.status(400).json({code: json.code, message: json.message});
-          }
+        } else { // 视频信息获取失败，返回默认封面
+          res.status(404).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
+        }
+      } else { // 接受类型既不含HTML，也不含图片，返回json
+        switch (json.code) {
+          case 0:
+            res.status(200).json({code: 0, data: json.data});
+            break;
+          case -412:
+            res.status(429).setHeader('Retry-After', '600').json({code: -412});
+            break;
+          case -404:
+          case 62002:
+            res.status(404).json({code: -404});
+            break;
+          case -403:
+            res.status(403).json({code: -403});
+            break;
+          default:
+            res.status(400).json({code: json.code, message: json.message});
         }
       }
-    });
+    }
   } else { // 视频ID无效
     if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
       if (!req.query.vid) { // 没有设置参数“vid”
