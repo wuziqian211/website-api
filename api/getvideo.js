@@ -58,7 +58,7 @@ const toBV = vid => {
     return tobv(vid.slice(2));
   } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
     return tobv(vid);
-  } else if (vid.length === 12 && (vid.slice(0, 2) === 'BV' || vid.slice(0, 2) === 'bv') && vid[2] === '1' && vid[5] === '4' && vid[7] === '1' && vid[9] === '7' && /^[1-9A-HJ-NP-Za-km-z]+$/.test(vid.slice(2))) { // 判断参数值是否为BV号
+  } else if (/^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断参数值是否为BV号
     return 'BV' + vid.slice(2); // 直接返回
   }
 };
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
           <label for="vid">请输入您想要获取信息的视频的 AV 或 BV 号：</label>
         </div>
         <div>
-          <input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…" pattern="^[0-9A-HJ-NP-Za-km-z]+$" maxlength="12" autocomplete="off" spellcheck="false" />
+          <input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…" pattern="^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av)?\d+$" maxlength="12" autocomplete="off" spellcheck="false" />
           <input type="submit" value="获取" />
         </div>
       </form>
@@ -82,14 +82,17 @@ module.exports = async (req, res) => {
   if (vid) { // 判断视频ID是否有效
     const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json();
     if (req.query.type === 'data') { // 获取视频数据
-      if (json.code === 0 && json.data.pages) { // 视频有效
-        var cid;
+      var cid;
+      if (json.code === 0 && json.data.pages) {
         if (/^\d+$/.test(req.query.cid)) {
-          json.data.pages.forEach(p => parseInt(req.query.cid) === p.cid ? cid = parseInt(req.query.cid) : void 0);
+          cid = json.data.pages.indexOf(parseInt(req.query.cid)) === -1 ? 0 : parseInt(req.query.cid);
         } else if (/^\d+$/.test(req.query.p)) {
           cid = json.data.pages[parseInt(req.query.p) - 1]?.cid;
+        } else {
+          cid = json.data.cid;
         }
-        cid = cid || json.data.cid;
+      }
+      if (cid) { // 视频有效
         const q = [6, 16, 32, 64];
         var u;
         const get = async n => {
@@ -131,7 +134,7 @@ module.exports = async (req, res) => {
           res.status(200).setHeader('Content-Type', 'video/mp4').send(file('assets/error.mp4'));
         } else {
           res.status(404);
-          sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: req.query.vid});
+          sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: req.query.vid});
         }
       }
     } else { // 获取视频信息

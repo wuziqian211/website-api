@@ -53,7 +53,7 @@ module.exports = (req, res) => {
         get(friends.sort(() => 0.5 - Math.random()));
         break;
       case 'update':
-        if (parseInt(req.query.version) > 0) {
+        if (/^\d+$/.test(req.query.version) && parseInt(req.query.version) > 0) {
           switch (req.query.name) {
             case 'bat':
               if (parseInt(req.query.version) < 6) {
