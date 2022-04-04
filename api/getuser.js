@@ -93,8 +93,8 @@ module.exports = async (req, res) => {
             const s = `
       body {
         background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #FFF;
-        backdrop-filter: blur(20px) grayscale(1);
-        -webkit-backdrop-filter: blur(20px) grayscale(1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
       header {
         background: #EEEEEE80;
@@ -105,8 +105,8 @@ module.exports = async (req, res) => {
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #222;
-          backdrop-filter: blur(20px) brightness(0.5) grayscale(1);
-          -webkit-backdrop-filter: blur(20px) brightness(0.5) grayscale(1);
+          backdrop-filter: blur(20px) brightness(0.5);
+          -webkit-backdrop-filter: blur(20px) brightness(0.5);
         }
         header {
           background: #33333380;
