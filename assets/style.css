@@ -20,14 +20,14 @@
 }
 html {
   height: 100%;
-  filter: grayscale(1);
-  backdrop-filter: grayscale(1);
-  -webkit-backdrop-filter: grayscale(1);
 }
 body {
   background: #FFF;
   min-height: 100%;
   margin: 0;
+  filter: grayscale(1);
+  backdrop-filter: grayscale(1);
+  -webkit-backdrop-filter: grayscale(1);
 }
 header {
   background: #EEE;
