@@ -20,6 +20,9 @@
 }
 html {
   height: 100%;
+  filter: grayscale(1);
+  backdrop-filter: grayscale(1);
+  -webkit-backdrop-filter: grayscale(1);
 }
 body {
   background: #FFF;
