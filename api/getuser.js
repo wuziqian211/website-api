@@ -91,28 +91,30 @@ module.exports = async (req, res) => {
           case 0:
             res.status(200);
             const s = `
-      body {
-        background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #FFF;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-      }
-      header {
-        background: #EEEEEE80;
-      }
-      main {
-        background: #FFFFFF80;
-      }
-      @media (prefers-color-scheme: dark) {
+      @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
         body {
-          background-color: #222;
-          backdrop-filter: blur(20px) brightness(0.5);
-          -webkit-backdrop-filter: blur(20px) brightness(0.5);
+          background: url("${toHTTPS(json.data.top_photo)}") no-repeat center/cover fixed #FFF;
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
         }
         header {
-          background: #33333380;
+          background: #EEEEEE80;
         }
         main {
-          background: #22222280;
+          background: #FFFFFF80;
+        }
+        @media (prefers-color-scheme: dark) {
+          body {
+            background-color: #222;
+            backdrop-filter: blur(20px) brightness(0.5);
+            -webkit-backdrop-filter: blur(20px) brightness(0.5);
+          }
+          header {
+            background: #33333380;
+          }
+          main {
+            background: #22222280;
+          }
         }
       }
     `;
