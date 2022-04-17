@@ -25,6 +25,7 @@ body {
   background: #FFF;
   min-height: 100%;
   margin: 0;
+  transition: background 0.5s ease 0.5s;
 }
 header {
   background: #EEE;
