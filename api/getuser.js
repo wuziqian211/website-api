@@ -31,7 +31,7 @@ const toHTTPS = url => {
   return u.join(':');
 };
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
-const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br />') : '';
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />') : '';
 module.exports = async (req, res) => {
   const st = Date.now();
   const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(HTML(st, {title: data.title, style: data.style, body: `
@@ -119,19 +119,19 @@ module.exports = async (req, res) => {
       }
     `;
             const c = `<img style="display: none;" src="${toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
-      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${json.data.name} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${json.data.name}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6&#x26A1;' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6+' : json.data.level}.svg" /></a>${json.data.silence ? '&emsp;已被封禁' : ''}<br />
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${encodeHTML(json.data.name)} 的头像" src="${toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.name)}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6&#x26A1;' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6+' : json.data.level}.svg" /></a>${json.data.silence ? '&emsp;已被封禁' : ''}<br />
       <strong>个性签名：</strong><br />
       ${encodeHTML(json.data.sign)}`;
             if (req.query.type === 'info') { // 仅获取用户信息
-              sendHTML({title: `${json.data.name} 的用户信息`, style: s, content: c, mid: req.query.mid});
+              sendHTML({title: `${encodeHTML(json.data.name)} 的用户信息`, style: s, content: c, mid: req.query.mid});
             } else {
               const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
               if (fjson.code === 0) {
-                sendHTML({title: `用户 ${json.data.name} 的信息及关注、粉丝数`, style: s, content: c + `<br />
+                sendHTML({title: `${encodeHTML(json.data.name)} 的用户信息及关注、粉丝数`, style: s, content: c + `<br />
       <strong>关注数：</strong>${getNumber(fjson.data.following)}<br />
       <strong>粉丝数：</strong>${getNumber(fjson.data.follower)}`, mid: req.query.mid});
               } else {
-                sendHTML({title: `用户 ${json.data.name} 的信息`, style: s, content: c, mid: req.query.mid});
+                sendHTML({title: `${encodeHTML(json.data.name} 的用户信息`, style: s, content: c, mid: req.query.mid});
               }
             }
             break;
