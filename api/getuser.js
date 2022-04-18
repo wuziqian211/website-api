@@ -131,7 +131,7 @@ module.exports = async (req, res) => {
       <strong>关注数：</strong>${getNumber(fjson.data.following)}<br />
       <strong>粉丝数：</strong>${getNumber(fjson.data.follower)}`, mid: req.query.mid});
               } else {
-                sendHTML({title: `${encodeHTML(json.data.name} 的用户信息`, style: s, content: c, mid: req.query.mid});
+                sendHTML({title: `${encodeHTML(json.data.name)} 的用户信息`, style: s, content: c, mid: req.query.mid});
               }
             }
             break;
