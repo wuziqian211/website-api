@@ -19,7 +19,7 @@ module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
       您似乎输入错了网址！您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？
     </main>
     <footer>
-      &copy; 2021 - 2022 wuziqian211
+      © 2021 - 2022 wuziqian211
     </footer>
   </body>
 </html>`);
