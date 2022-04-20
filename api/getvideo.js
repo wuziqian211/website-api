@@ -151,30 +151,28 @@ module.exports = async (req, res) => {
       <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${encodeHTML(u.name)} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(u.name)}</strong></a>&emsp;${encodeHTML(u.title)}&emsp;${getNumber(u.follower)} 粉丝`);
             }
             sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, style: `
-      @supports (backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px)) {
+      body {
+        background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed #FFF;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      header {
+        background: #EEEEEE80;
+      }
+      main {
+        background: #FFFFFF80;
+      }
+      @media (prefers-color-scheme: dark) {
         body {
-          background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed #FFF;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          background-color: #222;
+          backdrop-filter: blur(20px) brightness(0.5);
+          -webkit-backdrop-filter: blur(20px) brightness(0.5);
         }
         header {
-          background: #EEEEEE80;
+          background: #33333380;
         }
         main {
-          background: #FFFFFF80;
-        }
-        @media (prefers-color-scheme: dark) {
-          body {
-            background-color: #222;
-            backdrop-filter: blur(20px) brightness(0.5);
-            -webkit-backdrop-filter: blur(20px) brightness(0.5);
-          }
-          header {
-            background: #33333380;
-          }
-          main {
-            background: #22222280;
-          }
+          background: #22222280;
         }
       }
     `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? `&emsp;已与 <a href="/api/getvideo?vid=${tobv(json.data.forward)}">${tobv(json.data.forward)}</a> 撞车` : ''}<br />
