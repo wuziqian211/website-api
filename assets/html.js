@@ -21,7 +21,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
     </header>
     <main>${data.body}</main>
     <footer>
-      &copy; 2021 - 2022 wuziqian211<br />
+      © 2021 - 2022 wuziqian211<br />
       执行耗时 <span class="time-taken">${Date.now() - st}</span> ms<br />
       本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816554)}</span>
     </footer>

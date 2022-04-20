@@ -144,11 +144,11 @@ module.exports = async (req, res) => {
             res.status(200);
             let pagesHTML = '';
             json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
-      <strong>P${p.page}&emsp;${encodeHTML(p.part)}</strong>&emsp;${getTime(p.duration)}`);
+      <strong>P${p.page} ${encodeHTML(p.part)}</strong> ${getTime(p.duration)}`);
             if (json.data.rights.is_cooperation) {
               var staffHTML = '';
               json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${encodeHTML(u.name)} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(u.name)}</strong></a>&emsp;${encodeHTML(u.title)}&emsp;${getNumber(u.follower)} 粉丝`);
+      <a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${encodeHTML(u.name)} 的头像" src="${toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(u.name)}</strong></a> ${encodeHTML(u.title)} ${getNumber(u.follower)} 粉丝`);
             }
             sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, style: `
       body {
@@ -175,8 +175,8 @@ module.exports = async (req, res) => {
           background: #22222280;
         }
       }
-    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? `&emsp;已与 <a href="/api/getvideo?vid=${tobv(json.data.forward)}">${tobv(json.data.forward)}</a> 撞车` : ''}<br />
-      ${json.data.videos}P&emsp;${getTime(json.data.duration)}&emsp;${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
+    `, content: `<a class="noul" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${encodeHTML(json.data.title)} 的封面" src="${toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${encodeHTML(json.data.title)}</strong></a>${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${tobv(json.data.forward)}">${tobv(json.data.forward)}</a> 撞车` : ''}<br />
+      ${json.data.videos}P ${getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
       <strong>分区：</strong>${encodeHTML(json.data.tname)}<br />
       <s><strong>投稿时间：</strong>${getDate(json.data.ctime)}（可能不准确）</s><br />
       <strong>发布时间：</strong>${getDate(json.data.pubdate)}${pagesHTML}
