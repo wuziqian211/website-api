@@ -48,6 +48,13 @@ module.exports = (req, res) => {
         };
         get(friends.sort(() => 0.5 - Math.random()));
         break;
+      case 'blocked':
+        let blocked = '';
+        if (req.headers['x-vercel-ip-country'] === 'CN') {
+          blocked = '^(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net)$';
+        }
+        res.status(200).json({code: 0, data: {blocked: blocked}});
+        break;
       case 'update':
         if (/^\d+$/.test(req.query.version) && parseInt(req.query.version) > 0) {
           switch (req.query.name) {

@@ -82,7 +82,7 @@ module.exports = async (req, res) => {
   if (vid) { // 判断视频ID是否有效
     const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json();
     if (req.query.type === 'data') { // 获取视频数据
-      var cid;
+      let cid;
       if (json.code === 0 && json.data.pages) {
         if (/^\d+$/.test(req.query.cid)) {
           cid = json.data.pages.indexOf(parseInt(req.query.cid)) === -1 ? 0 : parseInt(req.query.cid);
