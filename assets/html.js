@@ -16,7 +16,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
   <body>
     <header>
       <div class="header">
-        <a class="noul" href="/api/">wuziqian211's Blog API <span class="desc">${data.desc || ''}</span></a>
+        <a class="noul" href="/api/">wuziqian211's Blog API</a> <span class="desc">${data.desc || ''}</span>
       </div>
     </header>
     <main>${data.body}</main>
