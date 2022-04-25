@@ -36,6 +36,24 @@ div.header {
   margin: 0 auto;
   font-size: 24px;
   padding: 15px 0;
+}
+span.desc {
+  font-size: 14px;
+  color: #777;
+}
+a {
+  color: #08F;
+  text-decoration: underline dotted #333;
+}
+a.noul {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: #0AF;
+  text-decoration-color: #AAA;
+}
+div.header a {
   color: #08F;
 }
 main {
@@ -54,18 +72,6 @@ main.loading {
 mark {
   border-radius: 5px;
   background: #FF0;
-}
-a {
-  color: #08F;
-  text-decoration: underline dotted #333;
-}
-a.noul {
-  color: inherit;
-  text-decoration: none;
-}
-a:hover {
-  color: #0AF;
-  text-decoration-color: #AAA;
 }
 img {
   vertical-align: middle;
@@ -124,7 +130,7 @@ input[type="submit"]:active {
 footer {
   text-align: center;
   font-size: 16px;
-  color: #AAA;
+  color: #777;
 }
 @media (max-width: 1439px) {
   div.header, main {
@@ -134,9 +140,10 @@ footer {
 @media (max-width: 959px) {
   div.header {
     width: auto;
-    font-size: 30px;
-    padding: 15px;
     text-align: center;
+  }
+  span.desc {
+    display: none;
   }
   main {
     width: auto;
@@ -148,23 +155,20 @@ footer {
     background: #222;
     color: #CCC;
   }
-  mark {
-    background: #880;
-  }
   a {
     text-decoration-color: #AAA;
   }
   a:hover {
     text-decoration-color: #777;
   }
+  mark {
+    background: #880;
+  }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
     background: #22222280;
   }
   input[type="submit"]:active {
     background: #00000080;
-  }
-  footer {
-    color: #777;
   }
 }
 

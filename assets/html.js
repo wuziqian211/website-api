@@ -16,7 +16,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
   <body>
     <header>
       <div class="header">
-        <a class="noul" href="/api/">wuziqian211's Blog API</a>
+        <a class="noul" href="/api/">wuziqian211's Blog API <span class="desc">${data.desc || ''}</span></a>
       </div>
     </header>
     <main>${data.body}</main>
@@ -26,7 +26,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
       本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816579.737)}</span>
     </footer>
     <script>
-      new Pjax({selectors: ['title', 'style.extra', 'main', 'span.time-taken'], cacheBust: false});
+      new Pjax({selectors: ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'], cacheBust: false});
       document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
       document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
       const runningTime = document.querySelector('span.running-time');
