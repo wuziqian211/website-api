@@ -29,7 +29,7 @@ body {
   transition: background 0.5s 0.5s;
 }
 header {
-  border-bottom: 1px solid #ccc;
+  box-shadow: 0 0 5px #777;
 }
 div.header {
   width: 1200px;
@@ -108,10 +108,15 @@ input {
   height: 20px;
   box-sizing: content-box;
   background: inherit;
+  color: #08F;
 }
-input:hover, input[type="text"]:focus, input[type="number"]:focus {
+input:hover {
   background: #FFFFFF80;
   border-color: #0AF;
+  color: #0AF;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+  background: #FFFFFF80;
 }
 input[type="submit"]:active {
   background: #DDDDDD80;
@@ -142,9 +147,6 @@ footer {
   body {
     background: #222;
     color: #CCC;
-  }
-  header {
-    border-color: #777;
   }
   mark {
     background: #880;
