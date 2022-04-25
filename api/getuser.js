@@ -96,10 +96,7 @@ module.exports = async (req, res) => {
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
       }
-      header {
-        background: #EEEEEE80;
-      }
-      main {
+      header, main {
         background: #FFFFFF80;
       }
       @media (prefers-color-scheme: dark) {
@@ -108,10 +105,7 @@ module.exports = async (req, res) => {
           backdrop-filter: blur(20px) brightness(0.5);
           -webkit-backdrop-filter: blur(20px) brightness(0.5);
         }
-        header {
-          background: #33333380;
-        }
-        main {
+        header, main {
           background: #22222280;
         }
       }
