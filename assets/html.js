@@ -5,8 +5,8 @@ module.exports = (st, data) => `<!DOCTYPE html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#EEE" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#333" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
