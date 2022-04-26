@@ -152,9 +152,9 @@ module.exports = async (req, res) => {
             }
             sendHTML({title: `视频 ${encodeHTML(json.data.title)} 的信息`, style: `
       body {
-        background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed #FFF;
-        backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        background: url("${toHTTPS(json.data.pic)}") center/cover no-repeat fixed #FFF;
         transition: background 0.5s 0.5s;
       }
       header, main {
@@ -162,9 +162,9 @@ module.exports = async (req, res) => {
       }
       @media (prefers-color-scheme: dark) {
         body {
-          background-color: #222;
-          backdrop-filter: blur(20px) brightness(0.5);
           -webkit-backdrop-filter: blur(20px) brightness(0.5);
+          backdrop-filter: blur(20px) brightness(0.5);
+          background-color: #222;
         }
         header, main {
           background: #22222280;
