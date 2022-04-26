@@ -26,7 +26,6 @@ body {
   background: #FFF;
   min-height: 100%;
   margin: 0;
-  transition: background 0.5s 0.5s;
 }
 header {
   box-shadow: 0 0 5px #777;

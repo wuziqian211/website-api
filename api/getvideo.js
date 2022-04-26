@@ -155,6 +155,7 @@ module.exports = async (req, res) => {
         background: url("${toHTTPS(json.data.pic)}") no-repeat center/cover fixed #FFF;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        transition: background 0.5s 0.5s;
       }
       header, main {
         background: #FFFFFF80;
