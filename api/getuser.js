@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
   const st = Date.now();
   const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(HTML(st, {title: data.title, style: data.style, desc: '获取哔哩哔哩用户信息及关注、粉丝数', body: `
       ${data.content}
-      <form action="/api/getuser" method="get">
+      <form>
         <div>
           <label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label>
         </div>
