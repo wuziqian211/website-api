@@ -40,11 +40,14 @@ span.desc {
   color: #777;
   font-size: 14px;
 }
-a, strong, th, form {
+a, strong, th, label, input[type="submit"] {
   color: #08F;
 }
-a:hover, input:hover {
+a:hover, input[type="submit"]:hover {
   color: #0AF;
+}
+th, td, input {
+  border: 1px solid #08F;
 }
 a {
   text-decoration: underline dotted #333;
@@ -97,7 +100,6 @@ table {
   overflow: auto;
 }
 th, td {
-  border: 1px solid currentColor;
   padding: 8px;
   text-align: center;
 }
@@ -108,7 +110,6 @@ form {
 input {
   -webkit-appearance: none;
   background: inherit;
-  border: 1px solid #08F;
   border-radius: 5px;
   box-sizing: content-box;
   height: 20px;
