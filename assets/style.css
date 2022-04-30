@@ -40,23 +40,23 @@ span.desc {
   color: #777;
   font-size: 14px;
 }
-a {
+a, strong, th, form {
   color: #08F;
+}
+a:hover, input:hover {
+  color: #0AF;
+}
+a {
   text-decoration: underline dotted #333;
 }
 a.no-underline {
-  color: inherit;
   text-decoration: none;
 }
 a:hover {
-  color: #0AF;
   text-decoration-color: #AAA;
 }
-div.header a {
-  text-decoration: none;
-}
 main {
-  animation: 0.5s both flipInX;
+  animation: 1s both zoomInDown;
   border-radius: 20px;
   font-size: 20px;
   margin: 20px auto;
@@ -64,7 +64,8 @@ main {
   width: 1200px;
 }
 main.loading {
-  animation-name: flipOutX;
+  animation-name: zoomOutUp;
+  transform-origin: center bottom;
 }
 mark {
   background: #FF0;
@@ -110,13 +111,11 @@ input {
   border: 1px solid #08F;
   border-radius: 5px;
   box-sizing: content-box;
-  color: #08F;
   height: 20px;
 }
 input:hover {
   background: #FFFFFF80;
   border-color: #0AF;
-  color: #0AF;
 }
 input[type="text"]:focus, input[type="number"]:focus {
   background: #FFFFFF80;
@@ -170,37 +169,27 @@ footer {
 }
 
 /* From animate.css - https://animate.style */
-@keyframes flipInX {
+@keyframes zoomInDown {
   from {
-    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
-    animation-timing-function: ease-in;
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
     opacity: 0;
-  }
-  40% {
-    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
-    animation-timing-function: ease-in;
+    transform: scale3d(0.1, 0.1, 0.1) translate3d(0, -1000px, 0);
   }
   60% {
-    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
     opacity: 1;
-  }
-  80% {
-    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
-  }
-  to {
-    transform: perspective(400px);
+    transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
   }
 }
-@keyframes flipOutX {
-  from {
-    transform: perspective(400px);
-  }
-  30% {
-    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+@keyframes zoomOutUp {
+  40% {
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
     opacity: 1;
+    transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
   }
   to {
-    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
     opacity: 0;
+    transform: scale3d(0.1, 0.1, 0.1) translate3d(0, -2000px, 0);
   }
 }
