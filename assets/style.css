@@ -44,7 +44,7 @@ a {
   color: #08F;
   text-decoration: underline dotted #333;
 }
-a.noul {
+a.no-underline {
   color: inherit;
   text-decoration: none;
 }
@@ -53,10 +53,10 @@ a:hover {
   text-decoration-color: #AAA;
 }
 div.header a {
-  color: #08F;
+  text-decoration: none;
 }
 main {
-  animation: 1s both backInDown;
+  animation: 0.5s both flipInX;
   border-radius: 20px;
   font-size: 20px;
   margin: 20px auto;
@@ -64,7 +64,7 @@ main {
   width: 1200px;
 }
 main.loading {
-  animation-name: backOutUp;
+  animation-name: flipOutX;
 }
 mark {
   background: #FF0;
@@ -170,31 +170,37 @@ footer {
 }
 
 /* From animate.css - https://animate.style */
-@keyframes backInDown {
-  0% {
+@keyframes flipInX {
+  from {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    animation-timing-function: ease-in;
     opacity: 0;
-    transform: translateY(-1200px) scale(0.7);
+  }
+  40% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    animation-timing-function: ease-in;
+  }
+  60% {
+    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    opacity: 1;
   }
   80% {
-    opacity: 0.7;
-    transform: translateY(0px) scale(0.7);
+    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
   }
-  100% {
-    opacity: 1;
-    transform: scale(1);
+  to {
+    transform: perspective(400px);
   }
 }
-@keyframes backOutUp {
-  0% {
+@keyframes flipOutX {
+  from {
+    transform: perspective(400px);
+  }
+  30% {
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
     opacity: 1;
-    transform: scale(1);
   }
-  20% {
-    opacity: 0.7;
-    transform: translateY(0px) scale(0.7);
-  }
-  100% {
+  to {
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
     opacity: 0;
-    transform: translateY(-700px) scale(0.7);
   }
 }

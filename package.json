@@ -2,8 +2,6 @@
   "license": "ISC",
   "dependencies": {
     "node-fetch": "^2",
-    "form-data": "latest",
-    "urlencode": "latest",
-    "fs": "latest"
+    "urlencode": "latest"
   }
 }
