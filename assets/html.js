@@ -11,12 +11,12 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <script src="/assets/pjax.min.js"></script>
-    <style class="extra">${data.style || '一个简单的 API 页面'}</style>
+    <style class="extra">${data.style || ''}</style>
   </head>
   <body>
     <header>
       <div class="header">
-        <a class="no-underline" href="/api/">wuziqian211's Blog API</a> <span class="desc">${data.desc || ''}</span>
+        <a class="no-underline" href="/api/">wuziqian211's Blog API</a> <span class="desc">${data.desc || '一个简单的 API 页面'}</span>
       </div>
     </header>
     <main>${data.body}</main>
