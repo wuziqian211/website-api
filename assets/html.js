@@ -11,7 +11,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <script src="/assets/pjax.min.js"></script>
-    <style class="extra">${data.style || ''}</style>
+    <style class="extra">${data.style || '一个简单的 API 页面'}</style>
   </head>
   <body>
     <header>
