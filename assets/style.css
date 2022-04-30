@@ -43,7 +43,7 @@ span.desc {
 a, strong, th, label, input[type="submit"] {
   color: #08F;
 }
-a:hover, input[type="submit"]:hover {
+a:hover, a strong:hover, input[type="submit"]:hover {
   color: #0AF;
 }
 th, td, input {
