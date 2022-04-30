@@ -12,7 +12,7 @@ module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
   <body>
     <header>
       <div class="header">
-        <a class="no-underline" href="https://wuziqian211.top/">wuziqian211's Blog</a>
+        <a class="no-underline" href="https://wuziqian211.top/">wuziqian211's Blog</a> <span class="desc">一个简单的 Blog</span>
       </div>
     </header>
     <main>
