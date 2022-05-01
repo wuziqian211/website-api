@@ -1,0 +1,124 @@
+* {
+  color: inherit;
+  font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow-wrap: break-word;
+  text-align: justify;
+  transition: all 0.5s;
+}
+::-webkit-scrollbar {
+  background: inherit;
+  height: 10px;
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: currentColor;
+  border-radius: 5px;
+}
+::selection {
+  background: #222;
+  color: #CCC;
+}
+html {
+  color: #222;
+  height: 100%;
+}
+body {
+  background: #FFF;
+  margin: 0;
+  min-height: 100%;
+}
+header {
+  box-shadow: 0 0 5px #777;
+}
+div.header {
+  font-size: 24px;
+  margin: 0 auto;
+  padding: 15px 0;
+  width: 1200px;
+}
+span.desc {
+  color: #777;
+  font-size: 14px;
+}
+a {
+  color: #08F;
+  text-decoration: underline dotted #333;
+}
+a:hover {
+  color: #0AF;
+}
+a.no-underline {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration-color: #AAA;
+}
+main {
+  animation: 1s both zoomInDown;
+  border-radius: 20px;
+  font-size: 20px;
+  margin: 20px auto;
+  padding: 10px;
+  width: 1200px;
+}
+footer {
+  color: #777;
+  font-size: 16px;
+  text-align: center;
+}
+@media (max-width: 1439px) {
+  div.header, main {
+    width: 900px;
+  }
+}
+@media (max-width: 959px) {
+  div.header {
+    text-align: center;
+    width: auto;
+  }
+  span.desc {
+    display: none;
+  }
+  main {
+    margin: 10px;
+    width: auto;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #222;
+    color: #CCC;
+  }
+  a {
+    text-decoration-color: #AAA;
+  }
+  a:hover {
+    text-decoration-color: #777;
+  }
+}
+
+/* From animate.css - https://animate.style */
+@keyframes zoomInDown {
+  from {
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    opacity: 0;
+    transform: scale3d(0.1, 0.1, 0.1) translate3d(0, -1000px, 0);
+  }
+  60% {
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
+    opacity: 1;
+    transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
+  }
+}
+@keyframes zoomOutUp {
+  40% {
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    opacity: 1;
+    transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
+  }
+  to {
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
+    opacity: 0;
+    transform: scale3d(0.1, 0.1, 0.1) translate3d(0, -2000px, 0);
+  }
+}

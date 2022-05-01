@@ -6,7 +6,7 @@ module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
     <meta name="theme-color" content="#FFF" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
     <title>页面不存在 | wuziqian211's Blog</title>
-    <link rel="stylesheet" href="${process.env.URL}/assets/style.css" />
+    <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
   </head>
   <body>
