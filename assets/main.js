@@ -48,7 +48,7 @@ const apply = () => {
           params.append(form.elements[i].name, form.elements[i].value);
         }
       }
-      const url = `${form.action || window.location.origin + window.location.pathname}?${params.toString()}`;
+      const url = `${form.getAttribute('action') || window.location.origin + window.location.pathname}?${params.toString()}`;
       if (isAvailable(url)) {
         event.preventDefault();
         load(url);
