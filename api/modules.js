@@ -5,7 +5,7 @@ const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').r
 module.exports = (req, res) => {
   const st = Date.now();
   const accept = req.headers.accept || '*/*';
-  if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') {
+  if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
     switch (req.query.id) {
       case 'friends':
         const url = 'https://wuziqian211.top/about/#%E6%9C%8B%E5%8F%8B%E4%BB%AC';

@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
   if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
       const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型含HTML，就返回HTML
         switch (fjson.code) {
           case 0:
             res.status(200);
@@ -86,7 +86,7 @@ module.exports = async (req, res) => {
       }
     } else { // 不是仅获取关注、粉丝数
       const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`)).json();
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型含HTML，就返回HTML
         switch (json.code) {
           case 0:
             res.status(200);
@@ -183,7 +183,7 @@ module.exports = async (req, res) => {
       }
     }
   } else { // UID无效
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
+    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型有HTML，就返回HTML
       if (!req.query.mid) { // 没有设置UID参数
         res.status(200);
         sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />

@@ -10,7 +10,7 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <script src="/assets/pjax.min.js"></script>
+    <script src="/assets/main.js"></script>
     <style class="extra">${data.style || ''}</style>
   </head>
   <body>
@@ -25,17 +25,5 @@ module.exports = (st, data) => `<!DOCTYPE html>
       执行耗时 <span class="time-taken">${Date.now() - st}</span> ms<br />
       本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816579.737)}</span>
     </footer>
-    <script>
-      new Pjax({selectors: ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'], cacheBust: false});
-      document.addEventListener('pjax:send', () => document.querySelector('main').classList.add('loading'));
-      document.addEventListener('pjax:error', () => document.location.href = event.request.responseURL);
-      const runningTime = document.querySelector('span.running-time');
-      const updateTime = () => {
-        let ts = Date.now() / 1000 - 1636816579.737;
-        runningTime.innerText = \`\${Math.floor(ts / 86400)} 天 \${Math.floor(ts % 86400 / 3600)} 小时 \${Math.floor(ts % 3600 / 60)} 分钟 \${Math.floor(ts % 60)} 秒\`;
-      };
-      updateTime();
-      setInterval(updateTime, 1000);
-    </script>
   </body>
 </html>`;

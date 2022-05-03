@@ -3,7 +3,7 @@ const HTML = require('../assets/html');
 module.exports = (req, res) => {
   const st = Date.now();
   const accept = req.headers.accept || '*/*';
-  if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') {
+  if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
     res.status(200).send(HTML(st, {title: '欢迎来到 API 页面', body: `
       欢迎您来到 wuziqian211's Blog 的 API 页面！<br />
       这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。<br />
