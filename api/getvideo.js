@@ -138,7 +138,7 @@ module.exports = async (req, res) => {
         }
       }
     } else { // 获取视频信息
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型含HTML，或者是Pjax发出的请求，返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型含HTML，就返回HTML
         switch (json.code) {
           case 0:
             res.status(200);
@@ -243,7 +243,7 @@ module.exports = async (req, res) => {
       }
     }
   } else { // 视频ID无效
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' || req.headers['x-pjax'] === 'true') { // 客户端提供的接受类型有HTML，或者是Pjax发出的请求，返回HTML
+    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型有HTML，就返回HTML
       if (!req.query.vid) { // 没有设置参数“vid”
         res.status(200);
         sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
