@@ -10,7 +10,6 @@ module.exports = (st, data) => `<!DOCTYPE html>
     <title>${data.title} | wuziqian211's Blog API</title>
     <link rel="stylesheet" href="/assets/style.css" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <script src="/assets/main.js"></script>
     <style class="extra">${data.style || ''}</style>
   </head>
   <body>
@@ -25,5 +24,6 @@ module.exports = (st, data) => `<!DOCTYPE html>
       执行耗时 <span class="time-taken">${Date.now() - st}</span> ms<br />
       本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816579.737)}</span>
     </footer>
+    <script src="/assets/main.js"></script>
   </body>
 </html>`;
