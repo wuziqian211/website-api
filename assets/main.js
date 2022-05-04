@@ -6,6 +6,10 @@ const load = async url => {
   document.activeElement && document.activeElement.blur();
   try {
     const resp = await fetch(url, {headers: {accept: 'text/html'}});
+    if (!isAvailable(resp.url)) {
+      document.location.href = resp.url;
+      return;
+    }
     const text = await resp.text();
     [
       {name: 'title'},
@@ -22,6 +26,7 @@ const load = async url => {
     apply();
     document.querySelector('main').classList.remove('loading');
   } catch (e) {
+    console.error(e);
     document.location.href = url;
   }
 };
