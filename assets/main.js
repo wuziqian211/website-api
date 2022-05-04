@@ -5,7 +5,8 @@ const load = async url => {
   document.querySelector('main').classList.add('loading');
   document.activeElement && document.activeElement.blur();
   try {
-    const text = await (await fetch(url, {headers: {accept: 'text/html'}})).text();
+    const resp = await fetch(url, {headers: {accept: 'text/html'}});
+    const text = await resp.text();
     [
       {name: 'title'},
       {name: 'style', class: 'extra'},
@@ -17,7 +18,7 @@ const load = async url => {
       const t = text.slice(text.indexOf(html) + html.length);
       document.querySelector(`${e.name}${e.class ? `.${e.class}` : ''}`).innerHTML = t.slice(0, t.indexOf(`</${e.name}>`));
     });
-    history.pushState({}, '', url);
+    history.pushState({}, '', resp.url);
     apply();
     document.querySelector('main').classList.remove('loading');
   } catch (e) {
