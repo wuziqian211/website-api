@@ -41,6 +41,7 @@ const loadPage = async url => {
 history.replaceState({text: document.documentElement.innerHTML}, '');
 window.onpopstate = event => {
   replacePage(event.state.text);
+  applyLoad();
 };
 const aLoad = (el, event) => {
   if (isLoadAvailable(el.href)) {
