@@ -1,47 +1,54 @@
 'use strict';
 
 // From pjax.js - https://github.com/MoOx/pjax
-const load = async url => {
+const isLoadAvailable = url => {
+  let a = document.createElement('a');
+  a.href = url;
+  return a.origin === window.location.origin;
+};
+const replacePage = text => {
+  [
+    {name: 'title'},
+    {name: 'style', class: 'extra'},
+    {name: 'span', class: 'desc'},
+    {name: 'main'},
+    {name: 'span', class: 'time-taken'}
+  ].forEach(e => {
+    const html = `<${e.name}${e.class ? ` class="${e.class}"` : ''}>`;
+    const t = text.slice(text.indexOf(html) + html.length);
+    document.querySelector(`${e.name}${e.class ? `.${e.class}` : ''}`).innerHTML = t.slice(0, t.indexOf(`</${e.name}>`));
+  });
+};
+const loadPage = async url => {
   document.querySelector('main').classList.add('loading');
   document.activeElement && document.activeElement.blur();
   try {
     const resp = await fetch(url, {headers: {accept: 'text/html'}});
-    if (!isAvailable(resp.url)) {
+    if (!isLoadAvailable(resp.url)) {
       document.location.href = resp.url;
       return;
     }
     const text = await resp.text();
-    [
-      {name: 'title'},
-      {name: 'style', class: 'extra'},
-      {name: 'span', class: 'desc'},
-      {name: 'main'},
-      {name: 'span', class: 'time-taken'}
-    ].forEach(e => {
-      const html = `<${e.name}${e.class ? ` class="${e.class}"` : ''}>`;
-      const t = text.slice(text.indexOf(html) + html.length);
-      document.querySelector(`${e.name}${e.class ? `.${e.class}` : ''}`).innerHTML = t.slice(0, t.indexOf(`</${e.name}>`));
-    });
-    history.pushState({}, '', resp.url);
-    apply();
+    history.pushState({text}, '', resp.url);
+    replacePage(text);
+    applyLoad();
     document.querySelector('main').classList.remove('loading');
   } catch (e) {
     console.error(e);
     document.location.href = url;
   }
 };
-const isAvailable = url => {
-  let a = document.createElement('a');
-  a.href = url;
-  return a.origin === window.location.origin;
+history.replaceState({text: document.documentElement.innerHTML}, '');
+window.onpopstate = event => {
+  replacePage(event.state.text);
 };
 const aLoad = (el, event) => {
-  if (isAvailable(el.href)) {
+  if (isLoadAvailable(el.href)) {
     event.preventDefault();
-    load(el.href);
+    loadPage(el.href);
   }
 };
-const apply = () => {
+const applyLoad = () => {
   document.querySelectorAll('a').forEach(a => {
     a.onclick = event => aLoad(a, event);
     a.onkeyup = event => event.keyCode === 13 ? aLoad(a, event) : void 0;
@@ -55,14 +62,14 @@ const apply = () => {
         }
       }
       const url = `${form.getAttribute('action') || window.location.origin + window.location.pathname}?${params.toString()}`;
-      if (isAvailable(url)) {
+      if (isLoadAvailable(url)) {
         event.preventDefault();
-        load(url);
+        loadPage(url);
       }
     };
   });
 };
-apply();
+applyLoad();
 
 const runningTime = document.querySelector('span.running-time');
 const updateTime = () => {
