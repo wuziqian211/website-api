@@ -7,17 +7,9 @@ const isLoadAvailable = url => {
   return a.origin === window.location.origin;
 };
 const replacePage = text => {
-  [
-    {name: 'title'},
-    {name: 'style', class: 'extra'},
-    {name: 'span', class: 'desc'},
-    {name: 'main'},
-    {name: 'span', class: 'time-taken'}
-  ].forEach(e => {
-    const html = `<${e.name}${e.class ? ` class="${e.class}"` : ''}>`;
-    const t = text.slice(text.indexOf(html) + html.length);
-    document.querySelector(`${e.name}${e.class ? `.${e.class}` : ''}`).innerHTML = t.slice(0, t.indexOf(`</${e.name}>`));
-  });
+  var html = document.createElement('html');
+  html.innerHTML = /(?<=<html.*>).*(?=<\/html>)/s.exec(text)[0];
+  ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
 };
 const loadPage = async url => {
   document.querySelector('main').classList.add('loading');
@@ -29,8 +21,8 @@ const loadPage = async url => {
       return;
     }
     const text = await resp.text();
-    history.pushState({text}, '', resp.url);
     replacePage(text);
+    history.pushState({text}, '', resp.url);
     applyLoad();
     document.querySelector('main').classList.remove('loading');
   } catch (e) {
