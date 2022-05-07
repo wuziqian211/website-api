@@ -7,8 +7,7 @@ const isLoadAvailable = url => {
   return a.origin === window.location.origin;
 };
 const replacePage = text => {
-  let html = document.createElement('html');
-  html.innerHTML = /(?<=<html.*>).*(?=<\/html>)/s.exec(text)[0];
+  const html = new DOMParser().parseFromString(text, 'text/html');
   ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
 };
 const loadPage = async url => {
