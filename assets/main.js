@@ -7,7 +7,7 @@ const isLoadAvailable = url => {
   return a.origin === window.location.origin;
 };
 const replacePage = text => {
-  var html = document.createElement('html');
+  let html = document.createElement('html');
   html.innerHTML = /(?<=<html.*>).*(?=<\/html>)/s.exec(text)[0];
   ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
 };
@@ -30,7 +30,7 @@ const loadPage = async url => {
     document.location.href = url;
   }
 };
-history.replaceState({text: document.documentElement.innerHTML}, '');
+history.replaceState({text: document.documentElement.outerHTML}, '');
 window.onpopstate = event => {
   replacePage(event.state.text);
   applyLoad();
@@ -44,11 +44,11 @@ const aLoad = (el, event) => {
 const applyLoad = () => {
   document.querySelectorAll('a').forEach(a => {
     a.onclick = event => aLoad(a, event);
-    a.onkeyup = event => event.keyCode === 13 ? aLoad(a, event) : void 0;
+    a.onkeyup = event => event.keyCode === 13 && aLoad(a, event);
   });
   document.querySelectorAll('form').forEach(form => {
     form.onsubmit = event => {
-      var params = new URLSearchParams();
+      let params = new URLSearchParams();
       for (let i = 0; i < form.elements.length; i++) {
         if (form.elements[i].tagName.toLowerCase() === 'input' && form.elements[i].type !== 'submit') {
           params.append(form.elements[i].name, form.elements[i].value);
