@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    {"source": "/assets/style.css", "destination": "https://api.wuziqian211.top/assets/style.css"},
     {"source": "/(.*)", "destination": "/api/404.js"}
   ]
 }
