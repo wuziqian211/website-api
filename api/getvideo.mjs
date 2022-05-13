@@ -66,7 +66,7 @@ const toBV = vid => {
   }
 };
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />') : '';
-export async (req, res) => {
+export default async (req, res) => {
   const st = Date.now();
   const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(HTML(st, {title: data.title, style: data.style, desc: '获取哔哩哔哩视频信息及数据', body: `
       ${data.content}

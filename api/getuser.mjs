@@ -35,7 +35,7 @@ const toHTTPS = url => {
 };
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />') : '';
-export async (req, res) => {
+export default async (req, res) => {
   const st = Date.now();
   const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(HTML(st, {title: data.title, style: data.style, desc: '获取哔哩哔哩用户信息及关注、粉丝数', body: `
       ${data.content}
