@@ -1,8 +1,9 @@
 /* 本API仅供内部使用，并不对外公开 */
 'use strict';
-const fetch = require('node-fetch'), HTML = require('../assets/html');
+import fetch from 'node-fetch';
+import HTML from '../assets/html.mjs';
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
-module.exports = (req, res) => {
+export (req, res) => {
   const st = Date.now();
   const accept = req.headers.accept || '*/*';
   if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
