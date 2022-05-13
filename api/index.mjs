@@ -1,6 +1,6 @@
 'use strict';
-const HTML = require('../assets/html');
-module.exports = (req, res) => {
+import HTML from '../assets/html.mjs';
+export default (req, res) => {
   const st = Date.now();
   const accept = req.headers.accept || '*/*';
   if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
