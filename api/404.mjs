@@ -1,4 +1,4 @@
-module.exports = (req, res) => res.status(404).send(`<!DOCTYPE html>
+export default (req, res) => res.status(404).send(`<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
