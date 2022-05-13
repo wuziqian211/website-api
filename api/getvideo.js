@@ -138,7 +138,7 @@ module.exports = async (req, res) => {
         }
       }
     } else { // 获取视频信息
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型含HTML，就返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (json.code) {
           case 0:
             res.status(200);
@@ -205,7 +205,7 @@ module.exports = async (req, res) => {
             res.status(400);
             sendHTML({title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid});
         }
-      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取封面
+      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据，获取封面
         if (json.code === 0) {
           if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
             res.status(307).setHeader('Location', toHTTPS(json.data.pic)).json({code: 307, data: {url: toHTTPS(json.data.pic)}});
@@ -222,7 +222,7 @@ module.exports = async (req, res) => {
         } else { // 视频信息获取失败，返回默认封面
           res.status(404).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
         }
-      } else { // 接受类型既不含HTML，也不含图片，返回json
+      } else { // 否则，返回json
         switch (json.code) {
           case 0:
             res.status(200).json({code: 0, data: json.data});
@@ -243,7 +243,7 @@ module.exports = async (req, res) => {
       }
     }
   } else { // 视频ID无效
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型有HTML，就返回HTML
+    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
       if (!req.query.vid) { // 没有设置参数“vid”
         res.status(200);
         sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
@@ -254,9 +254,9 @@ module.exports = async (req, res) => {
         sendHTML({title: '视频 ID 无效', content: `您输入的 AV 或 BV 号无效！<br />
       请输入一个正确的 AV 或 BV 号吧 awa`, vid: ''});
       }
-    } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），返回默认封面
+    } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据，返回默认封面
       res.status(400).setHeader('Content-Type', 'image/png').send(file('assets/nopic.png'));
-    } else { // 接受类型既不含HTML，也不含图片，返回json
+    } else { // 否则，返回json
       res.status(400).json({code: -400, message: '请求错误'});
     }
   }

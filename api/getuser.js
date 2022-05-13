@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
   if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
     if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
       const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型含HTML，就返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (fjson.code) {
           case 0:
             res.status(200);
@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
             res.status(400);
             sendHTML({title: '获取用户关注、粉丝数失败', content: `获取 UID${req.query.mid} 的关注、粉丝数失败，请稍后重试 awa`, mid: req.query.mid});
         }
-      } else { // 接受类型不含HTML，返回json
+      } else { // 否则，返回json
         switch (fjson.code) {
           case 0:
             res.status(200).json({code: 0, data: {following: fjson.data.following, follower: fjson.data.follower}});
@@ -86,7 +86,7 @@ module.exports = async (req, res) => {
       }
     } else { // 不是仅获取关注、粉丝数
       const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`)).json();
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型含HTML，就返回HTML
+      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (json.code) {
           case 0:
             res.status(200);
@@ -140,7 +140,7 @@ module.exports = async (req, res) => {
             res.status(400);
             sendHTML({title: '获取用户信息失败', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试 awa`, mid: req.query.mid});
         }
-      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型含图片（不含HTML），获取头像
+      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据，获取头像
         if (json.code === 0) {
           if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
             res.status(307).setHeader('Location', toHTTPS(json.data.face)).json({code: 307, data: {url: toHTTPS(json.data.face)}});
@@ -157,7 +157,7 @@ module.exports = async (req, res) => {
         } else { // 用户信息获取失败，返回默认头像
           res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));
         }
-      } else { // 接受类型既不含HTML，也不含图片，返回json
+      } else { // 否则，返回json
         switch (json.code) {
           case 0:
             if (req.query.type === 'info') { // 仅获取用户信息
@@ -183,7 +183,7 @@ module.exports = async (req, res) => {
       }
     }
   } else { // UID无效
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端提供的接受类型有HTML，就返回HTML
+    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
       if (!req.query.mid) { // 没有设置UID参数
         res.status(200);
         sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
@@ -194,14 +194,14 @@ module.exports = async (req, res) => {
         sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />
       请输入一个正确的 UID 吧 awa`, mid: ''});
       }
-    } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端提供的接受类型有图片（不含HTML），获取头像
+    } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据，获取头像
       if (!req.query.mid) { // 没有设置UID参数，返回随机头像
         const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
         res.status(200).setHeader('Content-Type', 'image/jpeg').send(file(`assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
       } else { // 设置了UID参数但无效，返回默认头像
         res.status(400).setHeader('Content-Type', 'image/jpeg').send(file('assets/noface.jpg'));
       }
-    } else { // 接受类型既不含HTML，也不含图片，返回json
+    } else { // 否则，返回json
       res.status(400).json({code: -400, message: '请求错误'});
     }
   }
