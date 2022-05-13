@@ -1,9 +1,9 @@
 {
   "functions": {
-    "api/getuser.js": {
+    "api/getuser.mjs": {
       "includeFiles": "assets/*"
     },
-    "api/getvideo.js": {
+    "api/getvideo.mjs": {
       "includeFiles": "assets/*"
     }
   },
