@@ -1,5 +1,5 @@
 'use strict';
-const getTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
+const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 const renderHTML = data => `<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
@@ -22,7 +22,7 @@ const renderHTML = data => `<!DOCTYPE html>
     <footer>
       © 2021 – 2022 wuziqian211<br />
       执行耗时 <span class="time-taken">${Date.now() - data.startTime}</span> ms<br />
-      本站已稳定运行 <span class="running-time">${getTime(Date.now() / 1000 - 1636816579.737)}</span>
+      本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span>
     </footer>
     <script src="/assets/main.js"></script>
   </body>
