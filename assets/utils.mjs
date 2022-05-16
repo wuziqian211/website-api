@@ -57,7 +57,7 @@ const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question
 };
 const toBV = vid => {
   if (typeof vid !== 'string') return;
-  if ((vid.slice(0, 2) === 'av' || vid.slice(0, 2) === 'AV') && /^\d+$/.test(vid.slice(2))) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
+  if (/^(?:AV|av)\d+$/.test(vid)) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
     return tobv(vid.slice(2));
   } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
     return tobv(vid);
