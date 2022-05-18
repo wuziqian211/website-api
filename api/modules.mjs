@@ -76,6 +76,6 @@ export default (req, res) => {
       }
     }
   } catch {
-	res.status(500).send(utils.render500(startTime));
+    res.status(500).send(utils.render500(startTime));
   }
 };

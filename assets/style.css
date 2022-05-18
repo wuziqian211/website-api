@@ -16,14 +16,14 @@
 }
 ::selection {
   background: #222;
-  color: #CCC;
+  color: #ccc;
 }
 html {
   color: #222;
   height: 100%;
 }
 body {
-  background: #FFF;
+  background: #fff;
   margin: 0;
   min-height: 100%;
 }
@@ -41,13 +41,13 @@ span.desc {
   font-size: 14px;
 }
 a, strong, th, label, input[type="submit"] {
-  color: #08F;
+  color: #08f;
 }
 a:hover, a strong:hover, input[type="submit"]:hover {
-  color: #0AF;
+  color: #0af;
 }
 th, td, input {
-  border: 1px solid #08F;
+  border: 1px solid #08f;
 }
 a {
   text-decoration: underline dotted #333;
@@ -56,7 +56,7 @@ a.no-underline {
   text-decoration: none;
 }
 a:hover {
-  text-decoration-color: #AAA;
+  text-decoration-color: #aaa;
 }
 main {
   animation: 1s both zoomInDown;
@@ -71,7 +71,7 @@ main.loading {
   transform-origin: center bottom;
 }
 mark {
-  background: #FF0;
+  background: #ff0;
   border-radius: 5px;
 }
 img {
@@ -115,14 +115,14 @@ input {
   height: 20px;
 }
 input:hover {
-  background: #FFFFFF80;
-  border-color: #0AF;
+  background: #ffffff80;
+  border-color: #0af;
 }
 input[type="text"]:focus, input[type="number"]:focus {
-  background: #FFFFFF80;
+  background: #ffffff80;
 }
 input[type="submit"]:active {
-  background: #DDDDDD80;
+  background: #dddddd80;
 }
 footer {
   color: #777;
@@ -150,10 +150,10 @@ footer {
 @media (prefers-color-scheme: dark) {
   body {
     background: #222;
-    color: #CCC;
+    color: #ccc;
   }
   a {
-    text-decoration-color: #AAA;
+    text-decoration-color: #aaa;
   }
   a:hover {
     text-decoration-color: #777;

@@ -95,7 +95,7 @@ export default async (req, res) => {
         transition: background 0.5s 0.5s;
       }
       header, main {
-        background: #FFFFFF80;
+        background: #ffffff80;
       }
       @media (prefers-color-scheme: dark) {
         body {
