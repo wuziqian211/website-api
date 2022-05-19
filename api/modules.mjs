@@ -5,8 +5,7 @@ import * as utils from '../assets/utils.mjs';
 export default (req, res) => {
   const startTime = Date.now();
   try {
-    const accept = req.headers.accept || '*/*';
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
+    if (utils.getAccept(req) === 1) {
       switch (req.query.id) {
         case 'friends':
           const url = 'https://wuziqian211.top/about/#%E6%9C%8B%E5%8F%8B%E4%BB%AC';

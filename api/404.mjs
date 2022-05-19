@@ -3,8 +3,7 @@ import * as utils from '../assets/utils.mjs';
 export default (req, res) => {
   const startTime = Date.now();
   try {
-    const accept = req.headers.accept || '*/*';
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
+    if (utils.getAccept(req) === 1) {
       res.status(404).send(utils.render404(startTime));
     } else {
       res.status(404).json({code: -404});

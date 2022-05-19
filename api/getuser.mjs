@@ -43,11 +43,11 @@ export default async (req, res) => {
         </div>
       </form>
     `})); // 将HTML数据发送到客户端
-    const accept = req.headers.accept || '*/*';
+    const accept = utils.getAccept(req);
     if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
       if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
         const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
-        if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
+        if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (fjson.code) {
             case 0:
               res.status(200);
@@ -83,7 +83,7 @@ export default async (req, res) => {
         }
       } else { // 不是仅获取关注、粉丝数
         const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`)).json();
-        if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
+        if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
@@ -137,7 +137,7 @@ export default async (req, res) => {
               res.status(400);
               sendHTML({title: '获取用户信息失败', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试 awa`, mid: req.query.mid});
           }
-        } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据，获取头像
+        } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
           if (json.code === 0) {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
               res.status(307).setHeader('Location', utils.toHTTPS(json.data.face)).json({code: 307, data: {url: utils.toHTTPS(json.data.face)}});
@@ -146,7 +146,7 @@ export default async (req, res) => {
               const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
               const resp = await fetch(utils.toHTTPS(json.data.face)); // 获取B站服务器存储的头像
               if (resp.ok) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(await resp.buffer());
+                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(await resp.arrayBuffer());
               } else {
                 res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('../assets/noface.jpg'));
               }
@@ -180,18 +180,18 @@ export default async (req, res) => {
         }
       }
     } else { // UID无效
-      if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据，返回HTML
+      if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         if (!req.query.mid) { // 没有设置UID参数
           res.status(200);
           sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
       用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.js">本 API 源码</a>。`, mid: ''});
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.mjs">本 API 源码</a>。`, mid: ''});
         } else { // 设置了UID参数但无效
           res.status(400);
           sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />
       请输入一个正确的 UID 吧 awa`, mid: ''});
         }
-      } else if (accept.indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据，获取头像
+      } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
         if (!req.query.mid) { // 没有设置UID参数，返回随机头像
           const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
           res.status(200).setHeader('Content-Type', 'image/jpeg').send(file(`../assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));

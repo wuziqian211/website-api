@@ -3,8 +3,7 @@ import * as utils from '../assets/utils.mjs';
 export default (req, res) => {
   const startTime = Date.now();
   try {
-    const accept = req.headers.accept || '*/*';
-    if (accept.indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document') {
+    if (utils.getAccept(req) === 1) {
       res.status(200).send(utils.renderHTML({startTime, title: '欢迎来到 API 页面', body: `
       欢迎您来到 wuziqian211's Blog 的 API 页面！<br />
       这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。<br />
