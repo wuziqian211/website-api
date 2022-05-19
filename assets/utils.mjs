@@ -65,4 +65,4 @@ const toBV = vid => {
     return 'BV' + vid.slice(2); // 直接返回
   }
 };
-export {renderHTML, render404, render500, encodeHTML, toHTTPS, getDate, getTime, getNumber, tobv, toBV};
+export {getAccept, renderHTML, render404, render500, encodeHTML, toHTTPS, getDate, getTime, getNumber, tobv, toBV};
