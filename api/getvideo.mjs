@@ -114,9 +114,10 @@ export default async (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              let pagesHTML = staffHTML = '';
+              let pagesHTML = '';
               json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
       <strong>P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`);
+              let staffHTML = '';
               if (json.data.rights.is_cooperation) {
                 json.data.staff.forEach(u => staffHTML += `<br />
       <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)} 的头像" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a> ${utils.encodeHTML(u.title)} ${utils.getNumber(u.follower)} 粉丝`);
