@@ -8,7 +8,8 @@ export default (req, res) => {
     } else {
       res.status(404).json({code: -404});
     }
-  } catch {
+  } catch (e) {
+    console.error(e);
     res.status(500).send(utils.render500(startTime));
   }
 };

@@ -231,7 +231,8 @@ export default async (req, res) => {
         res.status(400).json({code: -400, message: '请求错误'});
       }
     }
-  } catch {
+  } catch (e) {
+    console.error(e);
     res.status(500).send(utils.render500(startTime));
   }
 };

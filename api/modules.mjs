@@ -74,7 +74,8 @@ export default (req, res) => {
           res.status(400).json({code: -400});
       }
     }
-  } catch {
+  } catch (e) {
+    console.error(e);
     res.status(500).send(utils.render500(startTime));
   }
 };
