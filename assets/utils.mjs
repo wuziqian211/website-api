@@ -48,11 +48,10 @@ const getDate = ts => { // 根据时间戳返回日期时间
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
 const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
-  const table = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF';
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
   let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
   for (let i = 0n; i < 6n; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = table[t / (58n ** i) % 58n];
+    bvid[[11, 10, 3, 8, 4, 6][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / (58n ** i) % 58n];
   }
   return bvid.join('');
 };
