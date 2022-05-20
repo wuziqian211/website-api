@@ -91,7 +91,7 @@ export default async (req, res) => {
       body {
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
-        background: url("${utils.toHTTPS(json.data.top_photo)}") center/cover no-repeat fixed #FFF;
+        background: url("${utils.toHTTPS(json.data.top_photo)}") center/cover no-repeat fixed #fff;
         transition: background 0.5s 0.5s;
       }
       header, main {
