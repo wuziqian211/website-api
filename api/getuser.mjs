@@ -146,7 +146,7 @@ export default async (req, res) => {
               const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
               const resp = await fetch(utils.toHTTPS(json.data.face)); // 获取B站服务器存储的头像
               if (resp.ok) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(await resp.arrayBuffer());
+                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
               } else {
                 res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('../assets/noface.jpg'));
               }
