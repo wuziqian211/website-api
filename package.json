@@ -1,7 +1,9 @@
 {
-  "license": "ISC",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
   "dependencies": {
-    "node-fetch": "^3.2.4",
-    "urlencode": "^1.1.0"
+    "node-fetch": "latest",
+    "urlencode": "latest"
   }
 }
