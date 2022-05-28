@@ -27,7 +27,7 @@
 | assets/[1-5]-[22\|33].jpg, assets/6-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就返回本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的符号 |
-| assets/level_[0-6]	.svg, assets/level_6+.svg | 哔哩哔哩用户的等级 |
+| assets/level_[0-6].svg, assets/level_6+.svg | 哔哩哔哩用户的等级 |
 | assets/main.js | 页面使用的 JS |
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就返回本文件数据 |
 | assets/nopic.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
