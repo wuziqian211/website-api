@@ -162,7 +162,7 @@ export default async (req, res) => {
               } else {
                 const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
                 if (fjson.code === 0) {
-                  res.status(200).json({code: 0, data: Object.assign(json.data, {following: fjson.data.following, follower: fjson.data.follower})});
+                  res.status(200).json({code: 0, data: {...json.data, following: fjson.data.following, follower: fjson.data.follower}});
                 } else {
                   res.status(200).json({code: 0, data: json.data});
                 }
