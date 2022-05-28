@@ -26,7 +26,7 @@
 import fetch from 'node-fetch';
 import URLEncode from 'urlencode';
 import {readFileSync} from 'fs';
-import * as utils from '../assets/utils.mjs';
+import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
   const startTime = Date.now();
@@ -185,7 +185,7 @@ export default async (req, res) => {
           res.status(200);
           sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
       用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.mjs">本 API 源码</a>。`, mid: ''});
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.js">本 API 源码</a>。`, mid: ''});
         } else { // 设置了UID参数但无效
           res.status(400);
           sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />

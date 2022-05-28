@@ -1,7 +1,7 @@
 /* 本API仅供内部使用，并不对外公开 */
 'use strict';
 import fetch from 'node-fetch';
-import * as utils from '../assets/utils.mjs';
+import * as utils from '../assets/utils.js';
 export default (req, res) => {
   const startTime = Date.now();
   try {

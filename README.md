@@ -18,11 +18,11 @@
 | 文件或文件夹 | 功能 |
 | ------------ | ---- |
 | api/ | 本文件夹包含所有 API，在网站上访问里面的文件会调用对应 API |
-| api/404.mjs | 网站上的页面不存在时调用的 API |
-| api/getuser.mjs | 获取哔哩哔哩用户信息及关注、粉丝数 |
-| api/getvideo.mjs | 获取哔哩哔哩视频信息及数据 |
-| api/index.mjs | 网站的首页 |
-| api/modules.mjs | 仅供内部使用，非公开使用（但公开源代码） |
+| api/404.js | 网站上的页面不存在时调用的 API |
+| api/getuser.js | 获取哔哩哔哩用户信息及关注、粉丝数 |
+| api/getvideo.js | 获取哔哩哔哩视频信息及数据 |
+| api/index.js | 网站的首页 |
+| api/modules.js | 仅供内部使用，非公开使用（但公开源代码） |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/[1-5]-[22\|33].jpg, assets/6-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就返回本文件数据 |
@@ -32,7 +32,7 @@
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就返回本文件数据 |
 | assets/nopic.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
 | assets/style.css | 页面使用的 CSS |
-| assets/utils.mjs | 所有 API 使用的功能文件 |
+| assets/utils.js | 所有 API 使用的功能文件 |
 | package.json, package-lock.json | 供 Node.js 使用 |
 | vercel.json | Vercel（API 服务商）的配置文件 |
 
@@ -45,12 +45,12 @@
 一般情况下，这些 API 会根据客户端的 HTTP 请求头中 “accept” 与 “sec-fetch-dest” 的值，返回不同类型的数据。规则如下：
 
 - 如果 “accept” 的值包含 “html”，或者 “sec-fetch-dest” 的值为 “document”（比如用浏览器直接访问这些 API 的页面），就返回 HTML 数据；
-- 对于 “获取哔哩哔哩用户信息及关注、粉丝数”（api/getuser.mjs）及 “获取哔哩哔哩视频信息及数据”（api/getvideo.mjs）API 来说，如果 “accept” 的值包含 “image”，或者 “sec-fetch-dest” 的值为 “image”（比如在 HTML `<img>` 标签的 “src” 参数填写其中一个 API 的网址），那么这些 API 会返回头像或封面数据；
+- 对于 “获取哔哩哔哩用户信息及关注、粉丝数”（api/getuser.js）及 “获取哔哩哔哩视频信息及数据”（api/getvideo.js）API 来说，如果 “accept” 的值包含 “image”，或者 “sec-fetch-dest” 的值为 “image”（比如在 HTML `<img>` 标签的 “src” 参数填写其中一个 API 的网址），那么这些 API 会返回头像或封面数据；
 - 否则，返回 JSON。
 
 ## 用法
 
-### api/getuser.mjs
+### api/getuser.js
 
 本 API 可以获取指定 B 站用户的信息及关注、粉丝数。
 
@@ -68,7 +68,7 @@
 | 429（注意**不是** 412） | 请求太频繁，已被 B 站的 API 拦截 |
 | 400 | UID 无效，或者因其他原因请求失败 |
 
-### api/getvideo.mjs
+### api/getvideo.js
 
 本 API 可以获取指定 B 站视频的信息及数据。
 

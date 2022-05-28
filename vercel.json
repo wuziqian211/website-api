@@ -1,9 +1,9 @@
 {
   "functions": {
-    "api/getuser.mjs": {
+    "api/getuser.js": {
       "includeFiles": "assets/*"
     },
-    "api/getvideo.mjs": {
+    "api/getvideo.js": {
       "includeFiles": "assets/*"
     }
   },
@@ -22,6 +22,6 @@
     {"source": "/", "destination": "/api/"}
   ],
   "rewrites": [
-    {"source": "/(.*)", "destination": "/api/404.mjs"}
+    {"source": "/(.*)", "destination": "/api/404.js"}
   ]
 }
