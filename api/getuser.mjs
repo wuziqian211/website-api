@@ -9,9 +9,9 @@
  *   type：如果本参数的值为“info”，只返回用户信息；如果值为“follow”，只返回用户关注、粉丝数；否则都返回。
  * 返回类型：
  *   本API会根据HTTP请求头中“accept”与“sec-fetch-dest”的值，返回不同类型的数据。
- *   如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如浏览器直接访问本API页面），则返回HTML数据。
+ *   如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如用浏览器直接访问本API页面），则返回HTML数据。
  *   如果“accept”的值包含“image”，或者“sec-fetch-dest”的值为“image”（比如在<img>标签的“src”参数填写本API网址），那么：如果填写了有效的“mid”参数，则返回对应用户的头像数据；如果未填写参数，则返回随机头像。
- *   否则，返回json。
+ *   否则，返回JSON。
  * 响应代码（填写参数时）：
  *   200：用户存在
  *   307（注意不是302）：临时重定向
@@ -66,7 +66,7 @@ export default async (req, res) => {
               res.status(400);
               sendHTML({title: '获取用户关注、粉丝数失败', content: `获取 UID${req.query.mid} 的关注、粉丝数失败，请稍后重试 awa`, mid: req.query.mid});
           }
-        } else { // 否则，返回json
+        } else { // 否则，返回JSON
           switch (fjson.code) {
             case 0:
               res.status(200).json({code: 0, data: {following: fjson.data.following, follower: fjson.data.follower}});
@@ -154,7 +154,7 @@ export default async (req, res) => {
           } else { // 用户信息获取失败，返回默认头像
             res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('../assets/noface.jpg'));
           }
-        } else { // 否则，返回json
+        } else { // 否则，返回JSON
           switch (json.code) {
             case 0:
               if (req.query.type === 'info') { // 仅获取用户信息
@@ -198,7 +198,7 @@ export default async (req, res) => {
         } else { // 设置了UID参数但无效，返回默认头像
           res.status(400).setHeader('Content-Type', 'image/jpeg').send(file('../assets/noface.jpg'));
         }
-      } else { // 否则，返回json
+      } else { // 否则，返回JSON
         res.status(400).json({code: -400, message: '请求错误'});
       }
     }

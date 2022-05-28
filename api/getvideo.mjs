@@ -13,9 +13,9 @@
  * 返回类型：
  *   如果请求参数“type”的值为“data”，则返回视频数据。
  *   否则，本API会检测HTTP请求头中“accept”与“sec-fetch-dest”的值：
- *     如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如浏览器直接访问本API页面），则返回HTML数据；
+ *     如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如用浏览器直接访问本API页面），则返回HTML数据；
  *     如果“accept”的值包含“image”，或者“sec-fetch-dest”的值为“image”（比如在<img>标签的“src”参数填写本API网址），而且填写了有效的“vid”参数，则返回对应视频的封面；
- *     否则，返回json。
+ *     否则，返回JSON。
  * 响应代码（填写参数时）：
  *   200：视频存在
  *   307（注意不是302）：临时重定向
@@ -194,7 +194,7 @@ export default async (req, res) => {
           } else { // 视频信息获取失败，返回默认封面
             res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
           }
-        } else { // 否则，返回json
+        } else { // 否则，返回JSON
           switch (json.code) {
             case 0:
               res.status(200).json({code: 0, data: json.data});
@@ -228,7 +228,7 @@ export default async (req, res) => {
         }
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，返回默认封面
         res.status(400).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
-      } else { // 否则，返回json
+      } else { // 否则，返回JSON
         res.status(400).json({code: -400, message: '请求错误'});
       }
     }
