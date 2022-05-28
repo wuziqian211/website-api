@@ -33,6 +33,7 @@
 | assets/nopic.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
 | assets/style.css | 页面使用的 CSS |
 | assets/utils.js | 所有 API 使用的功能文件 |
+| LICENSE | 许可证 |
 | package.json, package-lock.json | 供 Node.js 使用 |
 | vercel.json | Vercel（API 服务商）的配置文件 |
 
