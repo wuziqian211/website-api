@@ -29,6 +29,9 @@ body {
 }
 header {
   box-shadow: 0 0 5px #777;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 div.header {
   font-size: 24px;
