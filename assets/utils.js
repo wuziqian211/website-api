@@ -34,7 +34,7 @@ const render404 = startTime => renderHTML({startTime, title: 'API 不存在', bo
 const render500 = startTime => renderHTML({startTime, title: '服务器错误', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq
     `});
-const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />') : '';
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
 const toHTTPS = url => { // 将HTTP协议的网址改成HTTPS
   let u = url.split(':');
   u[0] = 'https';

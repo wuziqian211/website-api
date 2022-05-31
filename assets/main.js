@@ -31,6 +31,7 @@ const loadPage = async url => {
 };
 history.replaceState({text: document.documentElement.outerHTML}, '');
 window.onpopstate = event => {
+  document.activeElement && document.activeElement.blur();
   replacePage(event.state.text);
   applyLoad();
 };
