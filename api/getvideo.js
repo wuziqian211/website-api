@@ -1,32 +1,7 @@
 /* 获取哔哩哔哩视频信息及数据
  *   https://api.wuziqian211.top/api/getvideo
- * 本API允许任何合法网站与程序等调用，但本站不会存储任何访问记录，视频的信息、数据等，仅转发与处理B站API的返回数据。
- * 特别注意：请勿将本API用于非法用途！获取的视频的数据仅供预览，要下载视频，请使用其他工具，本API只能获取大小不超过5MB（1MB=1000KB）的视频。
- * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
- * 请求参数（区分大小写）：
- *   vid：您想获取视频信息或数据的AV或BV号。
- *   cid：该视频分P的cid。
- *   p：该视频的第几个分P。
- *   allow_redirect：如果存在本参数，则获取封面数据时可能会重定向到B站服务器的封面地址。
- *   type：如果本参数的值为“data”，则返回视频数据，否则返回视频信息。
- *   其中，“cid”与“p”只能在获取视频数据时填写，且只能填写其中一个，如果不填，默认为P1。
- * 返回类型：
- *   如果请求参数“type”的值为“data”，则返回视频数据。
- *   否则，本API会检测HTTP请求头中“accept”与“sec-fetch-dest”的值：
- *     如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如用浏览器直接访问本API页面），则返回HTML数据；
- *     如果“accept”的值包含“image”，或者“sec-fetch-dest”的值为“image”（比如在<img>标签的“src”参数填写本API网址），而且填写了有效的“vid”参数，则返回对应视频的封面；
- *     否则，返回JSON。
- * 响应代码（填写参数时）：
- *   200：视频存在
- *   307（注意不是302）：临时重定向
- *   403：需登录才能获取该视频的信息，本API无能为力
- *   404：视频不存在
- *   429（注意不是412）：请求太频繁，已被B站的API拦截
- *   400：视频ID无效，或者因其他原因请求失败
- *   500/504：视频太大，本API无法发送数据
- * 作者：wuziqian211
- *   https://wuziqian211.top/
- *   https://space.bilibili.com/425503913
+ * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#user-content-apigetvideojs。
+ * 作者：wuziqian211（https://wuziqian211.top/）
  */
 'use strict';
 import fetch from 'node-fetch';
@@ -120,9 +95,9 @@ export default async (req, res) => {
               let staffHTML = '';
               if (json.data.rights.is_cooperation) {
                 json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)} 的头像" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a> ${utils.encodeHTML(u.title)} ${utils.getNumber(u.follower)} 粉丝`);
+      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong>粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`);
               }
-              sendHTML({title: `视频 ${utils.encodeHTML(json.data.title)} 的信息`, style: `
+              sendHTML({title: `${utils.encodeHTML(json.data.title)} 的信息`, style: `
       body {
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
@@ -142,7 +117,7 @@ export default async (req, res) => {
           background: #22222280;
         }
       }
-    `, content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)} 的封面" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${utils.tobv(json.data.forward)}">${utils.tobv(json.data.forward)}</a> 撞车` : ''}<br />
+    `, content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)}" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${utils.tobv(json.data.forward)}">${utils.tobv(json.data.forward)}</a> 撞车` : ''}<br />
       ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
       <strong>分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
       <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}（可能不准确）</s><br />
@@ -155,7 +130,7 @@ export default async (req, res) => {
           <tr><td>${utils.getNumber(json.data.stat.view)}</td><td>${utils.getNumber(json.data.stat.danmaku)}</td><td>${utils.getNumber(json.data.stat.reply)}</td><td>${utils.getNumber(json.data.stat.like)}</td><td>${utils.getNumber(json.data.stat.coin)}</td><td>${utils.getNumber(json.data.stat.favorite)}</td><td>${utils.getNumber(json.data.stat.share)}</td></tr>
         </tbody>
       </table>
-      ${json.data.rights.is_cooperation ? `<strong>合作成员：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)} 的头像" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
+      ${json.data.rights.is_cooperation ? `<strong>合作成员：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
       <strong>简介：</strong><br />
       ${utils.encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
@@ -219,8 +194,8 @@ export default async (req, res) => {
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
-      用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频的 AV 或 BV 号</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getvideo.js">本 API 源码</a>。`, vid: ''});
+      基本用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频的 AV 或 BV 号</mark><br />
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#user-content-apigetvideojs">本站的使用说明</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
           sendHTML({title: '视频 ID 无效', content: `您输入的 AV 或 BV 号无效！<br />

@@ -1,26 +1,7 @@
 /* 获取哔哩哔哩用户信息及关注、粉丝数
  *   https://api.wuziqian211.top/api/getuser
- * 本API允许任何合法网站与程序等调用，但本站不会存储任何访问记录，用户的信息及关注、粉丝数等，仅转发与处理B站API的返回数据。
- * 特别注意：请勿将本API用于非法用途！
- * 如果您的网站、程序等能正常调用B站的API，最好直接使用B站的API，会更快一些。
- * 请求参数（区分大小写）：
- *   mid：您想获取用户信息及关注、粉丝数的用户的UID。
- *   allow_redirect：如果存在本参数，则获取头像数据时可能会重定向到B站服务器的头像地址。
- *   type：如果本参数的值为“info”，只返回用户信息；如果值为“follow”，只返回用户关注、粉丝数；否则都返回。
- * 返回类型：
- *   本API会根据HTTP请求头中“accept”与“sec-fetch-dest”的值，返回不同类型的数据。
- *   如果“accept”的值包含“html”，或者“sec-fetch-dest”的值为“document”（比如用浏览器直接访问本API页面），则返回HTML数据。
- *   如果“accept”的值包含“image”，或者“sec-fetch-dest”的值为“image”（比如在<img>标签的“src”参数填写本API网址），那么：如果填写了有效的“mid”参数，则返回对应用户的头像数据；如果未填写参数，则返回随机头像。
- *   否则，返回JSON。
- * 响应代码（填写参数时）：
- *   200：用户存在
- *   307（注意不是302）：临时重定向
- *   404：用户不存在
- *   429（注意不是412）：请求太频繁，已被B站的API拦截
- *   400：UID无效，或者因其他原因请求失败
- * 作者：wuziqian211
- *   https://wuziqian211.top/
- *   https://space.bilibili.com/425503913
+ * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#user-content-apigetuserjs。
+ * 作者：wuziqian211（https://wuziqian211.top/）
  */
 'use strict';
 import fetch from 'node-fetch';
@@ -109,19 +90,19 @@ export default async (req, res) => {
       }
     `;
               const content = `<img style="display: none;" src="${utils.toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
-      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.name)} 的头像" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.name)}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6+' : json.data.level}.svg" /></a>${json.data.silence ? ' 已被封禁' : ''}<br />
+      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.name)}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6+' : json.data.level}.svg" /></a>${json.data.silence ? ' 已被封禁' : ''}<br />
       <strong>个性签名：</strong><br />
       ${utils.encodeHTML(json.data.sign)}`;
               if (req.query.type === 'info') { // 仅获取用户信息
-                sendHTML({title: `${utils.encodeHTML(json.data.name)} 的用户信息`, style, content, mid: req.query.mid});
+                sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息`, style, content, mid: req.query.mid});
               } else {
                 const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
                 if (fjson.code === 0) {
-                  sendHTML({title: `${utils.encodeHTML(json.data.name)} 的用户信息及关注、粉丝数`, style, content: content + `<br />
+                  sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息及关注、粉丝数`, style, content: content + `<br />
       <strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
       <strong>粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
                 } else {
-                  sendHTML({title: `${utils.encodeHTML(json.data.name)} 的用户信息`, style, content, mid: req.query.mid});
+                  sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息`, style, content, mid: req.query.mid});
                 }
               }
               break;
@@ -184,8 +165,8 @@ export default async (req, res) => {
         if (!req.query.mid) { // 没有设置UID参数
           res.status(200);
           sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
-      用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/api/getuser.js">本 API 源码</a>。`, mid: ''});
+      基本用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#user-content-apigetuserjs">本站的使用说明</a>。`, mid: ''});
         } else { // 设置了UID参数但无效
           res.status(400);
           sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />

@@ -5,17 +5,8 @@
   text-align: justify;
   transition: all 0.5s;
 }
-::-webkit-scrollbar {
-  background: inherit;
-  height: 10px;
-  width: 10px;
-}
-::-webkit-scrollbar-thumb {
-  background: currentColor;
-  border-radius: 5px;
-}
 ::selection {
-  background: #222;
+  background: #333;
   color: #ccc;
 }
 html {
@@ -54,6 +45,7 @@ th, td, input {
 }
 a {
   text-decoration: underline dotted #333;
+  text-decoration-thickness: 2px;
 }
 a.no-underline {
   text-decoration: none;
@@ -96,10 +88,13 @@ img.vpic {
   height: 100px;
 }
 table {
+  border: 2px solid #08f;
   border-collapse: collapse;
+  border-radius: 10px;
   border-spacing: 0;
   display: block;
   margin: 20px 0;
+  max-width: max-content;
   overflow: auto;
 }
 th, td {
