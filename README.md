@@ -4,7 +4,7 @@
 
 ## 功能
 
-本存储库中的 API 主要为 [wuziqian211's Blog](https://wuziqian211.top/) 的一些功能提供服务，但是有一些公开的 API：
+本存储库中的 API 主要为 [wuziqian211's Blog](https://wuziqian211.top/) 的一些功能提供服务，但是也有一些公开的 API 可以使用：
 
 - [获取哔哩哔哩用户信息及关注、粉丝数](https://api.wuziqian211.top/api/getuser)
 - [获取哔哩哔哩视频信息及数据](https://api.wuziqian211.top/api/getvideo)
