@@ -34,10 +34,10 @@ span.desc {
   color: #777;
   font-size: 14px;
 }
-a, strong, th, label, input[type="submit"] {
+a, strong.mark, th, label, input[type="submit"] {
   color: #08f;
 }
-a:hover, a strong:hover, input[type="submit"]:hover {
+a:hover, input[type="submit"]:hover {
   color: #0af;
 }
 th, td, input {
@@ -91,7 +91,6 @@ table {
   border: 2px solid #08f;
   border-collapse: collapse;
   border-radius: 10px;
-  border-spacing: 0;
   display: block;
   margin: 20px 0;
   max-width: max-content;

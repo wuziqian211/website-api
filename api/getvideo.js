@@ -91,11 +91,11 @@ export default async (req, res) => {
               res.status(200);
               let pagesHTML = '';
               json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
-      <strong>P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`);
+      <strong class="mark">P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`);
               let staffHTML = '';
               if (json.data.rights.is_cooperation) {
                 json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong>粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`);
+      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`);
               }
               sendHTML({title: `${utils.encodeHTML(json.data.title)} 的信息`, style: `
       body {
@@ -119,19 +119,19 @@ export default async (req, res) => {
       }
     `, content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)}" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${utils.tobv(json.data.forward)}">${utils.tobv(json.data.forward)}</a> 撞车` : ''}<br />
       ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
-      <strong>分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
-      <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}（可能不准确）</s><br />
-      <strong>发布时间：</strong>${utils.getDate(json.data.pubdate)}${pagesHTML}
+      <strong class="mark">分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
+      <s><strong class="mark">投稿时间：</strong>${utils.getDate(json.data.ctime)}（已弃用）</s><br />
+      <strong class="mark">发布时间：</strong>${utils.getDate(json.data.pubdate)}${pagesHTML}
       <table>
         <thead>
-          <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
+          <tr><th>播放量</th><th>弹幕数（历史累计）</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
         </thead>
         <tbody>
           <tr><td>${utils.getNumber(json.data.stat.view)}</td><td>${utils.getNumber(json.data.stat.danmaku)}</td><td>${utils.getNumber(json.data.stat.reply)}</td><td>${utils.getNumber(json.data.stat.like)}</td><td>${utils.getNumber(json.data.stat.coin)}</td><td>${utils.getNumber(json.data.stat.favorite)}</td><td>${utils.getNumber(json.data.stat.share)}</td></tr>
         </tbody>
       </table>
-      ${json.data.rights.is_cooperation ? `<strong>合作成员：</strong>${staffHTML}` : `<strong>UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
-      <strong>简介：</strong><br />
+      ${json.data.rights.is_cooperation ? `<strong class="mark">合作成员：</strong>${staffHTML}` : `<strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
+      <strong class="mark">简介：</strong><br />
       ${utils.encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
             case -412:
@@ -195,7 +195,7 @@ export default async (req, res) => {
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频信息及数据', content: `本 API 可以获取指定 B 站视频的信息及数据。<br />
       基本用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频的 AV 或 BV 号</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#user-content-apigetvideojs">本站的使用说明</a>。`, vid: ''});
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#apigetvideojs">本站的使用说明</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
           sendHTML({title: '视频 ID 无效', content: `您输入的 AV 或 BV 号无效！<br />

@@ -32,8 +32,8 @@ export default async (req, res) => {
           switch (fjson.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
-      <strong>粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
+              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong class="mark">关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
+      <strong class="mark">粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
@@ -91,7 +91,7 @@ export default async (req, res) => {
     `;
               const content = `<img style="display: none;" src="${utils.toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
       <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.name)}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6+' : json.data.level}.svg" /></a>${json.data.silence ? ' 已被封禁' : ''}<br />
-      <strong>个性签名：</strong><br />
+      <strong class="mark">个性签名：</strong><br />
       ${utils.encodeHTML(json.data.sign)}`;
               if (req.query.type === 'info') { // 仅获取用户信息
                 sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息`, style, content, mid: req.query.mid});
@@ -99,8 +99,8 @@ export default async (req, res) => {
                 const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
                 if (fjson.code === 0) {
                   sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息及关注、粉丝数`, style, content: content + `<br />
-      <strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
-      <strong>粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
+      <strong class="mark">关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
+      <strong class="mark">粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
                 } else {
                   sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息`, style, content, mid: req.query.mid});
                 }
@@ -166,7 +166,7 @@ export default async (req, res) => {
           res.status(200);
           sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
       基本用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#user-content-apigetuserjs">本站的使用说明</a>。`, mid: ''});
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#apigetuserjs">本站的使用说明</a>。`, mid: ''});
         } else { // 设置了UID参数但无效
           res.status(400);
           sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />
