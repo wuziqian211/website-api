@@ -1,15 +1,15 @@
-# wuziqian211's Blog 404 页面
+# wuziqian211's Blog 短域名跳转
 
 ## 功能
 
-当用户试图访问 “\*.wuziqian211.top” 并当子域 “\*” 不存在时，会调用本分支中的 “api/404.js” API，以提示用户可能输入错了网址。
+当用户访问 “wuziqian211.top” 的短域名 “w211.top” 时，会调用本分支中的 “api/redirect.js” API，以重定向到 “wuziqian211.top”。
 
 对本存储库中大部分文件及文件夹的介绍：
 
 | 文件或文件夹 | 功能 |
 | ------------ | ---- |
 | api/ | 本文件夹包含所有 API，在网站上访问里面的文件会调用对应 API |
-| api/404.js | 网站上的页面不存在时调用的 API |
+| api/redirect.js | 访问 “*.w211.top” 的任何文件都会调用这个 API |
 | LICENSE | MIT 许可证 |
 | package.json, package-lock.json | 供 Node.js 使用 |
 | vercel.json | Vercel（API 服务商）的配置文件 |
