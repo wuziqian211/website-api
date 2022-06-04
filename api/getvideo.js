@@ -1,6 +1,6 @@
 /* 获取哔哩哔哩视频信息及数据
  *   https://api.wuziqian211.top/api/getvideo
- * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#user-content-apigetvideojs。
+ * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#apigetvideojs。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 'use strict';

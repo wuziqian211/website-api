@@ -1,6 +1,6 @@
 /* 获取哔哩哔哩用户信息及关注、粉丝数
  *   https://api.wuziqian211.top/api/getuser
- * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#user-content-apigetuserjs。
+ * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#apigetuserjs。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 'use strict';
