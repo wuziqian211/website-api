@@ -1,7 +1,7 @@
 'use strict';
 import * as utils from '../assets/utils.js';
 export default (req, res) => {
-  const startTime = Date.now();
+  const startTime = performance.now();
   try {
     if (utils.getAccept(req) === 1) {
       res.status(200).send(utils.renderHTML({startTime, title: '欢迎来到 API 页面', body: `

@@ -3,7 +3,7 @@
 import fetch from 'node-fetch';
 import * as utils from '../assets/utils.js';
 export default (req, res) => {
-  const startTime = Date.now();
+  const startTime = performance.now();
   try {
     if (utils.getAccept(req) === 1) {
       switch (req.query.id) {

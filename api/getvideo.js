@@ -10,7 +10,7 @@ import {readFileSync} from 'fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
-  const startTime = Date.now();
+  const startTime = performance.now();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频信息及数据', body: `
       ${data.content}
