@@ -53,6 +53,9 @@ a.no-underline {
 a:hover {
   text-decoration-color: #aaa;
 }
+ul {
+  margin: 0;
+}
 main {
   animation: 1s both zoomInDown;
   border-radius: 20px;
