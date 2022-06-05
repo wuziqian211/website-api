@@ -22,7 +22,7 @@ const renderHTML = data => `<!DOCTYPE html>
     <main>${data.body}</main>
     <footer>
       © 2021 – 2022 wuziqian211<br />
-      执行耗时 <span class="time-taken">${performance.now() - data.startTime}</span> ms<br />
+      执行耗时 <span class="time-taken">${(performance.now() - data.startTime).toFixed(3)}</span> ms<br />
       本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span>
     </footer>
     <script src="/assets/main.js"></script>
