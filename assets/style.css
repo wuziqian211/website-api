@@ -146,9 +146,6 @@ footer {
     margin: 10px;
     width: auto;
   }
-  footer {
-    font-size: 14px;
-  }
 }
 @media (prefers-color-scheme: dark) {
   body {
