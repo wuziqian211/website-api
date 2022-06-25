@@ -19,6 +19,7 @@ body {
   min-height: 100%;
 }
 header {
+  background: #fff;
   box-shadow: 0 0 5px #777;
   position: sticky;
   top: 0;
@@ -149,8 +150,10 @@ footer {
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background: #222;
     color: #ccc;
+  }
+  body, header {
+    background: #222;
   }
   a {
     text-decoration-color: #aaa;
