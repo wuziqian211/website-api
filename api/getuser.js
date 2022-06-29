@@ -5,7 +5,6 @@
  */
 'use strict';
 import fetch from 'node-fetch';
-import URLEncode from 'urlencode';
 import {readFileSync} from 'fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
@@ -124,7 +123,7 @@ export default async (req, res) => {
               res.status(307).setHeader('Location', utils.toHTTPS(json.data.face)).json({code: 307, data: {url: utils.toHTTPS(json.data.face)}});
             } else {
               const a = utils.toHTTPS(json.data.face).split('.');
-              const filename = URLEncode(`${json.data.name} 的头像.${a[a.length - 1]}`, 'UTF-8'); // 设置头像的文件名
+              const filename = encodeURIComponent(`${json.data.name} 的头像.${a[a.length - 1]}`); // 设置头像的文件名
               const resp = await fetch(utils.toHTTPS(json.data.face)); // 获取B站服务器存储的头像
               if (resp.ok) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));

@@ -3,7 +3,6 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "node-fetch": "latest",
-    "urlencode": "latest"
+    "node-fetch": "latest"
   }
 }
