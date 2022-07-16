@@ -88,19 +88,12 @@ export default async (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              let pagesHTML = '';
-              json.data.pages && json.data.pages.forEach(p => pagesHTML += `<br />
-      <strong class="mark">P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`);
-              let staffHTML = '';
-              if (json.data.rights.is_cooperation) {
-                json.data.staff.forEach(u => staffHTML += `<br />
-      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`);
-              }
               sendHTML({title: `${utils.encodeHTML(json.data.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.pic)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)}" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${utils.tobv(json.data.forward)}">${utils.tobv(json.data.forward)}</a> 撞车` : ''}<br />
       ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}<br />
       <strong class="mark">分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
       <s><strong class="mark">投稿时间：</strong>${utils.getDate(json.data.ctime)}（已弃用）</s><br />
-      <strong class="mark">发布时间：</strong>${utils.getDate(json.data.pubdate)}${pagesHTML}
+      <strong class="mark">发布时间：</strong>${utils.getDate(json.data.pubdate)}${json.data.pages ? `<br />
+      ${json.data.pages.map(p => `<strong class="mark">P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`).join('<br />\n      ')}` : ''}
       <table>
         <thead>
           <tr><th>播放量</th><th>弹幕数（历史累计）</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
@@ -109,7 +102,8 @@ export default async (req, res) => {
           <tr><td>${utils.getNumber(json.data.stat.view)}</td><td>${utils.getNumber(json.data.stat.danmaku)}</td><td>${utils.getNumber(json.data.stat.reply)}</td><td>${utils.getNumber(json.data.stat.like)}</td><td>${utils.getNumber(json.data.stat.coin)}</td><td>${utils.getNumber(json.data.stat.favorite)}</td><td>${utils.getNumber(json.data.stat.share)}</td></tr>
         </tbody>
       </table>
-      ${json.data.rights.is_cooperation ? `<strong class="mark">合作成员：</strong>${staffHTML}` : `<strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
+      ${json.data.rights.is_cooperation ? `<strong class="mark">合作成员：</strong><br />
+      ${json.data.staff.map(u => `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`).join('<br />\n      ')}` : `<strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
       <strong class="mark">简介：</strong><br />
       ${utils.encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
@@ -176,10 +170,9 @@ export default async (req, res) => {
           case 0:
             res.status(200);
             sendHTML({title: `${utils.encodeHTML(json.result.media.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.media.cover)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${mdid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.result.media.title)}" src="${utils.toHTTPS(json.result.media.cover)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.media.title)}</strong></a><br />
-      ${utils.encodeHTML(json.result.media.new_ep.index_show)}<br />
-      <strong class="mark">类型：</strong>${utils.encodeHTML(json.result.media.type_name)}<br />
-      <strong class="mark">评分：</strong>${json.result.media.rating.score}（共 ${json.result.media.rating.count} 人评分）<br />
-      <strong class="mark">最新一话：</strong>${utils.encodeHTML(json.result.media.new_ep.index)}`, vid: req.query.vid});
+      ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep.index_show)} ${json.result.media.areas.map(a => a.name).join('、')} ${json.result.media.rating.score} 分（共 ${json.result.media.rating.count} 人评分）<br />
+      <strong class="mark">最新一话：</strong><a href="/api/getvideo?vid=ep${json.result.media.new_ep.id}">${utils.encodeHTML(json.result.media.new_ep.index)}</a><br />
+      <a href="/api/getvideo?vid=ss${json.result.media.season_id}">点击此处查看更多信息</a>`, vid: req.query.vid});
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
