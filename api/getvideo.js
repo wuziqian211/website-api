@@ -180,54 +180,49 @@ export default async (req, res) => {
       <strong class="mark">类型：</strong>${utils.encodeHTML(json.result.media.type_name)}<br />
       <strong class="mark">评分：</strong>${json.result.media.rating.score}（共 ${json.result.media.rating.count} 人评分）<br />
       <strong class="mark">最新一话：</strong>${utils.encodeHTML(json.result.media.new_ep.index)}`, vid: req.query.vid});
-              break;
-            case -412:
-              res.status(429).setHeader('Retry-After', '600');
-              sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: req.query.vid});
-              break;
-            case -404:
-              res.status(404);
-              sendHTML({title: '剧集不存在', content: '您想要获取信息的剧集不存在！QAQ', vid: req.query.vid});
-              break;
-            default:
-              res.status(400);
-              sendHTML({title: '获取剧集信息失败', content: '获取剧集信息失败，请稍后重试 awa', vid: req.query.vid});
-          }
-        } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
-          if (json.code === 0) {
-            if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
-              res.status(307).setHeader('Location', utils.toHTTPS(json.result.media.cover)).json({code: 307, data: {url: utils.toHTTPS(json.result.media.cover)}});
+            break;
+          case -412:
+            res.status(429).setHeader('Retry-After', '600');
+            sendHTML({title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: req.query.vid});
+            break;
+          case -404:
+            res.status(404);
+            sendHTML({title: '剧集不存在', content: '您想要获取信息的剧集不存在！QAQ', vid: req.query.vid});
+            break;
+          default:
+            res.status(400);
+            sendHTML({title: '获取剧集信息失败', content: '获取剧集信息失败，请稍后重试 awa', vid: req.query.vid});
+        }
+      } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
+        if (json.code === 0) {
+          if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
+            res.status(307).setHeader('Location', utils.toHTTPS(json.result.media.cover)).json({code: 307, data: {url: utils.toHTTPS(json.result.media.cover)}});
+          } else {
+            const a = utils.toHTTPS(json.result.media.cover).split('.');
+            const filename = encodeURIComponent(`${json.result.media.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
+            const resp = await fetch(utils.toHTTPS(json.result.media.cover)); // 获取B站服务器存储的封面
+            if (resp.status === 200) {
+              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
-              const a = utils.toHTTPS(json.result.media.cover).split('.');
-              const filename = encodeURIComponent(`${json.result.media.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
-              const resp = await fetch(utils.toHTTPS(json.result.media.cover)); // 获取B站服务器存储的封面
-              if (resp.status === 200) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
-              } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
-              }
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
             }
-          } else { // 剧集信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
           }
-        } else { // 否则，返回JSON
-          switch (json.code) {
-            case 0:
-              res.status(200).json({code: 0, result: json.result});
-              break;
-            case -412:
-              res.status(429).setHeader('Retry-After', '600').json({code: -412});
-              break;
-            case -404:
-            case 62002:
-              res.status(404).json({code: -404});
-              break;
-            case -403:
-              res.status(403).json({code: -403});
-              break;
-            default:
-              res.status(400).json({code: json.code, message: json.message});
-          }
+        } else { // 剧集信息获取失败，返回默认封面
+          res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+        }
+      } else { // 否则，返回JSON
+        switch (json.code) {
+          case 0:
+            res.status(200).json({code: 0, result: json.result});
+            break;
+          case -412:
+            res.status(429).setHeader('Retry-After', '600').json({code: -412});
+            break;
+          case -404:
+            res.status(404).json({code: -404});
+            break;
+          default:
+            res.status(400).json({code: json.code, message: json.message});
         }
       }
     } else if (/^ss\d+$/.test(req.query.vid)) { // 判断编号开头是否为“ss”且剩余部分为数字
