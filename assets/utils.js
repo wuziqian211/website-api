@@ -35,6 +35,27 @@ const render404 = startTime => renderHTML({startTime, title: 'API 不存在', bo
 const render500 = startTime => renderHTML({startTime, title: '服务器错误', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq
     `});
+const renderExtraStyle = pic => `
+      body {
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        background: url("${pic}") center/cover no-repeat fixed #fff;
+        transition: background 0.5s 0.5s;
+      }
+      header, main {
+        background: #ffffff80;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          -webkit-backdrop-filter: blur(20px) brightness(0.5);
+          backdrop-filter: blur(20px) brightness(0.5);
+          background-color: #222;
+        }
+        header, main {
+          background: #22222280;
+        }
+      }
+    `;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
 const toHTTPS = url => { // 将HTTP协议的网址改成HTTPS
   let u = url.split(':');
@@ -66,4 +87,4 @@ const toBV = vid => {
     return 'BV' + vid.slice(2); // 直接返回
   }
 };
-export {getAccept, renderHTML, render404, render500, encodeHTML, toHTTPS, getDate, getTime, getNumber, tobv, toBV};
+export {getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, tobv, toBV};
