@@ -288,7 +288,7 @@ export default async (req, res) => {
       <strong class="mark">正片：</strong><br />
       ${json.result.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}${json.result.section ? `<br />
       ${json.result.section.map(s => `<strong class="mark">${s.title}：</strong><br />
-      ${s.epicodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}`)}` : ''}
+      ${s.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}`)}` : ''}
       <table>
         <thead>
           <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
