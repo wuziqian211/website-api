@@ -285,7 +285,7 @@ export default async (req, res) => {
               sendHTML({title: `${utils.encodeHTML(json.result.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.cover)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/${type === 3 ? 'ss' : 'ep'}${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.result.title)}" src="${utils.toHTTPS(json.result.cover)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.title)}</strong></a><br />
       ${json.result.total}P<br />
       <strong class="mark">发布时间：</strong>${json.result.publish.pub_time}${json.result.episodes ? `<br />
-      ${json.result.episodes.map(p => `<strong class="mark">P${p.title} ${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration \ 1000)}`).join('<br />\n      ')}` : ''}
+      ${json.result.episodes.map(p => `<strong class="mark">P${p.title} ${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}` : ''}
       <table>
         <thead>
           <tr><th>播放量</th><th>弹幕数（历史累计）</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
@@ -296,7 +296,7 @@ export default async (req, res) => {
       </table>
       <strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.up_info.uname)}</strong></a><br />
       <strong class="mark">简介：</strong><br />
-      ${utils.encodeHTML(json.data.desc)}`, vid: req.query.vid});
+      ${utils.encodeHTML(json.result.evaluate)}`, vid: req.query.vid});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
