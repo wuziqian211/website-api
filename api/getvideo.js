@@ -96,7 +96,7 @@ export default async (req, res) => {
       ${json.data.pages.map(p => `<strong class="mark">P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`).join('<br />\n      ')}` : ''}
       <table>
         <thead>
-          <tr><th>播放量</th><th>弹幕数（历史累计）</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
+          <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
         </thead>
         <tbody>
           <tr><td>${utils.getNumber(json.data.stat.view)}</td><td>${utils.getNumber(json.data.stat.danmaku)}</td><td>${utils.getNumber(json.data.stat.reply)}</td><td>${utils.getNumber(json.data.stat.like)}</td><td>${utils.getNumber(json.data.stat.coin)}</td><td>${utils.getNumber(json.data.stat.favorite)}</td><td>${utils.getNumber(json.data.stat.share)}</td></tr>
@@ -283,18 +283,21 @@ export default async (req, res) => {
             case 0:
               res.status(200);
               sendHTML({title: `${utils.encodeHTML(json.result.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.cover)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/${type === 3 ? 'ss' : 'ep'}${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.result.title)}" src="${utils.toHTTPS(json.result.cover)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.title)}</strong></a><br />
-      ${json.result.total}P<br />
-      <strong class="mark">发布时间：</strong>${json.result.publish.pub_time}${json.result.episodes ? `<br />
-      ${json.result.episodes.map(p => `<strong class="mark">P${p.title} ${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}` : ''}
+      ${json.result.type === 1 ? '番剧' : json.result.type === 2 ? '电影' : json.result.type === 3 ? '纪录片' : json.result.type === 4 ? '国创' : json.result.type === 5 ? '电视剧' : json.result.type === 7 ? '综艺' : ''} 共 ${json.result.total} 集 ${json.result.areas.map(a => a.name).join('、')} ${json.result.rating.score} 分（共 ${json.result.rating.count} 人评分）<br />
+      <strong class="mark">发布时间：</strong>${json.result.publish.pub_time}<br />
+      <strong class="mark">正片：</strong><br />
+      ${json.result.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}${json.result.section ? `<br />
+      ${json.result.section.map(s => `<strong class="mark">${s.title}：</strong><br />
+      ${s.epicodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}`)}` : ''}
       <table>
         <thead>
-          <tr><th>播放量</th><th>弹幕数（历史累计）</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
+          <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
         </thead>
         <tbody>
           <tr><td>${utils.getNumber(json.result.stat.views)}</td><td>${utils.getNumber(json.result.stat.danmakus)}</td><td>${utils.getNumber(json.result.stat.reply)}</td><td>${utils.getNumber(json.result.stat.likes)}</td><td>${utils.getNumber(json.result.stat.coins)}</td><td>${utils.getNumber(json.result.stat.favorites)}</td><td>${utils.getNumber(json.result.stat.share)}</td></tr>
         </tbody>
-      </table>
-      <strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.up_info.uname)}</strong></a><br />
+      </table>${json.result.up_info ? `
+      <strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.up_info.uname)}</strong>（<strong class="mark">粉丝数：</strong>${utils.getNumber(json.result.up_info.follower)}）</a><br />` : ''}
       <strong class="mark">简介：</strong><br />
       ${utils.encodeHTML(json.result.evaluate)}`, vid: req.query.vid});
               break;

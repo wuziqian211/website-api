@@ -32,7 +32,7 @@ const renderHTML = data => `<!DOCTYPE html>
 const render404 = startTime => renderHTML({startTime, title: 'API 不存在', body: `
       您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa
     `});
-const render500 = startTime => renderHTML({startTime, title: '服务器错误', body: `
+const render500 = startTime => renderHTML({startTime, title: 'API 执行时出现异常', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq
     `});
 const renderExtraStyle = pic => `
