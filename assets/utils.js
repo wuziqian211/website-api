@@ -69,7 +69,7 @@ const getDate = ts => { // 根据时间戳返回日期时间
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
-const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
+const toBV = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
   let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
   for (let i = 0n; i < 6n; i++) {
@@ -77,14 +77,22 @@ const tobv = aid => { // AV号转BV号，改编自https://www.zhihu.com/question
   }
   return bvid.join('');
 };
-const toBV = vid => {
-  if (typeof vid !== 'string') return;
-  if (/^(?:AV|av)\d+$/.test(vid)) { // 判断参数值开头是否为“av”或“AV”且剩余部分为数字
-    return tobv(vid.slice(2));
-  } else if (/^\d+$/.test(vid)) { // 判断参数值是否为数字
-    return tobv(vid);
-  } else if (/^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断参数值是否为BV号
-    return 'BV' + vid.slice(2); // 直接返回
+const getVidType = vid => { // 判断编号类型
+  if (typeof vid !== 'string') return {};
+  if (/^(?:AV|av)\d+$/.test(vid)) { // 判断编号开头是否为“av”或“AV”且剩余部分为数字
+    return {type: 1, id: toBV(vid.slice(2))};
+  } else if (/^\d+$/.test(vid)) { // 判断编号是否为纯数字
+    return {type: 1, id: toBV(vid)};
+  } else if (/^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为BV号
+    return {type: 1, id: 'BV' + vid.slice(2)};
+  } else if (/^md\d+$/.test(req.query.vid)) { // 判断编号开头是否为“md”且剩余部分为数字
+    return {type: 2, id: vid.slice(2)};
+  } else if (/^ss\d+$/.test(req.query.vid)) { // 判断编号开头是否为“ss”且剩余部分为数字
+    return {type: 3, id: vid.slice(2)};
+  } else if (/^ep\d+$/.test(req.query.vid)) { // 判断编号开头是否为“ep”且剩余部分为数字
+    return {type: 4, id: vid.slice(2)};
+  } else { // 编号无效
+    return {};
   }
 };
-export {getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, tobv, toBV};
+export {getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType};
