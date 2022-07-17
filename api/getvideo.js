@@ -1,4 +1,4 @@
-/* 获取哔哩哔哩视频／剧集／番剧／影视信息及数据
+/* 获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据
  *   https://api.wuziqian211.top/api/getvideo
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#apigetvideojs。
  * 作者：wuziqian211（https://wuziqian211.top/）
@@ -11,14 +11,14 @@ const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
   const startTime = performance.now();
   try {
-    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频／剧集／番剧／影视信息及数据', body: `
+    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', body: `
       ${data.content}
       <form>
         <div>
-          <label for="vid">请输入您想要获取信息的视频／剧集／番剧／影视的编号（仅输入数字会被视为 AV 号）：</label>
+          <label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧 / 影视的编号（仅输入数字会被视为 AV 号）：</label>
         </div>
         <div>
-          <input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…／BV…／md…／ss…／ep…" pattern="^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av|md|ss|ep)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" />
+          <input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av… / BV… / md… / ss… / ep…" pattern="^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av|md|ss|ep)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" />
           <input type="submit" value="获取" />
         </div>
       </form>
@@ -226,8 +226,8 @@ export default async (req, res) => {
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
-          sendHTML({title: '获取哔哩哔哩视频／剧集／番剧／影视信息及数据', content: `本 API 可以获取指定 B 站视频／剧集／番剧／影视的信息及数据。<br />
-      基本用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频／剧集／番剧／影视的编号</mark><br />
+          sendHTML({title: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', content: `本 API 可以获取指定 B 站视频 / 剧集 / 番剧 / 影视的信息及数据。<br />
+      基本用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频 / 剧集 / 番剧 / 影视的编号</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#apigetvideojs">本站的使用说明</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
