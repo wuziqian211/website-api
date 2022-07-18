@@ -69,6 +69,8 @@ export default async (req, res) => {
               res.status(200);
               const content = `<img style="display: none;" src="${utils.toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
       <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.name)}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>${json.data.silence ? ' 已被封禁' : ''}<br />
+      ${json.data.sys_notice ? `<strong class="mark">${json.data.sys_notice.content}</strong><br />
+      ` : ''}<strong class="mark">生日：</strong>${json.data.birthday ? utils.encodeHTML(json.data.birthday) : '保密'}<br />
       <strong class="mark">个性签名：</strong><br />
       ${utils.encodeHTML(json.data.sign)}`;
               if (req.query.type === 'info') { // 仅获取用户信息
