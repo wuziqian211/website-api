@@ -16,7 +16,7 @@ export default (req, res) => res.status(404).send(`<!DOCTYPE html>
       </div>
     </header>
     <main>
-      您似乎输入错了网址！您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？
+      您似乎输入错了网址！请仔细检查您的网址是否输入正确，您是否想要访问 <a href="https://wuziqian211.top${req.url}">https://wuziqian211.top${req.url}</a>？
     </main>
     <footer>
       © 2021 – 2022 wuziqian211
