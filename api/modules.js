@@ -36,7 +36,7 @@ export default (req, res) => {
           var info = [];
           const get = async users => {
             if (users.length > 0) {
-              info = info.concat((await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}&build=0&mobi_app=web`)).json()).data);
+              info = info.concat((await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`)).json()).data);
               get(users.slice(50));
             } else {
               let html = '';

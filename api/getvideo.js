@@ -26,7 +26,7 @@ export default async (req, res) => {
     const accept = utils.getAccept(req);
     const {type, vid} = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     if (type === 1) { // 编号为AV号或BV号
-      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json();
+      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……[&aid=&need_operation_card=1&web_rm_repeat=1&need_elec=1&out_referer=&page_no=]
       if (req.query.type === 'data') { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
@@ -90,7 +90,7 @@ export default async (req, res) => {
               res.status(200);
               sendHTML({title: `${utils.encodeHTML(json.data.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.pic)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)}" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>（av${json.data.aid}，${utils.encodeHTML(json.data.bvid)}）${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${utils.toBV(json.data.forward)}">${utils.toBV(json.data.forward)}</a> 撞车` : ''}<br />
       ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}<br />
-      ${json.data.stat.argue_msg ? `<strong class="mark">${utils.encodeHTML(json.data.stat.argue_msg)}<strong><br />
+      ${json.data.stat.argue_msg ? `<strong class="mark">${utils.encodeHTML(json.data.stat.argue_msg)}</strong><br />
       ` : ''}<strong class="mark">分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
       <s><strong class="mark">投稿时间：</strong>${utils.getDate(json.data.ctime)}（已弃用）</s><br />
       <strong class="mark">发布时间：</strong>${utils.getDate(json.data.pubdate)}

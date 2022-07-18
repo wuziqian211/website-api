@@ -62,7 +62,7 @@ export default async (req, res) => {
           }
         }
       } else { // 不是仅获取关注、粉丝数
-        const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`)).json();
+        const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`)).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
         if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (json.code) {
             case 0:
