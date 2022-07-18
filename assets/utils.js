@@ -86,11 +86,11 @@ const getVidType = vid => { // 判断编号类型
   } else if (/^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为BV号
     return {type: 1, vid: 'BV' + vid.slice(2)};
   } else if (/^md\d+$/.test(vid)) { // 判断编号开头是否为“md”且剩余部分为数字
-    return {type: 2, vid: vid.slice(2)};
+    return {type: 2, vid: parseInt(vid.slice(2))};
   } else if (/^ss\d+$/.test(vid)) { // 判断编号开头是否为“ss”且剩余部分为数字
-    return {type: 3, vid: vid.slice(2)};
+    return {type: 3, vid: parseInt(vid.slice(2))};
   } else if (/^ep\d+$/.test(vid)) { // 判断编号开头是否为“ep”且剩余部分为数字
-    return {type: 4, vid: vid.slice(2)};
+    return {type: 4, vid: parseInt(vid.slice(2))};
   } else { // 编号无效
     return {};
   }

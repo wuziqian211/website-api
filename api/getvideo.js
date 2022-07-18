@@ -30,12 +30,12 @@ export default async (req, res) => {
       if (req.query.type === 'data') { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
-          if (/^\d+$/.test(req.query.cid)) {
-            cid = json.data.pages.indexOf(parseInt(req.query.cid)) === -1 ? 0 : parseInt(req.query.cid);
-          } else if (/^\d+$/.test(req.query.p)) {
-            cid = json.data.pages[parseInt(req.query.p) - 1]?.cid;
+          if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
+            cid = json.data.pages.map(p => p.cid).indexOf(parseInt(req.query.cid)) === -1 ? 0 : parseInt(req.query.cid); // 若API返回的pages中包含用户提供的cid，则将变量“cid”设置为用户提供的cid
+          } else if (/^\d+$/.test(req.query.p)) { // 用户提供的参数“p”有效
+            cid = json.data.pages[parseInt(req.query.p) - 1]?.cid; // 将变量“cid”设置为该P的cid
           } else {
-            cid = json.data.cid;
+            cid = json.data.cid; // 将变量“cid”设置为该视频第1P的cid
           }
         }
         if (cid) { // 视频有效
@@ -93,7 +93,8 @@ export default async (req, res) => {
       <strong class="mark">分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
       <s><strong class="mark">投稿时间：</strong>${utils.getDate(json.data.ctime)}（已弃用）</s><br />
       <strong class="mark">发布时间：</strong>${utils.getDate(json.data.pubdate)}${json.data.pages ? `<br />
-      ${json.data.pages.map(p => `<strong class="mark">P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`).join('<br />\n      ')}` : ''}
+      ${json.data.pages.map(p => `<strong class="mark">P${p.page} ${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}`).join(`<br />
+      `)}` : ''}
       <table>
         <thead>
           <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
@@ -103,7 +104,8 @@ export default async (req, res) => {
         </tbody>
       </table>
       ${json.data.rights.is_cooperation ? `<strong class="mark">合作成员：</strong><br />
-      ${json.data.staff.map(u => `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`).join('<br />\n      ')}` : `<strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
+      ${json.data.staff.map(u => `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"><img class="uface" alt="" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(u.name)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(u.follower)}） ${utils.encodeHTML(u.title)}`).join(`<br />
+      `)}` : `<strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.owner.name)}</strong></a>`}<br />
       <strong class="mark">简介：</strong><br />
       ${utils.encodeHTML(json.data.desc)}`, vid: req.query.vid});
               break;
@@ -169,7 +171,7 @@ export default async (req, res) => {
           case 0:
             res.status(200);
             sendHTML({title: `${utils.encodeHTML(json.result.media.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.media.cover)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.result.media.title)}" src="${utils.toHTTPS(json.result.media.cover)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.media.title)}</strong></a><br />
-      ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep.index_show)} ${json.result.media.areas.map(a => a.name).join('、')} ${json.result.media.rating.score} 分（共 ${json.result.media.rating.count} 人评分）<br />
+      ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep.index_show)} ${json.result.media.areas.map(a => a.name).join('、')} ${json.result.media.rating.score.toFixed(1)} 分（共 ${json.result.media.rating.count} 人评分）<br />
       <strong class="mark">最新一话：</strong><a href="/api/getvideo?vid=ep${json.result.media.new_ep.id}">${utils.encodeHTML(json.result.media.new_ep.index)}</a><br />
       <a href="/api/getvideo?vid=ss${json.result.media.season_id}">点击此处查看更多信息</a>`, vid: req.query.vid});
             break;
@@ -219,24 +221,30 @@ export default async (req, res) => {
       }
     } else if (type === 3 || type === 4) { // 编号为ssid或epid
       const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`)).json();
-      if (req.query.type === 'data') { // 获取剧集数据
-/* 待修改
-        let cid;
-        if (json.code === 0 && json.data.pages) {
-          if (/^\d+$/.test(req.query.cid)) {
-            cid = json.data.pages.indexOf(parseInt(req.query.cid)) === -1 ? 0 : parseInt(req.query.cid);
-          } else if (/^\d+$/.test(req.query.p)) {
-            cid = json.data.pages[parseInt(req.query.p) - 1]?.cid;
-          } else {
-            cid = json.data.cid;
+      if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
+        let bvid, epid, cid, n;
+        if (json.code === 0) {
+          if (type === 3) { // 编号为ssid
+            if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
+              n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
+            } else if (type === 3 && /^\d+$/.test(req.query.p)) { // 用户提供的参数“p”有效
+              n = parseInt(req.query.p) - 1;
+            } else {
+              n = 0; // 第1集
+            }
+          } else { // 编号为epid
+            n = json.result.episodes.map(p => p.id).indexOf(vid);
           }
+          bvid = json.result.episodes[n]?.bvid; // 将变量“bvid”设置为该集的BV号
+          epid = json.result.episodes[n]?.id;
+          cid = json.result.episodes[n]?.cid;
         }
-        if (cid) { // 视频有效
+        if (bvid && cid && epid) { // 剧集有效
           const q = [6, 16, 32, 64];
           var u;
           const get = async n => {
-            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json();
-            if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
+            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json();
+            if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB；真的有不超过5MB大小的番剧或者影视？）
               u = vjson.data.durl[0].url;
               if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
                 get(n + 1); // 继续尝试获取更高分辨率的视频
@@ -254,7 +262,7 @@ export default async (req, res) => {
                   res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
                 } else {
                   res.status(404);
-                  sendHTML({title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid});
+                  sendHTML({title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid});
                 }
               }
             } else { // 视频获取失败
@@ -262,13 +270,13 @@ export default async (req, res) => {
                 res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
               } else {
                 res.status(500);
-                sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
-      如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
+                sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
+      如果您想下载这一集，最好使用其他工具哟 awa`, vid: req.query.vid});
               }
             }
           };
           get(0);
-        } else { // 视频无效
+        } else { // 剧集无效
           if (req.headers['sec-fetch-dest'] === 'video') {
             res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
           } else {
@@ -276,19 +284,20 @@ export default async (req, res) => {
             sendHTML({title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: req.query.vid});
           }
         }
-*/
       } else { // 获取剧集信息
         if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (json.code) {
             case 0:
               res.status(200);
               sendHTML({title: `${utils.encodeHTML(json.result.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.cover)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/${type === 3 ? 'ss' : 'ep'}${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.result.title)}" src="${utils.toHTTPS(json.result.cover)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.title)}</strong></a><br />
-      ${json.result.type === 1 ? '番剧' : json.result.type === 2 ? '电影' : json.result.type === 3 ? '纪录片' : json.result.type === 4 ? '国创' : json.result.type === 5 ? '电视剧' : json.result.type === 7 ? '综艺' : ''} 共 ${json.result.total} 集 ${json.result.areas.map(a => a.name).join('、')} ${json.result.rating.score} 分（共 ${json.result.rating.count} 人评分）<br />
+      ${json.result.type === 1 ? '番剧' : json.result.type === 2 ? '电影' : json.result.type === 3 ? '纪录片' : json.result.type === 4 ? '国创' : json.result.type === 5 ? '电视剧' : json.result.type === 7 ? '综艺' : ''} 共 ${json.result.total} 集 ${json.result.areas.map(a => a.name).join('、')} ${json.result.rating.score.toFixed(1)} 分（共 ${json.result.rating.count} 人评分）<br />
       <strong class="mark">发布时间：</strong>${json.result.publish.pub_time}<br />
       <strong class="mark">正片：</strong><br />
-      ${json.result.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}${json.result.section ? `<br />
+      ${json.result.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
+      `)}${json.result.section ? `<br />
       ${json.result.section.map(s => `<strong class="mark">${s.title}：</strong><br />
-      ${s.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />\n      ')}`)}` : ''}
+      ${s.episodes.map(p => `<strong class="mark">${p.title} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
+      `)}`)}` : ''}
       <table>
         <thead>
           <tr><th>播放量</th><th>弹幕数</th><th>评论数</th><th>点赞数</th><th>投币数</th><th>收藏数</th><th>分享数</th></tr>
@@ -297,7 +306,7 @@ export default async (req, res) => {
           <tr><td>${utils.getNumber(json.result.stat.views)}</td><td>${utils.getNumber(json.result.stat.danmakus)}</td><td>${utils.getNumber(json.result.stat.reply)}</td><td>${utils.getNumber(json.result.stat.likes)}</td><td>${utils.getNumber(json.result.stat.coins)}</td><td>${utils.getNumber(json.result.stat.favorites)}</td><td>${utils.getNumber(json.result.stat.share)}</td></tr>
         </tbody>
       </table>${json.result.up_info ? `
-      <strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.up_info.uname)}</strong>（<strong class="mark">粉丝数：</strong>${utils.getNumber(json.result.up_info.follower)}）</a><br />` : ''}
+      <strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.up_info.uname)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(json.result.up_info.follower)}）<br />` : ''}
       <strong class="mark">简介：</strong><br />
       ${utils.encodeHTML(json.result.evaluate)}`, vid: req.query.vid});
               break;
