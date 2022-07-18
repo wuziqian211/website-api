@@ -34,7 +34,7 @@
 | assets/style.css | 页面使用的 CSS |
 | assets/utils.js | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | LICENSE | MIT 许可证 |
-| package.json, package-lock.json | 供 Node.js 使用 |
+| package.json, package-lock.json | 供 Node.js 与 npm 使用 |
 | vercel.json | Vercel（API 服务商）的配置文件 |
 
 ## 特性
@@ -80,7 +80,7 @@
 | vid | 您想获取信息或数据的视频 / 剧集 / 番剧 / 影视的编号。用前缀为 `av`、`AV` 或没有前缀的 AV 号，前缀为 `BV` 或 `bv` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧、影视等的编号都是可以的。 |
 | cid | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid。 |
 | p | 该视频的第几个分 P，或者该剧集中的第几集。 |
-| allow_redirect | 如果存在本参数，且满足“返回图片数据”的条件，那么获取封面数据时可能会重定向到 B 站服务器的封面地址。 |
+| allow_redirect | 如果存在本参数，且满足 “返回图片数据” 的条件，那么获取封面数据时可能会重定向到 B 站服务器的封面地址。 |
 | type | 如果本参数的值为 `data`，则返回视频数据（如果参数 `vid` 是前缀为 `md` 的剧集编号，则暂不支持获取），否则返回视频信息。 |
 
 其中，“cid” 与 “p” **只能在获取视频数据时填写，且只能填写其中一个**，如果不填，默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
