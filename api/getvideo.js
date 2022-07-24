@@ -1,6 +1,6 @@
 /* 获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据
  *   https://api.wuziqian211.top/api/getvideo
- * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#apigetvideojs。
+ * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 'use strict';
@@ -26,7 +26,7 @@ export default async (req, res) => {
     const accept = utils.getAccept(req);
     const {type, vid} = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     if (type === 1) { // 编号为AV号或BV号
-      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……[&aid=&need_operation_card=1&web_rm_repeat=1&need_elec=1&out_referer=&page_no=]
+      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
       if (req.query.type === 'data') { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
@@ -42,7 +42,7 @@ export default async (req, res) => {
           const q = [6, 16, 32, 64];
           var u;
           const get = async n => {
-            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json();
+            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
             if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
               u = vjson.data.durl[0].url;
               if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
@@ -227,18 +227,40 @@ export default async (req, res) => {
         if (json.code === 0) {
           if (type === 3) { // 编号为ssid
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
-              n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
+              n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid)); // 在正片中寻找cid与用户提供的cid相同的一集
+              if (n === -1) { // 在正片中没有找到
+                for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
+                  n = json.result.section[i].episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
+                  if (n !== -1) {
+                    break;
+                  }
+                }
+                bvid = json.result.section[i].episodes[n]?.bvid;
+                epid = json.result.section[i].episodes[n]?.id;
+                cid = json.result.section[i].episodes[n]?.cid;
+              }
             } else if (type === 3 && /^\d+$/.test(req.query.p)) { // 用户提供的参数“p”有效
               n = parseInt(req.query.p) - 1;
             } else {
               n = 0; // 第1集
             }
           } else { // 编号为epid
-            n = json.result.episodes.map(p => p.id).indexOf(vid);
+            n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
+            if (n === -1) { // 在正片中没有找到
+              for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
+                n = json.result.section[i].episodes.map(p => p.id).indexOf(vid));
+                if (n !== -1) {
+                  break;
+                }
+              }
+              bvid = json.result.section[i].episodes[n]?.bvid;
+              epid = json.result.section[i].episodes[n]?.id;
+              cid = json.result.section[i].episodes[n]?.cid;
+            }
           }
-          bvid = json.result.episodes[n]?.bvid; // 将变量“bvid”设置为该集的BV号
-          epid = json.result.episodes[n]?.id;
-          cid = json.result.episodes[n]?.cid;
+          bvid ||= json.result.episodes[n]?.bvid; // 若变量“bvid”未定义，则设置为该集的BV号
+          epid ||= json.result.episodes[n]?.id;
+          cid ||= json.result.episodes[n]?.cid;
         }
         if (bvid && cid && epid) { // 剧集有效
           const q = [6, 16, 32, 64];
@@ -363,7 +385,7 @@ export default async (req, res) => {
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', content: `本 API 可以获取指定 B 站视频 / 剧集 / 番剧 / 影视的信息及数据。<br />
       基本用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频 / 剧集 / 番剧 / 影视的编号</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#apigetvideojs">本站的使用说明</a>。`, vid: ''});
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
           sendHTML({title: '编号无效', content: `您输入的编号无效！<br />
