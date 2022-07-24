@@ -223,7 +223,7 @@ export default async (req, res) => {
     } else if (type === 3 || type === 4) { // 编号为ssid或epid
       const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`)).json();
       if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
-        let bvid, epid, cid, n;
+        let n, P;
         if (json.code === 0) {
           if (type === 3) { // 编号为ssid
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
@@ -232,17 +232,17 @@ export default async (req, res) => {
                 for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
                   n = json.result.section[i].episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
                   if (n !== -1) {
+                    P = json.result.section[i].episodes[n];
                     break;
                   }
                 }
-                bvid = json.result.section[i].episodes[n]?.bvid;
-                epid = json.result.section[i].episodes[n]?.id;
-                cid = json.result.section[i].episodes[n]?.cid;
+              } else {
+                P = json.result.episodes[n];
               }
             } else if (type === 3 && /^\d+$/.test(req.query.p)) { // 用户提供的参数“p”有效
-              n = parseInt(req.query.p) - 1;
+              P = json.result.episodes[parseInt(req.query.p) - 1];
             } else {
-              n = 0; // 第1集
+              P = json.result.episodes[0]; // 第1集
             }
           } else { // 编号为epid
             n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
@@ -250,17 +250,15 @@ export default async (req, res) => {
               for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
                 n = json.result.section[i].episodes.map(p => p.id).indexOf(vid);
                 if (n !== -1) {
+                  P = json.result.section[i].episodes[n];
                   break;
                 }
               }
-              bvid = json.result.section[i].episodes[n]?.bvid;
-              epid = json.result.section[i].episodes[n]?.id;
-              cid = json.result.section[i].episodes[n]?.cid;
+            } else {
+              P = json.result.episodes[n];
             }
           }
-          bvid ||= json.result.episodes[n]?.bvid; // 若变量“bvid”未定义，则设置为该集的BV号
-          epid ||= json.result.episodes[n]?.id;
-          cid ||= json.result.episodes[n]?.cid;
+          const {bvid, cid, id: epid} = P || {};
         }
         if (bvid && cid && epid) { // 剧集有效
           const q = [6, 16, 32, 64];
