@@ -223,7 +223,7 @@ export default async (req, res) => {
     } else if (type === 3 || type === 4) { // 编号为ssid或epid
       const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`)).json();
       if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
-        let n, P;
+        let bvid, cid, epid, n, P;
         if (json.code === 0) {
           if (type === 3) { // 编号为ssid
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
@@ -258,7 +258,7 @@ export default async (req, res) => {
               P = json.result.episodes[n];
             }
           }
-          const {bvid, cid, id: epid} = P || {};
+          ({bvid, cid, id: epid} = P || {});
         }
         if (bvid && cid && epid) { // 剧集有效
           const q = [6, 16, 32, 64];
