@@ -248,7 +248,7 @@ export default async (req, res) => {
             n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
             if (n === -1) { // 在正片中没有找到
               for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
-                n = json.result.section[i].episodes.map(p => p.id).indexOf(vid));
+                n = json.result.section[i].episodes.map(p => p.id).indexOf(vid);
                 if (n !== -1) {
                   break;
                 }
