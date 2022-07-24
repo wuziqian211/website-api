@@ -170,11 +170,7 @@ export default async (req, res) => {
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (json.code) {
           case 0:
-            res.status(200);
-            sendHTML({title: `${utils.encodeHTML(json.result.media.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.media.cover)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.result.media.title)}" src="${utils.toHTTPS(json.result.media.cover)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.media.title)}</strong></a><br />
-      ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep.index_show)} ${json.result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${json.result.media.rating.score.toFixed(1)} 分（共 ${json.result.media.rating.count} 人评分）<br />
-      <strong class="mark">最新一话：</strong><a href="/api/getvideo?vid=ep${json.result.media.new_ep.id}">${utils.encodeHTML(json.result.media.new_ep.index)}</a><br />
-      <a href="/api/getvideo?vid=ss${json.result.media.season_id}">点击此处查看更多信息</a>`, vid: req.query.vid});
+            res.status(307).setHeader('Location', `/api/getvideo?vid=ss${json.result.media.season_id}`).json({code: 307, data: {url: `/api/getvideo?vid=ss${json.result.media.season_id}`)}});
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
@@ -258,7 +254,7 @@ export default async (req, res) => {
               P = json.result.episodes[n];
             }
           }
-          ({bvid, cid, id: epid} = P || {});
+          ({bvid, cid, id: epid} = P || {}); // 如果不加圆括号，左边的花括号及其里面的内容会被视为一个语句块
         }
         if (bvid && cid && epid) { // 剧集有效
           const q = [6, 16, 32, 64];
