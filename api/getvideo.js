@@ -170,7 +170,7 @@ export default async (req, res) => {
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (json.code) {
           case 0:
-            res.status(307).setHeader('Location', `/api/getvideo?vid=ss${json.result.media.season_id}`).json({code: 307, data: {url: `/api/getvideo?vid=ss${json.result.media.season_id}`)}});
+            res.status(307).setHeader('Location', `/api/getvideo?vid=ss${json.result.media.season_id}`).json({code: 307, data: {url: `/api/getvideo?vid=ss${json.result.media.season_id}`}});
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
