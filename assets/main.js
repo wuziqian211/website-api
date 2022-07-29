@@ -44,7 +44,7 @@ const aLoad = (el, event) => {
 const applyLoad = () => {
   document.querySelectorAll('a').forEach(a => {
     a.onclick = event => aLoad(a, event);
-    a.onkeyup = event => event.keyCode === 13 && aLoad(a, event);
+    a.onkeyup = event => event.code === 'Enter' && aLoad(a, event);
   });
   document.querySelectorAll('form').forEach(form => {
     form.onsubmit = event => {

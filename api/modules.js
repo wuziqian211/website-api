@@ -2,7 +2,7 @@
 'use strict';
 import fetch from 'node-fetch';
 import * as utils from '../assets/utils.js';
-export default (req, res) => {
+export default async (req, res) => {
   const startTime = performance.now();
   try {
     if (utils.getAccept(req) === 1) {
@@ -28,23 +28,18 @@ export default (req, res) => {
                            400067046, 401143707, 404658588, 405966864, 413092448, 415240328, 424674753, 425503913, 429986248, 430967737,
                            432258909, 433751453, 433849994, 434605889, 435619015, 437954580, 438586165, 440004933, 444281310, 446836354,
                            448189858, 449328503, 451918909, 452616186, 453521951, 453899463, 454258954, 454719152, 455568817, 455591101,
-                           457843315, 473999894, 474683920, 474899885, /* 已注销，待删除 475409751, */ 479611798, 480015861, 481731410, 481823642, 485821637,
+                           457843315, 473999894, 474683920, 474899885, 476302796, 479611798, 480015861, 481731410, 481823642, 485821637,
                            486081918, 492935673, 496300862, 503577862, 505570512, 506418994, 510272506, 512787858, 513634638, 513778858,
                            515586861, 518970483, 519795342, 520139927, 521209706, 522208739, 523423693, 526705577, 527630206, 535324469,
                            535362423, 589865539, 592308904, 597242903, 598397900, 624532985, 694241611, 1132879610, 1456149763, 1498694594,
                            1980000209, 2095498218];
-          var info = [];
-          const get = async users => {
-            if (users.length > 0) {
-              info = info.concat((await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`)).json()).data);
-              get(users.slice(50));
-            } else {
-              let html = '';
-              info.sort(() => 0.5 - Math.random()).forEach(u => html += `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" /><p>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`);
-              res.status(200).json({code: 0, data: html});
-            }
-          };
-          get(friends.sort(() => 0.5 - Math.random()));
+          let info = [];
+          let users = friends.sort(() => 0.5 - Math.random());
+          while (users.length > 0) {
+            info = info.concat((await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`)).json()).data);
+            users = users.slice(50);
+          }
+          res.status(200).json({code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" /><p>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('')});
           break;
         case 'blocked':
           let blocked = '';

@@ -1,6 +1,6 @@
 /* 获取哔哩哔哩用户信息及关注、粉丝数
  *   https://api.wuziqian211.top/api/getuser
- * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#apigetuserjs。
+ * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E5%8F%8A%E5%85%B3%E6%B3%A8%E7%B2%89%E4%B8%9D%E6%95%B0。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 'use strict';
@@ -145,8 +145,8 @@ export default async (req, res) => {
         if (!req.query.mid) { // 没有设置UID参数
           res.status(200);
           sendHTML({title: '获取哔哩哔哩用户信息及关注、粉丝数', content: `本 API 可以获取指定 B 站用户的信息及关注、粉丝数。<br />
-      基本用法：${process.env.URL}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
-      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#apigetuserjs">本站的使用说明</a>。`, mid: ''});
+      基本用法：https://${req.headers.host}/api/getuser?mid=<mark>您想获取信息及关注、粉丝数的用户的 UID</mark><br />
+      更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E5%8F%8A%E5%85%B3%E6%B3%A8%E7%B2%89%E4%B8%9D%E6%95%B0">本站的使用说明</a>。`, mid: ''});
         } else { // 设置了UID参数但无效
           res.status(400);
           sendHTML({title: 'UID 无效', content: `您输入的 UID 无效！<br />
