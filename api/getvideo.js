@@ -85,7 +85,7 @@ export default async (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `${utils.encodeHTML(json.data.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.pic)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)}" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>（av${json.data.aid}，${utils.encodeHTML(json.data.bvid)}）${json.data.forward ? ` 已与 <a href="/api/getvideo?vid=${utils.toBV(json.data.forward)}">${utils.toBV(json.data.forward)}</a> 撞车` : ''}<br />
+              sendHTML({title: `${utils.encodeHTML(json.data.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.pic)), content: `<a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}"><img class="vpic" alt="" title="${utils.encodeHTML(json.data.title)}" src="${utils.toHTTPS(json.data.pic)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.title)}</strong></a>（av${json.data.aid}，${utils.encodeHTML(json.data.bvid)}）${json.data.forward ? ` 已与 <a href="?vid=${utils.toBV(json.data.forward)}">${utils.toBV(json.data.forward)}</a> 撞车` : ''}<br />
       ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}<br />
       ${json.data.stat.argue_msg ? `<strong class="mark">${utils.encodeHTML(json.data.stat.argue_msg)}</strong><br />
       ` : ''}<strong class="mark">分区：</strong>${utils.encodeHTML(json.data.tname)}<br />
@@ -167,7 +167,7 @@ export default async (req, res) => {
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (json.code) {
           case 0:
-            res.status(307).setHeader('Location', `/api/getvideo?vid=ss${json.result.media.season_id}`).json({code: 307, data: {url: `/api/getvideo?vid=ss${json.result.media.season_id}`}});
+            res.status(307).setHeader('Location', `?vid=ss${json.result.media.season_id}`).json({code: 307, data: {url: `?vid=ss${json.result.media.season_id}`}});
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
@@ -313,10 +313,10 @@ export default async (req, res) => {
       </table>
       ${json.result.up_info ? `<strong class="mark">UP 主：</strong><a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.result.up_info.uname)}</strong></a>（<strong class="mark">粉丝数：</strong>${utils.getNumber(json.result.up_info.follower)}）<br />
       ` : ''}<strong class="mark">正片：</strong><br />
-      ${json.result.episodes.map(p => `<strong class="mark">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">cid：</strong>${p.cid}，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
+      ${json.result.episodes.map(p => `<strong class="mark">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">cid：</strong>${p.cid}，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
       `)}<br />
       ${json.result.section ? `${json.result.section.map(s => `<strong class="mark">${utils.encodeHTML(s.title)}：</strong><br />
-      ${s.episodes.map(p => `<strong class="mark">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="/api/getvideo?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">cid：</strong>${p.cid}，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
+      ${s.episodes.map(p => `<strong class="mark">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong class="mark">cid：</strong>${p.cid}，<strong class="mark">发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
       `)}`).join(`<br />
       `)}<br />
       ` : ''}<strong class="mark">简介：</strong><br />
@@ -372,7 +372,7 @@ export default async (req, res) => {
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
           sendHTML({title: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', content: `本 API 可以获取指定 B 站视频 / 剧集 / 番剧 / 影视的信息及数据。<br />
-      基本用法：${process.env.URL}/api/getvideo?vid=<mark>您想获取信息的视频 / 剧集 / 番剧 / 影视的编号</mark><br />
+      基本用法：https://${req.headers.host}/api/getvideo?vid=<mark>您想获取信息的视频 / 剧集 / 番剧 / 影视的编号</mark><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。`, vid: ''});
         } else { // 设置了“vid”参数但无效
           res.status(400);
