@@ -2,7 +2,7 @@
 'use strict';
 import fetch from 'node-fetch';
 import * as utils from '../assets/utils.js';
-export default (req, res) => {
+export default async (req, res) => {
   const startTime = performance.now();
   try {
     if (utils.getAccept(req) === 1) {
