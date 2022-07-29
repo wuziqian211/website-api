@@ -21,7 +21,7 @@ const renderHTML = data => `<!DOCTYPE html>
     </header>
     <main>${data.body}</main>
     <footer>
-      API 版权：© 2021 – 2022 wuziqian211<br />
+      本 API 版权：© 2021 – 2022 wuziqian211<br />
       执行本 API 耗时 <span class="time-taken">${(performance.now() - data.startTime).toFixed(3)}</span> ms<br />
       本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
       部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>

@@ -39,42 +39,39 @@ export default async (req, res) => {
           }
         }
         if (cid) { // 视频有效
-          const q = [6, 16, 32, 64];
-          var u;
-          const get = async n => {
+          const q = [6, 16, 32, 64]; // 240P、360P、480P、720P
+          let u;
+          for (let n = 0; n < q.length; n++) {
             const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
             if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
               u = vjson.data.durl[0].url;
-              if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
-                get(n + 1); // 继续尝试获取更高分辨率的视频
-                return;
-              }
+            } else {
+              break;
             }
-            if (u) { // 当前分辨率的视频获取失败，或者已经达到最高分辨率了，但上一分辨率的视频获取成功
-              const t = u.slice(0, u.indexOf('?'));
-              const filename = encodeURIComponent(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
-              const resp = await fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.81.0 (bbcallen@gmail.com)'}});
-              if (resp.ok) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
-              } else {
-                if (req.headers['sec-fetch-dest'] === 'video') {
-                  res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
-                } else {
-                  res.status(404);
-                  sendHTML({title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid});
-                }
-              }
-            } else { // 视频获取失败
+          }
+          if (u) { // 视频地址获取成功
+            const t = u.slice(0, u.indexOf('?'));
+            const filename = encodeURIComponent(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
+            const resp = await fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`}});
+            if (resp.ok) {
+              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+            } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
                 res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
               } else {
-                res.status(500);
-                sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
-      如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
+                res.status(404);
+                sendHTML({title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid});
               }
             }
-          };
-          get(0);
+          } else { // 视频地址获取失败
+            if (req.headers['sec-fetch-dest'] === 'video') {
+              res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
+            } else {
+              res.status(500);
+              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
+      如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
+            }
+          }
         } else { // 视频无效
           if (req.headers['sec-fetch-dest'] === 'video') {
             res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
@@ -257,42 +254,39 @@ export default async (req, res) => {
           ({bvid, cid, id: epid} = P || {}); // 如果不加圆括号，左边的花括号及其里面的内容会被视为一个语句块
         }
         if (bvid && cid && epid) { // 剧集有效
-          const q = [6, 16, 32, 64];
-          var u;
-          const get = async n => {
+          const q = [6, 16, 32, 64]; // 240P、360P、480P、720P
+          let u;
+          for (let n = 0; n < q.length; n++) {
             const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json();
             if (vjson.code === 0 && vjson.result.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB；真的有不超过5MB大小的番剧或者影视？）
               u = vjson.result.durl[0].url;
-              if (n < q.length - 1) { // 视频还没有达到本API能获取到的最高分辨率
-                get(n + 1); // 继续尝试获取更高分辨率的视频
-                return;
-              }
+            } else {
+              break;
             }
-            if (u) { // 当前分辨率的视频获取失败，或者已经达到最高分辨率了，但上一分辨率的视频获取成功
-              const t = u.slice(0, u.indexOf('?'));
-              const filename = encodeURIComponent(`${json.result.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
-              const resp = await fetch(u, {headers: {Referer: `https://www.bilibili.com/video/${vid}`, 'User-Agent': 'Mozilla/5.0 BiliDroid/6.81.0 (bbcallen@gmail.com)'}});
-              if (resp.ok) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
-              } else {
-                if (req.headers['sec-fetch-dest'] === 'video') {
-                  res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
-                } else {
-                  res.status(404);
-                  sendHTML({title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid});
-                }
-              }
-            } else { // 视频获取失败
+          }
+          if (u) { // 视频地址获取成功
+            const t = u.slice(0, u.indexOf('?'));
+            const filename = encodeURIComponent(`${json.result.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
+            const resp = await fetch(u, {headers: {Referer: `https://www.bilibili.com/bangumi/play/${type === 3 ? 'ss' : 'ep'}${vid}`}});
+            if (resp.ok) {
+              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+            } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
                 res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
               } else {
-                res.status(500);
-                sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
-      如果您想下载这一集，最好使用其他工具哟 awa`, vid: req.query.vid});
+                res.status(404);
+                sendHTML({title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid});
               }
             }
-          };
-          get(0);
+          } else { // 视频地址获取失败
+            if (req.headers['sec-fetch-dest'] === 'video') {
+              res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
+            } else {
+              res.status(500);
+              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
+      如果您想下载这一集，最好使用其他工具哟 awa`, vid: req.query.vid});
+            }
+          }
         } else { // 剧集无效
           if (req.headers['sec-fetch-dest'] === 'video') {
             res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
