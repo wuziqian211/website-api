@@ -3,6 +3,14 @@ export default (req, res) => {
     const url = `https://${req.headers.host.replace(/^(.+\.)?w211.top$/, '$1wuziqian211.top')}${req.url}`;
     res.status(308).setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({code: 308, data: {url}});
   } else {
-    res.status(403).send('403 Forbidden');
+    res.status(403).send(`<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<center>I don't know why you want to visit this website.</center>
+<hr><center>openresty</center>
+</body>
+</html>
+`);
   }
 };
