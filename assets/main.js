@@ -1,11 +1,7 @@
 'use strict';
 
 // From pjax.js - https://github.com/MoOx/pjax
-const isLoadAvailable = url => {
-  let a = document.createElement('a');
-  a.href = url;
-  return a.origin === window.location.origin;
-};
+const isLoadAvailable = url => new URL(url, window.location.href).origin === window.location.origin;
 const replacePage = text => {
   const html = new DOMParser().parseFromString(text, 'text/html');
   ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);

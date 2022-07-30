@@ -57,10 +57,10 @@ const renderExtraStyle = pic => `
       }
     `;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
-const toHTTPS = url => { // 将HTTP协议的网址改成HTTPS
-  let u = url.split(':');
-  u[0] = 'https';
-  return u.join(':');
+const toHTTPS = url => { // 将网址改成HTTPS协议
+  let u = new URL(url);
+  u.protocol = 'https:';
+  return u.href;
 };
 const getDate = ts => { // 根据时间戳返回日期时间
   const t = new Date(ts * 1000);
