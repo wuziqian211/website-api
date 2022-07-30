@@ -63,8 +63,8 @@ const toHTTPS = url => { // 将HTTP协议的网址改成HTTPS
   return u.join(':');
 };
 const getDate = ts => { // 根据时间戳返回日期时间
-  let t = new Date(ts * 1000);
-  let d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
+  const t = new Date(ts * 1000);
+  const d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
