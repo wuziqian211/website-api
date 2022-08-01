@@ -87,6 +87,9 @@ img.ulevel {
   height: 30px;
   vertical-align: -7.5px;
 }
+img.unotice-icon {
+  height: 24px;
+}
 img.vpic {
   border-radius: 10px;
   height: 100px;
