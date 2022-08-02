@@ -91,6 +91,10 @@ img.vpic {
   border-radius: 10px;
   height: 100px;
 }
+img.spic {
+  border-radius: 10px;
+  height: 160px;
+}
 img.notice-icon {
   height: 24px;
 }
