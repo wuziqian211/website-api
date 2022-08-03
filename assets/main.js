@@ -45,12 +45,12 @@ const applyLoad = () => {
   document.querySelectorAll('form').forEach(form => {
     form.onsubmit = event => {
       let params = new URLSearchParams();
-      for (let i = 0; i < form.elements.length; i++) {
-        if (form.elements[i].tagName.toLowerCase() === 'input' && form.elements[i].type !== 'submit') {
-          params.append(form.elements[i].name, form.elements[i].value);
+      for (let e of form.elements) {
+        if (e.tagName.toLowerCase() === 'input' && e.type !== 'submit') {
+          params.append(e.name, e.value);
         }
       }
-      const url = `${form.getAttribute('action') || window.location.origin + window.location.pathname}?${params.toString()}`;
+      const url = `${form.getAttribute('action') || ''}?${params.toString()}`;
       if (isLoadAvailable(url)) {
         event.preventDefault();
         loadPage(url);

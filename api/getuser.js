@@ -3,7 +3,6 @@
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E5%8F%8A%E5%85%B3%E6%B3%A8%E7%B2%89%E4%B8%9D%E6%95%B0。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
-'use strict';
 import fetch from 'node-fetch';
 import {readFileSync} from 'fs';
 import * as utils from '../assets/utils.js';

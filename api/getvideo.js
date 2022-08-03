@@ -3,7 +3,6 @@
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
-'use strict';
 import fetch from 'node-fetch';
 import {readFileSync} from 'fs';
 import * as utils from '../assets/utils.js';
@@ -39,10 +38,10 @@ export default async (req, res) => {
           }
         }
         if (cid) { // 视频有效
-          const q = [6, 16, 32, 64]; // 240P、360P、480P、720P
+          const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
-          for (let n = 0; n < q.length; n++) {
-            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
+          for (let q of qualities) {
+            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`)).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
             if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
               u = vjson.data.durl[0].url;
             } else {
@@ -68,7 +67,7 @@ export default async (req, res) => {
               res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
             } else {
               res.status(500);
-              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
+              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
       如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid});
             }
           }
@@ -230,10 +229,10 @@ export default async (req, res) => {
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
               n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid)); // 在正片中寻找cid与用户提供的cid相同的一集
               if (n === -1) { // 在正片中没有找到
-                for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
-                  n = json.result.section[i].episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
+                for (let s of json.result.section) { // 在其他部分寻找
+                  n = s.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
                   if (n !== -1) {
-                    P = json.result.section[i].episodes[n];
+                    P = s.episodes[n];
                     break;
                   }
                 }
@@ -248,10 +247,10 @@ export default async (req, res) => {
           } else { // 编号为epid
             n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
             if (n === -1) { // 在正片中没有找到
-              for (let i = 0; i < json.result.section.length; i++) { // 在其他部分寻找
-                n = json.result.section[i].episodes.map(p => p.id).indexOf(vid);
+              for (let s of json.result.section) { // 在其他部分寻找
+                n = s.episodes.map(p => p.id).indexOf(vid);
                 if (n !== -1) {
-                  P = json.result.section[i].episodes[n];
+                  P = s.episodes[n];
                   break;
                 }
               }
@@ -262,10 +261,10 @@ export default async (req, res) => {
           ({bvid, cid, id: epid} = P || {}); // 如果不加圆括号，左边的花括号及其里面的内容会被视为一个语句块
         }
         if (bvid && cid && epid) { // 剧集有效
-          const q = [6, 16, 32, 64]; // 240P、360P、480P、720P
+          const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
-          for (let n = 0; n < q.length; n++) {
-            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q[n]}&fnval=${q[n] === 6 ? 1 : 0}&fnver=0`)).json();
+          for (let q of qualities) {
+            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`)).json();
             if (vjson.code === 0 && vjson.result.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB；真的有不超过5MB大小的番剧或者影视？）
               u = vjson.result.durl[0].url;
             } else {
@@ -291,7 +290,7 @@ export default async (req, res) => {
               res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
             } else {
               res.status(500);
-              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
+              sendHTML({title: '无法获取视频数据', content: `抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
       如果您想下载这一集，最好使用其他工具哟 awa`, vid: req.query.vid});
             }
           }

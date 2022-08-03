@@ -1,5 +1,4 @@
-/* 本API仅供内部使用，并不对外公开 */
-'use strict';
+// 本API仅供内部使用，不公开使用
 import fetch from 'node-fetch';
 import * as utils from '../assets/utils.js';
 export default async (req, res) => {

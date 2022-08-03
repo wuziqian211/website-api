@@ -1,4 +1,3 @@
-'use strict';
 import * as utils from '../assets/utils.js';
 export default (req, res) => {
   const startTime = performance.now();
