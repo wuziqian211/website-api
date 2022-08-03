@@ -122,6 +122,10 @@ export default async (req, res) => {
               sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid});
               break;
+            case 62004:
+              res.status(404);
+              sendHTML({title: '视频审核中', content: '视频正在审核中，请等一下再获取信息吧 awa', vid: req.query.vid});
+              break;
             default:
               res.status(400);
               sendHTML({title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid});
@@ -146,17 +150,20 @@ export default async (req, res) => {
         } else { // 否则，返回JSON
           switch (json.code) {
             case 0:
-              res.status(200).json({code: 0, data: json.data});
+              res.status(200).json({code: 0, message: json.message, data: json.data});
               break;
             case -412:
-              res.status(429).setHeader('Retry-After', '600').json({code: -412});
+              res.status(429).setHeader('Retry-After', '600').json({code: -412, message: json.message});
               break;
             case -404:
             case 62002:
-              res.status(404).json({code: -404});
+              res.status(404).json({code: -404, message: json.message});
               break;
             case -403:
-              res.status(403).json({code: -403});
+              res.status(403).json({code: -403, message: json.message});
+              break;
+            case 62004:
+              res.status(404).json({code: 62004, message: json.message});
               break;
             default:
               res.status(400).json({code: json.code, message: json.message});
@@ -202,13 +209,13 @@ export default async (req, res) => {
       } else { // 否则，返回JSON
         switch (json.code) {
           case 0:
-            res.status(200).json({code: 0, result: json.result});
+            res.status(200).json({code: 0, message: json.message, result: json.result});
             break;
           case -412:
-            res.status(429).setHeader('Retry-After', '600').json({code: -412});
+            res.status(429).setHeader('Retry-After', '600').json({code: -412, message: json.message});
             break;
           case -404:
-            res.status(404).json({code: -404});
+            res.status(404).json({code: -404, message: json.message});
             break;
           default:
             res.status(400).json({code: json.code, message: json.message});
@@ -355,13 +362,13 @@ export default async (req, res) => {
         } else { // 否则，返回JSON
           switch (json.code) {
             case 0:
-              res.status(200).json({code: 0, result: json.result});
+              res.status(200).json({code: 0, message: json.message, result: json.result});
               break;
             case -412:
-              res.status(429).setHeader('Retry-After', '600').json({code: -412});
+              res.status(429).setHeader('Retry-After', '600').json({code: -412, message: json.message});
               break;
             case -404:
-              res.status(404).json({code: -404});
+              res.status(404).json({code: -404, message: json.message});
               break;
             default:
               res.status(400).json({code: json.code, message: json.message});

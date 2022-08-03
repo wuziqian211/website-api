@@ -49,13 +49,13 @@ export default async (req, res) => {
         } else { // 否则，返回JSON
           switch (fjson.code) {
             case 0:
-              res.status(200).json({code: 0, data: {following: fjson.data.following, follower: fjson.data.follower}});
+              res.status(200).json({code: 0, message: fjson.message, data: {following: fjson.data.following, follower: fjson.data.follower}});
               break;
             case -412:
-              res.status(429).setHeader('Retry-After', '600').json({code: -412});
+              res.status(429).setHeader('Retry-After', '600').json({code: -412, message: fjson.message});
               break;
             case -404:
-              res.status(404).json({code: -404});
+              res.status(404).json({code: -404, message: fjson.message});
               break;
             default:
               res.status(400).json({code: fjson.code, message: fjson.message});
@@ -119,21 +119,21 @@ export default async (req, res) => {
           switch (json.code) {
             case 0:
               if (req.query.type === 'info') { // 仅获取用户信息
-                res.status(200).json({code: 0, data: json.data});
+                res.status(200).json({code: 0, message: json.message, data: json.data});
               } else {
                 const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
                 if (fjson.code === 0) {
-                  res.status(200).json({code: 0, data: {...json.data, following: fjson.data.following, follower: fjson.data.follower}});
+                  res.status(200).json({code: 0, message: json.message, data: {...json.data, following: fjson.data.following, follower: fjson.data.follower}});
                 } else {
-                  res.status(200).json({code: 0, data: json.data});
+                  res.status(200).json({code: 0, message: json.message, data: json.data});
                 }
               }
               break;
             case -412:
-              res.status(429).setHeader('Retry-After', '600').json({code: -412});
+              res.status(429).setHeader('Retry-After', '600').json({code: -412, message: json.message});
               break;
             case -404:
-              res.status(404).json({code: -404});
+              res.status(404).json({code: -404, message: json.message});
               break;
             default:
               res.status(400).json({code: json.code, message: json.message});
