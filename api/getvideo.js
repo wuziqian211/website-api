@@ -42,7 +42,7 @@ export default async (req, res) => {
           let u;
           for (let q of qualities) {
             const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`)).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
-            if (vjson.code === 0 && vjson.data.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB）
+            if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB）
               u = vjson.data.durl[0].url;
             } else {
               break;
@@ -265,7 +265,7 @@ export default async (req, res) => {
           let u;
           for (let q of qualities) {
             const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`)).json();
-            if (vjson.code === 0 && vjson.result.durl[0].size <= 5000000) { // 视频地址获取成功，且视频大小不超过5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过5MB；真的有不超过5MB大小的番剧或者影视？）
+            if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB；真的有不超过4.5MB大小的番剧或者影视？）
               u = vjson.result.durl[0].url;
             } else {
               break;
