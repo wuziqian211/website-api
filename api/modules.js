@@ -45,7 +45,7 @@ export default async (req, res) => {
           if (req.headers['x-vercel-ip-country'] === 'CN') {
             blocked = '^(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net)$';
           }
-          res.status(200).json({code: 0, data: {blocked: blocked}});
+          res.status(200).json({code: 0, data: {blocked}});
           break;
         case 'update':
           if (/^\d+$/.test(req.query.version) && parseInt(req.query.version) > 0) {
