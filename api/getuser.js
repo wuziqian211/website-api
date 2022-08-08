@@ -72,11 +72,11 @@ export default async (req, res) => {
       ` : ''}<strong class="mark">生日：</strong>${json.data.birthday ? utils.encodeHTML(json.data.birthday) : '保密'}<br />
       <strong class="mark">个性签名：</strong><br />
       ${utils.encodeHTML(json.data.sign)}`;
-              let extraStyle = json.data.sys_notice?.content ? `
-      notice {${json.data.sys_notice.bg_color ? `
-        background: ${json.data.sys_notice.bg_color};` : ''};${json.data.sys_notice.text_color ? `
-        color: ${json.data.sys_notice.text_color};` : ''};
-      }` : '';
+              let extraStyle = json.data.sys_notice?.content ? `  ${json.data.sys_notice.url ? 'a' : 'span'}.notice {${json.data.sys_notice.bg_color ? `
+        background: ${json.data.sys_notice.bg_color};` : ''}${json.data.sys_notice.text_color ? `
+        color: ${json.data.sys_notice.text_color};` : ''}
+      }
+    ` : '';
               if (req.query.type === 'info') { // 仅获取用户信息
                 sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.top_photo)) + extraStyle, content, mid: req.query.mid});
               } else {
@@ -168,7 +168,6 @@ export default async (req, res) => {
       }
     }
   } catch (e) {
-    console.error(e);
     res.status(500).send(utils.render500(startTime, e));
   }
 };
