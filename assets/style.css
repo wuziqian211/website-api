@@ -95,6 +95,11 @@ img.spic {
   border-radius: 10px;
   height: 160px;
 }
+span.notice, a.notice {
+  background: #FFF3DB;
+  border-radius: 5px;
+  color: #FFB112;
+}
 img.notice-icon {
   height: 24px;
 }
@@ -131,6 +136,14 @@ input[type="text"]:focus, input[type="number"]:focus {
 }
 input[type="submit"]:active {
   background: #dddddd80;
+}
+pre {
+  background: #222;
+  border-radius: 10px;
+  color: #ccc;
+  font-family: consolas, Menlo, monospace, "PingFang SC", "Microsoft YaHei";
+  font-size: 16px;
+  padding: 10px;
 }
 footer {
   color: #777;
