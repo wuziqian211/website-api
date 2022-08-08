@@ -176,7 +176,7 @@ export default async (req, res) => {
           case 0:
             res.status(200);
             sendHTML({title: `${utils.encodeHTML(json.result.media.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.media.cover)), content: `<a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"><img class="spic" alt="" title="${utils.encodeHTML(json.result.media.title)}" src="${utils.toHTTPS(json.result.media.cover)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(json.result.media.title)}</a><br />
-      ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep?.index_show || '')} ${json.result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${json.result.media.rating?.score ? `${json.result.media.rating.score.toFixed(1)} 分（共 ${json.result.media.rating.count} 人评分）` : '暂无评分'}${json.result.media.new_ep?.id ? `<br />
+      ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep?.index_show || '')} ${json.result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${json.result.media.rating.score ? `${json.result.media.rating.score.toFixed(1)} 分` : '暂无评分'}（共 ${json.result.media.rating.count} 人评分）${json.result.media.new_ep?.id ? `<br />
       <strong>最新一话：</strong><a href="?vid=ep${json.result.media.new_ep.id}">${utils.encodeHTML(json.result.media.new_ep.index)}</a>` : ''}${json.result.media.season_id ? `<br />
       <a href="?vid=ss${json.result.media.season_id}">点击此处查看更多信息</a>` : ''}`, vid: req.query.vid});
             break;
