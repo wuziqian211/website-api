@@ -36,13 +36,13 @@ span.desc {
   font-size: 14px;
 }
 a, strong, th, label, input[type="submit"] {
-  color: #08f;
+  color: #09f;
 }
 a:hover, input[type="submit"]:hover {
-  color: #0af;
+  color: #3bf;
 }
 th, td, input {
-  border: 1px solid #08f;
+  border: 1px solid #09f;
 }
 a {
   text-decoration: underline dotted #333;
@@ -72,10 +72,6 @@ main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
 }
-mark {
-  background: #ff0;
-  border-radius: 5px;
-}
 img {
   vertical-align: middle;
 }
@@ -99,17 +95,17 @@ img.spic {
   height: 160px;
 }
 span.notice, a.notice {
-  background: #FFF3DB;
+  background: #fff3db;
   border-radius: 5px;
-  color: #FFB112;
-  padding: 3px;
+  color: #ffb112;
   font-weight: bold;
+  padding: 3px;
 }
 img.notice-icon {
   height: 24px;
 }
 table {
-  border: 2px solid #08f;
+  border: 2px solid #09f;
   border-collapse: collapse;
   border-radius: 10px;
   display: block;
@@ -134,7 +130,7 @@ input {
 }
 input:hover {
   background: #ffffff80;
-  border-color: #0af;
+  border-color: #3bf;
 }
 input[type="text"]:focus, input[type="number"]:focus {
   background: #ffffff80;
@@ -181,17 +177,33 @@ footer {
   body, header {
     background: #222;
   }
+  a, strong, th, label, input[type="submit"] {
+    color: #08e;
+  }
+  a:hover, input[type="submit"]:hover {
+    color: #3ae;
+  }
+  th, td, input {
+    border: 1px solid #08e;
+  }
   a {
     text-decoration-color: #aaa;
   }
   a:hover {
-    text-decoration-color: #777;
+    text-decoration-color: #ccc;
   }
-  mark {
-    background: #880;
+  span.notice, a.notice {
+    background: #999183;
+    color: #ffd27a;
+  }
+  table {
+    border: 2px solid #08e;
   }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
     background: #22222280;
+  }
+  input:hover {
+    border-color: #3bf;
   }
   input[type="submit"]:active {
     background: #00000080;
