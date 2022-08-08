@@ -323,7 +323,7 @@ export default async (req, res) => {
       ${json.result.episodes.map(p => `<strong>${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong>cid：</strong>${p.cid}，<strong>发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
       `)}<br />
       ${json.result.section ? `${json.result.section.map(s => `<strong>${utils.encodeHTML(s.title)}：</strong><br />
-      ${s.episodes.map(p => `<strong>${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong>cid：</strong>${p.cid}，<strong>发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join(`<br />
+      ${s.episodes.map(p => `<strong>${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>${p.status === 0 ? `（<a href="?vid=${p.link.slice(p.link.lastIndexOf('/') + 1)}">${p.link.slice(p.link.lastIndexOf('/') + 1)}</a>）` : `（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong>cid：</strong>${p.cid}，<strong>发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`}`).join(`<br />
       `)}`).join(`<br />
       `)}<br />
       ` : ''}<strong>简介：</strong><br />
