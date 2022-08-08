@@ -35,21 +35,24 @@ span.desc {
   color: #777;
   font-size: 14px;
 }
-a, strong.mark, th, label, input[type="submit"] {
-  color: #08f;
+a, strong, th, label, input[type="submit"] {
+  color: #09f;
 }
 a:hover, input[type="submit"]:hover {
-  color: #0af;
+  color: #3bf;
 }
 th, td, input {
-  border: 1px solid #08f;
+  border: 1px solid #09f;
 }
 a {
   text-decoration: underline dotted #333;
   text-decoration-thickness: 2px;
 }
-a.no-underline {
+a.no-underline, a.title, a.notice {
   text-decoration: none;
+}
+a.title {
+  font-weight: bold;
 }
 a:hover {
   text-decoration-color: #aaa;
@@ -68,10 +71,6 @@ main {
 main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
-}
-mark {
-  background: #ff0;
-  border-radius: 5px;
 }
 img {
   vertical-align: middle;
@@ -95,11 +94,18 @@ img.spic {
   border-radius: 10px;
   height: 160px;
 }
+span.notice, a.notice {
+  background: #fff3db;
+  border-radius: 5px;
+  color: #ffb112;
+  font-weight: bold;
+  padding: 3px;
+}
 img.notice-icon {
   height: 24px;
 }
 table {
-  border: 2px solid #08f;
+  border: 2px solid #09f;
   border-collapse: collapse;
   border-radius: 10px;
   display: block;
@@ -124,13 +130,22 @@ input {
 }
 input:hover {
   background: #ffffff80;
-  border-color: #0af;
+  border-color: #3bf;
 }
 input[type="text"]:focus, input[type="number"]:focus {
   background: #ffffff80;
 }
 input[type="submit"]:active {
   background: #dddddd80;
+}
+pre {
+  background: #222;
+  border-radius: 10px;
+  color: #ccc;
+  font-family: consolas, Menlo, monospace, "PingFang SC", "Microsoft YaHei";
+  font-size: 16px;
+  overflow: auto;
+  padding: 10px;
 }
 footer {
   color: #777;
@@ -162,17 +177,32 @@ footer {
   body, header {
     background: #222;
   }
+  a, strong, th, label, input[type="submit"] {
+    color: #08e;
+  }
+  a:hover, input[type="submit"]:hover {
+    color: #3ae;
+  }
+  th, td, input {
+    border: 1px solid #08e;
+  }
   a {
     text-decoration-color: #aaa;
   }
   a:hover {
-    text-decoration-color: #777;
+    text-decoration-color: #ccc;
   }
-  mark {
-    background: #880;
+  span.notice, a.notice {
+    background: #999183;
+  }
+  table {
+    border: 2px solid #08e;
   }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
     background: #22222280;
+  }
+  input:hover {
+    border-color: #3bf;
   }
   input[type="submit"]:active {
     background: #00000080;
