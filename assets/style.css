@@ -35,7 +35,7 @@ span.desc {
   color: #777;
   font-size: 14px;
 }
-a, strong.mark, th, label, input[type="submit"] {
+a, strong, th, label, input[type="submit"] {
   color: #08f;
 }
 a:hover, input[type="submit"]:hover {
@@ -48,8 +48,11 @@ a {
   text-decoration: underline dotted #333;
   text-decoration-thickness: 2px;
 }
-a.no-underline {
+a.no-underline, a.title, a.notice {
   text-decoration: none;
+}
+a.title {
+  font-weight: bold;
 }
 a:hover {
   text-decoration-color: #aaa;
@@ -99,6 +102,8 @@ span.notice, a.notice {
   background: #FFF3DB;
   border-radius: 5px;
   color: #FFB112;
+  padding: 3px;
+  font-weight: bold;
 }
 img.notice-icon {
   height: 24px;

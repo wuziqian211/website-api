@@ -30,8 +30,8 @@ export default async (req, res) => {
           switch (fjson.code) {
             case 0:
               res.status(200);
-              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong class="mark">关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
-      <strong class="mark">粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
+              sendHTML({title: `UID${req.query.mid} 的关注、粉丝数`, content: `<strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
+      <strong>粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
@@ -67,10 +67,10 @@ export default async (req, res) => {
             case 0:
               res.status(200);
               const content = `<img style="display: none;" src="${utils.toHTTPS(json.data.top_photo)}" referrerpolicy="no-referrer" />
-      <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> <strong>${utils.encodeHTML(json.data.name)}</strong></a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>${json.data.silence ? ' 已被封禁' : ''}<br />
-      ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="no-underline notice" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : 'span class="notice"'}>${json.data.sys_notice.icon ? `<img class="notice-icon" alt="" src="${utils.toHTTPS(json.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}<strong>${json.data.sys_notice.content}</strong></${json.data.sys_notice.url ? 'a' : 'span'}><br />
-      ` : ''}<strong class="mark">生日：</strong>${json.data.birthday ? utils.encodeHTML(json.data.birthday) : '保密'}<br />
-      <strong class="mark">个性签名：</strong><br />
+      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}"><img class="uface" alt="" title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(json.data.name)}</a>${json.data.sex === '男' ? ' <img class="usex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? ' <img class="usex" alt="女" title="女" src="/assets/female.png" />' : ''} <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="ulevel" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>${json.data.silence ? ' 已被封禁' : ''}<br />
+      ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : 'span class="notice"'}>${json.data.sys_notice.icon ? `<img class="notice-icon" alt="" src="${utils.toHTTPS(json.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}><br />
+      ` : ''}<strong>生日：</strong>${json.data.birthday ? utils.encodeHTML(json.data.birthday) : '保密'}<br />
+      <strong>个性签名：</strong><br />
       ${utils.encodeHTML(json.data.sign)}`;
               let extraStyle = json.data.sys_notice?.content ? `  ${json.data.sys_notice.url ? 'a' : 'span'}.notice {${json.data.sys_notice.bg_color ? `
         background: ${json.data.sys_notice.bg_color};` : ''}${json.data.sys_notice.text_color ? `
@@ -83,8 +83,8 @@ export default async (req, res) => {
                 const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
                 if (fjson.code === 0) {
                   sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息及关注、粉丝数`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.top_photo)) + extraStyle, content: content + `<br />
-      <strong class="mark">关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
-      <strong class="mark">粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
+      <strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
+      <strong>粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid});
                 } else {
                   sendHTML({title: `${utils.encodeHTML(json.data.name)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.top_photo)) + extraStyle, content, mid: req.query.mid});
                 }
