@@ -1,5 +1,4 @@
 * {
-  color: inherit;
   font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow-wrap: break-word;
   text-align: justify;
@@ -10,11 +9,11 @@
   color: #ccc;
 }
 html {
-  color: #222;
   height: 100%;
 }
 body {
   background: #fff;
+  color: #222;
   margin: 0;
   min-height: 100%;
 }
@@ -35,14 +34,23 @@ span.desc {
   color: #777;
   font-size: 14px;
 }
+main {
+  animation: 0.5s both zoomInDown;
+  border-radius: 20px;
+  font-size: 20px;
+  margin: 20px auto;
+  padding: 10px;
+  width: 1200px;
+}
+main.loading {
+  animation-name: zoomOutUp;
+  transform-origin: center bottom;
+}
 a, strong, th, label, input[type="submit"] {
   color: #09f;
 }
 a:hover, input[type="submit"]:hover {
   color: #3bf;
-}
-th, td, input {
-  border: 1px solid #09f;
 }
 a {
   text-decoration: underline dotted #333;
@@ -59,18 +67,6 @@ a:hover {
 }
 ul {
   margin: 0;
-}
-main {
-  animation: 1s both zoomInDown;
-  border-radius: 20px;
-  font-size: 20px;
-  margin: 20px auto;
-  padding: 10px;
-  width: 1200px;
-}
-main.loading {
-  animation-name: zoomOutUp;
-  transform-origin: center bottom;
 }
 img {
   vertical-align: middle;
@@ -117,6 +113,9 @@ th, td {
   padding: 8px;
   text-align: center;
 }
+th, td, input {
+  border: 1px solid #09f;
+}
 form {
   font-size: 16px;
   margin: 10px 0 0;
@@ -141,7 +140,7 @@ input[type="submit"]:active {
 pre {
   background: #222;
   border-radius: 10px;
-  color: #ccc;
+  color: #f66;
   font-family: consolas, Menlo, monospace, "PingFang SC", "Microsoft YaHei";
   font-size: 16px;
   overflow: auto;
@@ -183,9 +182,6 @@ footer {
   a:hover, input[type="submit"]:hover {
     color: #3ae;
   }
-  table, th, td, input {
-    border-color: #08e;
-  }
   a {
     text-decoration-color: #aaa;
   }
@@ -194,6 +190,9 @@ footer {
   }
   span.notice, a.notice {
     background: #999183;
+  }
+  table, th, td, input {
+    border-color: #08e;
   }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
     background: #22222280;

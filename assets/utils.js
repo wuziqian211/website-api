@@ -43,7 +43,7 @@ const renderExtraStyle = pic => `
       body {
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
-        background: url("${pic}") center/cover no-repeat fixed #fff;
+        background: url(${pic}) center/cover no-repeat fixed #fff;
         transition: background 0.5s 0.5s;
       }
       header, main {
