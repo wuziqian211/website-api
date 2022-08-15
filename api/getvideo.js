@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 import {readFileSync} from 'fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
-export default const handler = async (req, res) => {
+const handler = async (req, res) => {
   const startTime = performance.now();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', body: `
@@ -405,3 +405,4 @@ export default const handler = async (req, res) => {
     res.status(500).send(utils.render500(startTime, e));
   }
 };
+export default handler;
