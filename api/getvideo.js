@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 import {readFileSync} from 'fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
-export default async (req, res) => {
+export default const handler = async (req, res) => {
   const startTime = performance.now();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', body: `
@@ -19,8 +19,14 @@ export default async (req, res) => {
     `})); // 将HTML数据发送到客户端
     const accept = utils.getAccept(req);
     const {type, vid} = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
+    let headers;
+    if (req.query.useCookie != undefined) {
+      headers = {Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`};
+    } else {
+      headers = {};
+    }
     if (type === 1) { // 编号为AV号或BV号
-      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`)).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
+      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, {headers})).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
       if (req.query.type === 'data') { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
@@ -36,7 +42,7 @@ export default async (req, res) => {
           const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
           for (let q of qualities) {
-            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`)).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
+            const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, {headers})).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
             if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB）
               u = vjson.data.durl[0].url;
             } else {
@@ -112,9 +118,13 @@ export default async (req, res) => {
               sendHTML({title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid});
               break;
             case -403:
-              res.status(403);
-              sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
+              if (req.query.useCookie != undefined) {
+                res.status(403);
+                sendHTML({title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid});
+              } else {
+                await handler({...req, query: {useCookie: 'true'}}, res);
+              }
               break;
             case 62004:
               res.status(404);
@@ -135,11 +145,11 @@ export default async (req, res) => {
               if (resp.status === 200) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
               } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               }
             }
           } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
           }
         } else { // 否则，返回JSON
           switch (json.code) {
@@ -165,7 +175,7 @@ export default async (req, res) => {
         }
       }
     } else if (type === 2) { // 编号为mdid
-      const json = await (await fetch(`https://api.bilibili.com/pgc/review/user?media_id=${vid}`)).json();
+      const json = await (await fetch(`https://api.bilibili.com/pgc/review/user?media_id=${vid}`, {headers})).json();
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (json.code) {
           case 0:
@@ -198,11 +208,11 @@ export default async (req, res) => {
             if (resp.status === 200) {
               res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
-              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
             }
           }
         } else { // 剧集信息获取失败，返回默认封面
-          res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+          res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
         }
       } else { // 否则，返回JSON
         switch (json.code) {
@@ -220,7 +230,7 @@ export default async (req, res) => {
         }
       }
     } else if (type === 3 || type === 4) { // 编号为ssid或epid
-      const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`)).json();
+      const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, {headers})).json();
       if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
         let bvid, cid, epid, n, P;
         if (json.code === 0) {
@@ -263,7 +273,7 @@ export default async (req, res) => {
           const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
           for (let q of qualities) {
-            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`)).json();
+            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, {headers})).json();
             if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB；真的有不超过4.5MB大小的番剧或者影视？）
               u = vjson.result.durl[0].url;
             } else {
@@ -351,11 +361,11 @@ export default async (req, res) => {
               if (resp.status === 200) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
               } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               }
             }
           } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
           }
         } else { // 否则，返回JSON
           switch (json.code) {
@@ -386,7 +396,7 @@ export default async (req, res) => {
       请输入一个正确的编号吧 awa`, vid: ''});
         }
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，返回默认封面
-        res.status(400).setHeader('Content-Type', 'image/png').send(file('../assets/nopic.png'));
+        res.status(400).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
       } else { // 否则，返回JSON
         res.status(400).json({code: -400, message: '请求错误'});
       }
