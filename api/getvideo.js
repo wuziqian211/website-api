@@ -161,13 +161,15 @@ const handler = async (req, res) => {
               break;
             case -404:
             case 62002:
+            case 62004:
               res.status(404).json({code: json.code, message: json.message});
               break;
             case -403:
-              res.status(403).json({code: -403, message: json.message});
-              break;
-            case 62004:
-              res.status(404).json({code: 62004, message: json.message});
+              if (req.query.useCookie != undefined) {
+                res.status(403).json({code: -403, message: json.message});
+              } else {
+                await handler({query: {useCookie: 'true', vid: req.query.vid}}, res);
+              }
               break;
             default:
               res.status(400).json({code: json.code, message: json.message});
