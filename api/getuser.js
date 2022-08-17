@@ -14,7 +14,7 @@ export default async (req, res) => {
       ${data.content}
       <form>
         <div><label for="mid">请输入您想要获取信息及关注、粉丝数的用户的 UID：</label></div>
-        <div><input type="number" name="mid" id="mid" value="${data.mid}" min="1" max="9223372036854775807" autocomplete="off" /><input type="submit" value="获取" /></div>
+        <div><input type="number" name="mid" id="mid" value="${data.mid}" min="1" max="9223372036854775807" autocomplete="off" /> <input type="submit" value="获取" /></div>
       </form>
     `})); // 将HTML数据发送到客户端
     const accept = utils.getAccept(req);

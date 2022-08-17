@@ -1,10 +1,10 @@
 {
   "functions": {
     "api/getuser.js": {
-      "includeFiles": "assets/*"
+      "includeFiles": "assets/{noface.jpg,utils.js}"
     },
     "api/getvideo.js": {
-      "includeFiles": "assets/*"
+      "includeFiles": "assets/{{[1-5]-{22,33},6-33}.jpg,error.mp4,nocover.png,utils.js}"
     }
   },
   "headers": [
