@@ -11,17 +11,17 @@
     {
       "source": "/(.*)",
       "headers": [
-        {"key": "Access-Control-Allow-Credentials", "value": "true"},
-        {"key": "Access-Control-Allow-Origin", "value": "*"},
-        {"key": "Access-Control-Allow-Methods", "value": "*"},
-        {"key": "Access-Control-Allow-Headers", "value": "*"}
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "*" },
+        { "key": "Access-Control-Allow-Headers", "value": "*" }
       ]
     }
   ],
   "redirects": [
-    {"source": "/", "destination": "/api/"}
+    { "source": "/", "destination": "/api/" }
   ],
   "rewrites": [
-    {"source": "/(.*)", "destination": "/api/404.js"}
+    { "source": "/(.*)", "destination": "/api/404.js" }
   ]
 }
