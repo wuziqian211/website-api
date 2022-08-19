@@ -8,16 +8,16 @@ const replacePage = text => {
 };
 const loadPage = async url => {
   document.querySelector('main').classList.add('loading');
-  document.activeElement && document.activeElement.blur();
+  document.activeElement?.blur();
   try {
-    const resp = await fetch(url, {headers: {accept: 'text/html'}});
+    const resp = await fetch(url, { headers: { accept: 'text/html' } });
     if (!isLoadAvailable(resp.url)) {
       document.location.href = resp.url;
       return;
     }
     const text = await resp.text();
     replacePage(text);
-    history.pushState({text}, '', resp.url);
+    history.pushState({ text }, '', resp.url);
     applyLoad();
     document.querySelector('main').classList.remove('loading');
   } catch (e) {
@@ -25,9 +25,9 @@ const loadPage = async url => {
     document.location.href = url;
   }
 };
-history.replaceState({text: document.documentElement.outerHTML}, '');
+history.replaceState({ text: document.documentElement.outerHTML }, '');
 window.onpopstate = event => {
-  document.activeElement && document.activeElement.blur();
+  document.activeElement?.blur();
   replacePage(event.state.text);
   applyLoad();
 };
