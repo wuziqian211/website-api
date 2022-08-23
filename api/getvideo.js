@@ -234,7 +234,7 @@ const handler = async (req, res) => {
     } else if (type === 3 || type === 4) { // 编号为ssid或epid
       const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
       if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
-        let bvid, cid, epid, n, P;
+        let n, P;
         if (json.code === 0) {
           if (type === 3) { // 编号为ssid
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
@@ -269,13 +269,12 @@ const handler = async (req, res) => {
               P = json.result.episodes[n];
             }
           }
-          ({ bvid, cid, id: epid } = P || {}); // 如果不加圆括号，左边的花括号及其里面的内容会被视为一个语句块
         }
-        if (bvid && cid && epid) { // 剧集有效
+        if (P) { // 剧集有效
           const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
           for (let q of qualities) {
-            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${bvid}&ep_id=${epid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, { headers })).json();
+            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, { headers })).json();
             if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB；真的有不超过4.5MB大小的番剧或者影视？）
               u = vjson.result.durl[0].url;
             } else {
