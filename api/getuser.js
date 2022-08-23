@@ -4,7 +4,7 @@
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 import fetch from 'node-fetch';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
