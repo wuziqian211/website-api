@@ -4,8 +4,9 @@
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 import fetch from 'node-fetch';
-import { readFileSync } from 'node:fs';
+import { readFileSync } from 'fs';
 import * as utils from '../assets/utils.js';
+const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 const handler = async (req, res) => {
   const startTime = performance.now();
   try {
@@ -56,7 +57,7 @@ const handler = async (req, res) => {
               res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
-                res.status(200).setHeader('Content-Type', 'video/mp4').send(readFileSync('../assets/error.mp4'));
+                res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
               } else {
                 res.status(404);
                 sendHTML({ title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid });
@@ -64,7 +65,7 @@ const handler = async (req, res) => {
             }
           } else { // 视频地址获取失败
             if (req.headers['sec-fetch-dest'] === 'video') {
-              res.status(200).setHeader('Content-Type', 'video/mp4').send(readFileSync('../assets/error.mp4'));
+              res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
             } else {
               res.status(500);
               sendHTML({ title: '无法获取视频数据', content: `抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
@@ -73,7 +74,7 @@ const handler = async (req, res) => {
           }
         } else { // 视频无效
           if (req.headers['sec-fetch-dest'] === 'video') {
-            res.status(200).setHeader('Content-Type', 'video/mp4').send(readFileSync('../assets/error.mp4'));
+            res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
           } else {
             res.status(404);
             sendHTML({ title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: req.query.vid });
@@ -144,11 +145,11 @@ const handler = async (req, res) => {
               if (resp.status === 200) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
               } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               }
             }
           } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
           }
         } else { // 否则，返回JSON
           switch (json.code) {
@@ -209,11 +210,11 @@ const handler = async (req, res) => {
             if (resp.status === 200) {
               res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
-              res.status(404).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
             }
           }
         } else { // 剧集信息获取失败，返回默认封面
-          res.status(404).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+          res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
         }
       } else { // 否则，返回JSON
         switch (json.code) {
@@ -289,7 +290,7 @@ const handler = async (req, res) => {
               res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
-                res.status(200).setHeader('Content-Type', 'video/mp4').send(readFileSync('../assets/error.mp4'));
+                res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
               } else {
                 res.status(404);
                 sendHTML({ title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid });
@@ -297,7 +298,7 @@ const handler = async (req, res) => {
             }
           } else { // 视频地址获取失败
             if (req.headers['sec-fetch-dest'] === 'video') {
-              res.status(200).setHeader('Content-Type', 'video/mp4').send(readFileSync('../assets/error.mp4'));
+              res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
             } else {
               res.status(500);
               sendHTML({ title: '无法获取视频数据', content: `抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
@@ -306,7 +307,7 @@ const handler = async (req, res) => {
           }
         } else { // 剧集无效
           if (req.headers['sec-fetch-dest'] === 'video') {
-            res.status(200).setHeader('Content-Type', 'video/mp4').send(readFileSync('../assets/error.mp4'));
+            res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
           } else {
             res.status(404);
             sendHTML({ title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在，或者您可能输入了错误的集号哟 qwq', vid: req.query.vid });
@@ -362,11 +363,11 @@ const handler = async (req, res) => {
               if (resp.status === 200) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
               } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               }
             }
           } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
           }
         } else { // 否则，返回JSON
           switch (json.code) {
@@ -397,7 +398,7 @@ const handler = async (req, res) => {
       请输入一个正确的编号吧 awa`, vid: '' });
         }
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，返回默认封面
-        res.status(400).setHeader('Content-Type', 'image/png').send(readFileSync('../assets/nocover.png'));
+        res.status(400).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
       } else { // 否则，返回JSON
         res.status(400).json({ code: -400, message: '请求错误' });
       }
