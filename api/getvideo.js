@@ -90,7 +90,7 @@ const handler = async (req, res) => {
       ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}<br />
       ${json.data.stat.argue_msg ? `<span class="notice"><img class="notice-icon" alt="" src="/assets/warning.png" /> ${utils.encodeHTML(json.data.stat.argue_msg)}</span><br />
       ` : ''}<strong>分区：</strong>${T[json.data.tid] || utils.encodeHTML(json.data.tname)}<br />
-      <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}（已弃用）</s><br />
+      <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}（可能不准确）</s><br />
       <strong>发布时间：</strong>${utils.getDate(json.data.pubdate)}
       <table>
         <thead>
