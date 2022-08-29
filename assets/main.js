@@ -45,7 +45,7 @@ const applyLoad = () => {
   document.querySelectorAll('form').forEach(form => {
     form.onsubmit = event => {
       let params = new URLSearchParams();
-      for (let e of form.elements) {
+      for (const e of form.elements) {
         if (e.tagName.toLowerCase() === 'input' && e.type !== 'submit') {
           params.append(e.name, e.value);
         }

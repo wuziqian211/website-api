@@ -41,7 +41,7 @@ const handler = async (req, res) => {
         if (cid) { // 视频有效
           const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
-          for (let q of qualities) {
+          for (const q of qualities) {
             const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, { headers })).json(); // （备用）添加html5=1参数获取到的视频链接似乎可以不限Referer
             if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB）
               u = vjson.data.durl[0].url;
@@ -240,7 +240,7 @@ const handler = async (req, res) => {
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
               n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid)); // 在正片中寻找cid与用户提供的cid相同的一集
               if (n === -1) { // 在正片中没有找到
-                for (let s of json.result.section) { // 在其他部分寻找
+                for (const s of json.result.section) { // 在其他部分寻找
                   n = s.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
                   if (n !== -1) {
                     P = s.episodes[n];
@@ -258,7 +258,7 @@ const handler = async (req, res) => {
           } else { // 编号为epid
             n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
             if (n === -1) { // 在正片中没有找到
-              for (let s of json.result.section) { // 在其他部分寻找
+              for (const s of json.result.section) { // 在其他部分寻找
                 n = s.episodes.map(p => p.id).indexOf(vid);
                 if (n !== -1) {
                   P = s.episodes[n];
@@ -273,7 +273,7 @@ const handler = async (req, res) => {
         if (P) { // 剧集有效
           const qualities = [6, 16, 32, 64]; // 240P、360P、480P、720P
           let u;
-          for (let q of qualities) {
+          for (const q of qualities) {
             const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, { headers })).json();
             if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过4.5MB（1MB=1000KB；本API的服务商限制API发送的内容不能超过4.5MB；真的有不超过4.5MB大小的番剧或者影视？）
               u = vjson.result.durl[0].url;

@@ -32,10 +32,14 @@ export default async (req, res) => {
                        513778858, 515586861, 518970483, 519795342, 520139927, 521209706, 522208739, 523423693, 526705577, 527630206,
                        535324469, 535362423, 589865539, 592308904, 597242903, 598397900, 624532985, 694241611, 1132879610, 1456149763,
                        1498694594, 1980000209, 2095498218].sort(() => 0.5 - Math.random());
-          let info = [];
+          let info = [], promises = [];
           while (users.length > 0) {
-            info = info.concat((await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`)).json()).data);
+            promises = [...promises, fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`)];
             users = users.slice(50);
+          }
+          const resps = await Promise.all(promises);
+          for (const r of resps) {
+            info = info.concat((await r.json()).data);
           }
           res.status(200).json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" /><p>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
           break;
