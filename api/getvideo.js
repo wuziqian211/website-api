@@ -135,21 +135,30 @@ const handler = async (req, res) => {
               sendHTML({ title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: req.query.vid });
           }
         } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
-          if (json.code === 0) {
-            if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
-              res.status(307).setHeader('Location', utils.toHTTPS(json.data.pic)).json({ code: 307, data: { url: utils.toHTTPS(json.data.pic) } });
-            } else {
-              const a = utils.toHTTPS(json.data.pic).split('.');
-              const filename = encodeURIComponent(`${json.data.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
-              const resp = await fetch(utils.toHTTPS(json.data.pic)); // 获取B站服务器存储的封面
-              if (resp.status === 200) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+          switch (json.code) {
+            case 0:
+              if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
+                res.status(307).setHeader('Location', utils.toHTTPS(json.data.pic)).json({ code: 307, data: { url: utils.toHTTPS(json.data.pic) } });
               } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
+                const a = utils.toHTTPS(json.data.pic).split('.');
+                const filename = encodeURIComponent(`${json.data.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
+                const resp = await fetch(utils.toHTTPS(json.data.pic)); // 获取B站服务器存储的封面
+                if (resp.status === 200) {
+                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+                } else {
+                  res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
+                }
               }
-            }
-          } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
+              break;
+            case -403:
+              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
+                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
+              } else {
+                await handler({ headers: { accept: 'image/*' }, query: { cookie: 'true', vid: req.query.vid } }, res);
+              }
+              break;
+            default:
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png')); // 返回默认封面
           }
         } else { // 否则，返回JSON
           switch (json.code) {
