@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 const handler = async (req, res) => {
-  const startTime = performance.now();
+  const startTime = req.__startTime__ || performance.now();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
@@ -123,7 +123,7 @@ const handler = async (req, res) => {
                 sendHTML({ title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid });
               } else {
-                await handler({ headers: { accept: 'text/html' }, query: { cookie: 'true', vid: req.query.vid } }, res);
+                await handler({ __startTime__: startTime, headers: { accept: 'text/html' }, query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             case 62004:
