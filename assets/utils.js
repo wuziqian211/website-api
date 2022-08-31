@@ -1,4 +1,4 @@
-const getAccept = req => (req.headers.accept || '').indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' ? 1 : (req.headers.accept || '').indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
+const getAccept = req => (req.headers.accept || '').includes('html') || req.headers['sec-fetch-dest'] === 'document' ? 1 : (req.headers.accept || '').includes('image') || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 const renderHTML = data => `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -28,16 +28,16 @@ const renderHTML = data => `<!DOCTYPE html>
     <script src="/assets/main.js"></script>
   </body>
 </html>`;
-const render404 = startTime => renderHTML({startTime, title: 'API 不存在', body: `
+const render404 = startTime => renderHTML({ startTime, title: 'API 不存在', body: `
       您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa
-    `});
+    ` });
 const render500 = (startTime, error) => {
   console.error(error);
-  return renderHTML({startTime, title: 'API 执行时出现异常', body: `
+  return renderHTML({ startTime, title: 'API 执行时出现异常', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
-      您可以将下面的错误信息告诉 wuziqian211 哦 awa<br />
+      您可以将下面的错误信息告诉 wuziqian211 哟 awa<br />
       <pre>${encodeHTML(error.stack)}</pre>
-    `});
+    ` });
 };
 const renderExtraStyle = pic => `
       body {
@@ -73,31 +73,31 @@ const getDate = ts => { // 根据时间戳返回日期时间
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
-const getNumber = n => typeof n === 'number' ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '';
+const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
 const toBV = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
-  let bvid = ['B', 'V', '1', , ,'4', , '1', , '7', , , ];
+  let bvid = ['B', 'V', '1', , , '4', , '1', , '7'];
   for (let i = 0n; i < 6n; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / (58n ** i) % 58n];
+    bvid[[11, 10, 3, 8, 4, 6][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
   }
   return bvid.join('');
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
-  if (/^(?:AV|av)\d+$/.test(vid)) { // 判断编号开头是否为“av”或“AV”且剩余部分为数字
-    return {type: 1, vid: toBV(vid.slice(2))};
-  } else if (/^\d+$/.test(vid)) { // 判断编号是否为纯数字
-    return {type: 1, vid: toBV(vid)};
-  } else if (/^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为BV号
-    return {type: 1, vid: 'BV' + vid.slice(2)};
-  } else if (/^md\d+$/.test(vid)) { // 判断编号开头是否为“md”且剩余部分为数字
-    return {type: 2, vid: parseInt(vid.slice(2))};
-  } else if (/^ss\d+$/.test(vid)) { // 判断编号开头是否为“ss”且剩余部分为数字
-    return {type: 3, vid: parseInt(vid.slice(2))};
-  } else if (/^ep\d+$/.test(vid)) { // 判断编号开头是否为“ep”且剩余部分为数字
-    return {type: 4, vid: parseInt(vid.slice(2))};
+  if (/^av\d+$/i.test(vid)) { // 判断编号是否为前缀为“av”的AV号
+    return { type: 1, vid: toBV(vid.slice(2)) };
+  } else if (/^\d+$/.test(vid)) { // 判断编号是否为不带前缀的AV号
+    return { type: 1, vid: toBV(vid) };
+  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为BV号
+    return { type: 1, vid: 'BV' + vid.slice(2) };
+  } else if (/^md\d+$/i.test(vid)) { // 判断编号是否为mdid
+    return { type: 2, vid: parseInt(vid.slice(2)) };
+  } else if (/^ss\d+$/i.test(vid)) { // 判断编号是否为ssid
+    return { type: 3, vid: parseInt(vid.slice(2)) };
+  } else if (/^ep\d+$/i.test(vid)) { // 判断编号是否为epid
+    return { type: 4, vid: parseInt(vid.slice(2)) };
   } else { // 编号无效
     return {};
   }
 };
-export {getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType};
+export { getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
