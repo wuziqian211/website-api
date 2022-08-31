@@ -46,7 +46,7 @@
 一般情况下，这些 API 会根据客户端的 HTTP 请求头中 “accept” 与 “sec-fetch-dest” 的值（名称不区分大小写，但是它们的**值区分大小写**），返回不同类型的数据。规则如下：
 
 - 返回 **HTML** 数据：如果 HTTP 请求头 “accept” 的值包含 `html`，或者 “sec-fetch-dest” 的值为 `document`（比如用浏览器直接访问这些 API 的页面），就返回 HTML 数据；
-- 返回**图片**数据：若上一个条件不满足，则在 “获取哔哩哔哩用户信息及关注、粉丝数”（api/getuser.js）与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据”（api/getvideo.js）API 中，如果 “accept” 的值包含 `image`，或者 “sec-fetch-dest” 的值为 `image`（比如在 HTML `<img>` 标签的 “src” 参数填写其中一个 API 的网址），那么这些 API 会返回头像或封面数据；
+- 返回**图片**数据：若上一个条件不满足，则在 “获取哔哩哔哩用户信息及关注、粉丝数” 与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，如果 “accept” 的值包含 `image`，或者 “sec-fetch-dest” 的值为 `image`（比如在 HTML `<img>` 标签的 “src” 参数填写其中一个 API 的网址），那么这些 API 会返回头像或封面数据；
 - 返回 **JSON**：如果以上两个条件均不满足，就返回 JSON。
 
 ## 用法
