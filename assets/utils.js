@@ -1,4 +1,4 @@
-const getAccept = req => (req.headers.accept || '').indexOf('html') !== -1 || req.headers['sec-fetch-dest'] === 'document' ? 1 : (req.headers.accept || '').indexOf('image') !== -1 || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
+const getAccept = req => (req.headers.accept || '').includes('html') || req.headers['sec-fetch-dest'] === 'document' ? 1 : (req.headers.accept || '').includes('image') || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 const renderHTML = data => `<!DOCTYPE html>
 <html lang="zh-CN">

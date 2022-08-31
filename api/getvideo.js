@@ -31,7 +31,7 @@ const handler = async (req, res) => {
         let cid;
         if (json.code === 0 && json.data.pages) {
           if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
-            cid = json.data.pages.map(p => p.cid).indexOf(parseInt(req.query.cid)) === -1 ? 0 : parseInt(req.query.cid); // 若API返回的pages中包含用户提供的cid，则将变量“cid”设置为用户提供的cid
+            cid = json.data.pages.map(p => p.cid).includes(parseInt(req.query.cid)) && parseInt(req.query.cid); // 若API返回的pages中包含用户提供的cid，则将变量“cid”设置为用户提供的cid
           } else if (/^\d+$/.test(req.query.p)) { // 用户提供的参数“p”有效
             cid = json.data.pages[parseInt(req.query.p) - 1]?.cid; // 将变量“cid”设置为该P的cid
           } else {
@@ -234,16 +234,16 @@ const handler = async (req, res) => {
     } else if (type === 3 || type === 4) { // 编号为ssid或epid
       const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
       if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
-        let n, P;
+        let P;
         if (json.code === 0) {
           if (type === 3) { // 编号为ssid
             if (/^\d+$/.test(req.query.cid)) { // 用户提供的cid有效
-              n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid)); // 在正片中寻找cid与用户提供的cid相同的一集
+              const n = json.result.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid)); // 在正片中寻找cid与用户提供的cid相同的一集
               if (n === -1) { // 在正片中没有找到
                 for (const s of json.result.section) { // 在其他部分寻找
-                  n = s.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
-                  if (n !== -1) {
-                    P = s.episodes[n];
+                  const t = s.episodes.map(p => p.cid).indexOf(parseInt(req.query.cid));
+                  if (t !== -1) {
+                    P = s.episodes[t];
                     break;
                   }
                 }
@@ -256,12 +256,12 @@ const handler = async (req, res) => {
               P = json.result.episodes[0]; // 第1集
             }
           } else { // 编号为epid
-            n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
+            const n = json.result.episodes.map(p => p.id).indexOf(vid); // 在正片中寻找epid与用户提供的epid相同的一集
             if (n === -1) { // 在正片中没有找到
               for (const s of json.result.section) { // 在其他部分寻找
-                n = s.episodes.map(p => p.id).indexOf(vid);
-                if (n !== -1) {
-                  P = s.episodes[n];
+                const t = s.episodes.map(p => p.id).indexOf(vid);
+                if (t !== -1) {
+                  P = s.episodes[t];
                   break;
                 }
               }
