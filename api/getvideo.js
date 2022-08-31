@@ -1,4 +1,4 @@
-/* 获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据
+/* 获取哔哩哔哩视频 / 剧集 / 番剧信息及数据
  *   https://api.wuziqian211.top/api/getvideo
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE。
  * 作者：wuziqian211（https://wuziqian211.top/）
@@ -10,17 +10,17 @@ const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 const handler = async (req, res) => {
   const startTime = performance.now();
   try {
-    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', body: `
+    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
       <form>
-        <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧 / 影视的编号（仅输入数字会被视为 AV 号）：</label></div>
-        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av|md|ss|ep)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
+        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
       </form>
     ` })); // 将HTML数据发送到客户端
     const accept = utils.getAccept(req);
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     let headers;
-    if (req.query.useCookie != undefined) {
+    if (req.query.cookie === 'true') {
       headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}` };
     } else {
       headers = {};
@@ -118,12 +118,12 @@ const handler = async (req, res) => {
               sendHTML({ title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid });
               break;
             case -403:
-              if (req.query.useCookie != undefined) {
+              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
                 res.status(403);
                 sendHTML({ title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid });
               } else {
-                await handler({ headers: { accept: 'text/html' }, query: { useCookie: 'true', vid: req.query.vid } }, res);
+                await handler({ headers: { accept: 'text/html' }, query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             case 62004:
@@ -165,10 +165,10 @@ const handler = async (req, res) => {
               res.status(404).json({ code: json.code, message: json.message });
               break;
             case -403:
-              if (req.query.useCookie != undefined) {
+              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
                 res.status(403).json({ code: -403, message: json.message });
               } else {
-                await handler({ query: { useCookie: 'true', vid: req.query.vid } }, res);
+                await handler({ query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             default:
@@ -388,8 +388,8 @@ const handler = async (req, res) => {
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         if (!req.query.vid) { // 没有设置参数“vid”
           res.status(200);
-          sendHTML({ title: '获取哔哩哔哩视频 / 剧集 / 番剧 / 影视信息及数据', content: `本 API 可以获取指定 B 站视频 / 剧集 / 番剧 / 影视的信息及数据。<br />
-      基本用法：https://${req.headers.host}/api/getvideo?vid=<span class="notice">您想获取信息的视频 / 剧集 / 番剧 / 影视的编号</span><br />
+          sendHTML({ title: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', content: `本 API 可以获取指定 B 站视频、剧集、番剧的信息及数据。<br />
+      基本用法：https://${req.headers.host}/api/getvideo?vid=<span class="notice">您想获取信息的视频、剧集、番剧的编号</span><br />
       更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。`, vid: '' });
         } else { // 设置了“vid”参数但无效
           res.status(400);
