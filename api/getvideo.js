@@ -177,7 +177,7 @@ const handler = async (req, res) => {
               if (req.query.cookie === 'true' || req.query.cookie === 'false') {
                 res.status(403).json({ code: -403, message: json.message });
               } else {
-                await handler({ query: { cookie: 'true', vid: req.query.vid } }, res);
+                await handler({ headers: {}, query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             default:
