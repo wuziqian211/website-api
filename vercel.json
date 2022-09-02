@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/getuser.js": {
-      "includeFiles": "assets/{{[1-5]-{22,33},6-33,noface}.jpg,utils.js}"
+      "includeFiles": "assets/{{[1-5]-22,[1-6]-33,noface}.jpg,utils.js}"
     },
     "api/getvideo.js": {
       "includeFiles": "assets/{error.mp4,nocover.png,utils.js}"
