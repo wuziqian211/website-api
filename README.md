@@ -24,7 +24,7 @@
 | api/index.js | 用于渲染网站首页的 API |
 | api/modules.js | 仅供内部使用，非公开使用（但公开源代码）的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
-| assets/[1-5]-[22\|33].jpg, assets/6-33.jpg | 哔哩哔哩的一些随机头像 |
+| assets/[1-5]-22.jpg, assets/[1-6]-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就返回本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
 | assets/level_[0-6].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
