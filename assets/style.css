@@ -68,6 +68,9 @@ a:hover {
 ul {
   margin: 0;
 }
+span.uface {
+  position: relative;
+}
 img {
   vertical-align: middle;
 }
@@ -76,10 +79,10 @@ img.uface {
   height: 60px;
 }
 img.official {
+  bottom: -22px;
   height: 22px;
-  position: relative;
-  right: 22px;
-  vertical-align: bottom;
+  position: absolute;
+  right: 0;
 }
 img.usex {
   height: 40px;
