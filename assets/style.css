@@ -69,6 +69,7 @@ ul {
   margin: 0;
 }
 span.face {
+  display: inline-block;
   position: relative;
 }
 img {
@@ -78,14 +79,14 @@ img.face {
   border-radius: 50%;
   height: 60px;
 }
-img.official {
-  bottom: -21.75px;
+img.face-icon {
+  bottom: 0;
   height: 16.5px;
   position: absolute;
   right: 0;
 }
 img.sex {
-  height: 40px;
+  height: 44px;
 }
 img.level {
   height: 30px;
