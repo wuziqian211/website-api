@@ -68,26 +68,26 @@ a:hover {
 ul {
   margin: 0;
 }
-span.uface {
+span.face {
   position: relative;
 }
 img {
   vertical-align: middle;
 }
-img.uface {
+img.face {
   border-radius: 50%;
   height: 60px;
 }
 img.official {
-  bottom: -22px;
-  height: 22px;
+  bottom: -21.75px;
+  height: 16.5px;
   position: absolute;
   right: 0;
 }
-img.usex {
+img.sex {
   height: 40px;
 }
-img.ulevel {
+img.level {
   height: 30px;
   vertical-align: -7.5px;
 }
@@ -98,6 +98,9 @@ img.vpic {
 img.spic {
   border-radius: 10px;
   height: 160px;
+}
+img.official-icon {
+  height: 22px;
 }
 span.notice, a.notice {
   background: #fff3db;
