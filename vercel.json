@@ -1,9 +1,14 @@
 {
   "functions": {
+    "api/{404,index,modules}.js": {
+      "memory": 128
+    },
     "api/getuser.js": {
-      "includeFiles": "assets/{{[1-5]-{22,33},6-33,noface}.jpg,utils.js}"
+      "memory": 256,
+      "includeFiles": "assets/{{[1-5]-22,[1-6]-33,noface}.jpg,utils.js}"
     },
     "api/getvideo.js": {
+      "memory": 256,
       "includeFiles": "assets/{error.mp4,nocover.png,utils.js}"
     }
   },
