@@ -75,7 +75,7 @@ span.face {
 img {
   vertical-align: middle;
 }
-span.face img.face {
+img.face {
   border-radius: 50%;
   height: 60px;
 }
