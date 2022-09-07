@@ -75,15 +75,29 @@ span.face {
 img {
   vertical-align: middle;
 }
-img.face {
+span.face img.face {
   border-radius: 50%;
   height: 60px;
 }
-img.face-icon {
+span.face.has-frame img.face {
+  height: 51px;
+  padding: 19.5px;
+}
+span.face.has-frame img.face-frame {
+  height: 90px;
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+span.face img.face-icon {
   bottom: 0;
-  height: 16.5px;
+  height: 18px;
   position: absolute;
   right: 0;
+}
+span.face.has-frame img.face-icon {
+  bottom: 18px;
+  right: 18px;
 }
 img.sex {
   height: 44px;
