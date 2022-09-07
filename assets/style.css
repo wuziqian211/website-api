@@ -75,6 +75,12 @@ img.uface {
   border-radius: 50%;
   height: 60px;
 }
+img.official {
+  height: 22px;
+  position: relative;
+  right: 22px;
+  vertical-align: bottom;
+}
 img.usex {
   height: 40px;
 }
