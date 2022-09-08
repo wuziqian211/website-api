@@ -149,7 +149,6 @@ form {
   margin: 10px 0 0;
 }
 input {
-  -webkit-appearance: none;
   background: inherit;
   border-radius: 5px;
   box-sizing: content-box;
