@@ -68,19 +68,46 @@ a:hover {
 ul {
   margin: 0;
 }
+span.face {
+  display: inline-block;
+  position: relative;
+}
 img {
   vertical-align: middle;
 }
-img.uface {
+img.face {
   border-radius: 50%;
   height: 60px;
 }
-img.usex {
-  height: 40px;
+span.face.has-frame img.face {
+  height: 51px;
+  padding: 19.5px;
 }
-img.ulevel {
+span.face.has-frame img.face-frame {
+  height: 90px;
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+span.face img.face-icon {
+  bottom: 0;
+  height: 18px;
+  position: absolute;
+  right: 0;
+}
+span.face.has-frame img.face-icon {
+  bottom: 18px;
+  right: 18px;
+}
+img.sex {
+  height: 44px;
+}
+img.level {
   height: 30px;
   vertical-align: -7.5px;
+}
+img.official-icon {
+  height: 22px;
 }
 img.vpic {
   border-radius: 10px;
@@ -122,7 +149,6 @@ form {
   margin: 10px 0 0;
 }
 input {
-  -webkit-appearance: none;
   background: inherit;
   border-radius: 5px;
   box-sizing: content-box;
