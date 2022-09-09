@@ -68,7 +68,7 @@ a:hover {
 ul {
   margin: 0;
 }
-span.face {
+span.face-wrap {
   display: inline-block;
   position: relative;
 }
@@ -79,23 +79,23 @@ img.face {
   border-radius: 50%;
   height: 60px;
 }
-span.face.has-frame img.face {
+span.face-wrap.has-frame img.face {
   height: 51px;
   padding: 19.5px;
 }
-span.face.has-frame img.face-frame {
+span.face-wrap.has-frame img.face-frame {
   height: 90px;
   left: 0;
   position: absolute;
   top: 0;
 }
-span.face img.face-icon {
+span.face-wrap img.face-icon {
   bottom: 0;
   height: 18px;
   position: absolute;
   right: 0;
 }
-span.face.has-frame img.face-icon {
+span.face-wrap.has-frame img.face-icon {
   bottom: 18px;
   right: 18px;
 }

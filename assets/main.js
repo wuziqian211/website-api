@@ -62,7 +62,7 @@ applyLoad();
 
 const runningTime = document.querySelector('span.running-time');
 const updateTime = () => {
-  let ts = Date.now() / 1000 - 1636816579.737;
+  const ts = Date.now() / 1000 - 1636816579.737;
   runningTime.innerText = `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 };
 updateTime();
