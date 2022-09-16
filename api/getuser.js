@@ -18,9 +18,10 @@ export default async (req, res) => {
       </form>
     ` })); // 将HTML数据发送到客户端
     const accept = utils.getAccept(req);
+    const headers = { 'User-Agent': process.env.userAgent };
     if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
       if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
-        const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
+        const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`, { headers })).json();
         if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (fjson.code) {
             case 0:
@@ -56,7 +57,7 @@ export default async (req, res) => {
           }
         }
       } else { // 不是仅获取关注、粉丝数
-        const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`)).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
+        const json = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
         if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (json.code) {
             case 0:
@@ -76,7 +77,7 @@ export default async (req, res) => {
               if (req.query.type === 'info') { // 仅获取用户信息
                 sendHTML({ title: `${utils.encodeHTML(json.data.name)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.top_photo)) + extraStyle, content, mid: req.query.mid });
               } else {
-                const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
+                const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`, { headers })).json();
                 if (fjson.code === 0) {
                   sendHTML({ title: `${utils.encodeHTML(json.data.name)} 的信息及关注、粉丝数`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.top_photo)) + extraStyle, content: content + `<br />
       <strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
@@ -121,7 +122,7 @@ export default async (req, res) => {
               if (req.query.type === 'info') { // 仅获取用户信息
                 res.status(200).json({ code: 0, message: json.message, data: json.data });
               } else {
-                const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`)).json();
+                const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`, { headers })).json();
                 if (fjson.code === 0) {
                   res.status(200).json({ code: 0, message: json.message, data: { ...json.data, following: fjson.data.following, follower: fjson.data.follower } });
                 } else {
