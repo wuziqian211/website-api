@@ -25,14 +25,13 @@
 | api/modules.js | 仅供内部使用，非公开使用（但公开源代码）的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/[1-5]-22.jpg, assets/[1-6]-33.jpg | 哔哩哔哩的一些随机头像 |
-| assets/big-member.png | 哔哩哔哩大会员图标 |
+| assets/big-vip.svg, assets/business.svg, assets/personal.svg | 哔哩哔哩大会员、机构认证与 UP 主认证图标 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就返回本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
 | assets/level_[0-6].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
 | assets/main.js | 页面使用的 JS |
 | assets/nocover.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就返回本文件数据 |
-| assets/official_organization.svg, assets/official_personal.svg | 哔哩哔哩机构认证和官方认证图标 |
 | assets/style.css | 页面使用的 CSS |
 | assets/utils.js | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png | 警告图标 |
