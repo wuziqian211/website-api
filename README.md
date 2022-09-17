@@ -32,7 +32,7 @@
 | assets/main.js | 页面使用的 JS |
 | assets/nocover.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就返回本文件数据 |
-| assets/official_organization.png, assets/official_personal.png | 哔哩哔哩机构认证和官方认证图标 |
+| assets/official_organization.svg, assets/official_personal.svg | 哔哩哔哩机构认证和官方认证图标 |
 | assets/style.css | 页面使用的 CSS |
 | assets/utils.js | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png | 警告图标 |
