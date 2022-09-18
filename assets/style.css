@@ -103,11 +103,11 @@ img.sex {
   height: 44px;
 }
 img.level {
-  height: 30px;
-  vertical-align: -7.5px;
+  height: 28px;
+  vertical-align: -6px;
 }
 img.official-icon {
-  height: 22px;
+  height: 24px;
 }
 img.vpic {
   border-radius: 10px;
@@ -122,7 +122,7 @@ span.notice, a.notice {
   border-radius: 5px;
   color: #ffb112;
   font-weight: bold;
-  padding: 3px;
+  padding: 2.5px;
 }
 img.notice-icon {
   height: 24px;
