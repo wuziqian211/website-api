@@ -39,7 +39,7 @@
 | package.json, package-lock.json | 供 Node.js 与 npm 使用 |
 | vercel.json | Vercel（API 服务商）的配置文件 |
 
-如果您想将本仓库部署到 Vercel，请将环境变量 `userAgent` 设置为浏览器的用户代理，比如 `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36`。
+如果您想将本仓库部署到 Vercel，请将环境变量 `userAgent` 设置为浏览器的用户代理。
 
 ## 特性
 

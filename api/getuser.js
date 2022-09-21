@@ -19,7 +19,7 @@ export default async (req, res) => {
     ` })); // 将HTML数据发送到客户端
     const accept = utils.getAccept(req);
     if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
-      const headers = { Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent };
+      const headers = { Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent };
       if (req.query.type === 'follow') { // 仅获取用户关注、粉丝数
         const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`, { headers })).json();
         if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
