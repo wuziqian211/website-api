@@ -74,15 +74,15 @@ export default async (req, res) => {
       }
     ` : '';
               if (req.query.type === 'info') { // 仅获取用户信息
-                sendHTML({ title: `${utils.encodeHTML(json.data[0]?.name || 未知用户)} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png') + extraStyle, content, mid: req.query.mid });
+                sendHTML({ title: `${utils.encodeHTML(json.data[0]?.name || '未知用户')} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png') + extraStyle, content, mid: req.query.mid });
               } else {
                 const fjson = await (await fetch(`https://api.bilibili.com/x/relation/stat?vmid=${req.query.mid}`, { headers })).json();
                 if (fjson.code === 0) {
-                  sendHTML({ title: `${utils.encodeHTML(json.data[0]?.name || 未知用户)} 的信息及关注、粉丝数`, style: utils.renderExtraStyle('/assets/top-photo.png') + extraStyle, content: content + `<br />
+                  sendHTML({ title: `${utils.encodeHTML(json.data[0]?.name || '未知用户')} 的信息及关注、粉丝数`, style: utils.renderExtraStyle('/assets/top-photo.png') + extraStyle, content: content + `<br />
       <strong>关注数：</strong>${utils.getNumber(fjson.data.following)}<br />
       <strong>粉丝数：</strong>${utils.getNumber(fjson.data.follower)}`, mid: req.query.mid });
                 } else {
-                  sendHTML({ title: `${utils.encodeHTML(json.data[0]?.name || 未知用户)} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png') + extraStyle, content, mid: req.query.mid });
+                  sendHTML({ title: `${utils.encodeHTML(json.data[0]?.name || '未知用户')} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png') + extraStyle, content, mid: req.query.mid });
                 }
               }
               break;
