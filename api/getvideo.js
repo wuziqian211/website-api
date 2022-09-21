@@ -21,9 +21,9 @@ const handler = async (req, res) => {
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     let headers;
     if (req.query.cookie === 'true') {
-      headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, 'User-Agent': process.env.userAgent };
+      headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     } else {
-      headers = { 'User-Agent': process.env.userAgent };
+      headers = { Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     }
     if (type === 1) { // 编号为AV号或BV号
       const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
