@@ -68,7 +68,7 @@ export default async (req, res) => {
       ` : ''}<strong>生日：</strong>${json.data[0].birthday ? utils.getDate(json.data[0].birthday).slice(0, 10) : '保密'}<br />
       <strong>个性签名：</strong><br />
       ${utils.encodeHTML(json.data[0].sign)}` : '用户信息不可用';
-              const extraStyle = json.data[0].sys_notice?.content ? `  ${json.data[0].sys_notice.url ? 'a' : 'span'}.notice {${json.data[0].sys_notice.bg_color ? `
+              const extraStyle = json.data[0]?.sys_notice?.content ? `  ${json.data[0].sys_notice.url ? 'a' : 'span'}.notice {${json.data[0].sys_notice.bg_color ? `
         background: ${json.data[0].sys_notice.bg_color};` : ''}${json.data[0].sys_notice.text_color ? `
         color: ${json.data[0].sys_notice.text_color};` : ''}
       }
