@@ -67,7 +67,7 @@ const toHTTPS = url => { // 将网址协议改成HTTPS
   return u.href;
 };
 const getDate = ts => { // 根据时间戳返回日期时间
-  if (typeof ts !== 'number' || ts <= 0) return '未知';
+  if (typeof ts !== 'number' || ts === 0) return '未知';
   const t = new Date(ts * 1000);
   const d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
