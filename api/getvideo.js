@@ -7,8 +7,8 @@ import fetch from 'node-fetch';
 import { readFileSync } from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
-const handler = async (req, res) => {
-  const startTime = req.__startTime__ || performance.now();
+export default async (req, res) => {
+  const startTime = performance.now();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
@@ -19,12 +19,7 @@ const handler = async (req, res) => {
     ` })); // 将HTML数据发送到客户端
     const accept = utils.getAccept(req);
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
-    let headers;
-    if (req.query.cookie === 'true') {
-      headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
-    } else {
-      headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
-    }
+    const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     if (type === 1) { // 编号为AV号或BV号
       const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
       if (req.query.type === 'data') { // 获取视频数据
@@ -118,13 +113,9 @@ const handler = async (req, res) => {
               sendHTML({ title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid });
               break;
             case -403:
-              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
-                res.status(403);
-                sendHTML({ title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
+              res.status(403);
+              sendHTML({ title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid });
-              } else {
-                await handler({ __startTime__: startTime, headers: { accept: 'text/html' }, query: { cookie: 'true', vid: req.query.vid } }, res);
-              }
               break;
             case 62004:
               res.status(404);
@@ -151,11 +142,7 @@ const handler = async (req, res) => {
               }
               break;
             case -403:
-              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
-                res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
-              } else {
-                await handler({ headers: { accept: 'image/*' }, query: { cookie: 'true', vid: req.query.vid } }, res);
-              }
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               break;
             default:
               res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png')); // 返回默认封面
@@ -174,11 +161,7 @@ const handler = async (req, res) => {
               res.status(404).json({ code: json.code, message: json.message });
               break;
             case -403:
-              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
-                res.status(403).json({ code: -403, message: json.message });
-              } else {
-                await handler({ headers: {}, query: { cookie: 'true', vid: req.query.vid } }, res);
-              }
+              res.status(403).json({ code: -403, message: json.message });
               break;
             default:
               res.status(400).json({ code: json.code, message: json.message });
@@ -415,4 +398,3 @@ const handler = async (req, res) => {
     res.status(500).send(utils.render500(startTime, e));
   }
 };
-export default handler;

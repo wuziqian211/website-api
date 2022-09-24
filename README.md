@@ -33,6 +33,7 @@
 | assets/nocover.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就返回本文件数据 |
 | assets/style.css | 页面使用的 CSS |
+| assets/top-photo.png | 个人空间默认头图 |
 | assets/utils.js | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png | 警告图标 |
 | LICENSE | MIT 许可证 |
@@ -86,7 +87,6 @@
 | p | 该视频的第几个分 P，或者该剧集中的第几集。 |
 | allow_redirect | 如果存在本参数，且满足 “返回图片数据” 的条件，那么获取封面数据时可能会重定向到 B 站服务器的封面地址。 |
 | type | 如果本参数的值为 `data`，则返回视频数据（如果参数 “vid” 是前缀为 `md` 的剧集编号，则暂不支持获取视频数据），否则返回视频信息。 |
-| cookie | 如果本参数的值为 `true`，则强制带 Cookie 获取信息（需要设置环境变量 `SESSDATA` 与 `bili_jct`）；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。 |
 
 其中，“cid” 与 “p” **只能在获取数据时填写，且只能填写其中一个**，如果不填，默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
 
