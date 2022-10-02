@@ -117,6 +117,10 @@ export default async (req, res) => {
               sendHTML({ title: '获取视频信息需登录', content: `这个视频需要登录才能获取信息！QwQ<br />
       您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}">这个视频的信息</a>哟 awa`, vid: req.query.vid });
               break;
+            case 62003:
+              res.status(404);
+              sendHTML({ title: '视频待发布', content: '视频已审核通过，但还没有发布，请等一下再获取信息吧 awa', vid: req.query.vid });
+              break;
             case 62004:
               res.status(404);
               sendHTML({ title: '视频审核中', content: '视频正在审核中，请等一下再获取信息吧 awa', vid: req.query.vid });
@@ -157,6 +161,7 @@ export default async (req, res) => {
               break;
             case -404:
             case 62002:
+            case 62003:
             case 62004:
               res.status(404).json({ code: json.code, message: json.message });
               break;
