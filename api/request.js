@@ -26,7 +26,7 @@ export default async (req, res) => {
     }
   }
   console.log(req.query, headers, body);
-  const resp = await fetch(req.query.url, { method: req.method, headers });
+  const resp = await fetch(req.query.url, { method: req.method, headers, body });
   if (resp.status === 0) {
     res.status(500).send('Connection Error');
   } else {
