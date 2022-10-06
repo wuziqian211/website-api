@@ -5,14 +5,14 @@ const handler = async (req, res) => {
   for (const name in headers) {
     if (name.startsWith('x-')) delete headers[name];
   }
-  let t = new URL(req.headers.referer || req.query.url || 'https://www.baidu.com/');
+  let t = new URL(req.headers.referer || req.query.url);
+  headers.referer = t.href;
   if (req.url !== '/api/request') {
     await handler({ headers: req.headers, method: req.method, query: { url: t.origin + req.url }, url: '/api/request' }, res);
     return;
   }
   const u = new URL(req.query.url);
   t.host = u.host;
-  headers.referer = t.href;
   headers.origin = u.origin;
   const resp = await fetch(req.query.url, { method: req.method, headers });
   if (resp.status === 0) res.status(404).send('Error Not Found');
