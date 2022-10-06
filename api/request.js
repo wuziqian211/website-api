@@ -11,7 +11,7 @@ const handler = async (req, res) => {
   t.host = u.host;
   headers.referer = t.href;
   if (req.url !== '/api/request') {
-    await handler({ headers: req.headers, method: req.method, query: { url: t.origin + req.url }, url: '/api/request' }, res);
+    await handler({ headers: req.headers, method: req.method, query: { url: t.origin + req.url } });
     return;
   }
   const resp = await fetch(req.query.url, { method: req.method, headers });
