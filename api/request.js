@@ -2,6 +2,9 @@ import fetch from 'node-fetch';
 export default async (req, res) => {
   let { headers } = req;
   delete headers.host;
+  for (const name in headers) {
+    if (name.startsWith('x-')) delete headers[name];
+  }
   const u = new URL(req.query.url);
   headers.origin = u.origin;
   let t = new URL(req.headers.referer || req.query.url);
