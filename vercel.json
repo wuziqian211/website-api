@@ -16,6 +16,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/404.html" }
+    { "source": "/(.*)", "destination": "/api/request.js" }
   ]
 }
