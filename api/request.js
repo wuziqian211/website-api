@@ -22,7 +22,7 @@ export default async (req, res) => {
         body.append(name, req.body[name]);
       }
     } else {
-      { body } = req;
+      body = req.body;
     }
   }
   console.log(req.query, headers, body);
