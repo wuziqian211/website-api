@@ -1,0 +1,8 @@
+{
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "node-fetch": "latest"
+  }
+}
