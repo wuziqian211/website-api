@@ -35,6 +35,6 @@ export default async (req, res) => {
     for (const h of t.headers) res.setHeader('X-Http-' + h[0], h[1]);
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
-    res.status(500).send(`Error<br /><pre>${error.stack.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />')}</pre>`);
+    res.status(500).send(`Error<br /><pre>${e.stack.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />')}</pre>`);
   }
 };
