@@ -15,7 +15,7 @@
       ]
     }
   ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/404.html" }
+  "redirects": [
+    { "source": "/", "destination": "https://wuziqian211.top/" }
   ]
 }
