@@ -99,7 +99,7 @@ export default async (req, res) => {
               sendHTML({ title: '获取用户信息失败', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试 awa`, mid: req.query.mid });
           }
         } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
-          if (json.code === 0) {
+          if (json.code === 0 && json.data[0]) {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
               res.status(307).setHeader('Location', utils.toHTTPS(json.data[0].face)).json({ code: 307, data: { url: utils.toHTTPS(json.data[0].face) } });
             } else {
