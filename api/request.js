@@ -18,13 +18,15 @@ export default async (req, res) => {
     }
     let body;
     if (req.method === 'POST') {
-      if (req.headers['content-type'] === 'application/x-www-form-urlencoded') {
-        body = new URLSearchParams();
-        for (const name in req.body) {
-          body.append(name, req.body[name]);
-        }
-      } else {
-        body = req.body;
+      switch (req.headers['content-type']) {
+        case 'application/json':
+          body = JSON.stringify(req.body);
+          break;
+        case 'application/x-www-form-urlencoded':
+          body = new URLSearchParams(req.body);
+          break;
+        default:
+          body = req.body;
       }
     }
     const resp = await fetch(req.query.url, { method: req.method, headers, body });
