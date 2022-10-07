@@ -32,7 +32,7 @@ export default async (req, res) => {
     res.status(resp.status);
     if (resp.headers.get('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/, 'text/plain'));
     if (resp.headers.get('Content-Disposition')) res.setHeader('Content-Disposition', resp.headers.get('Content-Disposition'));
-    for (const h of t.headers) res.setHeader('X-Http-' + h[0], h[1]);
+    for (const h of resp.headers) res.setHeader('X-Http-' + h[0], h[1]);
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
     res.status(500).send(`Error<br /><pre>${e.stack.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />')}</pre>`);
