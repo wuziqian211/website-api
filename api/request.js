@@ -31,7 +31,9 @@ export default async (req, res) => {
     const resp = await fetch(req.query.url, { method: req.method, headers, body });
     res.status(resp.status);
     if (resp.headers.get('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/, 'text/plain'));
-    if (resp.headers.get('Content-Disposition')) res.setHeader('Content-Disposition', resp.headers.get('Content-Disposition'));
+    for (const h of ['Content-Disposition', 'Content-Range']) {
+      if (resp.headers.has(h)) res.setHeader(h, resp.headers.get(h));
+    }
     for (const h of resp.headers) res.setHeader('X-Http-' + h[0], h[1]);
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
