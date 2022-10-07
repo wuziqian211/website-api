@@ -27,10 +27,9 @@ export default async (req, res) => {
         body = req.body;
       }
     }
-    console.log(req.query, headers, body);
     const resp = await fetch(req.query.url, { method: req.method, headers, body });
     res.status(resp.status);
-    if (resp.headers.get('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/, 'text/plain'));
+    if (resp.headers.has('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/g, 'text/plain'));
     for (const h of ['Content-Disposition', 'Content-Range']) {
       if (resp.headers.has(h)) res.setHeader(h, resp.headers.get(h));
     }
