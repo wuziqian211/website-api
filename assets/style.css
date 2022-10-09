@@ -47,10 +47,10 @@ main.loading {
   transform-origin: center bottom;
 }
 a, strong, th, label, input[type="submit"] {
-  color: #09f;
+  color: #f30;
 }
 a:hover, input[type="submit"]:hover {
-  color: #3bf;
+  color: #f90;
 }
 a {
   text-decoration: underline dotted #333;
@@ -129,7 +129,7 @@ img.notice-icon {
   vertical-align: sub;
 }
 table {
-  border: 2px solid #09f;
+  border: 2px solid #f30;
   border-collapse: collapse;
   border-radius: 10px;
   display: block;
@@ -142,7 +142,7 @@ th, td {
   text-align: center;
 }
 th, td, input {
-  border: 1px solid #09f;
+  border: 1px solid #f30;
 }
 form {
   font-size: 16px;
@@ -157,7 +157,7 @@ input {
 }
 input:hover {
   background: #ffffff80;
-  border-color: #3bf;
+  border-color: #f90;
 }
 input[type="text"]:focus, input[type="number"]:focus {
   background: #ffffff80;
@@ -204,12 +204,6 @@ footer {
   body, header {
     background: #222;
   }
-  a, strong, th, label, input[type="submit"] {
-    color: #08e;
-  }
-  a:hover, input[type="submit"]:hover {
-    color: #3ae;
-  }
   a {
     text-decoration-color: #aaa;
   }
@@ -219,14 +213,8 @@ footer {
   span.notice, a.notice {
     background: #999183;
   }
-  table, th, td, input {
-    border-color: #08e;
-  }
   input:hover, input[type="text"]:focus, input[type="number"]:focus {
     background: #22222280;
-  }
-  input:hover {
-    border-color: #3ae;
   }
   input[type="submit"]:active {
     background: #00000080;
