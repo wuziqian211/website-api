@@ -17,7 +17,7 @@ export default async (req, res) => {
       if (name !== 'url') headers[name] = req.query[name];
     }
     let body;
-    if (req.method === 'POST') {
+    if (req.method === 'POST' || req.method === 'PUT') {
       switch (req.headers['content-type']) {
         case 'application/json':
           body = JSON.stringify(req.body);
@@ -35,7 +35,7 @@ export default async (req, res) => {
     for (const h of ['Content-Disposition', 'Content-Range']) {
       if (resp.headers.has(h)) res.setHeader(h, resp.headers.get(h));
     }
-    for (const h of resp.headers) res.setHeader('X-Http-' + h[0], h[1]);
+    for (const [name, value] of resp.headers) res.setHeader('X-Http-' + name, value);
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
     res.status(500).send(`Error<br /><pre>${e.stack.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />')}</pre>`);
