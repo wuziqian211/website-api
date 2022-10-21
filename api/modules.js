@@ -42,7 +42,7 @@ export default async (req, res) => {
           for (const r of resps) {
             info = info.concat((await r.json()).data);
           }
-          res.status(200).json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" /><p>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
+          res.status(200).json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" />${u.official.type === 0 || u.official.type === 1 ? `<img class="face-icon" src="https://api.wuziqian211.top/assets/${u.official.type === 0 ? 'personal' : 'business'}.svg" />` : ''}<p>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
           break;
         case 'blocked':
           let blocked = '';
