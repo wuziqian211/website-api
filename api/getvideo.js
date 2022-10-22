@@ -144,8 +144,7 @@ const handler = async (req, res) => {
               if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
                 res.status(307).setHeader('Location', utils.toHTTPS(json.data.pic)).json({ code: 307, data: { url: utils.toHTTPS(json.data.pic) } });
               } else {
-                const a = utils.toHTTPS(json.data.pic).split('.');
-                const filename = encodeURIComponent(`${json.data.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
+                const filename = encodeURIComponent(`${json.data.title} 的封面.${utils.toHTTPS(json.data.pic).split('.').at(-1)}`); // 设置封面的文件名
                 const resp = await fetch(utils.toHTTPS(json.data.pic)); // 获取B站服务器存储的封面
                 if (resp.status === 200) {
                   res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
@@ -218,8 +217,7 @@ const handler = async (req, res) => {
           if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
             res.status(307).setHeader('Location', utils.toHTTPS(json.result.media.cover)).json({ code: 307, data: { url: utils.toHTTPS(json.result.media.cover) } });
           } else {
-            const a = utils.toHTTPS(json.result.media.cover).split('.');
-            const filename = encodeURIComponent(`${json.result.media.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
+            const filename = encodeURIComponent(`${json.result.media.title} 的封面.${utils.toHTTPS(json.result.media.cover).split('.').at(-1)}`); // 设置封面的文件名
             const resp = await fetch(utils.toHTTPS(json.result.media.cover)); // 获取B站服务器存储的封面
             if (resp.status === 200) {
               res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
@@ -370,8 +368,7 @@ const handler = async (req, res) => {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
               res.status(307).setHeader('Location', utils.toHTTPS(json.result.cover)).json({ code: 307, data: { url: utils.toHTTPS(json.result.cover) } });
             } else {
-              const a = utils.toHTTPS(json.result.cover).split('.');
-              const filename = encodeURIComponent(`${json.result.title} 的封面.${a[a.length - 1]}`); // 设置封面的文件名
+              const filename = encodeURIComponent(`${json.result.title} 的封面.${utils.toHTTPS(json.result.cover).split('.').at(-1)}`); // 设置封面的文件名
               const resp = await fetch(utils.toHTTPS(json.result.cover)); // 获取B站服务器存储的封面
               if (resp.status === 200) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));

@@ -34,7 +34,7 @@ export default async (req, res) => {
                        526705577, 527630206, 535324469, 535362423, 589865539, 592308904, 597242903, 598397900, 624532985, 694241611,
                        1132879610, 1456149763, 1498694594, 1980000209, 2095498218].sort(() => 0.5 - Math.random());
           let info = [], promises = [];
-          while (users.length > 0) {
+          while (users.length) {
             promises.push(fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } }));
             users = users.slice(50);
           }

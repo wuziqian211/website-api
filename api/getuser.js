@@ -102,8 +102,7 @@ export default async (req, res) => {
             if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
               res.status(307).setHeader('Location', utils.toHTTPS(json.data[0].face)).json({ code: 307, data: { url: utils.toHTTPS(json.data[0].face) } });
             } else {
-              const a = utils.toHTTPS(json.data[0].face).split('.');
-              const filename = encodeURIComponent(`${json.data[0].name} 的头像.${a[a.length - 1]}`); // 设置头像的文件名
+              const filename = encodeURIComponent(`${json.data[0].name} 的头像.${utils.toHTTPS(json.data[0].face).split('.').at(-1)}`); // 设置头像的文件名
               const resp = await fetch(utils.toHTTPS(json.data[0].face)); // 获取B站服务器存储的头像
               if (resp.ok) {
                 res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
