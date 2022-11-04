@@ -87,6 +87,7 @@ export default async (req, res) => {
                 ${utils.encodeHTML(cjson.card.sign)}`;
               sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
             }
+            break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
             sendHTML({ title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: req.query.mid });
