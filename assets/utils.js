@@ -1,65 +1,63 @@
 const getAccept = req => (req.headers.accept || '').includes('html') || req.headers['sec-fetch-dest'] === 'document' ? 1 : (req.headers.accept || '').includes('image') || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
-const renderHTML = data => `<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
-    <title>${data.title} | wuziqian211's Blog API</title>
-    <link rel="stylesheet" href="/assets/style.css" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <style class="extra">${data.style || ''}</style>
-  </head>
-  <body>
-    <header>
-      <div class="header">
-        <a class="no-underline" href="/api/">wuziqian211's Blog API</a> <span class="desc">${data.desc || '一个简单的 API 页面'}</span>
-      </div>
-    </header>
-    <main>${data.body}</main>
-    <footer>
-      本 API 版权：© 2021 – 2022 wuziqian211<br />
-      执行本 API 耗时 <span class="time-taken">${(performance.now() - data.startTime).toFixed(3)}</span> ms<br />
-      本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
-      部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
-    </footer>
-    <script src="/assets/main.js"></script>
-  </body>
-</html>`;
+const renderHTML = data => `
+  <!DOCTYPE html>
+  <html lang="zh-CN">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
+      <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
+      <title>${data.title} | wuziqian211's Blog API</title>
+      <link rel="stylesheet" href="/assets/style.css" />
+      <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+      <style class="extra">${data.style || ''}</style>
+    </head>
+    <body>
+      <header>
+        <div class="header">
+          <a class="no-underline" href="/api/">wuziqian211's Blog API</a> <span class="desc">${data.desc || '一个简单的 API 页面'}</span>
+        </div>
+      </header>
+      <main>${data.body}</main>
+      <footer>
+        本 API 版权：© 2021 – 2022 wuziqian211<br />
+        执行本 API 耗时 <span class="time-taken">${(performance.now() - data.startTime).toFixed(3)}</span> ms<br />
+        本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
+        部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
+      </footer>
+      <script src="/assets/main.js"></script>
+    </body>
+  </html>`.replace(/(?: |\n)+/gm, ' ');
 const render404 = startTime => renderHTML({ startTime, title: 'API 不存在', body: `
-      您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa
-    ` });
+  您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa` });
 const render500 = (startTime, error) => {
   console.error(error);
   return renderHTML({ startTime, title: 'API 执行时出现异常', body: `
-      抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
-      您可以将下面的错误信息告诉 wuziqian211 哟 awa<br />
-      <pre>${encodeHTML(error.stack)}</pre>
-    ` });
+    抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
+    您可以将下面的错误信息告诉 wuziqian211 哟 awa<br />
+    <pre>${encodeHTML(error.stack)}</pre>` });
 };
 const renderExtraStyle = pic => `
-      body {
-        -webkit-backdrop-filter: blur(20px);
-        backdrop-filter: blur(20px);
-        background: url(${pic}) center/cover no-repeat fixed #fff;
-        transition: background 0.5s 0.5s;
-      }
-      header, main {
-        background: #ffffff80;
-      }
-      @media (prefers-color-scheme: dark) {
-        body {
-          -webkit-backdrop-filter: blur(20px) brightness(0.5);
-          backdrop-filter: blur(20px) brightness(0.5);
-          background-color: #222;
-        }
-        header, main {
-          background: #22222280;
-        }
-      }
-    `;
+  body {
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    background: url(${pic}) center/cover no-repeat fixed #fff;
+    transition: background 0.5s 0.5s;
+  }
+  header, main {
+    background: #ffffff80;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      -webkit-backdrop-filter: blur(20px) brightness(0.5);
+      backdrop-filter: blur(20px) brightness(0.5);
+      background-color: #222;
+    }
+    header, main {
+      background: #22222280;
+    }
+  }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
 const toHTTPS = url => { // 将网址协议改成HTTPS
   let u = new URL(url);

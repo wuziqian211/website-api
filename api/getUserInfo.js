@@ -56,7 +56,7 @@ export default async (req, res) => {
                 <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
                 <strong>个性签名：</strong><br />
                 ${utils.encodeHTML(ujson.data.sign)}`;
-              const extraStyle = utils.renderExtraStyle(ujson.data.top_photo) + (ujson.data?.sys_notice?.content ? `
+              const extraStyle = utils.renderExtraStyle(utils.toHTTPS(ujson.data.top_photo)) + (ujson.data.sys_notice?.content ? `
                 ${ujson.data.sys_notice.url ? 'a' : 'span'}.notice {${ujson.data.sys_notice.bg_color ? `
                   background: ${ujson.data.sys_notice.bg_color};` : ''}${ujson.data.sys_notice.text_color ? `
                   color: ${ujson.data.sys_notice.text_color};` : ''}

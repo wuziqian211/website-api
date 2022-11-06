@@ -16,8 +16,8 @@ const loadPage = async url => {
       return;
     }
     const text = await resp.text();
-    replacePage(text);
     history.pushState({ text }, '', resp.url);
+    replacePage(text);
     applyLoad();
     document.querySelector('main').classList.remove('loading');
   } catch (e) {
