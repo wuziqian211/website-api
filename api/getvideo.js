@@ -49,7 +49,7 @@ const handler = async (req, res) => {
             }
           }
           if (url) { // 视频地址获取成功
-            const t = url.slice(0, u.indexOf('?'));
+            const t = url.slice(0, url.indexOf('?'));
             const filename = encodeURIComponent(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
             const resp = await fetch(url, { headers });
             if (resp.ok) {
@@ -299,7 +299,7 @@ const handler = async (req, res) => {
             }
           }
           if (url) { // 视频地址获取成功
-            const t = url.slice(0, u.indexOf('?'));
+            const t = url.slice(0, url.indexOf('?'));
             const filename = encodeURIComponent(`${json.result.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
             const resp = await fetch(url, { headers });
             if (resp.ok) {
