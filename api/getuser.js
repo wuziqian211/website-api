@@ -42,7 +42,7 @@ export default async (req, res) => {
                 ${ujson.data.silence ? '（已被封禁）' : ''}
                 ${cjson.card.spacesta === -10 ? '（账号已注销）' : ''}
                 <br />
-                ${ujson.data.official.type === 0 || ujson.data.official.type === 1 ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}<br />` : ''}
+                ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}<br />` : ''}
                 ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
@@ -73,7 +73,7 @@ export default async (req, res) => {
                 </a>
                 ${cjson.card.spacesta === -10 ? '（账号已注销）' : cjson.card.spacesta === -2 ? '（已被封禁）' : ''}
                 <br />
-                ${cjson.card.official_verify.type === 0 || cjson.card.official_verify.type === 1 ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
+                ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />

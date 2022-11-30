@@ -126,7 +126,7 @@ const handler = async (req, res) => {
               sendHTML({ title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: req.query.vid });
               break;
             case -403:
-              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
+              if (['true', 'false'].includes(req.query.cookie)) {
                 res.status(403);
                 sendHTML({ title: '获取视频信息需登录', content: `
                   这个视频需要登录才能获取信息！QwQ<br />
@@ -163,7 +163,7 @@ const handler = async (req, res) => {
               }
               break;
             case -403:
-              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
+              if (['true', 'false'].includes(req.query.cookie)) {
                 res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               } else {
                 await handler({ headers: { accept: 'image/*' }, query: { cookie: 'true', vid: req.query.vid } }, res);
@@ -187,7 +187,7 @@ const handler = async (req, res) => {
               res.status(404).json({ code: json.code, message: json.message });
               break;
             case -403:
-              if (req.query.cookie === 'true' || req.query.cookie === 'false') {
+              if (['true', 'false'].includes(req.query.cookie)) {
                 res.status(403).json({ code: -403, message: json.message });
               } else {
                 await handler({ headers: {}, query: { cookie: 'true', vid: req.query.vid } }, res);
@@ -258,7 +258,7 @@ const handler = async (req, res) => {
             res.status(400).json({ code: json.code, message: json.message });
         }
       }
-    } else if (type === 3 || type === 4) { // 编号为ssid或epid
+    } else if ([3, 4].includes(type)) { // 编号为ssid或epid
       const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
       if (req.query.type === 'data') { // 获取剧集中某一集的视频数据
         let P;
