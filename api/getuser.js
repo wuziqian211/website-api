@@ -42,7 +42,7 @@ export default async (req, res) => {
                     <br />
                     ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}<br />` : ''}
                     ${ujson.data.silence ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span><br />' : ''}
-                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
+                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice system"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
                     <span class="description">${utils.encodeHTML(ujson.data.sign)}</span>
                   </div>
                 </div>
