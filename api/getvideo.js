@@ -133,10 +133,10 @@ const handler = async (req, res) => {
                   </div>
                   ${p.first_frame ? `
                   <div class="wrap">
-                    <img class="vpic" alt title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" referrerpolicy="no-referrer" />
+                    <img class="ppic" alt title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" referrerpolicy="no-referrer" />
                   </div>` : ''}
                   <div>
-                    <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}
+                    <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}<br />
                     <strong>cid：</strong>${p.cid}
                   </div>
                 </div>`).join('')}` : ''}

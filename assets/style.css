@@ -46,6 +46,9 @@ main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
 }
+ul {
+  margin: 0;
+}
 div.info {
   align-items: center;
   display: flex;
@@ -101,9 +104,6 @@ a.title {
 a:hover {
   text-decoration-color: #aaa;
 }
-ul {
-  margin: 0;
-}
 img.sex {
   height: 30px;
 }
@@ -148,6 +148,10 @@ th, td {
 }
 th, td, input {
   border: 1px solid #09f;
+}
+img.ppic {
+  border-radius: 10px;
+  height: 80px;
 }
 form {
   font-size: 16px;
