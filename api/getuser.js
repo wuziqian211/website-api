@@ -31,6 +31,7 @@ export default async (req, res) => {
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
                       <img class="face" alt title="${utils.encodeHTML(ujson.data.name)}" src="${utils.toHTTPS(ujson.data.face)}" referrerpolicy="no-referrer" />
                       ${ujson.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(ujson.data.pendant.name)}" src="${utils.toHTTPS(ujson.data.pendant.image_enhance || ujson.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
+                      ${ujson.data.face_nft ? '<img class="face-icon${[0, 1].includes(ujson.data.official.type) || ujson.data.vip.status ? ' second' : ''}" alt title="数字藏品" src="/assets/nft-label.gif" />' : ''}
                       ${ujson.data.official.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : ujson.data.official.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ujson.data.vip.status ? '<img class="face-icon" alt title="大会员" src="/assets/big-vip.svg" />' : ''}
                     </a>
                   </div>

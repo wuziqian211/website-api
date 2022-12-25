@@ -81,6 +81,9 @@ div.wrap img.face-icon {
   position: absolute;
   right: 0;
 }
+div.wrap img.face-icon.second {
+  right: 17px;
+}
 div.wrap.has-frame img.face-icon {
   bottom: 18px;
   right: 18px;
