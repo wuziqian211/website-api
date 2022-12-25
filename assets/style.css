@@ -76,6 +76,7 @@ div.wrap.has-frame img.face-frame {
   top: 0;
 }
 div.wrap img.face-icon {
+  border-radius: 50%;
   bottom: 0;
   height: 18px;
   position: absolute;
