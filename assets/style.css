@@ -107,7 +107,7 @@ ul {
 img.sex {
   height: 30px;
 }
-img.level img.official-icon {
+img.level, img.official-icon {
   height: 25px;
   vertical-align: -5px;
 }
