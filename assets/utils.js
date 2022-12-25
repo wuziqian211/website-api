@@ -46,7 +46,7 @@ const renderExtraStyle = pic => `
     transition: background 0.5s 0.5s;
   }
   header, main {
-    background: #ffffff80;
+    background: #fff9;
   }
   @media (prefers-color-scheme: dark) {
     body {
@@ -55,7 +55,7 @@ const renderExtraStyle = pic => `
       background-color: #222;
     }
     header, main {
-      background: #22222280;
+      background: #2229;
     }
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
