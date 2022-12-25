@@ -27,29 +27,30 @@ export default async (req, res) => {
             if (ujson.code === 0) {
               const content = `
                 <img style="display: none;" src="${utils.toHTTPS(ujson.data.top_photo)}" referrerpolicy="no-referrer" />
-                <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
-                  <span class="face-wrap${ujson.data.pendant?.image ? ' has-frame' : ''}">
-                    <img class="face" alt title="${utils.encodeHTML(ujson.data.name)}" src="${utils.toHTTPS(ujson.data.face)}" referrerpolicy="no-referrer" />
-                    ${ujson.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(ujson.data.pendant.name)}" src="${utils.toHTTPS(ujson.data.pendant.image_enhance || ujson.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
-                    ${ujson.data.official.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : ujson.data.official.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ujson.data.vip.status ? '<img class="face-icon" alt title="大会员" src="/assets/big-vip.svg" />' : ''}
-                  </span>
-                  ${utils.encodeHTML(ujson.data.name)}
-                </a>
-                ${ujson.data.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : ujson.data.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
-                <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295">
-                  <img class="level" alt="Lv${ujson.data.is_senior_member ? '6⚡' : ujson.data.level}" title="${ujson.data.is_senior_member ? '6+' : ujson.data.level} 级" src="/assets/level_${ujson.data.is_senior_member ? '6%2B' : ujson.data.level}.svg" />
-                </a>
-                ${ujson.data.silence ? '（已被封禁）' : ''}
-                ${cjson.card.spacesta === -10 ? '（账号已注销）' : ''}
-                <br />
-                ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}<br />` : ''}
-                ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
+                <div class="info">
+                  <div class="wrap${ujson.data.pendant?.image ? ' has-frame' : ''}">
+                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
+                      <img class="face" alt title="${utils.encodeHTML(ujson.data.name)}" src="${utils.toHTTPS(ujson.data.face)}" referrerpolicy="no-referrer" />
+                      ${ujson.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(ujson.data.pendant.name)}" src="${utils.toHTTPS(ujson.data.pendant.image_enhance || ujson.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
+                      ${ujson.data.official.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : ujson.data.official.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ujson.data.vip.status ? '<img class="face-icon" alt title="大会员" src="/assets/big-vip.svg" />' : ''}
+                    </a>
+                  </div>
+                  <div>
+                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">${utils.encodeHTML(ujson.data.name)}</a>
+                    ${ujson.data.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : ujson.data.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
+                    <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${ujson.data.is_senior_member ? '6⚡' : ujson.data.level}" title="${ujson.data.is_senior_member ? '6+' : ujson.data.level} 级" src="/assets/level_${ujson.data.is_senior_member ? '6%2B' : ujson.data.level}.svg" /></a>
+                    ${ujson.data.silence ? '（已被封禁）' : ''}
+                    ${cjson.card.spacesta === -10 ? '（账号已注销）' : ''}
+                    <br />
+                    ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}<br />` : ''}
+                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
+                    <span class="description">${utils.encodeHTML(ujson.data.sign)}</span>
+                  </div>
+                </div>
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
-                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
-                <strong>个性签名：</strong><br />
-                ${utils.encodeHTML(ujson.data.sign)}`;
+                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
               const extraStyle = utils.renderExtraStyle(utils.toHTTPS(ujson.data.top_photo)) + (ujson.data.sys_notice?.content ? `
                 ${ujson.data.sys_notice.url ? 'a' : 'span'}.notice {${ujson.data.sys_notice.bg_color ? `
                   background: ${ujson.data.sys_notice.bg_color};` : ''}${ujson.data.sys_notice.text_color ? `

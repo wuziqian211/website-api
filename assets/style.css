@@ -49,12 +49,10 @@ main.loading {
 div.info {
   align-items: center;
   display: flex;
+  margin: 0 0 5px;
 }
 div.wrap {
-  margin-right: 5px;
-}
-span.face-wrap {
-  display: inline-block;
+  margin: 0 5px 0 0;
   position: relative;
 }
 img {
@@ -64,23 +62,23 @@ img.face {
   border-radius: 50%;
   height: 60px;
 }
-span.face-wrap.has-frame img.face {
+div.wrap.has-frame img.face {
   height: 51px;
   padding: 19.5px;
 }
-span.face-wrap.has-frame img.face-frame {
+div.wrap.has-frame img.face-frame {
   height: 90px;
   left: 0;
   position: absolute;
   top: 0;
 }
-span.face-wrap img.face-icon {
+div.wrap img.face-icon {
   bottom: 0;
   height: 18px;
   position: absolute;
   right: 0;
 }
-span.face-wrap.has-frame img.face-icon {
+div.wrap.has-frame img.face-icon {
   bottom: 18px;
   right: 18px;
 }
@@ -107,14 +105,11 @@ ul {
   margin: 0;
 }
 img.sex {
-  height: 44px;
+  height: 30px;
 }
-img.level {
-  height: 28px;
-  vertical-align: -6px;
-}
-img.official-icon {
-  height: 24px;
+img.level img.official-icon {
+  height: 25px;
+  vertical-align: -5px;
 }
 img.vpic {
   border-radius: 10px;
@@ -135,12 +130,15 @@ img.notice-icon {
   height: 24px;
   vertical-align: sub;
 }
+span.description {
+  color: #777;
+}
 table {
   border: 2px solid #09f;
   border-collapse: collapse;
   border-radius: 10px;
   display: block;
-  margin: 20px 0;
+  margin: 10px 0;
   max-width: max-content;
   overflow: auto;
 }
