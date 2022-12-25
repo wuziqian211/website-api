@@ -61,26 +61,29 @@ export default async (req, res) => {
               const content = `
 Error ${ujson.code} ${ujson.message}
                 <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
-                  <span class="face-wrap${cjson.card.pendant?.image ? ' has-frame' : ''}">
-                    <img class="face" alt title="${utils.encodeHTML(cjson.card.name)}" src="${utils.toHTTPS(cjson.card.face)}" referrerpolicy="no-referrer" />
-                    ${cjson.card.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(cjson.card.pendant.name)}" src="${utils.toHTTPS(cjson.card.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
-                    ${cjson.card.official_verify.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : cjson.card.official_verify.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ''}
-                  </span>
-                  ${utils.encodeHTML(cjson.card.name)}
-                </a>
-                ${cjson.card.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : cjson.card.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
-                <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295">
-                  <img class="level" alt="Lv${cjson.card.level_info.current_level}" title="${cjson.card.level_info.current_level} 级" src="/assets/level_${cjson.card.level_info.current_level}.svg" />
-                </a>
-                ${cjson.card.spacesta === -10 ? '（账号已注销）' : cjson.card.spacesta === -2 ? '（已被封禁）' : ''}
-                <br />
+                <div class="info">
+                  <div class="wrap${cjson.card.pendant?.image ? ' has-frame' : ''}">
+                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
+                      <img class="face" alt title="${utils.encodeHTML(cjson.card.name)}" src="${utils.toHTTPS(cjson.card.face)}" referrerpolicy="no-referrer" />
+                      ${cjson.card.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(cjson.card.pendant.name)}" src="${utils.toHTTPS(cjson.card.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
+                      ${cjson.card.official_verify.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : cjson.card.official_verify.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ''}
+                    </a>
+                  </div>
+                  <div>
+                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">${utils.encodeHTML(cjson.card.name)}</a>
+                    ${cjson.card.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : cjson.card.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
+                    <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${cjson.card.level_info.current_level}" title="${cjson.card.level_info.current_level} 级" src="/assets/level_${cjson.card.level_info.current_level}.svg" /></a>
+                    ${cjson.card.spacesta === -10 ? '（账号已注销）' : cjson.card.spacesta === -2 ? '（已被封禁）' : ''}
+                    <br />
+                    ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
+                    <span class="description">${utils.encodeHTML(cjson.card.sign)}</span>
+                  </div>
+                </div>
                 ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
-                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
-                <strong>个性签名：</strong><br />
-                ${utils.encodeHTML(cjson.card.sign)}`;
+                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
               res.status(200);
               sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
             }
