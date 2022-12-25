@@ -125,9 +125,21 @@ const handler = async (req, res) => {
                     <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
                   </div>
                 </div>`).join('')}` : `
-                <strong>UP 主：</strong><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="face" alt title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(json.data.owner.name)}</a>`}
-                <br />
-                ${json.data.pages ? `${json.data.pages.map(p => `<strong>P${p.page} ${utils.encodeHTML(p.part)}</strong>（<strong>cid：</strong>${p.cid}） ${utils.getTime(p.duration)}`).join('<br />')}<br />` : ''}
+                <strong>UP 主：</strong><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}"><img class="face" alt title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(json.data.owner.name)}</a><br />`}
+                ${json.data.pages ? `${json.data.pages.map(p => `
+                <div class="info">
+                  <div>
+                    <strong>P${p.page}：</strong>
+                  </div>
+                  ${p.first_frame ? `
+                  <div class="wrap">
+                    <img class="vpic" alt title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" referrerpolicy="no-referrer" />
+                  </div>` : ''}
+                  <div>
+                    <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}
+                    <strong>cid：</strong>${p.cid}
+                  </div>
+                </div>`).join('')}` : ''}
                 <strong>简介：</strong><br />
                 ${utils.encodeHTML(json.data.desc)}`;
               res.status(200);
