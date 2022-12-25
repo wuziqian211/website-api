@@ -46,27 +46,12 @@ main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
 }
-a, strong, th, label, input[type="submit"] {
-  color: #09f;
+div.info {
+  align-items: center;
+  display: flex;
 }
-a:hover, input[type="submit"]:hover {
-  color: #3bf;
-}
-a {
-  text-decoration: underline dotted #333;
-  text-decoration-thickness: 2px;
-}
-a.no-underline, a.title, a.notice {
-  text-decoration: none;
-}
-a.title {
-  font-weight: bold;
-}
-a:hover {
-  text-decoration-color: #aaa;
-}
-ul {
-  margin: 0;
+div.wrap {
+  margin-right: 5px;
 }
 span.face-wrap {
   display: inline-block;
@@ -98,6 +83,28 @@ span.face-wrap img.face-icon {
 span.face-wrap.has-frame img.face-icon {
   bottom: 18px;
   right: 18px;
+}
+a, strong, th, label, input[type="submit"] {
+  color: #09f;
+}
+a:hover, input[type="submit"]:hover {
+  color: #3bf;
+}
+a {
+  text-decoration: underline dotted #333;
+  text-decoration-thickness: 2px;
+}
+a.no-underline, a.title, a.notice {
+  text-decoration: none;
+}
+a.title {
+  font-weight: bold;
+}
+a:hover {
+  text-decoration-color: #aaa;
+}
+ul {
+  margin: 0;
 }
 img.sex {
   height: 44px;
