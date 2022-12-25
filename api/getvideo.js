@@ -3,7 +3,6 @@
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
-import fetch from 'node-fetch';
 import { readFileSync } from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
