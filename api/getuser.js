@@ -60,6 +60,7 @@ export default async (req, res) => {
               sendHTML({ title: `${utils.encodeHTML(ujson.data.name)} 的信息`, style: extraStyle, content, mid: req.query.mid });
             } else {
               const content = `
+Error ${ujson.code} ${ujson.message}
                 <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
                   <span class="face-wrap${cjson.card.pendant?.image ? ' has-frame' : ''}">
                     <img class="face" alt title="${utils.encodeHTML(cjson.card.name)}" src="${utils.toHTTPS(cjson.card.face)}" referrerpolicy="no-referrer" />
