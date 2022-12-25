@@ -89,6 +89,9 @@ div.wrap.has-frame img.face-icon {
   bottom: 18px;
   right: 18px;
 }
+div.wrap.has-frame img.face-icon.second {
+  right: 35px;
+}
 a, strong, th, label, input[type="submit"] {
   color: #09f;
 }
