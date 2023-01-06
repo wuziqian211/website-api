@@ -9,7 +9,7 @@ const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 const handler = async (req, res) => {
   const startTime = req.__startTime__ || performance.now();
   try {
-    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
+    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>

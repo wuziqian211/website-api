@@ -9,7 +9,7 @@ const file = fileName => readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
   const startTime = performance.now();
   try {
-    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ startTime, title: data.title, style: data.style, desc: '获取哔哩哔哩用户信息', body: `
+    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
       <form>
         <div><label for="mid">请输入您想要获取信息的用户的 UID：</label></div>
