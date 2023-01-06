@@ -57,7 +57,7 @@ export default async (req, res) => {
                   color: ${ujson.data.sys_notice.text_color};` : ''}
                 }` : '');
               res.status(200);
-              sendHTML({ title: `${utils.encodeHTML(ujson.data.name)} 的信息`, style: extraStyle, content, mid: req.query.mid });
+              sendHTML({ title: `${utils.encodeHTML(ujson.data.name)} 的信息`, appleTouchIcon: utils.toHTTPS(ujson.data.face), style: extraStyle, content, mid: req.query.mid });
             } else {
               const content = `
                 <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
@@ -85,7 +85,7 @@ export default async (req, res) => {
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
                 <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
               res.status(200);
-              sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
+              sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, appleTouchIcon: utils.toHTTPS(cjson.card.face), style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
             }
             break;
           case -412:

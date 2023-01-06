@@ -11,6 +11,7 @@ const renderHTML = data => `
       <title>${data.title} | wuziqian211's Blog API</title>
       <link rel="stylesheet" href="/assets/style.css" />
       <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+      ${data.appleTouchIcon ? `<link rel="apple-touch-icon" href="${data.appleTouchIcon}" referrerpolicy="no-referrer" />` : ''}
       <style class="extra">${data.style || ''}</style>
     </head>
     <body>
