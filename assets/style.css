@@ -219,7 +219,7 @@ footer {
   body, header {
     background: #222;
   }
-  span.description {
+  span.description, footer {
     color: #999;
   }
   a, strong, th, label, input[type="submit"] {
