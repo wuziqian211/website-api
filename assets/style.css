@@ -30,8 +30,10 @@ div.header {
   padding: 15px 0;
   width: 1200px;
 }
-span.desc {
+span.description {
   color: #777;
+}
+div.header span.description {
   font-size: 14px;
 }
 main {
@@ -137,9 +139,6 @@ img.notice-icon {
   height: 24px;
   vertical-align: sub;
 }
-span.description {
-  color: #777;
-}
 table {
   border: 2px solid #09f;
   border-collapse: collapse;
@@ -219,6 +218,9 @@ footer {
   }
   body, header {
     background: #222;
+  }
+  span.description {
+    color: #999;
   }
   a, strong, th, label, input[type="submit"] {
     color: #08e;
