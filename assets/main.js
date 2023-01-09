@@ -4,7 +4,7 @@
 const isLoadAvailable = url => new URL(url, window.location.href).origin === window.location.origin;
 const replacePage = text => {
   const html = new DOMParser().parseFromString(text, 'text/html');
-  ['title', 'style.extra', 'span.desc', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
+  ['title', 'style.extra', 'div.header span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
 };
 const loadPage = async url => {
   document.querySelector('main').classList.add('loading');
