@@ -204,7 +204,7 @@ footer {
     text-align: center;
     width: auto;
   }
-  span.description {
+  div.header span.description {
     display: none;
   }
   main {
