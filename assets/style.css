@@ -79,13 +79,13 @@ div.wrap.has-frame img.face-frame {
 }
 div.wrap img.face-icon {
   border-radius: 50%;
-  bottom: 0;
+  bottom: -1.25px;
   height: 18px;
   position: absolute;
-  right: 0;
+  right: -1.25px;
 }
 div.wrap img.face-icon.second {
-  right: 17px;
+  right: 15.75px;
 }
 div.wrap.has-frame img.face-icon {
   bottom: 18px;
