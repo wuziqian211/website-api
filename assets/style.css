@@ -104,7 +104,7 @@ a {
   text-decoration: underline dotted #333;
   text-decoration-thickness: 2px;
 }
-a.no-underline, a.title, a.notice {
+div.header a, a.title, a.notice {
   text-decoration: none;
 }
 a.title {

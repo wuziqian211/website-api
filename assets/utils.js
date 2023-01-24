@@ -17,7 +17,7 @@ const renderHTML = data => `
     <body>
       <header>
         <div class="header">
-          <a class="no-underline" href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc || '一个简单的 API 页面'}</span>
+          <a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc || '一个简单的 API 页面'}</span>
         </div>
       </header>
       <main>${data.body}</main>
