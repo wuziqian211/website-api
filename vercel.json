@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/request.js": {
+      "memory": 256
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
