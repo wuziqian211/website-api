@@ -1,7 +1,7 @@
 export default (req, res) => {
   if (/^(?:.+\.)?wuziqian211.top$/.test(req.headers.host)) {
     let expectedURL;
-    if (/^\/archive\/202|^\/wik|^\/abo/.test(req.url)) {
+    if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(req.url)) {
       expectedURL = `https://wuziqian211.top${req.url}`;
     } else if (/^\/api|^\/get/.test(req.url)) {
       expectedURL = `https://api.wuziqian211.top${req.url}`;
@@ -20,7 +20,7 @@ export default (req, res) => {
         <body>
           <header>
             <div class="header">
-              <a class="no-underline" href="https://wuziqian211.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span>
+              <a href="https://wuziqian211.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span>
             </div>
           </header>
           <main>
@@ -31,7 +31,7 @@ export default (req, res) => {
             © 2021 – 2023 wuziqian211
           </footer>
         </body>
-      </html>`);
+      </html>`).replace(/(?: |\n)+/gm, ' ').trim();
   } else if (/^(?:.+\.)?w211.top$/.test(req.headers.host)) {
     const url = `https://${req.headers.host.replace(/^(.+\.)?w211.top$/, '$1wuziqian211.top')}${req.url}`;
     res.status(308).setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate').setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({ code: 308, data: { url } });
