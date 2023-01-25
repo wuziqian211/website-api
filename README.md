@@ -1,13 +1,13 @@
 # wuziqian211's Blog API
 
-<https://api.wuziqian211.top/api/>
+<https://api.yumeharu.top/api/>
 
 ## 功能
 
 本存储库中的 API 主要为 [wuziqian211's Blog](https://wuziqian211.top/) 的一些功能提供服务，但是也有一些公开的 API 可以使用：
 
-- [获取哔哩哔哩用户信息](https://api.wuziqian211.top/api/getuser)
-- [获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](https://api.wuziqian211.top/api/getvideo)
+- [获取哔哩哔哩用户信息](https://api.yumeharu.top/api/getuser)
+- [获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](https://api.yumeharu.top/api/getvideo)
 
 上面的 API 允许任何合法网站与程序等调用，但是服务器不会存储任何访问记录与哔哩哔哩用户、视频、剧集、番剧等的信息、数据等，仅转发与处理哔哩哔哩 API 的返回数据。
 
