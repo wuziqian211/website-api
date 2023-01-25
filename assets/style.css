@@ -30,8 +30,10 @@ div.header {
   padding: 15px 0;
   width: 1200px;
 }
-span.desc {
+span.description {
   color: #777;
+}
+div.header span.description {
   font-size: 14px;
 }
 main {
@@ -46,6 +48,52 @@ main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
 }
+ul {
+  margin: 0;
+}
+div.info {
+  align-items: center;
+  display: flex;
+  margin: 0 0 5px;
+}
+div.wrap {
+  margin: 0 5px 0 0;
+  position: relative;
+}
+img {
+  vertical-align: middle;
+}
+img.face {
+  border-radius: 50%;
+  height: 60px;
+}
+div.wrap.has-frame img.face {
+  height: 51px;
+  padding: 19.5px;
+}
+div.wrap.has-frame img.face-frame {
+  height: 90px;
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+div.wrap img.face-icon {
+  border-radius: 50%;
+  bottom: -1.25px;
+  height: 18px;
+  position: absolute;
+  right: -1.25px;
+}
+div.wrap img.face-icon.second {
+  right: 15.75px;
+}
+div.wrap.has-frame img.face-icon {
+  bottom: 18px;
+  right: 18px;
+}
+div.wrap.has-frame img.face-icon.second {
+  right: 35px;
+}
 a, strong, th, label, input[type="submit"] {
   color: #09f;
 }
@@ -56,7 +104,7 @@ a {
   text-decoration: underline dotted #333;
   text-decoration-thickness: 2px;
 }
-a.no-underline, a.title, a.notice {
+div.header a, a.title, a.notice {
   text-decoration: none;
 }
 a.title {
@@ -65,49 +113,12 @@ a.title {
 a:hover {
   text-decoration-color: #aaa;
 }
-ul {
-  margin: 0;
-}
-span.face-wrap {
-  display: inline-block;
-  position: relative;
-}
-img {
-  vertical-align: middle;
-}
-img.face {
-  border-radius: 50%;
-  height: 60px;
-}
-span.face-wrap.has-frame img.face {
-  height: 51px;
-  padding: 19.5px;
-}
-span.face-wrap.has-frame img.face-frame {
-  height: 90px;
-  left: 0;
-  position: absolute;
-  top: 0;
-}
-span.face-wrap img.face-icon {
-  bottom: 0;
-  height: 18px;
-  position: absolute;
-  right: 0;
-}
-span.face-wrap.has-frame img.face-icon {
-  bottom: 18px;
-  right: 18px;
-}
 img.sex {
-  height: 44px;
+  height: 30px;
 }
-img.level {
-  height: 28px;
-  vertical-align: -6px;
-}
-img.official-icon {
-  height: 24px;
+img.level, img.official-icon {
+  height: 25px;
+  vertical-align: -5px;
 }
 img.vpic {
   border-radius: 10px;
@@ -133,7 +144,7 @@ table {
   border-collapse: collapse;
   border-radius: 10px;
   display: block;
-  margin: 20px 0;
+  margin: 10px 0;
   max-width: max-content;
   overflow: auto;
 }
@@ -143,6 +154,10 @@ th, td {
 }
 th, td, input {
   border: 1px solid #09f;
+}
+img.ppic {
+  border-radius: 10px;
+  height: 80px;
 }
 form {
   font-size: 16px;
@@ -189,7 +204,7 @@ footer {
     text-align: center;
     width: auto;
   }
-  span.desc {
+  div.header span.description {
     display: none;
   }
   main {
@@ -203,6 +218,9 @@ footer {
   }
   body, header {
     background: #222;
+  }
+  span.description, footer {
+    color: #999;
   }
   a, strong, th, label, input[type="submit"] {
     color: #08e;
