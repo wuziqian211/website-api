@@ -61,7 +61,7 @@ const renderExtraStyle = pic => `
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
 const toHTTPS = url => { // 将网址协议改成HTTPS
-  let u = new URL(url);
+  const u = new URL(url);
   u.protocol = 'https:';
   return u.href;
 };
@@ -75,7 +75,7 @@ const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 36
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
 const toBV = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
-  let bvid = ['B', 'V', '1', , , '4', , '1', , '7'];
+  const bvid = ['B', 'V', '1', , , '4', , '1', , '7'];
   for (let i = 0n; i < 6n; i++) {
     bvid[[11, 10, 3, 8, 4, 6][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
   }
