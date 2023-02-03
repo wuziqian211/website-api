@@ -28,6 +28,7 @@ export default async (req, res) => {
           body = req.body;
       }
     }
+    console.log(req.query.url, headers)
     const resp = await fetch(req.query.url, { method: req.method, headers, body });
     res.status(resp.status);
     if (resp.headers.has('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/g, 'text/plain'));
