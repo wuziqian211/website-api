@@ -1,6 +1,7 @@
 export default async (req, res) => {
   try { 
     let { headers } = req;
+    delete headers.connection;
     delete headers.host;
     delete headers.forwarded;
     delete headers['if-none-match'];
