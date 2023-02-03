@@ -1,18 +1,18 @@
 export default async (req, res) => {
   try { 
-    let { headers } = req;
+    const { headers } = req;
     delete headers.connection;
     delete headers.host;
     delete headers.forwarded;
     delete headers['if-none-match'];
     for (const name in headers) {
-      if (name.startsWith('x-')) delete headers[name];
+      if (name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-')) delete headers[name];
     }
-    const u = new URL(req.query.url);
-    headers.origin = u.origin;
-    let t = new URL(req.headers.referer || req.query.url);
-    t.host = u.host;
-    headers.referer = t.href;
+    const requestedUrl = new URL(req.query.url);
+    headers.origin = requestedUrl.origin;
+    const referrer = new URL(req.headers.referer || req.query.url);
+    referrer.host = requestedUrl.host;
+    headers.referer = referrer.href;
     for (const name in req.query) {
       if (name !== 'url') headers[name] = req.query[name];
     }
@@ -29,7 +29,6 @@ export default async (req, res) => {
           body = req.body;
       }
     }
-    console.log(req.query.url, headers)
     const resp = await fetch(req.query.url, { method: req.method, headers, body });
     res.status(resp.status);
     if (resp.headers.has('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/g, 'text/plain'));
