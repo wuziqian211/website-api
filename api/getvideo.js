@@ -94,7 +94,7 @@ const handler = async (req, res) => {
                     av${json.data.aid}，${utils.encodeHTML(json.data.bvid)}<br />
                     ${json.data.forward ? `<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 本视频已与 <a href="?vid=${utils.toBV(json.data.forward)}">${utils.toBV(json.data.forward)}</a> 撞车</span><br />` : ''}
                     ${json.data.stat.argue_msg ? `<span class="notice system"><img class="notice-icon" alt src="/assets/warning.png" /> ${utils.encodeHTML(json.data.stat.argue_msg)}</span><br />` : ''}
-                    ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}<br />
+                    ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}
                   </div>
                 </div>
                 <strong>分区：</strong>${T[json.data.tid] || utils.encodeHTML(json.data.tname)}<br />
