@@ -404,11 +404,11 @@ const handler = async (req, res) => {
               break;
             case -404:
               res.status(404);
-              sendHTML({ title: '番剧不存在', content: '您想要获取信息的番剧不存在！QAQ', vid: req.query.vid });
+              sendHTML({ title: '剧集不存在', content: '您想要获取信息的剧集不存在！QAQ', vid: req.query.vid });
               break;
             default:
               res.status(400);
-              sendHTML({ title: '获取番剧信息失败', content: '获取番剧信息失败，请稍后重试 awa', vid: req.query.vid });
+              sendHTML({ title: '获取剧集信息失败', content: '获取剧集信息失败，请稍后重试 awa', vid: req.query.vid });
           }
         } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
           if (json.code === 0) {
