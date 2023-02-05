@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => readFileSync(new URL(fileName, import.meta.url));
-const handler = async (req, res) => {
+export default async (req, res) => {
   const startTime = req.__startTime__ || performance.now();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩视频信息（强制获取）', body: `
@@ -20,51 +20,62 @@ const handler = async (req, res) => {
     const headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     if (type === 1) { // 编号为AV号或BV号
       const rjson = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, dt: 2, play_type: 1, csrf: process.env.bili_jct }), headers })).json();
-      if (rjson.code === 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const hjson = await (await fetch('https://api.bilibili.com/x/web-interface/history/cursor?max=0&business=&view_at=0&type=archive&ps=30', { headers })).json();
-        if (hjson.code === 0) {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒
+      const hjson = await (await fetch('https://api.bilibili.com/x/web-interface/history/cursor?max=0&business=&view_at=0&type=archive&ps=30', { headers })).json();
+      if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
+        if (hjson.code === 0 && hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid)) {
           const info = hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid);
-          if (info) {
-            if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
-              const content = `
-                <div class="info">
-                  <div class="wrap">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/"><img class="vpic" alt title="${utils.encodeHTML(info.title)}" src="${utils.toHTTPS(info.cover)}" referrerpolicy="no-referrer" /></a>
-                  </div>
-                  <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/">${utils.encodeHTML(info.title)}</a><br />
-                    av${info.history.oid}，${utils.encodeHTML(info.history.bvid)}<br />
-                    ${info.videos}P
-                  </div>
-                </div>
-                <strong>分区：</strong>${utils.encodeHTML(info.tag_name)}<br />
-                <strong>UP 主：</strong><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${info.author_mid}"><img class="face" alt title="${utils.encodeHTML(info.author_name)}" src="${utils.toHTTPS(info.author_face)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(info.author_name)}</a>`;
-              res.status(200);
-              sendHTML({ title: `${utils.encodeHTML(info.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(info.cover)), content, vid: req.query.vid });
-            } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
-              if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
-                res.status(307).setHeader('Location', utils.toHTTPS(info.cover)).json({ code: 307, data: { url: utils.toHTTPS(info.cover) } });
-              } else {
-                const filename = encodeURIComponent(`${info.title} 的封面.${utils.toHTTPS(info.cover).split('.').at(-1)}`); // 设置封面的文件名
-                const resp = await fetch(utils.toHTTPS(info.cover)); // 获取B站服务器存储的封面
-                if (resp.status === 200) {
-                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
-                } else {
-                  res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
-                }
-              }
-            } else { // 否则，返回JSON
-              res.status(200).json({ code: 0, data: info });
-            }
-          } else {
-            sendHTML({ title: '获取视频信息失败', content: '获取这个视频的信息失败 qwq', vid: req.query.vid });
-          }
+          const content = `
+            <div class="info">
+              <div class="wrap">
+                <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/"><img class="vpic" alt title="${utils.encodeHTML(info.title)}" src="${utils.toHTTPS(info.cover)}" referrerpolicy="no-referrer" /></a>
+              </div>
+              <div>
+                <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/">${utils.encodeHTML(info.title)}</a><br />
+                av${info.history.oid}，${utils.encodeHTML(info.history.bvid)}<br />
+                ${info.videos}P
+              </div>
+            </div>
+            <strong>分区：</strong>${utils.encodeHTML(info.tag_name)}<br />
+            <strong>UP 主：</strong><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${info.author_mid}"><img class="face" alt title="${utils.encodeHTML(info.author_name)}" src="${utils.toHTTPS(info.author_face)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(info.author_name)}</a>
+            ${info.history.page ? `<div class="info">
+              <div>
+                <strong>P${info.history.page}：</strong>
+              </div>
+              <div>
+                <strong>${utils.encodeHTML(info.history.part)}</strong> ${utils.getTime(info.history.duration)}<br />
+                <strong>cid：</strong>${info.history.cid}
+              </div>
+            </div>` : ''}`;
+          res.status(200);
+          sendHTML({ title: `${utils.encodeHTML(info.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(info.cover)), content, vid: req.query.vid });
         } else {
           sendHTML({ title: '获取视频信息失败', content: '获取这个视频的信息失败 qwq', vid: req.query.vid });
         }
-      } else {
-        sendHTML({ title: '获取视频信息失败', content: '获取这个视频的信息失败 qwq', vid: req.query.vid });
+      } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
+        if (hjson.code === 0 && hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid)) {
+          const info = hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid);
+          if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的封面地址
+            res.status(307).setHeader('Location', utils.toHTTPS(info.cover)).json({ code: 307, data: { url: utils.toHTTPS(info.cover) } });
+          } else {
+            const filename = encodeURIComponent(`${info.title} 的封面.${utils.toHTTPS(info.cover).split('.').at(-1)}`); // 设置封面的文件名
+            const resp = await fetch(utils.toHTTPS(info.cover)); // 获取B站服务器存储的封面
+            if (resp.status === 200) {
+              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+            } else {
+              res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
+            }
+          }
+        } else {
+          res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png')); // 返回默认封面
+        }
+      } else { // 否则，返回JSON
+        if (hjson.code === 0 && hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid)) {
+          const info = hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid);
+          res.status(200).json({ code: 0, message: '0', data: { bvid: info.history.bvid, aid: info.history.oid, videos: info.videos, tname: info.tag_name, pic: info.cover, title: info.title, owner: { mid: info.author_mid, name: info.author_name, face: info.author_face }, cid: info.history.page === 1 ? info.history.cid : undefined, pages: [{ cid: info.history.cid, page: info.history.page, part: info.history.part }] } });
+        } else {
+          res.status(404).json({ code: -404, message: '啥都木有' });
+        }
       }
     } else { // 编号无效
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
@@ -90,4 +101,3 @@ const handler = async (req, res) => {
     res.status(500).send(utils.render500(startTime, e));
   }
 };
-export default handler;
