@@ -72,7 +72,7 @@ export default async (req, res) => {
       } else { // 否则，返回JSON
         if (hjson.code === 0 && hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid)) {
           const info = hjson.data.list.find(h => h.history.business === 'archive' && h.history.bvid === vid);
-          res.status(200).json({ code: 0, message: '0', data: { bvid: info.history.bvid, aid: info.history.oid, videos: info.videos, tname: info.tag_name, pic: info.cover, title: info.title, owner: { mid: info.author_mid, name: info.author_name, face: info.author_face }, cid: info.history.page === 1 ? info.history.cid : undefined, pages: [{ cid: info.history.cid, page: info.history.page, part: info.history.part }] } });
+          res.status(200).json({ code: 0, message: '0', data: { bvid: info.history.bvid, aid: info.history.oid, videos: info.videos, tname: info.tag_name, pic: info.cover, title: info.title, owner: { mid: info.author_mid, name: info.author_name, face: info.author_face }, cid: info.history.page === 1 ? info.history.cid : undefined, pages: info.history.page ? [{ cid: info.history.cid, page: info.history.page, part: info.history.part }] : [] } });
         } else {
           res.status(404).json({ code: -404, message: '啥都木有' });
         }
