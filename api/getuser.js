@@ -50,7 +50,8 @@ export default async (req, res) => {
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
                 <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
-                <strong>个性签名：</strong>${utils.encodeHTML(ujson.data.sign)}`;
+                <strong>个性签名：</strong><br />
+                ${utils.encodeHTML(ujson.data.sign)}`;
               const extraStyle = utils.renderExtraStyle(utils.toHTTPS(ujson.data.top_photo)) + (ujson.data.sys_notice?.content ? `
                 ${ujson.data.sys_notice.url ? 'a' : 'span'}.notice.system {${ujson.data.sys_notice.bg_color ? `
                   background: ${ujson.data.sys_notice.bg_color};` : ''}${ujson.data.sys_notice.text_color ? `
@@ -83,7 +84,8 @@ export default async (req, res) => {
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
                 <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
-                <strong>个性签名：</strong>${utils.encodeHTML(cjson.card.sign)}`;
+                <strong>个性签名：</strong><br />
+                ${utils.encodeHTML(cjson.card.sign)}`;
               res.status(200);
               sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, appleTouchIcon: utils.toHTTPS(cjson.card.face), style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
             }
