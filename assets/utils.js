@@ -29,7 +29,7 @@ const renderHTML = data => `
       </footer>
       <script src="/assets/main.js"></script>
     </body>
-  </html>`.replace(/(?: |\n)+/gm, ' ').trim();
+  </html>`.replace(/<br \/>(?: |\n)*(?=<\/)/gm, '').replace(/(?: |\n)+/gm, ' ').trim();
 const render404 = startTime => renderHTML({ startTime, title: 'API 不存在', body: `
   您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa` });
 const render500 = (startTime, error) => {

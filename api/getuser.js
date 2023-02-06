@@ -43,14 +43,14 @@ export default async (req, res) => {
                     <br />
                     ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}${ujson.data.official.desc ? `<span class="description">（${utils.encodeHTML(ujson.data.official.desc)}）` : ''}</span><br />` : ''}
                     ${ujson.data.silence ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span><br />' : ''}
-                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice system"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
-                    <span class="description">${utils.encodeHTML(ujson.data.sign)}</span>
+                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice system"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}>` : ''}
                   </div>
                 </div>
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
-                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
+                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
+                <strong>个性签名：</strong>${utils.encodeHTML(ujson.data.sign)}`;
               const extraStyle = utils.renderExtraStyle(utils.toHTTPS(ujson.data.top_photo)) + (ujson.data.sys_notice?.content ? `
                 ${ujson.data.sys_notice.url ? 'a' : 'span'}.notice.system {${ujson.data.sys_notice.bg_color ? `
                   background: ${ujson.data.sys_notice.bg_color};` : ''}${ujson.data.sys_notice.text_color ? `
@@ -76,14 +76,14 @@ export default async (req, res) => {
                     ${cjson.card.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
                     <br />
                     ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
-                    ${cjson.card.spacesta === -2 ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span><br />' : ''}
-                    <span class="description">${utils.encodeHTML(cjson.card.sign)}</span>
+                    ${cjson.card.spacesta === -2 ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span>' : ''}
                   </div>
                 </div>
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
                 <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
                 <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
-                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
+                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}<br />
+                <strong>个性签名：</strong>${utils.encodeHTML(cjson.card.sign)}`;
               res.status(200);
               sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, appleTouchIcon: utils.toHTTPS(cjson.card.face), style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
             }
