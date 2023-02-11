@@ -38,7 +38,8 @@ export default async (req, res) => {
             </div>
             <strong>分区：</strong>${utils.encodeHTML(info.tag_name)}<br />
             <strong>UP 主：</strong><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${info.author_mid}"><img class="face" alt title="${utils.encodeHTML(info.author_name)}" src="${utils.toHTTPS(info.author_face)}" referrerpolicy="no-referrer" /> ${utils.encodeHTML(info.author_name)}</a>
-            ${info.history.page ? `<div class="info">
+            ${info.history.page ? `
+            <div class="info">
               <div>
                 <strong>P${info.history.page}：</strong>
               </div>
