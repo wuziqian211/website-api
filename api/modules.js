@@ -52,7 +52,7 @@ export default async (req, res) => {
           for (const r of resps) {
             info = info.concat((await r.json()).data);
           }
-          res.status(200).json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" />${[0, 1].includes(u.official.type) ? `<img class="face-icon" src="/images/${u.official.type === 0 ? 'personal' : 'business'}.svg" />` : ''}<p>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
+          res.status(200).json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" />${[0, 1].includes(u.official.type) ? `<img class="face-icon" src="/images/${u.official.type === 0 ? 'personal' : 'business'}.svg" />` : ''}<p${u.vip.status === 2 ? ' color="#fb7299"' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
           break;
         case 'blocked':
           let blocked = '';
