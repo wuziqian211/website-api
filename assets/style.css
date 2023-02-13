@@ -152,6 +152,9 @@ img.notice-icon {
   height: 24px;
   vertical-align: sub;
 }
+img.notice-icon[src] {
+  content: initial;
+}
 table {
   border: 2px solid #09f;
   border-collapse: collapse;
