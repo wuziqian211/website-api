@@ -31,8 +31,8 @@ export default async (req, res) => {
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
                       <img class="face" alt title="${utils.encodeHTML(ujson.data.name)}" src="${utils.toHTTPS(ujson.data.face)}" referrerpolicy="no-referrer" />
                       ${ujson.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(ujson.data.pendant.name)}" src="${utils.toHTTPS(ujson.data.pendant.image_enhance || ujson.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
-                      ${ujson.data.face_nft ? `<img class="face-icon${[0, 1].includes(ujson.data.official.type) || ujson.data.vip.status ? ' second' : ''}" alt title="数字藏品" src="/assets/nft-label.gif" />` : ''}
-                      ${ujson.data.official.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : ujson.data.official.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ujson.data.vip.status ? '<img class="face-icon" alt title="大会员" src="/assets/big-vip.svg" />' : ''}
+                      ${ujson.data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(ujson.data.official.type) || ujson.data.vip.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
+                      ${ujson.data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : ujson.data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : ujson.data.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                     </a>
                   </div>
                   <div>
@@ -41,9 +41,9 @@ export default async (req, res) => {
                     <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${ujson.data.is_senior_member ? '6⚡' : ujson.data.level}" title="${ujson.data.is_senior_member ? '6+' : ujson.data.level} 级" src="/assets/level_${ujson.data.is_senior_member ? '6%2B' : ujson.data.level}.svg" /></a>
                     ${cjson.card.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
                     <br />
-                    ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}${ujson.data.official.desc ? `<span class="description">（${utils.encodeHTML(ujson.data.official.desc)}）` : ''}</span><br />` : ''}
-                    ${ujson.data.silence ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span><br />' : ''}
-                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice system"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}>` : ''}
+                    ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon icon-${ujson.data.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong style="color: #ffc62e;">bilibili UP 主' : 'business" alt title="机构认证" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}${ujson.data.official.desc ? `<span class="description">（${utils.encodeHTML(ujson.data.official.desc)}）` : ''}</span><br />` : ''}
+                    ${ujson.data.silence ? '<span class="notice"><img class="notice-icon" alt /> 该账号封禁中</span><br />' : ''}
+                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice system"'}><img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}>` : ''}
                   </div>
                 </div>
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
@@ -67,7 +67,7 @@ export default async (req, res) => {
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
                       <img class="face" alt title="${utils.encodeHTML(cjson.card.name)}" src="${utils.toHTTPS(cjson.card.face)}" referrerpolicy="no-referrer" />
                       ${cjson.card.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(cjson.card.pendant.name)}" src="${utils.toHTTPS(cjson.card.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
-                      ${cjson.card.official_verify.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : cjson.card.official_verify.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ''}
+                      ${cjson.card.official_verify.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : cjson.card.official_verify.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : ''}
                     </a>
                   </div>
                   <div>
@@ -76,8 +76,8 @@ export default async (req, res) => {
                     <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${cjson.card.level_info.current_level}" title="${cjson.card.level_info.current_level} 级" src="/assets/level_${cjson.card.level_info.current_level}.svg" /></a>
                     ${cjson.card.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
                     <br />
-                    ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
-                    ${cjson.card.spacesta === -2 ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span>' : ''}
+                    ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon icon-${cjson.card.official_verify.type === 0 ? 'personal" alt title="UP 主认证" /> <strong style="color: #ffc62e;">bilibili UP 主' : 'business" alt title="机构认证" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
+                    ${cjson.card.spacesta === -2 ? '<span class="notice"><img class="notice-icon" alt /> 该账号封禁中</span>' : ''}
                   </div>
                 </div>
                 <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />

@@ -1,5 +1,5 @@
 * {
-  font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   overflow-wrap: break-word;
   text-align: justify;
   transition: all 0.5s;
@@ -63,6 +63,18 @@ div.wrap {
 img {
   vertical-align: middle;
 }
+img.icon-personal {
+  content: url(/assets/personal.svg);
+}
+img.icon-business {
+  content: url(/assets/business.svg);
+}
+img.icon-big-vip {
+  content: url(/assets/big-vip.svg);
+}
+img.icon-face-nft {
+  content: url(/assets/nft-label.gif);
+}
 img.face {
   border-radius: 50%;
   height: 60px;
@@ -94,10 +106,10 @@ div.wrap.has-frame img.face-icon {
 div.wrap.has-frame img.face-icon.second {
   right: 35px;
 }
-a, strong, th, label, input[type="submit"] {
+a, strong, th, label, input[type='submit'] {
   color: #09f;
 }
-a:hover, input[type="submit"]:hover {
+a:hover, input[type='submit']:hover {
   color: #3bf;
 }
 a {
@@ -136,6 +148,7 @@ span.notice, a.notice {
   padding: 2.5px;
 }
 img.notice-icon {
+  content: url(/assets/warning.png);
   height: 24px;
   vertical-align: sub;
 }
@@ -171,20 +184,20 @@ input {
   height: 20px;
 }
 input:hover {
-  background: #ffffff80;
+  background: #fff6;
   border-color: #3bf;
 }
-input[type="text"]:focus, input[type="number"]:focus {
-  background: #ffffff80;
+input[type='text']:focus, input[type='number']:focus {
+  background: #fff6;
 }
-input[type="submit"]:active {
-  background: #dddddd80;
+input[type='submit']:active {
+  background: #ddd6;
 }
 pre {
   background: #222;
   border-radius: 10px;
   color: #f66;
-  font-family: consolas, Menlo, monospace, "PingFang SC", "Microsoft YaHei";
+  font-family: consolas, Menlo, monospace, 'PingFang SC', 'Microsoft YaHei';
   font-size: 16px;
   overflow: auto;
   padding: 10px;
@@ -222,10 +235,19 @@ footer {
   span.description, footer {
     color: #999;
   }
-  a, strong, th, label, input[type="submit"] {
+  img.icon-personal {
+    content: url(/assets/personal_dark.svg);
+  }
+  img.icon-business {
+    content: url(/assets/business_dark.svg);
+  }
+  img.icon-big-vip {
+    content: url(/assets/big-vip_dark.svg);
+  }
+  a, strong, th, label, input[type='submit'] {
     color: #08e;
   }
-  a:hover, input[type="submit"]:hover {
+  a:hover, input[type='submit']:hover {
     color: #3ae;
   }
   a {
@@ -240,14 +262,14 @@ footer {
   table, th, td, input {
     border-color: #08e;
   }
-  input:hover, input[type="text"]:focus, input[type="number"]:focus {
-    background: #22222280;
+  input:hover, input[type='text']:focus, input[type='number']:focus {
+    background: #2226;
   }
   input:hover {
     border-color: #3ae;
   }
-  input[type="submit"]:active {
-    background: #00000080;
+  input[type='submit']:active {
+    background: #0006;
   }
 }
 
