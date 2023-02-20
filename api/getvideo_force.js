@@ -32,7 +32,7 @@ export default async (req, res) => {
               </div>
               <div>
                 <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/">${utils.encodeHTML(info.title)}</a><br />
-                av${info.history.oid}，${utils.encodeHTML(info.history.bvid)}<br />
+                <span class="description">av${info.history.oid}，${utils.encodeHTML(info.history.bvid)}</span><br />
                 ${info.videos}P
               </div>
             </div>
