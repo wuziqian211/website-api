@@ -62,7 +62,7 @@ export default async (req, res) => {
             const filename = encodeURIComponent(`${info.title} 的封面.${utils.toHTTPS(info.cover).split('.').at(-1)}`); // 设置封面的文件名
             const resp = await fetch(utils.toHTTPS(info.cover)); // 获取B站服务器存储的封面
             if (resp.status === 200) {
-              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
             }

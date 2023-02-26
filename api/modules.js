@@ -15,7 +15,7 @@ export default async (req, res) => {
     } else {
       switch (req.query.id) {
         case 'token':
-          res.status(200).json({ code: 0, data: { token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU=' } });
+          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').json({ code: 0, data: { token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU=' } });
           break;
         case 'friends':
           let users = [
@@ -51,24 +51,7 @@ export default async (req, res) => {
           if (req.headers['x-vercel-ip-country'] === 'CN') {
             blocked = '^(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net)$';
           }
-          res.status(200).json({ code: 0, data: { blocked } });
-          break;
-        case 'update':
-          if (/^\d+$/.test(req.query.version) && parseInt(req.query.version) > 0) {
-            switch (req.query.name) {
-              case 'bat':
-                if (parseInt(req.query.version) < 6) {
-                  res.status(200).json({ code: 0, data: { new: 1, version: '1.0.1', build: 6, update_content: '1. 优化了用户信息的界面，添加了硬币数、经验值与经验条；\n2. 优化了注册表数据结构，将原来多个注册项合并到一个项；\n3. 添加了选择、执行任务，并附带任务状态与执行结果报告；\n4. 优化了程序的多处细节，修复程序已知崩溃与逻辑等问题。', size: 500000, url: 'https://wuziqian211.gitee.io/biliautotask/release/bili-auto-task%20v1.0.1.6.exe', sha256: '' } });
-                } else {
-                  res.status(200).json({ code: 0, data: { new: 0 } });
-                }
-                break;
-              default:
-                res.status(400).json({ code: -400 });
-            }
-          } else {
-            res.status(400).json({ code: -400 });
-          }
+          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').json({ code: 0, data: { blocked } });
           break;
         default:
           res.status(400).json({ code: -400 });

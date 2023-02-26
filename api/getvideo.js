@@ -52,7 +52,7 @@ const handler = async (req, res) => {
             const filename = encodeURIComponent(`${json.data.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
             const resp = await fetch(url, { headers });
             if (resp.ok) {
-              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
                 res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
@@ -186,7 +186,7 @@ const handler = async (req, res) => {
                 const filename = encodeURIComponent(`${json.data.title} 的封面.${utils.toHTTPS(json.data.pic).split('.').at(-1)}`); // 设置封面的文件名
                 const resp = await fetch(utils.toHTTPS(json.data.pic)); // 获取B站服务器存储的封面
                 if (resp.status === 200) {
-                  res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+                  res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
                 } else {
                   res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
                 }
@@ -268,7 +268,7 @@ const handler = async (req, res) => {
             const filename = encodeURIComponent(`${json.result.media.title} 的封面.${utils.toHTTPS(json.result.media.cover).split('.').at(-1)}`); // 设置封面的文件名
             const resp = await fetch(utils.toHTTPS(json.result.media.cover)); // 获取B站服务器存储的封面
             if (resp.status === 200) {
-              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
             }
@@ -336,7 +336,7 @@ const handler = async (req, res) => {
             const filename = encodeURIComponent(`${json.result.title}.${t.slice(t.lastIndexOf('.') + 1)}`); // 设置视频的文件名
             const resp = await fetch(url, { headers });
             if (resp.ok) {
-              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
                 res.status(200).setHeader('Content-Type', 'video/mp4').send(file('../assets/error.mp4'));
@@ -418,7 +418,7 @@ const handler = async (req, res) => {
               const filename = encodeURIComponent(`${json.result.title} 的封面.${utils.toHTTPS(json.result.cover).split('.').at(-1)}`); // 设置封面的文件名
               const resp = await fetch(utils.toHTTPS(json.result.cover)); // 获取B站服务器存储的封面
               if (resp.status === 200) {
-                res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+                res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
               } else {
                 res.status(404).setHeader('Content-Type', 'image/png').send(file('../assets/nocover.png'));
               }
