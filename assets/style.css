@@ -1,9 +1,9 @@
 * {
   font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
   text-align: justify;
   transition: all 0.5s;
-  word-break: break-word;
+  word-break: normal;
 }
 ::selection {
   background: #333;
