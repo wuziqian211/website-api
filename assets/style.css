@@ -164,6 +164,9 @@ table {
   max-width: max-content;
   overflow: auto;
 }
+table * {
+  overflow-wrap: break-word;
+}
 th, td {
   padding: 8px;
   text-align: center;
