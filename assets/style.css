@@ -3,7 +3,6 @@
   overflow-wrap: anywhere;
   text-align: justify;
   transition: all 0.5s;
-  word-break: normal;
 }
 ::selection {
   background: #333;
