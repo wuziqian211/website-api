@@ -236,6 +236,7 @@ footer {
     color-scheme: dark;
   }
   * {
+    animation: none;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     text-align: center;
