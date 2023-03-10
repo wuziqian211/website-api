@@ -85,7 +85,7 @@ div.wrap.has-frame img.face {
 }
 div.wrap.has-frame img.face-frame {
   height: 90px;
-  left: 0;
+  left: calc(50% - 45px);
   position: absolute;
   top: 0;
 }
