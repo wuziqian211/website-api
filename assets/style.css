@@ -1,9 +1,11 @@
 * {
   font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  max-width: 100%;
   overflow-wrap: anywhere;
   text-align: justify;
   transition: all 0.5s;
+}
+:not(img) {
+  max-width: 100%;
 }
 ::selection {
   background: #333;
@@ -258,8 +260,44 @@ footer {
   div.info {
     display: inherit;
   }
-  img {
-    max-width: 100% !important;
+  img.face {
+    height: 40px;
+  }
+  div.wrap.has-frame img.face {
+    height: 34px;
+    padding: 13px;
+  }
+  div.wrap.has-frame img.face-frame {
+    height: 60px;
+    left: calc(50% - 30px);
+  }
+  div.wrap img.face-icon {
+    height: 12px;
+    left: calc(50% + 9px);
+    top: calc(50% + 9px);
+  }
+  div.wrap img.face-icon.second {
+    left: calc(50% - 2px);
+  }
+  div.wrap.has-frame img.face-icon {
+    left: calc(50% + 6px);
+    top: calc(50% + 6px);
+  }
+  div.wrap.has-frame img.face-icon.second {
+    left: calc(50% - 5px);
+  }
+  img.sex {
+    height: 25px;
+  }
+  img.level, img.official-icon {
+    height: 20px;
+  }
+  img.vpic, img.spic {
+    height: 100%;
+    max-width: 100%;
+  }
+  img.notice-icon {
+    height: 20px;
   }
 }
 @media (max-width: 240px), (prefers-color-scheme: dark) {
