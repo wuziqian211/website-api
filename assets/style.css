@@ -266,7 +266,7 @@ footer {
   img.level, img.official-icon {
     height: 20px;
   }
-  img.vpic, img.spic {
+  img.vpic, img.spic, img.ppic {
     height: auto;
     max-width: 100%;
   }
