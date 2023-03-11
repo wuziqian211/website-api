@@ -235,7 +235,7 @@ footer {
     width: auto;
   }
 }
-@media (max-width: 240px) {
+@media (max-width: 359px) {
   :root {
     color-scheme: dark;
   }
@@ -260,32 +260,6 @@ footer {
   div.info {
     display: inherit;
   }
-  img.face {
-    height: 40px;
-  }
-  div.wrap.has-frame img.face {
-    height: 34px;
-    padding: 13px;
-  }
-  div.wrap.has-frame img.face-frame {
-    height: 60px;
-    left: calc(50% - 30px);
-  }
-  div.wrap img.face-icon {
-    height: 12px;
-    left: calc(50% + 9px);
-    top: calc(50% + 9px);
-  }
-  div.wrap img.face-icon.second {
-    left: calc(50% - 2px);
-  }
-  div.wrap.has-frame img.face-icon {
-    left: calc(50% + 6px);
-    top: calc(50% + 6px);
-  }
-  div.wrap.has-frame img.face-icon.second {
-    left: calc(50% - 5px);
-  }
   img.sex {
     height: 25px;
   }
@@ -293,14 +267,14 @@ footer {
     height: 20px;
   }
   img.vpic, img.spic {
-    height: 100%;
+    height: auto;
     max-width: 100%;
   }
   img.notice-icon {
     height: 20px;
   }
 }
-@media (max-width: 240px), (prefers-color-scheme: dark) {
+@media (max-width: 359px), (prefers-color-scheme: dark) {
   body {
     color: #ccc;
   }
