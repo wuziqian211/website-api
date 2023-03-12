@@ -427,22 +427,19 @@ const handler = async (req, res) => {
                 <strong>正片：</strong>
                 ${json.result.episodes.map(p => `
                 <div class="info">
-                  <strong>${utils.encodeHTML(p.title)}：</strong>
-                  <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}<br />
-                    <strong>发布时间：</strong>${utils.getDate(p.pub_time)}；<strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>
-                  </div>
+                  <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}<br />
+                  <strong>发布时间：</strong>${utils.getDate(p.pub_time)}
+                  <strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>
                 </div>`).join('')}
                 ${json.result.section ? `
                 ${json.result.section.map(s => `
                 <strong>${utils.encodeHTML(s.title)}：</strong>
                 ${s.episodes.map(p => `
                 <div class="info">
-                  <strong>${utils.encodeHTML(p.title)}：</strong>
-                  <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="${p.status === 0 ? `?vid=${p.link.slice(p.link.lastIndexOf('/') + 1)}` : `https://www.bilibili.com/bangumi/play/ep${p.id}`}">${utils.encodeHTML(p.long_title)}</strong>${p.status === 0 ? '' : ` ${utils.getTime(p.duration / 1000)}`}<br />
-                    ${p.status === 0 ? '' : `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}；<strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>`}
-                  </div>
+                  <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="${p.status === 0 ? `?vid=${p.link.slice(p.link.lastIndexOf('/') + 1)}` : `https://www.bilibili.com/bangumi/play/ep${p.id}`}">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</a>${p.status === 0 ? '' : ` ${utils.getTime(p.duration / 1000)}`}<br />
+                  ${p.status === 0 ? '' : `
+                  <strong>发布时间：</strong>${utils.getDate(p.pub_time)}
+                  <strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>`}
                 </div>`).join('')}`).join('')}` : ''}
                 <strong>简介：</strong><br />
                 ${utils.encodeHTML(json.result.evaluate)}`;
