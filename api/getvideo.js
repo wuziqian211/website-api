@@ -18,7 +18,7 @@ const handler = async (req, res) => {
     const accept = utils.getAccept(req);
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     let headers;
-    if (req.query.cookie === 'true') {
+    if (req.query.cookie === 'true' || req.query.force != undefined) {
       headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     } else {
       headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };

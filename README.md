@@ -26,6 +26,7 @@
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/[1-5]-22.jpg, assets/[1-6]-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/big-vip.svg, assets/business.svg, assets/nft_label.gif, assets/personal.svg | 哔哩哔哩大会员、机构认证、数字藏品头像与 UP 主认证图标 |
+| assets/big-vip_dark.svg, assets/business_dark.svg, assets/personal_dark.svg | 深色模式下的哔哩哔哩大会员、机构认证与 UP 主认证图标 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就返回本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
 | assets/level_[0-6].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
@@ -87,6 +88,7 @@
 | allow_redirect | 如果存在本参数，且满足 “返回图片数据” 的条件，那么获取封面数据时可能会重定向到 B 站服务器的封面地址。 |
 | type | 如果本参数的值为 `data`，则返回视频数据（如果参数 “vid” 是前缀为 `md` 的剧集编号，则暂不支持获取视频数据），否则返回视频信息。 |
 | cookie | 如果本参数的值为 `true`，则强制带 Cookie 获取信息（需要设置环境变量 `SESSDATA` 与 `bili_jct`）；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。 |
+| force | 如果存在本参数，并且是通过 AV 号或 BV 号获取视频信息的，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在。 |
 
 其中，“cid” 与 “p” **只能在获取数据时填写，且只能填写其中一个**，如果不填，默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
 
