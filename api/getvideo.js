@@ -24,7 +24,29 @@ const handler = async (req, res) => {
       headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     }
     if (type === 1) { // 编号为AV号或BV号
-      const json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
+      const zones = { 1: '动画', 3: '音乐', 4: '游戏', 5: '娱乐', 11: '电视剧', 13: '番剧', 17: '游戏|单机游戏', 19: '游戏|Mugen', 20: '舞蹈|宅舞', 21: '生活|日常', 22: '鬼畜|鬼畜调教', 23: '电影', 24: '动画|MAD·AMV', 25: '动画|MMD·3D', 26: '鬼畜|音MAD', 27: '动画|综合', 28: '音乐|原创音乐', 29: '音乐|三次元音乐', 30: '音乐|VOCALOID·UTAU', 31: '音乐|翻唱', 32: '番剧|完结动画', 33: '番剧|连载动画', 36: '知识', 37: '纪录片|人文·历史', 47: '动画|短片·手书·配音', 51: '番剧|资讯', 59: '音乐|演奏', 65: '游戏|网络游戏', 71: '娱乐|综艺', 75: '动物圈|动物综合', 76: '美食|美食制作', 83: '电影|其他国家', 85: '影视|小剧场', 86: '动画|特摄', 95: '科技|数码', 119: '鬼畜', 121: '游戏|GMV', 122: '知识|野生技能协会', 124: '知识|社科·法律·心理', 126: '鬼畜|人力VOCALOID', 127: '鬼畜|教程演示', 129: '舞蹈', 130: '音乐|音乐综合', 136: '游戏|音游', 137: '娱乐|明星综合', 138: '生活|搞笑', 145: '电影|欧美电影', 146: '电影|日本电影', 147: '电影|华语电影', 152: '番剧|官方延伸', 153: '国创|国产动画', 154: '舞蹈|舞蹈综合', 155: '时尚', 156: '舞蹈|舞蹈教程', 157: '时尚|美妆护肤', 158: '时尚|穿搭', 159: '时尚|时尚潮流', 160: '生活', 161: '生活|手工', 162: '生活|绘画', 164: '运动|健身', 167: '国创', 168: '国创|国产原创相关', 169: '国创|布袋戏', 170: '国创|资讯', 171: '游戏|电子竞技', 172: '游戏|手机游戏', 173: '游戏|桌游棋牌', 176: '汽车|汽车生活', 177: '纪录片', 178: '纪录片|科学·探索·自然', 179: '纪录片|军事', 180: '纪录片|社会·美食·旅行', 181: '影视', 182: '影视|影视杂谈', 183: '影视|影视剪辑', 184: '影视|预告·资讯', 185: '电视剧|国产剧', 187: '电视剧|海外剧', 188: '科技', 193: '音乐|MV', 195: '国创|动态漫·广播剧', 198: '舞蹈|街舞', 199: '舞蹈|明星舞蹈', 200: '舞蹈|中国舞', 201: '知识|科学科普', 202: '资讯', 203: '资讯|热点', 204: '资讯|环球', 205: '资讯|社会', 206: '资讯|综合', 207: '知识|财经商业', 208: '知识|校园学习', 209: '知识|职业职场', 210: '动画|手办·模玩', 211: '美食', 212: '美食|美食侦探', 213: '美食|美食测评', 214: '美食|田园美食', 215: '美食|美食记录', 216: '鬼畜|鬼畜剧场', 217: '动物圈', 218: '动物圈|喵星人', 219: '动物圈|汪星人', 220: '动物圈|大熊猫', 221: '动物圈|野生动物', 222: '动物圈|爬宠', 223: '汽车', 227: '汽车|购车攻略', 228: '知识|人文历史', 229: '知识|设计创意', 230: '科技|软件应用', 231: '科技|计算机技术', 232: '科技|科工机械', 233: '科技|极客DIY', 234: '运动', 235: '运动|篮球', 236: '运动|竞技体育', 237: '运动|运动文化', 238: '运动|运动综合', 239: '生活|家居房产', 240: '汽车|摩托车', 241: '娱乐|娱乐杂谈', 242: '娱乐|粉丝创作', 243: '音乐|乐评盘点', 244: '音乐|音乐教学', 245: '汽车|赛车', 246: '汽车|改装玩车', 247: '汽车|新能源车', 248: '汽车|房车', 249: '运动|足球', 250: '生活|出行', 251: '生活|三农', 252: '时尚|仿妆cos', 253: '动画|动漫杂谈' }; // 来自https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md
+      let json;
+      if (req.query.force != undefined) {
+        const rjson = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, dt: 2, play_type: 1, csrf: process.env.bili_jct }), headers })).json();
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒
+        const hjson = await (await fetch('https://api.bilibili.com/x/web-interface/history/cursor?max=0&business=&view_at=0&type=archive&ps=30', { headers })).json();
+        const info = hjson.data?.list.find(h => h.history.business === 'archive' && h.history.bvid === vid);
+        if (hjson.code === 0 && info) {
+          let tid = null;
+          for (const z in zones) {
+            const zone = zones[z].split('|');
+            if ((zone[1] && zone[1] === info.tag_name) || zone[0] === info.tag_name) {
+              tid = parseInt(z);
+              break;
+            }
+          }
+          json = { code: 0, message: '0', data: { bvid: info.history.bvid, aid: info.history.oid, videos: info.videos, tid, tname: info.tag_name, copyright: null, pic: info.cover, title: info.title, pubdate: null, ctime: null, desc: '-', desc_v2: null, state: null, duration: null, rights: null, owner: { mid: info.author_mid, name: info.author_name, face: info.author_face }, stat: { aid: info.history.oid, view: -1, danmaku: -1, reply: -1, favorite: -1, coin: -1, share: -1, now_rank: 0, his_rank: 0, like: -1, dislike: 0, evaluation: '', argue_msg: '' }, dynamic: '', cid: info.history.page === 1 ? info.history.cid : null, dimension: null, premiere: null, pages: info.history.page ? [{ cid: info.history.cid, page: info.history.page, from: 'vupload', part: info.history.part, duration: null, vid: '', weblink: '', dimension: null }] : [] }, subtitle: null, honor_reply: null, need_jump_bv: false };
+        } else {
+          json = { code: -404, message: '啥都木有' };
+        }
+      } else {
+        json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
+      }
       if (req.query.type === 'data') { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
@@ -83,7 +105,6 @@ const handler = async (req, res) => {
         if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
           switch (json.code) {
             case 0:
-              const T = { 1: '动画', 3: '音乐', 4: '游戏', 5: '娱乐', 11: '电视剧', 13: '番剧', 17: '游戏 &gt; 单机游戏', 19: '游戏 &gt; Mugen', 20: '舞蹈 &gt; 宅舞', 21: '生活 &gt; 日常', 22: '鬼畜 &gt; 鬼畜调教', 23: '电影', 24: '动画 &gt; MAD·AMV', 25: '动画 &gt; MMD·3D', 26: '鬼畜 &gt; 音MAD', 27: '动画 &gt; 综合', 28: '音乐 &gt; 原创音乐', 29: '音乐 &gt; 三次元音乐', 30: '音乐 &gt; VOCALOID·UTAU', 31: '音乐 &gt; 翻唱', 32: '番剧 &gt; 完结动画', 33: '番剧 &gt; 连载动画', 36: '知识', 37: '纪录片 &gt; 人文·历史', 47: '动画 &gt; 短片·手书·配音', 51: '番剧 &gt; 资讯', 59: '音乐 &gt; 演奏', 65: '游戏 &gt; 网络游戏', 71: '娱乐 &gt; 综艺', 75: '动物圈 &gt; 动物综合', 76: '美食 &gt; 美食制作', 83: '电影 &gt; 其他国家', 85: '影视 &gt; 小剧场', 86: '动画 &gt; 特摄', 95: '科技 &gt; 数码', 119: '鬼畜', 121: '游戏 &gt; GMV', 122: '知识 &gt; 野生技能协会', 124: '知识 &gt; 社科·法律·心理', 126: '鬼畜 &gt; 人力VOCALOID', 127: '鬼畜 &gt; 教程演示', 129: '舞蹈', 130: '音乐 &gt; 音乐综合', 136: '游戏 &gt; 音游', 137: '娱乐 &gt; 明星综合', 138: '生活 &gt; 搞笑', 145: '电影 &gt; 欧美电影', 146: '电影 &gt; 日本电影', 147: '电影 &gt; 华语电影', 152: '番剧 &gt; 官方延伸', 153: '国创 &gt; 国产动画', 154: '舞蹈 &gt; 舞蹈综合', 155: '时尚', 156: '舞蹈 &gt; 舞蹈教程', 157: '时尚 &gt; 美妆护肤', 158: '时尚 &gt; 穿搭', 159: '时尚 &gt; 时尚潮流', 160: '生活', 161: '生活 &gt; 手工', 162: '生活 &gt; 绘画', 164: '运动 &gt; 健身', 167: '国创', 168: '国创 &gt; 国产原创相关', 169: '国创 &gt; 布袋戏', 170: '国创 &gt; 资讯', 171: '游戏 &gt; 电子竞技', 172: '游戏 &gt; 手机游戏', 173: '游戏 &gt; 桌游棋牌', 176: '汽车 &gt; 汽车生活', 177: '纪录片', 178: '纪录片 &gt; 科学·探索·自然', 179: '纪录片 &gt; 军事', 180: '纪录片 &gt; 社会·美食·旅行', 181: '影视', 182: '影视 &gt; 影视杂谈', 183: '影视 &gt; 影视剪辑', 184: '影视 &gt; 预告·资讯', 185: '电视剧 &gt; 国产剧', 187: '电视剧 &gt; 海外剧', 188: '科技', 193: '音乐 &gt; MV', 195: '国创 &gt; 动态漫·广播剧', 198: '舞蹈 &gt; 街舞', 199: '舞蹈 &gt; 明星舞蹈', 200: '舞蹈 &gt; 中国舞', 201: '知识 &gt; 科学科普', 202: '资讯', 203: '资讯 &gt; 热点', 204: '资讯 &gt; 环球', 205: '资讯 &gt; 社会', 206: '资讯 &gt; 综合', 207: '知识 &gt; 财经商业', 208: '知识 &gt; 校园学习', 209: '知识 &gt; 职业职场', 210: '动画 &gt; 手办·模玩', 211: '美食', 212: '美食 &gt; 美食侦探', 213: '美食 &gt; 美食测评', 214: '美食 &gt; 田园美食', 215: '美食 &gt; 美食记录', 216: '鬼畜 &gt; 鬼畜剧场', 217: '动物圈', 218: '动物圈 &gt; 喵星人', 219: '动物圈 &gt; 汪星人', 220: '动物圈 &gt; 大熊猫', 221: '动物圈 &gt; 野生动物', 222: '动物圈 &gt; 爬宠', 223: '汽车', 227: '汽车 &gt; 购车攻略', 228: '知识 &gt; 人文历史', 229: '知识 &gt; 设计创意', 230: '科技 &gt; 软件应用', 231: '科技 &gt; 计算机技术', 232: '科技 &gt; 科工机械', 233: '科技 &gt; 极客DIY', 234: '运动', 235: '运动 &gt; 篮球', 236: '运动 &gt; 竞技体育', 237: '运动 &gt; 运动文化', 238: '运动 &gt; 运动综合', 239: '生活 &gt; 家居房产', 240: '汽车 &gt; 摩托车', 241: '娱乐 &gt; 娱乐杂谈', 242: '娱乐 &gt; 粉丝创作', 243: '音乐 &gt; 乐评盘点', 244: '音乐 &gt; 音乐教学', 245: '汽车 &gt; 赛车', 246: '汽车 &gt; 改装玩车', 247: '汽车 &gt; 新能源车', 248: '汽车 &gt; 房车', 249: '运动 &gt; 足球', 250: '生活 &gt; 出行', 251: '生活 &gt; 三农', 252: '时尚 &gt; 仿妆cos', 253: '动画 &gt; 动漫杂谈' }; // 来自https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md
               const content = `
                 <div class="info">
                   <div class="wrap">
@@ -94,10 +115,10 @@ const handler = async (req, res) => {
                     <span class="description">av${json.data.aid}，${utils.encodeHTML(json.data.bvid)}</span><br />
                     ${json.data.forward ? `<span class="notice"><img class="notice-icon" alt /> 本视频已与 <a href="?vid=${utils.toBV(json.data.forward)}">${utils.toBV(json.data.forward)}</a> 撞车</span><br />` : ''}
                     ${json.data.stat.argue_msg ? `<span class="notice"><img class="notice-icon" alt /> ${utils.encodeHTML(json.data.stat.argue_msg)}</span><br />` : ''}
-                    ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : '转载'}${json.data.rights.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}
+                    ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : json.data.copyright === 2 ? '转载' : ''}${json.data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}
                   </div>
                 </div>
-                <strong>分区：</strong>${T[json.data.tid] || utils.encodeHTML(json.data.tname)}<br />
+                <strong>分区：</strong>${zones[json.data.tid].replace(/\|/g, ' &gt; ') || utils.encodeHTML(json.data.tname)}<br />
                 <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span></s><br />
                 <strong>发布时间：</strong>${utils.getDate(json.data.pubdate)}
                 <table>
@@ -108,7 +129,7 @@ const handler = async (req, res) => {
                     <tr><td>${utils.getNumber(json.data.stat.view)}</td><td>${utils.getNumber(json.data.stat.danmaku)}</td><td>${utils.getNumber(json.data.stat.reply)}</td><td>${utils.getNumber(json.data.stat.like)}</td><td>${utils.getNumber(json.data.stat.coin)}</td><td>${utils.getNumber(json.data.stat.favorite)}</td><td>${utils.getNumber(json.data.stat.share)}</td></tr>
                   </tbody>
                 </table>
-                ${json.data.rights.is_cooperation ? `
+                ${json.data.rights?.is_cooperation ? `
                 <strong>合作成员：</strong>
                 ${json.data.staff.map(u => `
                 <div class="info">
@@ -403,12 +424,26 @@ const handler = async (req, res) => {
                     <strong>粉丝数：</strong>${utils.getNumber(json.result.up_info.follower)}
                   </div>
                 </div>` : ''}
-                <strong>正片：</strong><br />
-                ${json.result.episodes.map(p => `<strong>${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong>cid：</strong>${p.cid}，<strong>发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`).join('<br />')}<br />
+                <strong>正片：</strong>
+                ${json.result.episodes.map(p => `
+                <div class="info">
+                  <strong>${utils.encodeHTML(p.title)}：</strong>
+                  <div>
+                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}<br />
+                    <strong>发布时间：</strong>${utils.getDate(p.pub_time)}；<strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>
+                  </div>
+                </div>`).join('')}
                 ${json.result.section ? `
                 ${json.result.section.map(s => `
-                <strong>${utils.encodeHTML(s.title)}：</strong><br />
-                ${s.episodes.map(p => `<strong>${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</strong>${p.status === 0 ? `（<a href="?vid=${p.link.slice(p.link.lastIndexOf('/') + 1)}">${p.link.slice(p.link.lastIndexOf('/') + 1)}</a>）` : `（<a href="?vid=${p.bvid}">${p.bvid}</a>，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>，<strong>cid：</strong>${p.cid}，<strong>发布时间：</strong>${utils.getDate(p.pub_time)}） ${utils.getTime(p.duration / 1000)}`}`).join('<br />')}`).join('<br />')}<br />` : ''}
+                <strong>${utils.encodeHTML(s.title)}：</strong>
+                ${s.episodes.map(p => `
+                <div class="info">
+                  <strong>${utils.encodeHTML(p.title)}：</strong>
+                  <div>
+                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="${p.status === 0 ? `?vid=${p.link.slice(p.link.lastIndexOf('/') + 1)}` : `https://www.bilibili.com/bangumi/play/ep${p.id}`}">${utils.encodeHTML(p.long_title)}</strong>${p.status === 0 ? '' : ` ${utils.getTime(p.duration / 1000)}`}<br />
+                    ${p.status === 0 ? '' : `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}；<strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>`}
+                  </div>
+                </div>`).join('')}`).join('')}` : ''}
                 <strong>简介：</strong><br />
                 ${utils.encodeHTML(json.result.evaluate)}`;
               res.status(200);
