@@ -1,7 +1,7 @@
 'use strict';
 
 // From pjax.js - https://github.com/MoOx/pjax
-const isLoadAvailable = url => new URL(url, window.location.href).origin === window.location.origin;
+const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
 const replacePage = text => {
   const html = new DOMParser().parseFromString(text, 'text/html');
   ['title', 'style.extra', 'div.header span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
@@ -19,13 +19,15 @@ const bindLoad = () => {
   });
   document.querySelectorAll('form').forEach(form => {
     form.onsubmit = event => {
-      const params = new URLSearchParams();
+      const url = new URL(form.action, window.location);
+      const params = new URLSearchParams(url.search);
       for (const e of form.elements) {
         if (e.tagName.toLowerCase() === 'input' && e.type !== 'submit') {
-          params.append(e.name, e.value);
+          params.set(e.name, e.value);
         }
       }
-      load(`${form.getAttribute('action') || ''}?${params.toString()}`, event);
+      url.search = params;
+      load(url, event);
     };
   });
 };
