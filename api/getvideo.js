@@ -118,7 +118,7 @@ const handler = async (req, res) => {
                     ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : json.data.copyright === 2 ? '转载' : ''}${json.data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}
                   </div>
                 </div>
-                <strong>分区：</strong>${zones[json.data.tid].replace(/\|/g, ' &gt; ') || utils.encodeHTML(json.data.tname)}<br />
+                <strong>分区：</strong>${zones[json.data.tid]?.replace(/\|/g, ' &gt; ') || utils.encodeHTML(json.data.tname)}<br />
                 <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span></s><br />
                 <strong>发布时间：</strong>${utils.getDate(json.data.pubdate)}
                 <table>
