@@ -59,6 +59,9 @@ div.info {
   display: flex;
   margin: 0 0 5px;
 }
+div.info > strong, table * {
+  overflow-wrap: break-word;
+}
 div.wrap {
   margin: 0 5px 0 0;
   position: relative;
@@ -166,9 +169,6 @@ table {
   margin: 10px 0;
   max-width: max-content;
   overflow: auto;
-}
-table * {
-  overflow-wrap: break-word;
 }
 th, td {
   padding: 8px;
