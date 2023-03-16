@@ -35,11 +35,8 @@ div.header {
   width: 1200px;
 }
 div.header > div.left {
-  flex: 0%;
+  flex: 1;
   font-size: 24px;
-}
-div.header > div.center {
-  flex: auto;
 }
 span.description {
   color: #777;
@@ -237,7 +234,7 @@ footer {
   div.header > div.left {
     text-align: center;
   }
-  div.header > div.left > span.description, div.header > div.center, div.header > div.right {
+  div.header > div.left > span.description, div.header > div.right {
     display: none;
   }
   main {

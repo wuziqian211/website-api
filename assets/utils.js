@@ -18,7 +18,6 @@ const renderHTML = data => `
       <header>
         <div class="header">
           <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc || '一个简单的 API 页面'}</span></div>
-          <div class="center"></div>
           <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/">查看使用说明</a> <a href="https://yumeharu.top/">返回主站</a></div>
         </div>
       </header>
