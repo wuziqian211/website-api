@@ -28,15 +28,23 @@ header {
   z-index: 10;
 }
 div.header {
-  font-size: 24px;
+  align-items: center;
+  display: flex;
   margin: 0 auto;
   padding: 15px 0;
   width: 1200px;
 }
+div.header > div.left {
+  flex: 0%;
+  font-size: 24px;
+}
+div.header > div.center {
+  flex: auto;
+}
 span.description {
   color: #777;
 }
-div.header span.description {
+div.header > div.left > span.description {
   font-size: 14px;
 }
 main {
@@ -85,31 +93,31 @@ img.face {
   border-radius: 50%;
   height: 60px;
 }
-div.wrap.has-frame img.face {
+div.wrap.has-frame > img.face {
   height: 51px;
   padding: 19.5px;
 }
-div.wrap.has-frame img.face-frame {
+div.wrap.has-frame > img.face-frame {
   height: 90px;
   left: calc(50% - 45px);
   position: absolute;
   top: 0;
 }
-div.wrap img.face-icon {
+div.wrap > img.face-icon {
   border-radius: 50%;
   height: 18px;
   left: calc(50% + 13.25px);
   position: absolute;
   top: calc(50% + 13.25px);
 }
-div.wrap img.face-icon.second {
+div.wrap > img.face-icon.second {
   left: calc(50% - 3.75px);
 }
-div.wrap.has-frame img.face-icon {
+div.wrap.has-frame > img.face-icon {
   left: calc(50% + 9px);
   top: calc(50% + 9px);
 }
-div.wrap.has-frame img.face-icon.second {
+div.wrap.has-frame > img.face-icon.second {
   left: calc(50% - 8px);
 }
 a, strong, th, label, input[type='submit'] {
@@ -224,10 +232,12 @@ footer {
 }
 @media (max-width: 959px) {
   div.header {
-    text-align: center;
     width: auto;
   }
-  div.header span.description {
+  div.header > div.left {
+    text-align: center;
+  }
+  div.header > div.left > span.description, div.header > div.center, div.header > div.right {
     display: none;
   }
   main {

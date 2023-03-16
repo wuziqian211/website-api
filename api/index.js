@@ -8,7 +8,7 @@ export default (req, res) => {
     }
     if (utils.getAccept(req) === 1) {
       res.status(200).send(utils.renderHTML({ startTime, title: '欢迎来到 API 页面', body: `
-        欢迎您来到 <a target="_blank" href="https://wuziqian211.top/">wuziqian211's Blog</a> 的 API 页面！<br />
+        欢迎您来到 <a target="_blank" href="https://www.yumeharu.top/">wuziqian211's Blog</a> 的 API 页面！<br />
         这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。<br />
         其中，下面这些 API 是公开的，任何合法网站和程序都能调用：<br />
         <ul>
