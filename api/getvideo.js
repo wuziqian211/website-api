@@ -154,7 +154,7 @@ const handler = async (req, res) => {
                   </div>
                   <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">${utils.encodeHTML(json.data.owner.name)}</a>
                 </div>`}
-                ${json.data.pages ? `${json.data.pages.map(p => `
+                ${json.data.pages ? json.data.pages.map(p => `
                 <div class="info">
                   <strong>P${p.page}：</strong>
                   ${p.first_frame ? `
@@ -165,7 +165,7 @@ const handler = async (req, res) => {
                     <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}<br />
                     <strong>cid：</strong>${p.cid}
                   </div>
-                </div>`).join('')}` : ''}
+                </div>`).join('') : ''}
                 <strong>简介：</strong><br />
                 ${utils.encodeHTML(json.data.desc)}`;
               res.status(200);
@@ -433,8 +433,7 @@ const handler = async (req, res) => {
                     <strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>
                   </div>
                 </div>`).join('')}
-                ${json.result.section ? `
-                ${json.result.section.map(s => `
+                ${json.result.section ? json.result.section.map(s => `
                 <strong>${utils.encodeHTML(s.title)}：</strong>
                 ${s.episodes.map(p => `
                 <div class="info">
@@ -444,7 +443,7 @@ const handler = async (req, res) => {
                     <strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />
                     <strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>`}
                   </div>
-                </div>`).join('')}`).join('')}` : ''}
+                </div>`).join('')}`).join('') : ''}
                 <strong>简介：</strong><br />
                 ${utils.encodeHTML(json.result.evaluate)}`;
               res.status(200);
