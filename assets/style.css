@@ -90,31 +90,31 @@ img.face {
   border-radius: 50%;
   height: 60px;
 }
-div.wrap.has-frame > img.face {
+div.wrap.has-frame img.face {
   height: 51px;
   padding: 19.5px;
 }
-div.wrap.has-frame > img.face-frame {
+div.wrap.has-frame img.face-frame {
   height: 90px;
   left: calc(50% - 45px);
   position: absolute;
   top: 0;
 }
-div.wrap > img.face-icon {
+div.wrap img.face-icon {
   border-radius: 50%;
   height: 18px;
   left: calc(50% + 13.25px);
   position: absolute;
   top: calc(50% + 13.25px);
 }
-div.wrap > img.face-icon.second {
+div.wrap img.face-icon.second {
   left: calc(50% - 3.75px);
 }
-div.wrap.has-frame > img.face-icon {
+div.wrap.has-frame img.face-icon {
   left: calc(50% + 9px);
   top: calc(50% + 9px);
 }
-div.wrap.has-frame > img.face-icon.second {
+div.wrap.has-frame img.face-icon.second {
   left: calc(50% - 8px);
 }
 a, strong, th, label, input[type='submit'] {
