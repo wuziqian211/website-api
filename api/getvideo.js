@@ -141,7 +141,7 @@ const handler = async (req, res) => {
                   </div>
                   <div>
                     <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">${utils.encodeHTML(u.name)}</a> ${utils.encodeHTML(u.title)}<br />
-                    ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong style="color: #ffc62e;">bilibili UP 主' : 'business" alt title="机构认证" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(u.official.title)}<br />` : ''}
+                    ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(u.official.title)}<br />` : ''}
                     <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
                   </div>
                 </div>`).join('')}` : `

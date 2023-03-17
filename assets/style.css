@@ -71,6 +71,15 @@ div.wrap {
   margin: 0 5px 0 0;
   position: relative;
 }
+.text-personal {
+  color: #ffc62e;
+}
+.text-business {
+  color: #4ac7ff;
+}
+.text-big-vip {
+  color: #fb7299;
+}
 img {
   vertical-align: middle;
 }
