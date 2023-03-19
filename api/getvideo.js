@@ -29,18 +29,10 @@ const handler = async (req, res) => {
       if (req.query.force != undefined) {
         const rjson = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, dt: 2, play_type: 1, csrf: process.env.bili_jct }), headers })).json();
         await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒
-        const hjson = await (await fetch('https://api.bilibili.com/x/web-interface/history/cursor?max=0&business=&view_at=0&type=archive&ps=30', { headers })).json();
-        const info = hjson.data?.list.find(h => h.history.business === 'archive' && h.history.bvid === vid);
+        const hjson = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json();
+        const info = hjson.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid);
         if (hjson.code === 0 && info) {
-          let tid = null;
-          for (const z in zones) {
-            const zone = zones[z].split('|');
-            if ((zone[1] && zone[1] === info.tag_name) || zone[0] === info.tag_name) {
-              tid = parseInt(z);
-              break;
-            }
-          }
-          json = { code: 0, message: '0', data: { bvid: info.history.bvid, aid: info.history.oid, videos: info.videos, tid, tname: info.tag_name, copyright: null, pic: info.cover, title: info.title, pubdate: null, ctime: null, desc: '', desc_v2: null, state: null, duration: null, rights: null, owner: { mid: info.author_mid, name: info.author_name, face: info.author_face }, stat: { aid: info.history.oid, view: -1, danmaku: -1, reply: -1, favorite: -1, coin: -1, share: -1, now_rank: 0, his_rank: 0, like: -1, dislike: 0, evaluation: '', argue_msg: '' }, dynamic: '', cid: info.history.page === 1 ? info.history.cid : null, dimension: null, premiere: null, pages: info.history.page ? [{ cid: info.history.cid, page: info.history.page, from: 'vupload', part: info.history.part, duration: null, vid: '', weblink: '', dimension: null }] : [], subtitle: null, honor_reply: null, need_jump_bv: false } };
+          json = { code: 0, message: '0', data: { bvid: vid, aid: null, videos: null, tid: null, tname: '', copyright: null, pic: null, title: '', pubdate: null, ctime: null, desc: '', desc_v2: null, state: null, duration: null, rights: null, owner: { mid: null, name: null, face: null }, stat: { aid: null, view: -1, danmaku: -1, reply: -1, favorite: -1, coin: -1, share: -1, now_rank: 0, his_rank: 0, like: -1, dislike: 0, evaluation: '', argue_msg: '' }, dynamic: '', cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, state: { vt: undefined, vv: undefined }, type: undefined, sub_type: undefined, device: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } };
         } else {
           json = { code: -404, message: '啥都木有' };
         }
