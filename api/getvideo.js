@@ -33,7 +33,7 @@ const handler = async (req, res) => {
         const hjson = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json();
         const info = hjson.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid);
         if (hjson.code === 0 && info) {
-          json = { code: 0, message: '0', data: { desc_v2: null, stat: { evaluation: '', argue_msg: '' }, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { vt: undefined, vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } };
+          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vt: undefined, vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } };
         } else {
           json = { code: -404, message: '啥都木有' };
         }
