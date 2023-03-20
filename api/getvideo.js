@@ -33,7 +33,7 @@ const handler = async (req, res) => {
         const hjson = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json();
         const info = hjson.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid);
         if (hjson.code === 0 && info) {
-          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vt: undefined, vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } };
+          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vt: undefined, vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } };
         } else {
           json = { code: -404, message: '啥都木有' };
         }
@@ -123,7 +123,7 @@ const handler = async (req, res) => {
                     <tr><td>${utils.getNumber(json.data.stat.view)}</td><td>${utils.getNumber(json.data.stat.danmaku)}</td><td>${utils.getNumber(json.data.stat.reply)}</td><td>${utils.getNumber(json.data.stat.like)}</td><td>${utils.getNumber(json.data.stat.coin)}</td><td>${utils.getNumber(json.data.stat.favorite)}</td><td>${utils.getNumber(json.data.stat.share)}</td></tr>
                   </tbody>
                 </table>
-                ${json.data.rights?.is_cooperation ? `
+                ${json.data.rights?.is_cooperation && json.data.staff ? `
                 <strong>合作成员：</strong>
                 ${json.data.staff.map(u => `
                 <div class="info">
