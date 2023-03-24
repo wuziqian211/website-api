@@ -217,7 +217,7 @@ input[type='submit']:active {
   background: #ddd6;
 }
 pre {
-  background: #222;
+  background: #333;
   border-radius: 10px;
   color: #f66;
   font-family: consolas, Menlo, monospace, 'PingFang SC', 'Microsoft YaHei';
