@@ -90,7 +90,7 @@ img.icon-business {
   content: url(/assets/business.svg);
 }
 img.icon-big-vip {
-  content: url(/assets/big-vip.svg);
+  content: url(/assets/small-vip.svg);
 }
 img.icon-face-nft {
   content: url(/assets/nft-label.gif);
@@ -307,7 +307,7 @@ footer {
     content: url(/assets/business_dark.svg);
   }
   img.icon-big-vip {
-    content: url(/assets/big-vip_dark.svg);
+    content: url(/assets/small-vip_dark.svg);
   }
   a, strong, th, label, input[type='submit'] {
     color: #08e;
