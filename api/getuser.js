@@ -3,9 +3,9 @@
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
-import { readFileSync } from 'node:fs';
+import fs from 'node:fs';
 import * as utils from '../assets/utils.js';
-const file = fileName => readFileSync(new URL(fileName, import.meta.url));
+const file = fileName => fs.readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
   const startTime = performance.now();
   try {

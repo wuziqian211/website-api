@@ -80,6 +80,9 @@ div.wrap {
 .text-big-vip {
   color: #fb7299;
 }
+.text-small-vip {
+  color: #6dc781;
+}
 img {
   vertical-align: middle;
 }
@@ -90,6 +93,9 @@ img.icon-business {
   content: url(/assets/business.svg);
 }
 img.icon-big-vip {
+  content: url(/assets/big-vip.svg);
+}
+img.icon-small-vip {
   content: url(/assets/small-vip.svg);
 }
 img.icon-face-nft {
@@ -307,6 +313,9 @@ footer {
     content: url(/assets/business_dark.svg);
   }
   img.icon-big-vip {
+    content: url(/assets/big-vip_dark.svg);
+  }
+  img.icon-small-vip {
     content: url(/assets/small-vip_dark.svg);
   }
   a, strong, th, label, input[type='submit'] {
