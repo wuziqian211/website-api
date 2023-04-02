@@ -360,6 +360,9 @@ footer {
   header, form, footer {
     display: none;
   }
+  main {
+    margin: 0;
+  }
 }
 
 /* From animate.css - https://animate.style */
