@@ -280,7 +280,7 @@ footer {
     padding: 0;
   }
   div.info {
-    display: inherit;
+    display: initial;
   }
   img.sex {
     height: 25px;
@@ -353,11 +353,15 @@ footer {
     backdrop-filter: none !important;
     transition: none;
   }
+  html {
+    height: initial;
+  }
   body, main {
     background: none !important;
   }
   body {
     color: #000;
+    min-height: initial;
   }
   header, form, footer {
     display: none;
