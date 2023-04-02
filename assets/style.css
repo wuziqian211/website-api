@@ -353,8 +353,10 @@ footer {
     backdrop-filter: none !important;
     transition: none;
   }
-  body {
+  body, main {
     background: none !important;
+  }
+  body {
     color: #000;
   }
   header, form, footer {
