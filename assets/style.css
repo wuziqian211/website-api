@@ -346,6 +346,21 @@ footer {
     background: #0006;
   }
 }
+@media only print {
+  * {
+    animation: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transition: none;
+  }
+  body {
+    background: none !important;
+    color: #000;
+  }
+  header, form, footer {
+    display: none;
+  }
+}
 
 /* From animate.css - https://animate.style */
 @keyframes zoomInDown {
