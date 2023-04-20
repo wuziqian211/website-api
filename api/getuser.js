@@ -22,7 +22,7 @@ export default async (req, res) => {
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
         switch (cjson.code) {
           case 0:
-            const ujson = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
+            const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
             if (ujson.code === 0) {
               const content = `
                 <img style="display: none;" src="${utils.toHTTPS(ujson.data.top_photo)}" referrerpolicy="no-referrer" />
@@ -120,7 +120,7 @@ export default async (req, res) => {
       } else { // 否则，返回JSON
         switch (cjson.code) {
           case 0:
-            const ujson = await (await fetch(`https://api.bilibili.com/x/space/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
+            const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
             if (ujson.code === 0) {
               res.status(200).json({ code: 0, message: cjson.message, data: { ...cjson.card, ...ujson.data, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000, following: cjson.card.attention, follower: cjson.card.fans } });
             } else {
