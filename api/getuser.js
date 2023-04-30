@@ -4,12 +4,10 @@
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
 import fs from 'node:fs';
-import { inject } from '@vercel/analytics';
 import * as utils from '../assets/utils.js';
 const file = fileName => fs.readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
   const { startTime, accept } = utils.initialize(req);
-  inject();
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}

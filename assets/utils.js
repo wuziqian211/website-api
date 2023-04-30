@@ -1,4 +1,6 @@
+import { inject } from '@vercel/analytics';
 const initialize = req => {
+  inject();
   let accept;
   if (req.headers.accept?.includes('html') || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据
     accept = 1;
