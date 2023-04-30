@@ -1,12 +1,12 @@
 import * as utils from '../assets/utils.js';
 export default (req, res) => {
-  const startTime = performance.now();
+  const { startTime, accept } = utils.initialize(req);
   try {
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
       return;
     }
-    if (utils.getAccept(req) === 1) {
+    if (accept === 1) {
       res.status(200).send(utils.renderHTML({ startTime, title: '欢迎来到 API 页面', body: `
         欢迎您来到 <a target="_blank" href="https://www.yumeharu.top/">wuziqian211's Blog</a> 的 API 页面！<br />
         这些 API 主要为 wuziqian211's Blog 的一些功能提供服务。<br />

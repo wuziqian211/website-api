@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => fs.readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
-  const startTime = performance.now();
+  const { startTime, accept } = utils.initialize(req);
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
@@ -15,7 +15,6 @@ export default async (req, res) => {
         <div><label for="mid">请输入您想要获取信息的用户的 UID：</label></div>
         <div><input type="number" name="mid" id="mid" value="${data.mid}" min="1" max="9223372036854775807" autocomplete="off" /> <input type="submit" value="获取" /></div>
       </form>` })); // 将HTML数据发送到客户端
-    const accept = utils.getAccept(req);
     if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
       const headers = { Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent };
       let json;

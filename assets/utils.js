@@ -1,6 +1,16 @@
 import { inject } from '@vercel/analytics';
-inject();
-const getAccept = req => req.headers.accept?.includes('html') || req.headers['sec-fetch-dest'] === 'document' ? 1 : req.headers.accept?.includes('image') || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
+const initialize = req => {
+  inject();
+  let accept;
+  if (req.headers.accept?.includes('html') || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据
+    accept = 1;
+  } else if (req.headers.accept?.includes('image') || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据
+    accept = 2;
+  } else {
+    accept = 0;
+  }
+  return { startTime: req.__startTime__ || performance.now(), accept };
+}
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 const renderHTML = data => `
   <!DOCTYPE html>

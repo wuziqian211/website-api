@@ -1,9 +1,9 @@
 // 本API仅供内部使用，不公开使用
 import * as utils from '../assets/utils.js';
 export default async (req, res) => {
-  const startTime = performance.now();
+  const { startTime, accept } = utils.initialize(req);
   try {
-    if (utils.getAccept(req) === 1) {
+    if (accept === 1) {
       switch (req.query.id) {
         case 'friends':
           const url = 'https://wuziqian211.top/friends/';

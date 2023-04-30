@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import * as utils from '../assets/utils.js';
 const file = fileName => fs.readFileSync(new URL(fileName, import.meta.url));
 const handler = async (req, res) => {
-  const startTime = req.__startTime__ || performance.now();
+  const { startTime, accept } = utils.initialize(req);
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
@@ -15,7 +15,6 @@ const handler = async (req, res) => {
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
         <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
       </form>` })); // 将HTML数据发送到客户端
-    const accept = utils.getAccept(req);
     const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     if (req.query.cookie === 'true' || req.query.force != undefined) {
       headers.Cookie =  `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`;
