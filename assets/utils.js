@@ -113,4 +113,4 @@ const getVidType = vid => { // 判断编号类型
     return {};
   }
 };
-export { getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
+export { initialize, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
