@@ -1,7 +1,9 @@
 // 本API仅供内部使用，不公开使用
+import { inject } from '@vercel/analytics';
 import * as utils from '../assets/utils.js';
 export default async (req, res) => {
   const { startTime, accept } = utils.initialize(req);
+  inject();
   try {
     if (accept === 1) {
       switch (req.query.id) {

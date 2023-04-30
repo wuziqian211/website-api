@@ -1,6 +1,8 @@
+import { inject } from '@vercel/analytics';
 import * as utils from '../assets/utils.js';
 export default (req, res) => {
   const { startTime, accept } = utils.initialize(req);
+  inject();
   try {
     if (accept === 1) {
       res.status(404).send(utils.render404(startTime));
