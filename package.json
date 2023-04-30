@@ -1,8 +1,5 @@
 {
   "license": "MIT",
   "type": "module",
-  "private": true,
-  "dependencies": {
-    "@vercel/analytics": "latest"
-  }
+  "private": true
 }
