@@ -1,4 +1,14 @@
-const getAccept = req => (req.headers.accept || '').includes('html') || req.headers['sec-fetch-dest'] === 'document' ? 1 : (req.headers.accept || '').includes('image') || req.headers['sec-fetch-dest'] === 'image' ? 2 : 0; // 返回客户端接受类型
+const initialize = req => {
+  let accept;
+  if (req.headers.accept?.includes('html') || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据
+    accept = 1;
+  } else if (req.headers.accept?.includes('image') || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据
+    accept = 2;
+  } else {
+    accept = 0;
+  }
+  return { startTime: req.__startTime__ || performance.now(), accept };
+}
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 const renderHTML = data => `
   <!DOCTYPE html>
@@ -17,7 +27,8 @@ const renderHTML = data => `
     <body>
       <header>
         <div class="header">
-          <a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc || '一个简单的 API 页面'}</span>
+          <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc || '一个简单的 API 页面'}</span></div>
+          <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
         </div>
       </header>
       <main>${data.body}</main>
@@ -29,7 +40,7 @@ const renderHTML = data => `
       </footer>
       <script src="/assets/main.js"></script>
     </body>
-  </html>`.replace(/(?: |\n)+/gm, ' ').trim();
+  </html>`.replace(/<br \/>(?: |\n)*(?=<\/)/gm, '').replace(/(?: |\n)+/gm, ' ').trim();
 const render404 = startTime => renderHTML({ startTime, title: 'API 不存在', body: `
   您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa` });
 const render500 = (startTime, error) => {
@@ -61,6 +72,7 @@ const renderExtraStyle = pic => `
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
 const toHTTPS = url => { // 将网址协议改成HTTPS
+  if (!url) return 'data:,';
   const u = new URL(url);
   u.protocol = 'https:';
   return u.href;
@@ -99,4 +111,4 @@ const getVidType = vid => { // 判断编号类型
     return {};
   }
 };
-export { getAccept, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
+export { initialize, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };

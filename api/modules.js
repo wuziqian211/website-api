@@ -1,9 +1,9 @@
 // 本API仅供内部使用，不公开使用
 import * as utils from '../assets/utils.js';
 export default async (req, res) => {
-  const startTime = performance.now();
+  const { startTime, accept } = utils.initialize(req);
   try {
-    if (utils.getAccept(req) === 1) {
+    if (accept === 1) {
       switch (req.query.id) {
         case 'friends':
           const url = 'https://wuziqian211.top/friends/';
@@ -15,7 +15,7 @@ export default async (req, res) => {
     } else {
       switch (req.query.id) {
         case 'token':
-          res.status(200).json({ code: 0, data: { token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU=' } });
+          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').json({ code: 0, data: { token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU=' } });
           break;
         case 'friends':
           /* 已经注销，但曾经和wuziqian211存在一定关系的朋友有这些（下面展示的是注销前被大多数人所熟悉的昵称，不是注销前最后使用的昵称）：
@@ -59,7 +59,7 @@ export default async (req, res) => {
           if (req.headers['x-vercel-ip-country'] === 'CN') {
             blocked = '^(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net)$';
           }
-          res.status(200).json({ code: 0, data: { blocked } });
+          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').json({ code: 0, data: { blocked } });
           break;
         default:
           res.status(400).json({ code: -400 });

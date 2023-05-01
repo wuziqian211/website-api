@@ -3,11 +3,11 @@
  * 使用说明见https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
-import { readFileSync } from 'node:fs';
+import fs from 'node:fs';
 import * as utils from '../assets/utils.js';
-const file = fileName => readFileSync(new URL(fileName, import.meta.url));
+const file = fileName => fs.readFileSync(new URL(fileName, import.meta.url));
 export default async (req, res) => {
-  const startTime = performance.now();
+  const { startTime, accept } = utils.initialize(req);
   try {
     const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
@@ -15,78 +15,52 @@ export default async (req, res) => {
         <div><label for="mid">请输入您想要获取信息的用户的 UID：</label></div>
         <div><input type="number" name="mid" id="mid" value="${data.mid}" min="1" max="9223372036854775807" autocomplete="off" /> <input type="submit" value="获取" /></div>
       </form>` })); // 将HTML数据发送到客户端
-    const accept = utils.getAccept(req);
     if (/^\d+$/.test(req.query.mid)) { // 判断UID是否是非负整数
       const headers = { Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent };
+      let json;
       const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${req.query.mid}`, { headers })).json();
+      if (cjson.code === 0) {
+        json = { code: 0, message: cjson.message, data: { face_nft: null, face_nft_type: null, jointime: 0, moral: 0, fans_badge: null, fans_medal: null, vip: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: null, sys_notice: null, live_room: null, school: null, profession: null, tags: null, series: null, is_senior_member: null, mcn_info: null, is_risk: null, elec: null, contract: null, ...cjson.card, mid: parseInt(cjson.card.mid), rank: parseInt(cjson.card.rank), birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000, level: cjson.card.level_info.current_level, silence: cjson.card.spacesta === -2 ? 1 : 0, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, following: cjson.card.attention, follower: cjson.card.fans } };
+        const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
+        if (ujson.code === 0) {
+          json.data = { ...json.data, ...ujson.data, coins: cjson.card.coins, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 };
+        }
+      } else {
+        json = cjson;
+      }
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回HTML
-        switch (cjson.code) {
+        switch (json.code) {
           case 0:
-            const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
-            if (ujson.code === 0) {
-              const content = `
-                <img style="display: none;" src="${utils.toHTTPS(ujson.data.top_photo)}" referrerpolicy="no-referrer" />
-                <div class="info">
-                  <div class="wrap${ujson.data.pendant?.image ? ' has-frame' : ''}">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
-                      <img class="face" alt title="${utils.encodeHTML(ujson.data.name)}" src="${utils.toHTTPS(ujson.data.face)}" referrerpolicy="no-referrer" />
-                      ${ujson.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(ujson.data.pendant.name)}" src="${utils.toHTTPS(ujson.data.pendant.image_enhance || ujson.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
-                      ${ujson.data.face_nft ? `<img class="face-icon${[0, 1].includes(ujson.data.official.type) || ujson.data.vip.status ? ' second' : ''}" alt title="数字藏品" src="/assets/nft-label.gif" />` : ''}
-                      ${ujson.data.official.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : ujson.data.official.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ujson.data.vip.status ? '<img class="face-icon" alt title="大会员" src="/assets/big-vip.svg" />' : ''}
-                    </a>
-                  </div>
-                  <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">${utils.encodeHTML(ujson.data.name)}</a>
-                    ${ujson.data.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : ujson.data.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
-                    <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${ujson.data.is_senior_member ? '6⚡' : ujson.data.level}" title="${ujson.data.is_senior_member ? '6+' : ujson.data.level} 级" src="/assets/level_${ujson.data.is_senior_member ? '6%2B' : ujson.data.level}.svg" /></a>
-                    ${cjson.card.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
-                    <br />
-                    ${[0, 1].includes(ujson.data.official.type) ? `<img class="official-icon" alt title="${ujson.data.official.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(ujson.data.official.title)}${ujson.data.official.desc ? `<span class="description">（${utils.encodeHTML(ujson.data.official.desc)}）` : ''}</span><br />` : ''}
-                    ${ujson.data.silence ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span><br />' : ''}
-                    ${ujson.data.sys_notice?.content ? `<${ujson.data.sys_notice.url ? `a class="notice system" target="_blank" rel="noopener external nofollow noreferrer" href="${ujson.data.sys_notice.url}"` : 'span class="notice system"'}>${ujson.data.sys_notice.icon ? `<img class="notice-icon" alt src="${utils.toHTTPS(ujson.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ` : ''}${ujson.data.sys_notice.content}</${ujson.data.sys_notice.url ? 'a' : 'span'}><br />` : ''}
-                    <span class="description">${utils.encodeHTML(ujson.data.sign)}</span>
-                  </div>
+            const content = `
+              <img style="display: none;" src="${json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'}" referrerpolicy="no-referrer" />
+              <div class="info">
+                <div class="wrap${json.data.pendant?.image ? ' has-frame' : ''}">
+                  <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
+                    <img class="face" alt title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" />
+                    ${json.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(json.data.pendant.name)}" src="${utils.toHTTPS(json.data.pendant.image_enhance || json.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
+                    ${json.data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(json.data.official.type) || json.data.vip?.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
+                    ${json.data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : json.data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : json.data.vip?.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
+                  </a>
                 </div>
-                <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
-                <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
-                <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
-                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
-              const extraStyle = utils.renderExtraStyle(utils.toHTTPS(ujson.data.top_photo)) + (ujson.data.sys_notice?.content ? `
-                ${ujson.data.sys_notice.url ? 'a' : 'span'}.notice.system {${ujson.data.sys_notice.bg_color ? `
-                  background: ${ujson.data.sys_notice.bg_color};` : ''}${ujson.data.sys_notice.text_color ? `
-                  color: ${ujson.data.sys_notice.text_color};` : ''}
-                }` : '');
-              res.status(200);
-              sendHTML({ title: `${utils.encodeHTML(ujson.data.name)} 的信息`, appleTouchIcon: utils.toHTTPS(ujson.data.face), style: extraStyle, content, mid: req.query.mid });
-            } else {
-              const content = `
-                <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
-                <div class="info">
-                  <div class="wrap${cjson.card.pendant?.image ? ' has-frame' : ''}">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
-                      <img class="face" alt title="${utils.encodeHTML(cjson.card.name)}" src="${utils.toHTTPS(cjson.card.face)}" referrerpolicy="no-referrer" />
-                      ${cjson.card.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(cjson.card.pendant.name)}" src="${utils.toHTTPS(cjson.card.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
-                      ${cjson.card.official_verify.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/assets/personal.svg" />' : cjson.card.official_verify.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/assets/business.svg" />' : ''}
-                    </a>
-                  </div>
-                  <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">${utils.encodeHTML(cjson.card.name)}</a>
-                    ${cjson.card.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : cjson.card.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
-                    <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${cjson.card.level_info.current_level}" title="${cjson.card.level_info.current_level} 级" src="/assets/level_${cjson.card.level_info.current_level}.svg" /></a>
-                    ${cjson.card.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
-                    <br />
-                    ${[0, 1].includes(cjson.card.official_verify.type) ? `<img class="official-icon" alt title="${cjson.card.official_verify.type === 0 ? 'UP 主认证" src="/assets/personal.svg" /> <strong style="color: #ffc62e;">bilibili UP 主' : '机构认证" src="/assets/business.svg" /> <strong style="color: #4ac7ff;">bilibili 机构'}认证：</strong>${utils.encodeHTML(cjson.card.official_verify.desc)}<br />` : ''}
-                    ${cjson.card.spacesta === -2 ? '<span class="notice"><img class="notice-icon" alt src="/assets/warning.png" /> 该账号封禁中</span><br />' : ''}
-                    <span class="description">${utils.encodeHTML(cjson.card.sign)}</span>
-                  </div>
+                <div>
+                  <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">${utils.encodeHTML(json.data.name)}</a>
+                  ${json.data.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
+                  <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>
+                  ${json.data.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
+                  <br />
+                  ${[0, 1].includes(json.data.official.type) ? `<img class="official-icon icon-${json.data.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(json.data.official.title)}${json.data.official.desc ? `<span class="description">（${utils.encodeHTML(json.data.official.desc)}）` : ''}</span><br />` : ''}
+                  ${json.data.silence ? '<span class="notice"><img class="notice-icon" alt /> 该账号封禁中</span><br />' : ''}
+                  ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : 'span class="notice"'} style="${json.data.sys_notice.bg_color ? `background: ${json.data.sys_notice.bg_color};` : ''}${json.data.sys_notice.text_color ? `color: ${json.data.sys_notice.text_color};` : ''}"><img class="notice-icon" alt src="${utils.toHTTPS(json.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}>` : ''}
                 </div>
-                <strong>生日：</strong>${cjson.card.birthday ? utils.encodeHTML(cjson.card.birthday) : '保密'}<br />
-                <strong>注册时间：</strong>${utils.getDate(cjson.card.regtime)}<br />
-                <strong>关注数：</strong>${utils.getNumber(cjson.card.attention)}<br />
-                <strong>粉丝数：</strong>${utils.getNumber(cjson.card.fans)}`;
-              res.status(200);
-              sendHTML({ title: `${utils.encodeHTML(cjson.card.name)} 的信息`, appleTouchIcon: utils.toHTTPS(cjson.card.face), style: utils.renderExtraStyle('/assets/top-photo.png'), content, mid: req.query.mid });
-            }
+              </div>
+              <strong>生日：</strong>${json.data.birthday ? utils.getDate(json.data.birthday).slice(0, 10) : '保密'}<br />
+              <strong>注册时间：</strong>${utils.getDate(json.data.regtime)}<br />
+              <strong>关注数：</strong>${utils.getNumber(json.data.following)}<br />
+              <strong>粉丝数：</strong>${utils.getNumber(json.data.follower)}<br />
+              <strong>个性签名：</strong><br />
+              ${utils.encodeHTML(json.data.sign)}`;
+            res.status(200);
+            sendHTML({ title: `${utils.encodeHTML(json.data.name)} 的信息`, appleTouchIcon: utils.toHTTPS(json.data.face), style: utils.renderExtraStyle(json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'), content, mid: req.query.mid });
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
@@ -102,14 +76,14 @@ export default async (req, res) => {
             sendHTML({ title: '获取用户信息失败', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试 awa`, mid: req.query.mid });
         }
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
-        if (cjson.code === 0) {
+        if (json.code === 0) {
           if (req.query.allow_redirect != undefined) { // 允许本API重定向到B站服务器的头像地址
-            res.status(307).setHeader('Location', utils.toHTTPS(cjson.card.face)).json({ code: 307, data: { url: utils.toHTTPS(cjson.card.face) } });
+            res.status(307).setHeader('Location', utils.toHTTPS(json.data.face)).json({ code: 307, data: { url: utils.toHTTPS(json.data.face) } });
           } else {
-            const filename = encodeURIComponent(`${cjson.card.name} 的头像.${utils.toHTTPS(cjson.card.face).split('.').at(-1)}`); // 设置头像的文件名
-            const resp = await fetch(utils.toHTTPS(cjson.card.face)); // 获取B站服务器存储的头像
+            const filename = encodeURIComponent(`${json.data.name} 的头像.${utils.toHTTPS(json.data.face).split('.').at(-1)}`); // 设置头像的文件名
+            const resp = await fetch(utils.toHTTPS(json.data.face)); // 获取B站服务器存储的头像
             if (resp.ok) {
-              res.status(200).setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
               res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('../assets/noface.jpg'));
             }
@@ -118,24 +92,19 @@ export default async (req, res) => {
           res.status(404).setHeader('Content-Type', 'image/jpeg').send(file('../assets/noface.jpg'));
         }
       } else { // 否则，返回JSON
-        switch (cjson.code) {
+        switch (json.code) {
           case 0:
-            const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
-            if (ujson.code === 0) {
-              res.status(200).json({ code: 0, message: cjson.message, data: { ...cjson.card, ...ujson.data, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000, following: cjson.card.attention, follower: cjson.card.fans } });
-            } else {
-              res.status(200).json({ code: 0, message: cjson.message, data: cjson.card });
-            }
+            res.status(200).json({ code: 0, message: json.message, data: json.data });
             break;
           case -412:
-            res.status(429).setHeader('Retry-After', '600').json({ code: -412, message: cjson.message });
+            res.status(429).setHeader('Retry-After', '600').json({ code: -412, message: json.message });
             break;
           case -404:
           case -626:
-            res.status(404).json({ code: -404, message: cjson.message });
+            res.status(404).json({ code: -404, message: json.message });
             break;
           default:
-            res.status(400).json({ code: cjson.code, message: cjson.message });
+            res.status(400).json({ code: json.code, message: json.message });
         }
       }
     } else { // UID无效
