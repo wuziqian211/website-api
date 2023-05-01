@@ -158,7 +158,7 @@ const handler = async (req, res) => {
                   </div>
                 </div>`).join('') : ''}
                 <strong>简介：</strong><br />
-                ${utils.encodeHTML(json.data.desc)}`;
+                ${json.data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)}</a>` : utils.encodeHTML(d.raw_text)).join('')}`;
               res.status(200);
               sendHTML({ title: `${utils.encodeHTML(json.data.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.pic)), content, vid: req.query.vid });
               break;
