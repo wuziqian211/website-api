@@ -158,7 +158,7 @@ const handler = async (req, res) => {
                   </div>
                 </div>`).join('') : ''}
                 <strong>简介：</strong><br />
-                ${json.data.desc_v2 ? json.data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)} </a>` : utils.encodeHTML(d.raw_text)).join('') : utils.encodeHTML(json.data.desc)}`;
+                ${json.data.desc_v2 ? json.data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)} </a>` : utils.markText(utils.encodeHTML(d.raw_text))).join('') : utils.markText(utils.encodeHTML(json.data.desc))}`;
               res.status(200);
               sendHTML({ title: `${utils.encodeHTML(json.data.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.data.pic)), content, vid: req.query.vid });
               break;
@@ -386,10 +386,10 @@ const handler = async (req, res) => {
               const content = `
                 <div class="info">
                   <div class="wrap">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/${type === 3 ? 'ss' : 'ep'}${vid}"><img class="spic" alt title="${utils.encodeHTML(json.result.title)}" src="${utils.toHTTPS(json.result.cover)}" referrerpolicy="no-referrer" /></a>
+                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${json.data.season_id}"><img class="spic" alt title="${utils.encodeHTML(json.result.title)}" src="${utils.toHTTPS(json.result.cover)}" referrerpolicy="no-referrer" /></a>
                   </div>
                   <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/${type === 3 ? 'ss' : 'ep'}${vid}">${utils.encodeHTML(json.result.title)}</a><br />
+                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${json.data.season_id}">${utils.encodeHTML(json.result.title)}</a><br />
                     ${json.result.type === 1 ? '番剧' : json.result.type === 2 ? '电影' : json.result.type === 3 ? '纪录片' : json.result.type === 4 ? '国创' : json.result.type === 5 ? '电视剧' : json.result.type === 7 ? '综艺' : ''}${json.result.total === -1 ? '' : ` 已完结，共 ${json.result.total} 集`} ${json.result.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${json.result.rating?.score ? `${json.result.rating.score.toFixed(1)} 分（共 ${json.result.rating.count} 人评分）` : '暂无评分'}
                   </div>
                 </div>
@@ -436,7 +436,7 @@ const handler = async (req, res) => {
                   </div>
                 </div>`).join('')}`).join('') : ''}
                 <strong>简介：</strong><br />
-                ${utils.encodeHTML(json.result.evaluate)}`;
+                ${utils.markText(utils.encodeHTML(json.result.evaluate))}`;
               res.status(200);
               sendHTML({ title: `${utils.encodeHTML(json.result.title)} 的信息`, style: utils.renderExtraStyle(utils.toHTTPS(json.result.cover)), content, vid: req.query.vid });
               break;

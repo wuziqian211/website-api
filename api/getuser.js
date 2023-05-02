@@ -58,7 +58,7 @@ export default async (req, res) => {
               <strong>关注数：</strong>${utils.getNumber(json.data.following)}<br />
               <strong>粉丝数：</strong>${utils.getNumber(json.data.follower)}<br />
               <strong>个性签名：</strong><br />
-              ${utils.encodeHTML(json.data.sign)}`;
+              ${utils.markText(utils.encodeHTML(json.data.sign))}`;
             res.status(200);
             sendHTML({ title: `${utils.encodeHTML(json.data.name)} 的信息`, appleTouchIcon: utils.toHTTPS(json.data.face), style: utils.renderExtraStyle(json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'), content, mid: req.query.mid });
             break;

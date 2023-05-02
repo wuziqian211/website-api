@@ -71,6 +71,7 @@ const renderExtraStyle = pic => `
     }
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
+const markText = str => typeof str === 'string' ? str.replace(/(BV|bv|Bv|bV)(1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2})/, '<a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/BV$2/">$1$2</a>').replace(/(av(\d+))/gi, '<a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av$2/">$1</a>').replace(/(md(\d+))/gi, '<a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md$2">$1</a>').replace(/(ss(\d+))/gi, '<a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss$2">$1</a>').replace(/(ep(\d+))/gi, '<a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep$2">$1</a>') : '';
 const toHTTPS = url => { // 将网址协议改成HTTPS
   if (!url) return 'data:,';
   const u = new URL(url);
@@ -111,4 +112,4 @@ const getVidType = vid => { // 判断编号类型
     return {};
   }
 };
-export { initialize, renderHTML, render404, render500, renderExtraStyle, encodeHTML, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
+export { initialize, renderHTML, render404, render500, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
