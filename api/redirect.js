@@ -6,7 +6,8 @@ export default (req, res) => {
     } else if (/^\/api|^\/get/.test(req.url)) {
       expectedURL = `https://api.yumeharu.top${req.url}`;
     }
-    res.status(404).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').send(`<!DOCTYPE html>
+    res.status(404).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').send(`
+      <!DOCTYPE html>
       <html lang="zh-CN">
         <head>
           <meta charset="utf-8" />
