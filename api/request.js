@@ -25,7 +25,7 @@ export default async (req, res) => {
     res.status(resp.status);
     if (resp.headers.has('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/g, 'text/plain'));
     ['Content-Disposition', 'Content-Range'].forEach(h => resp.headers.has(h) && res.setHeader(h, resp.headers.get(h)));
-    resp.headers.forEach(([name, value]) => res.setHeader('X-Http-' + name, value));
+    resp.headers.forEach((value, name) => res.setHeader('X-Http-' + name, value));
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
     res.status(500).send(`Error<br /><pre>${e.stack.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />')}</pre>`);
