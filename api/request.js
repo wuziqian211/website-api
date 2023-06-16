@@ -7,7 +7,9 @@ export default async (req, res) => {
     const referrer = new URL(req.headers.referer || req.query.url);
     referrer.host = requestedUrl.host;
     headers.referer = referrer.href;
-    Object.keys(req.query).forEach(name => name !== 'url' && headers[name] = req.query[name]);
+    for (const name in req.query) {
+      if (name !== 'url') headers[name] = req.query[name];
+    }
     let body;
     if (req.method === 'POST' || req.method === 'PUT') {
       switch (req.headers['content-type']) {
