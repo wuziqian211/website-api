@@ -71,8 +71,8 @@ const renderExtraStyle = pic => `
     }
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
-const markText = str => typeof str === 'string' ? str.replace(/(BV|bv|Bv|bV)(1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2})/g, '<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/BV$2/">$1$2</a>').replace(/(av(\d+))/gi, '<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/av$2/">$1</a>').replace(/(md(\d+))/gi, '<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md$2">$1</a>').replace(/(ss(\d+))/gi, '<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss$2">$1</a>').replace(/(ep(\d+))/gi, '<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep$2">$1</a>').replace(/((https?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?)/gi, '<a target="_blank" rel="noopener external nofollow noreferrer" href="$1">$1</a>') : ''; // 此代码仍需完善
-const toHTTPS = url => { // 将网址协议改成HTTPS
+const markText = str => typeof str === 'string' ? str.replace(/(BV|bv|Bv|bV)(1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2})/g, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/video/BV${p2}/`).toString('hex')};${Buffer.from(p1 + p2).toString('hex')};`).replace(/(av(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/video/av${p2}/`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(cv(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/read/cv${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(md(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/bangumi/media/md${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(ss(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/bangumi/play/ss${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(ep(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/bangumi/play/ep${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/((https?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?)/gi, (match, p1) => `&m${Buffer.from(p1).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/&m([\da-f]+);([\da-f]+);/g, (match, p1, p2) => `<a target="_blank" rel="noopener external nofollow noreferrer" href="${Buffer.from(p1, 'hex').toString()}">${Buffer.from(p2, 'hex').toString()}</a>`) : ''; // 将纯文本中的特殊标记转化成可点击的链接
+const toHTTPS = url => { // 将网址协议改成 HTTPS
   if (!url) return 'data:,';
   const u = new URL(url);
   u.protocol = 'https:';
@@ -86,7 +86,7 @@ const getDate = ts => { // 根据时间戳返回日期时间
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-const toBV = aid => { // AV号转BV号，改编自https://www.zhihu.com/question/381784377/answer/1099438784
+const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
   const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
   const bvid = ['B', 'V', '1', , , '4', , '1', , '7'];
   for (let i = 0n; i < 6n; i++) {
@@ -96,17 +96,17 @@ const toBV = aid => { // AV号转BV号，改编自https://www.zhihu.com/question
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
-  if (/^av\d+$/i.test(vid)) { // 判断编号是否为前缀为“av”的AV号
+  if (/^av\d+$/i.test(vid)) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
-  } else if (/^\d+$/.test(vid)) { // 判断编号是否为不带前缀的AV号
+  } else if (/^\d+$/.test(vid)) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
-  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为BV号
+  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: 'BV' + vid.slice(2) };
-  } else if (/^md\d+$/i.test(vid)) { // 判断编号是否为mdid
+  } else if (/^md\d+$/i.test(vid)) { // 判断编号是否为 mdid
     return { type: 2, vid: parseInt(vid.slice(2)) };
-  } else if (/^ss\d+$/i.test(vid)) { // 判断编号是否为ssid
+  } else if (/^ss\d+$/i.test(vid)) { // 判断编号是否为 ssid
     return { type: 3, vid: parseInt(vid.slice(2)) };
-  } else if (/^ep\d+$/i.test(vid)) { // 判断编号是否为epid
+  } else if (/^ep\d+$/i.test(vid)) { // 判断编号是否为 epid
     return { type: 4, vid: parseInt(vid.slice(2)) };
   } else { // 编号无效
     return {};
