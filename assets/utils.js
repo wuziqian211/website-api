@@ -8,7 +8,7 @@ const initialize = req => {
     accept = 0;
   }
   return { startTime: req.__startTime__ || performance.now(), accept };
-}
+};
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 const renderHTML = data => `
   <!DOCTYPE html>
