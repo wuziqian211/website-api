@@ -84,11 +84,11 @@ export default async (req, res) => {
             if (resp.ok) {
               res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
             } else {
-              res.status(404).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('../assets/noface.jpg'));
+              res.status(404).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('./assets/noface.jpg'));
             }
           }
         } else { // 用户信息获取失败，返回默认头像
-          res.status(404).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('../assets/noface.jpg'));
+          res.status(404).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('./assets/noface.jpg'));
         }
       } else { // 否则，返回 JSON
         switch (json.code) {
@@ -123,9 +123,9 @@ export default async (req, res) => {
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
         if (!req.query.mid) { // 没有设置 UID 参数，返回随机头像
           const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-          res.status(200).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile(`../assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
+          res.status(200).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile(`./assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
         } else { // 设置了 UID 参数但无效，返回默认头像
-          res.status(400).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('../assets/noface.jpg'));
+          res.status(400).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('./assets/noface.jpg'));
         }
       } else { // 否则，返回 JSON
         res.status(400).json({ code: -400, message: '请求错误' });
