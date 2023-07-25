@@ -39,6 +39,9 @@ export default (req, res) => {
   } else if (/^(?:.+\.)?wuziqian211.top$/.test(req.headers.host)) {
     const url = `https://${req.headers.host.replace(/^(.+\.)?wuziqian211.top$/, '$1yumeharu.top')}${req.url}`;
     res.status(308).setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate').setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({ code: 308, data: { url } });
+  } else if (/^(?:.+\.)?happycola.top$/.test(req.headers.host)) {
+    const url = `https://et19798147-2.icoc.vc${req.url}`;
+    res.status(308).setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate').setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({ code: 308, data: { url } });
   } else {
     const url = 'https://wuziqian211.top/';
     res.status(307).setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({ code: 308, data: { url } });
