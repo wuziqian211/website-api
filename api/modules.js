@@ -13,12 +13,12 @@ export default async (req, res) => {
       }
     } else {
       switch (req.query.id) {
-        case 'token': // 图床的 token
-          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').json({ code: 0, data: { token: 'YjNiNDZhNDE0NmU3OWQ1N2M1ZDMyMjdjZGY5NDlmMGU=' } });
+        case 'token': // 评论图床的 token
+          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').json({ code: 0, data: { token: btoa('b3b46a4146e79d57c5d3227cdf949f0e') } });
           break;
         case 'friends': // 关系好的朋友们（不一定互关）
           /* 已经注销，但曾经和 wuziqian211 存在一定关系的朋友有这些（下面展示的是注销前被大多数人所熟悉的昵称，不等同于注销前最后使用的昵称）：
-           * 生日快乐是个呆瓜、MC_小高、SL_拾壹、青岛皓资商贸有限公司……
+           *   生日快乐是个呆瓜、MC_小高、SL_拾壹、青岛皓资商贸有限公司……
            * 这些朋友的注销，给 wuziqian211 带来了巨大的损失。wuziqian211 希望能有缘再见到 TA 们。
            */
           let users = [ // 共 235 位用户
@@ -45,8 +45,7 @@ export default async (req, res) => {
              589865539,  592308904,  597242903,  598397900,  624532985,  628092353,  646061108,  660766077,  694241611, 1054922166,
             1110936584, 1112494292, 1112058008, 1132879610, 1161346046, 1207133469, 1359379497, 1377882998, 1433618226, 1456149763,
             1498694594, 1529167079, 1550118493, 1572189367, 1651446751, 1684665013, 1694284021, 1697970104, 1721464338, 1753797776,
-            1831775732, 1860533762, 1980000209, 2095498218,
-            3461573372807835
+            1831775732, 1860533762, 1980000209, 2095498218, 3461573372807835
           ].sort(() => 0.5 - Math.random());
           let info = [], promises = [];
           while (users.length) {
@@ -58,7 +57,7 @@ export default async (req, res) => {
             info = info.concat((await r.json()).data);
           }
           if (req.query.version === '2') { // 新版（更简洁，有缓存）
-            res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate').json({ code: 0, data: info.map(u => ({ image: u.face, icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.type === 2 ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })) });
+            res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000').json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => ({ image: u.face, icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.type === 2 ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })) });
           } else {
             res.status(200).json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.encodeHTML(u.face)}" referrerpolicy="no-referrer" />${u.official.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/images/personal.svg" />' : u.official.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/images/business.svg" />' : u.vip.status ? '<img class="face-icon" alt title="大会员" src="/images/big-vip.svg" />' : ''}<p${u.vip.type === 2 ? ' style="color: #fb7299;"' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
           }
