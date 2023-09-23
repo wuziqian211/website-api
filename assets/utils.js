@@ -54,20 +54,20 @@ const renderExtraStyle = pic => `
   body {
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
-    background: url(${pic}) center/cover no-repeat fixed #fff;
+    background: url(${pic}) center/cover no-repeat fixed var(--background-color);
     transition: background 0.5s 0.5s;
   }
   header, main {
-    background: #fff9;
+    background: var(--background-color-translucent);
   }
   @media (prefers-color-scheme: dark) {
     body {
       -webkit-backdrop-filter: blur(20px) brightness(0.5);
       backdrop-filter: blur(20px) brightness(0.5);
-      background-color: #222;
+      background-color: var(--background-color-dark);
     }
     header, main {
-      background: #2229;
+      background: var(--background-color-dark-translucent);
     }
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
