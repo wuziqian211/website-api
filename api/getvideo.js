@@ -34,7 +34,7 @@ const handler = async (req, res) => {
         const hjson = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
         const info = hjson.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid); // 获取 BV 号相同的视频信息
         if (hjson.code === 0 && info) {
-          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vt: undefined, vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
+          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
         } else {
           json = { code: -404, message: '啥都木有' };
         }
