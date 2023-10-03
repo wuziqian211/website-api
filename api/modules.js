@@ -47,15 +47,12 @@ export default async (req, res) => {
             1498694594, 1529167079, 1550118493, 1572189367, 1651446751, 1684665013, 1694284021, 1697970104, 1721464338, 1753797776,
             1831775732, 1860533762, 1980000209, 2095498218, 3461573372807835
           ].sort(() => 0.5 - Math.random());
-          let info = [], promises = [];
+          const promises = [];
           while (users.length) {
             promises.push(fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } })); // 获取多用户信息，每次获取 50 个
             users = users.slice(50);
           }
-          const resps = await Promise.all(promises);
-          for (const r of resps) {
-            info = info.concat((await r.json()).data);
-          }
+          const info = [].concat(...await Promise.all((await Promise.all(promises)).map(async resp => (await resp.json()).data)));
           if (req.query.version === '2') { // 新版（更简洁，有缓存）
             res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000').json({ code: 0, data: info.sort(() => 0.5 - Math.random()).map(u => ({ image: u.face, icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })) });
           } else {

@@ -87,8 +87,7 @@ const getDate = ts => { // 根据时间戳返回日期时间
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
 const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
-  const t = (BigInt(aid) ^ 177451812n) + 100618342136696320n;
-  const bvid = [];
+  const t = (BigInt(aid) ^ 177451812n) + 100618342136696320n, bvid = [];
   for (let i = 0n; i < 10n; i++) {
     bvid[[9, 8, 1, 6, 2, 4, 0, 7, 3, 5][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
   }
