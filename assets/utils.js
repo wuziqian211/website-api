@@ -86,27 +86,27 @@ const getDate = ts => { // 根据时间戳返回日期时间
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
-  const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
-  const bvid = ['B', 'V', '1', , , '4', , '1', , '7'];
-  for (let i = 0n; i < 6n; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
+const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
+  const t = (BigInt(aid) ^ 177451812n) + 100618342136696320n;
+  const bvid = [];
+  for (let i = 0n; i < 10n; i++) {
+    bvid[[9, 8, 1, 6, 2, 4, 0, 7, 3, 5][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
   }
-  return bvid.join('');
+  return 'BV' + bvid.join('');
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
-  if (/^av\d+$/i.test(vid)) { // 判断编号是否为前缀为“av”的 AV 号
+  if (/^av\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
-  } else if (/^\d+$/.test(vid)) { // 判断编号是否为不带前缀的 AV 号
+  } else if (/^\d+$/.test(vid) && parseInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
-  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为 BV 号
+  } else if (/^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: 'BV' + vid.slice(2) };
-  } else if (/^md\d+$/i.test(vid)) { // 判断编号是否为 mdid
+  } else if (/^md\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
     return { type: 2, vid: parseInt(vid.slice(2)) };
-  } else if (/^ss\d+$/i.test(vid)) { // 判断编号是否为 ssid
+  } else if (/^ss\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 ssid
     return { type: 3, vid: parseInt(vid.slice(2)) };
-  } else if (/^ep\d+$/i.test(vid)) { // 判断编号是否为 epid
+  } else if (/^ep\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 epid
     return { type: 4, vid: parseInt(vid.slice(2)) };
   } else { // 编号无效
     return {};
