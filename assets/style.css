@@ -1,10 +1,10 @@
 :root {
   --background-color: #fff;
   --background-color-dark: #222;
-  --highlight-color: #f52;
-  --highlight-color-dark: #e42;
-  --highlight-hover-color: #fa8;
-  --highlight-hover-color-dark: #f86;
+  --highlight-color: #09f;
+  --highlight-color-dark: #08e;
+  --highlight-hover-color: #3bf;
+  --highlight-hover-color-dark: #3ae;
   --secondary-color: #777;
   --secondary-color-dark: #999;
   --text-color: #222;
