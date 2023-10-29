@@ -1,7 +1,8 @@
 {
   "functions": {
-    "api/{404,index,modules}.js": {
-      "memory": 128
+    "api/{404,index}.js": {
+      "memory": 128,
+      "includeFiles": "assets/utils.js"
     },
     "api/getuser.js": {
       "memory": 256,
@@ -10,6 +11,10 @@
     "api/getvideo.js": {
       "memory": 256,
       "includeFiles": "assets/{error.mp4,nocover.png,utils.js}"
+    },
+    "api/modules.js": {
+      "memory": 192,
+      "includeFiles": "assets/{friends,utils}.js"
     }
   },
   "headers": [
