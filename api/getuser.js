@@ -5,7 +5,8 @@
  */
 
 import fs from 'node:fs/promises';
-import * as utils from '../assets/utils.js';
+import utils from '../assets/utils.js';
+
 export default async (req, res) => {
   const { startTime, accept } = utils.initialize(req);
   try {

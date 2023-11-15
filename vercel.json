@@ -10,11 +10,11 @@
     },
     "api/getvideo.js": {
       "memory": 256,
-      "includeFiles": "assets/{error.mp4,nocover.png,utils.js}"
+      "includeFiles": "assets/{constants.js,error.mp4,nocover.png,utils.js}"
     },
     "api/modules.js": {
       "memory": 192,
-      "includeFiles": "assets/{friends,utils}.js"
+      "includeFiles": "assets/{constants,utils}.js"
     }
   },
   "headers": [

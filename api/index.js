@@ -1,4 +1,5 @@
-import * as utils from '../assets/utils.js';
+import utils from '../assets/utils.js';
+
 export default (req, res) => {
   const { startTime, accept } = utils.initialize(req);
   try {

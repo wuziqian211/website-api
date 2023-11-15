@@ -1,5 +1,6 @@
-import * as utils from '../assets/utils.js';
-import friends from '../assets/friends.js';
+import utils from '../assets/utils.js';
+import { friends } from '../assets/constants.js';
+
 export default async (req, res) => {
   const { startTime, accept } = utils.initialize(req);
   try {
