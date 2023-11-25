@@ -2,7 +2,7 @@ export default (req, res) => {
   if (/^(?:.+\.)?yumeharu.top$/.test(req.headers.host)) {
     let expectedURL;
     if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(req.url)) {
-      expectedURL = `https://wuziqian211.top${req.url}`;
+      expectedURL = `https://www.yumeharu.top${req.url}`;
     } else if (/^\/api|^\/get/.test(req.url)) {
       expectedURL = `https://api.yumeharu.top${req.url}`;
     }
@@ -21,12 +21,12 @@ export default (req, res) => {
         <body>
           <header>
             <div class="header">
-              <a href="https://wuziqian211.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span>
+              <a href="https://www.yumeharu.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span>
             </div>
           </header>
           <main>
             您似乎输入错了网址！请仔细检查您的网址是否输入正确。<br />
-            ${expectedURL ? `您是否想要访问 <a href="${expectedURL}">${expectedURL}</a>？` : '<a href="https://wuziqian211.top/">点击此处返回 Blog 首页</a>'}
+            ${expectedURL ? `您是否想要访问 <a href="${expectedURL}">${expectedURL}</a>？` : '<a href="https://www.yumeharu.top/">点击此处返回 Blog 首页</a>'}
           </main>
           <footer>
             © 2021 – 2023 wuziqian211
@@ -43,7 +43,7 @@ export default (req, res) => {
     const url = `https://et19798147-2.icoc.vc${req.url}`;
     res.status(308).setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate').setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({ code: 308, data: { url } });
   } else {
-    const url = 'https://wuziqian211.top/';
+    const url = 'https://www.yumeharu.top/';
     res.status(307).setHeader('Location', url).setHeader('Refresh', `0; url=${url}`).json({ code: 308, data: { url } });
   }
 };
