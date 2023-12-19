@@ -5,7 +5,7 @@
  */
 
 import fs from 'node:fs/promises';
-import utils from '../assets/utils.js'
+import utils from '../assets/utils.js';
 import { zones, states } from '../assets/constants.js';
 
 const handler = async (req, res) => {
