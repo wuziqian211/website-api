@@ -3,8 +3,11 @@
  * 使用说明见 https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE。
  * 作者：wuziqian211（https://wuziqian211.top/）
  */
+
 import fs from 'node:fs/promises';
-import * as utils from '../assets/utils.js';
+import utils from '../assets/utils.js';
+import { zones, states } from '../assets/constants.js';
+
 const handler = async (req, res) => {
   const { startTime, accept } = utils.initialize(req); // 获取 API 开始执行时间与客户端接受响应的类型
   try {
@@ -12,7 +15,7 @@ const handler = async (req, res) => {
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
       </form>` })); // 将 HTML 响应发送到客户端
     const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     if ((req.query.cookie === 'true' || req.query.type === 'data' || req.query.force != undefined) && req.query.cookie !== 'false') { // 如果用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），且没有要求不使用 Cookie，就加入账号登录信息
@@ -25,8 +28,6 @@ const handler = async (req, res) => {
     }
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     if (type === 1) { // 编号为 AV 号或 BV 号
-      const zones = { 1: '动画', 3: '音乐', 4: '游戏', 5: '娱乐', 11: '电视剧', 13: '番剧', 17: '游戏|单机游戏', 19: '游戏|Mugen', 20: '舞蹈|宅舞', 21: '生活|日常', 22: '鬼畜|鬼畜调教', 23: '电影', 24: '动画|MAD·AMV', 25: '动画|MMD·3D', 26: '鬼畜|音MAD', 27: '动画|综合', 28: '音乐|原创音乐', 29: '音乐|三次元音乐', 30: '音乐|VOCALOID·UTAU', 31: '音乐|翻唱', 32: '番剧|完结动画', 33: '番剧|连载动画', 36: '知识', 37: '纪录片|人文·历史', 47: '动画|短片·手书·配音', 51: '番剧|资讯', 59: '音乐|演奏', 65: '游戏|网络游戏', 71: '娱乐|综艺', 75: '动物圈|动物综合', 76: '美食|美食制作', 83: '电影|其他国家', 85: '影视|小剧场', 86: '动画|特摄', 95: '科技|数码', 119: '鬼畜', 121: '游戏|GMV', 122: '知识|野生技能协会', 124: '知识|社科·法律·心理', 126: '鬼畜|人力VOCALOID', 127: '鬼畜|教程演示', 129: '舞蹈', 130: '音乐|音乐综合', 136: '游戏|音游', 137: '娱乐|明星综合', 138: '生活|搞笑', 145: '电影|欧美电影', 146: '电影|日本电影', 147: '电影|华语电影', 152: '番剧|官方延伸', 153: '国创|国产动画', 154: '舞蹈|舞蹈综合', 155: '时尚', 156: '舞蹈|舞蹈教程', 157: '时尚|美妆护肤', 158: '时尚|穿搭', 159: '时尚|时尚潮流', 160: '生活', 161: '生活|手工', 162: '生活|绘画', 164: '运动|健身', 167: '国创', 168: '国创|国产原创相关', 169: '国创|布袋戏', 170: '国创|资讯', 171: '游戏|电子竞技', 172: '游戏|手机游戏', 173: '游戏|桌游棋牌', 176: '汽车|汽车生活', 177: '纪录片', 178: '纪录片|科学·探索·自然', 179: '纪录片|军事', 180: '纪录片|社会·美食·旅行', 181: '影视', 182: '影视|影视杂谈', 183: '影视|影视剪辑', 184: '影视|预告·资讯', 185: '电视剧|国产剧', 187: '电视剧|海外剧', 188: '科技', 193: '音乐|MV', 195: '国创|动态漫·广播剧', 198: '舞蹈|街舞', 199: '舞蹈|明星舞蹈', 200: '舞蹈|中国舞', 201: '知识|科学科普', 202: '资讯', 203: '资讯|热点', 204: '资讯|环球', 205: '资讯|社会', 206: '资讯|综合', 207: '知识|财经商业', 208: '知识|校园学习', 209: '知识|职业职场', 210: '动画|手办·模玩', 211: '美食', 212: '美食|美食侦探', 213: '美食|美食测评', 214: '美食|田园美食', 215: '美食|美食记录', 216: '鬼畜|鬼畜剧场', 217: '动物圈', 218: '动物圈|喵星人', 219: '动物圈|汪星人', 220: '动物圈|大熊猫', 221: '动物圈|野生动物', 222: '动物圈|爬宠', 223: '汽车', 227: '汽车|购车攻略', 228: '知识|人文历史', 229: '知识|设计创意', 230: '科技|软件应用', 231: '科技|计算机技术', 232: '科技|科工机械', 233: '科技|极客DIY', 234: '运动', 235: '运动|篮球', 236: '运动|竞技体育', 237: '运动|运动文化', 238: '运动|运动综合', 239: '生活|家居房产', 240: '汽车|摩托车', 241: '娱乐|娱乐杂谈', 242: '娱乐|粉丝创作', 243: '音乐|乐评盘点', 244: '音乐|音乐教学', 245: '汽车|赛车', 246: '汽车|改装玩车', 247: '汽车|新能源车', 248: '汽车|房车', 249: '运动|足球', 250: '生活|出行', 251: '生活|三农', 252: '时尚|仿妆cos', 253: '动画|动漫杂谈' }; // 分区列表，来自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md
-      const states = { 0: '该视频已开放浏览', 1: '该视频通过审核，但可能会受到限制', '-1': '该视频正在审核', '-2': '该视频已被退回', '-3': '该视频已被锁定', '-4': '该视频已被锁定', '-5': '该视频已被锁定', '-6': '该视频正在审核', '-7': '该视频正在审核', '-8': '该视频正在审核', '-9': '该视频正在审核', '-10': '该视频正在审核', '-11': '该视频在投稿时可能出现问题，没有发布', '-12': '该视频在投稿时可能出现问题，没有发布', '-13': '该视频在投稿时可能出现问题，没有发布', '-14': '该视频已被删除', '-15': '该视频正在审核', '-16': '该视频在投稿时可能出现问题，没有发布', '-20': '该视频没有投稿', '-30': '该视频正在审核', '-40': '该视频已审核通过，但没有发布', '-100': '该视频已被删除' }; // 稿件状态，来自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/attribute_data.md
       let json;
       if (req.query.force != undefined) { // 强制获取视频信息
         const rjson = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', headers, body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, dt: 2, play_type: 1, csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录加入这个视频
@@ -34,7 +35,7 @@ const handler = async (req, res) => {
         const hjson = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
         const info = hjson.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid); // 获取 BV 号相同的视频信息
         if (hjson.code === 0 && info) {
-          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vt: undefined, vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
+          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
         } else {
           json = { code: -404, message: '啥都木有' };
         }
@@ -99,6 +100,21 @@ const handler = async (req, res) => {
         if (accept === 1) { // 客户端想要得到类型为“文档”的回应，返回 HTML
           switch (json.code) {
             case 0:
+              let zone = utils.encodeHTML(json.data.tname) || '未知';
+              const mainZone = zones.find(m => m.tid === json.data.tid);
+              if (mainZone) {
+                zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${mainZone.url}">${mainZone.name}</a>`;
+              } else {
+                for (const m of zones) {
+                  if (m.sub) {
+                    const subZone = m.sub.find(s => s.tid === json.data.tid);
+                    if (subZone) {
+                      zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${m.url}">${m.name}</a> &gt; <a target="_blank" rel="noopener external nofollow noreferrer" title="${subZone.desc || ''}" href="https://www.bilibili.com/${subZone.url}">${subZone.name}</a>`;
+                      break;
+                    }
+                  }
+                }
+              }
               const content = `
                 <div class="info">
                   <div class="wrap">
@@ -113,7 +129,7 @@ const handler = async (req, res) => {
                     ${json.data.videos}P ${utils.getTime(json.data.duration)} ${json.data.copyright === 1 ? '自制' : json.data.copyright === 2 ? '转载' : ''}${json.data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${json.data.stat.evaluation ? ` ${utils.encodeHTML(json.data.stat.evaluation)}` : ''}${json.data.stat.now_rank ? ` 当前排名第 ${json.data.stat.now_rank} 名` : ''}${json.data.stat.his_rank ? ` 历史最高排名第 ${json.data.stat.his_rank} 名` : ''}
                   </div>
                 </div>
-                <strong>分区：</strong>${zones[json.data.tid]?.replace(/\|/g, ' &gt; ') || utils.encodeHTML(json.data.tname)}<br />
+                <strong>分区：</strong>${zone}<br />
                 <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span></s><br />
                 <strong>发布时间：</strong>${utils.getDate(json.data.pubdate)}
                 <table>
@@ -512,4 +528,5 @@ const handler = async (req, res) => {
     res.status(500).send(utils.render500(startTime, e));
   }
 };
+
 export default handler;

@@ -1,3 +1,21 @@
+:root {
+  --background-color: #fff;
+  --background-color-translucent: #fff9;
+  --background-color-dark: #222;
+  --background-color-dark-translucent: #2229;
+  --highlight-color: #09f;
+  --highlight-color-dark: #08e;
+  --highlight-hover-color: #3bf;
+  --highlight-hover-color-dark: #3ae;
+  --notice-background-color: #fff3db;
+  --notice-background-color-dark: #999183;
+  --notice-text-color: #ffb112;
+  --secondary-color: #777;
+  --secondary-color-dark: #999;
+  --text-color: #222;
+  --text-color-dark: #ccc;
+}
+
 * {
   font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   overflow-wrap: anywhere;
@@ -15,13 +33,13 @@ html {
   height: 100%;
 }
 body {
-  background: #fff;
-  color: #222;
+  background: var(--background-color);
+  color: var(--text-color);
   margin: 0;
   min-height: 100%;
 }
 header {
-  background: #fff;
+  background: var(--background-color);
   box-shadow: 0 0 5px #777;
   position: sticky;
   top: 0;
@@ -39,7 +57,7 @@ div.header > div.left {
   font-size: 24px;
 }
 span.description {
-  color: #777;
+  color: var(--secondary-color);
 }
 div.header > div.left > span.description {
   font-size: 14px;
@@ -133,10 +151,10 @@ div.wrap.has-frame img.face-icon.second {
   left: calc(50% - 8px);
 }
 a, strong, th, label, input[type='submit'] {
-  color: #09f;
+  color: var(--highlight-color);
 }
 a:hover, input[type='submit']:hover {
-  color: #3bf;
+  color: var(--highlight-hover-color);
 }
 a {
   text-decoration: underline dotted #333;
@@ -167,9 +185,9 @@ img.spic {
   height: 160px;
 }
 span.notice, a.notice {
-  background: #fff3db;
+  background: var(--notice-background-color);
   border-radius: 5px;
-  color: #ffb112;
+  color: var(--notice-text-color);
   font-weight: bold;
   padding: 2.5px;
 }
@@ -182,7 +200,7 @@ img.notice-icon[src] {
   content: initial;
 }
 table {
-  border: 2px solid #09f;
+  border: 2px solid var(--highlight-color);
   border-collapse: collapse;
   border-radius: 10px;
   display: block;
@@ -195,7 +213,7 @@ th, td {
   text-align: center;
 }
 th, td, input {
-  border: 1px solid #09f;
+  border: 1px solid var(--highlight-color);
 }
 img.ppic {
   border-radius: 10px;
@@ -214,7 +232,7 @@ input {
 }
 input:hover {
   background: #fff6;
-  border-color: #3bf;
+  border-color: var(--highlight-hover-color);
 }
 input[type='text']:focus, input[type='number']:focus {
   background: #fff6;
@@ -232,7 +250,7 @@ pre {
   padding: 10px;
 }
 footer {
-  color: #777;
+  color: var(--secondary-color);
   font-size: 16px;
   margin: 10px 10px 0;
   text-align: center;
@@ -298,13 +316,13 @@ footer {
 }
 @media (max-width: 359px), (prefers-color-scheme: dark) {
   body {
-    color: #ccc;
+    color: var(--text-color-dark);
   }
   body, header {
-    background: #222;
+    background: var(--background-color-dark);
   }
   span.description, footer {
-    color: #999;
+    color: var(--secondary-color-dark);
   }
   img.icon-personal {
     content: url(/assets/personal_dark.svg);
@@ -319,10 +337,10 @@ footer {
     content: url(/assets/small-vip_dark.svg);
   }
   a, strong, th, label, input[type='submit'] {
-    color: #08e;
+    color: var(--highlight-color-dark);
   }
   a:hover, input[type='submit']:hover {
-    color: #3ae;
+    color: var(--highlight-hover-color-dark);
   }
   a {
     text-decoration-color: #aaa;
@@ -331,16 +349,16 @@ footer {
     text-decoration-color: #ccc;
   }
   span.notice, a.notice {
-    background: #999183;
+    background: var(--notice-background-color-dark);
   }
   table, th, td, input {
-    border-color: #08e;
+    border-color: var(--highlight-color-dark);
   }
   input:hover, input[type='text']:focus, input[type='number']:focus {
     background: #2226;
   }
   input:hover {
-    border-color: #3ae;
+    border-color: var(--highlight-hover-color-dark);
   }
   input[type='submit']:active {
     background: #0006;
