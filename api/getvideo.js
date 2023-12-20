@@ -16,7 +16,7 @@ const handler = async (req, res) => {
       </form>` })); // 将 HTML 响应发送到客户端
     const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     if ((req.query.cookie === 'true' || req.query.type === 'data' || req.query.force != undefined) && req.query.cookie !== 'false') { // 如果用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），且没有要求不使用 Cookie，就加入账号登录信息
-      headers.Cookie =  `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`;
+      headers.Cookie = `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`;
     } else if (req.query.force != undefined && req.query.cookie === 'false') { // 既要求强制获取视频信息（需要登录）又要求不使用 Cookie，这种情况无法获取到视频信息
       res.status(400);
       sendHTML({ title: '无法强制获取视频信息', content: `

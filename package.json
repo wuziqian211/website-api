@@ -1,5 +1,8 @@
 {
   "license": "MIT",
   "type": "module",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@vercel/kv": "latest"
+  }
 }

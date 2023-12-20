@@ -1,3 +1,5 @@
+import { kv } from '@vercel/kv';
+
 const initialize = req => {
   let accept;
   if (req.headers.accept?.includes('html') || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据
@@ -54,20 +56,20 @@ const renderExtraStyle = pic => `
   body {
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
-    background: url(${pic}) center/cover no-repeat fixed #fff;
+    background: url(${pic}) center/cover no-repeat fixed var(--background-color);
     transition: background 0.5s 0.5s;
   }
   header, main {
-    background: #fff9;
+    background: var(--background-color-translucent);
   }
   @media (prefers-color-scheme: dark) {
     body {
       -webkit-backdrop-filter: blur(20px) brightness(0.5);
       backdrop-filter: blur(20px) brightness(0.5);
-      background-color: #222;
+      background-color: var(--background-color-dark);
     }
     header, main {
-      background: #2229;
+      background: var(--background-color-dark-translucent);
     }
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
@@ -86,30 +88,50 @@ const getDate = ts => { // 根据时间戳返回日期时间
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
-  const t = (BigInt(aid) ^ 177451812n) + 8728348608n;
-  const bvid = ['B', 'V', '1', , , '4', , '1', , '7'];
-  for (let i = 0n; i < 6n; i++) {
-    bvid[[11, 10, 3, 8, 4, 6][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
+const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
+  const t = (BigInt(aid) ^ 177451812n) + 100618342136696320n, bvid = [];
+  for (let i = 0n; i < 10n; i++) {
+    bvid[[9, 8, 1, 6, 2, 4, 0, 7, 3, 5][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
   }
-  return bvid.join('');
+  return 'BV' + bvid.join('');
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
-  if (/^av\d+$/i.test(vid)) { // 判断编号是否为前缀为“av”的 AV 号
+  if (/^av\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
-  } else if (/^\d+$/.test(vid)) { // 判断编号是否为不带前缀的 AV 号
+  } else if (/^\d+$/.test(vid) && parseInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
-  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2}$/.test(vid)) { // 判断编号是否为 BV 号
+  } else if (/^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: 'BV' + vid.slice(2) };
-  } else if (/^md\d+$/i.test(vid)) { // 判断编号是否为 mdid
+  } else if (/^md\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
     return { type: 2, vid: parseInt(vid.slice(2)) };
-  } else if (/^ss\d+$/i.test(vid)) { // 判断编号是否为 ssid
+  } else if (/^ss\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 ssid
     return { type: 3, vid: parseInt(vid.slice(2)) };
-  } else if (/^ep\d+$/i.test(vid)) { // 判断编号是否为 epid
+  } else if (/^ep\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 epid
     return { type: 4, vid: parseInt(vid.slice(2)) };
   } else { // 编号无效
     return {};
   }
 };
-export { initialize, renderHTML, render404, render500, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, getVidType };
+const encodeWbi = async (originalQuery, keys) => { // 对请求参数进行 wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+  let t = '';
+  [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].forEach(n => t += (keys.imgKey + keys.subKey)[n]);
+  const mixinKey = t.slice(0, 32), query = { ...originalQuery, wts: Math.floor((await getCurrentTime()) / 1000) }; // 对 imgKey 和 subKey 进行字符顺序打乱编码，添加 wts 字段
+  const params = new URLSearchParams(Object.keys(query).sort().map(name => [name, query[name].toString().replace(/[!'()*]/g, '')])); // 按照 key 重排参数，过滤 value 中的 “!”“'”“(”“)”“*” 字符
+  params.append('w_rid', md5(params + mixinKey)); // 计算 w_rid
+  return params;
+};
+const getWbiKeys = async noCache => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+  let cachedWbiKeys;
+  if (noCache) cachedWbiKeys = await kv.get('wbiKeys');
+  if (!cachedWbiKeys || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
+    const ujson = await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent } })).json();
+    const wbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?(.+)$/, '$1').replace(/^(.*)(?:\..*)$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?(.+)$/, '$1').replace(/^(.*)(?:\..*)$/, '$1') };
+    await kv.set('wbiKeys', { ...wbiKeys, updatedTimestamp: Date.now() });
+    return wbiKeys;
+  } else {
+    return cachedWbiKeys;
+  }
+};
+
+export default { initialize, renderHTML, render404, render500, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, getVidType, encodeWbi, getWbiKeys };
