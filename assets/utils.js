@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+import md5 from 'md5';
 
 const initialize = req => {
   let accept;

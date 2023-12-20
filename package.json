@@ -3,6 +3,7 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@vercel/kv": "latest"
+    "@vercel/kv": "latest",
+    "md5": "latest"
   }
 }
