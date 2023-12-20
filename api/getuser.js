@@ -1,7 +1,7 @@
 /* 获取哔哩哔哩用户信息
  *   https://api.yumeharu.top/api/getuser
  * 使用说明见 https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF。
- * 作者：wuziqian211（https://wuziqian211.top/）
+ * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
 import fs from 'node:fs/promises';

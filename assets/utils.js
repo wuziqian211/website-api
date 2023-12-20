@@ -116,7 +116,7 @@ const getVidType = vid => { // 判断编号类型
 const encodeWbi = async (originalQuery, keys) => { // 对请求参数进行 wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   let t = '';
   [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].forEach(n => t += (keys.imgKey + keys.subKey)[n]);
-  const mixinKey = t.slice(0, 32), query = { ...originalQuery, wts: Math.floor((await getCurrentTime()) / 1000) }; // 对 imgKey 和 subKey 进行字符顺序打乱编码，添加 wts 字段
+  const mixinKey = t.slice(0, 32), query = { ...originalQuery, wts: Math.floor(Date.now() / 1000) }; // 对 imgKey 和 subKey 进行字符顺序打乱编码，添加 wts 字段
   const params = new URLSearchParams(Object.keys(query).sort().map(name => [name, query[name].toString().replace(/[!'()*]/g, '')])); // 按照 key 重排参数，过滤 value 中的 “!”“'”“(”“)”“*” 字符
   params.append('w_rid', md5(params + mixinKey)); // 计算 w_rid
   return params;
