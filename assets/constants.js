@@ -202,7 +202,7 @@ const states = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collec
  * 这些朋友的注销，给 wuziqian211 带来了一定程度的损失。wuziqian211 希望能有缘再见到 TA 们。
  */
 
-const friends = [ // 共 248 位用户（每个 UID 后面的注释为最近一次更新此数据时 UID 对应用户的昵称）
+const friends = [ // 共 249 位用户（每个 UID 后面的注释为最近一次更新此数据时 UID 对应用户的昵称）
   12767, // 艹
   72104, // 苏白
   3090720, // UMKII
@@ -321,6 +321,7 @@ const friends = [ // 共 248 位用户（每个 UID 后面的注释为最近一�
   430942433, // 衷曲明断几回聞
   430967737, // SleptUser
   432258909, // 顾云淮
+  433513379, // Kegongteng
   433636684, // 瑛与抱月
   433751453, // Henry_3230
   433849994, // 梅有在剪视频
