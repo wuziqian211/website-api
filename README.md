@@ -22,15 +22,15 @@
 | api/getuser.js | “获取哔哩哔哩用户信息” API |
 | api/getvideo.js | “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API |
 | api/index.js | 用于渲染网站首页的 API |
-| api/modules.js | 仅供内部使用，非公开使用（但公开源代码）的 API |
+| api/modules.js | [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能使用的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
-| assets/[1-5]-22.jpg, assets/[1-6]-33.jpg | 哔哩哔哩的一些随机头像 |
+| assets/\[1-5\]-22.jpg, assets/\[1-6\]-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/big-vip.svg, assets/business.svg, assets/nft-label.gif, assets/nft-label-oversea.gif, assets/personal.svg, assets/small-vip.svg | 哔哩哔哩大会员、机构认证、数字藏品头像、海外版数字藏品头像、UP 主认证与愚人节限定的“小会员”图标 |
 | assets/big-vip_dark.svg, assets/business_dark.svg, assets/personal_dark.svg, assets/small-vip_dark.svg | 深色模式下的哔哩哔哩大会员、机构认证、UP 主认证与愚人节限定的“小会员”图标 |
 | assets/constants.js | 一些常量，如视频分区与状态信息、朋友列表 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就返回本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
-| assets/level_[0-6].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
+| assets/level_\[0-6\].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
 | assets/main.js | 页面使用的 JS |
 | assets/nocover.png | 获取视频封面时，如果视频不存在，就返回本文件数据 |
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就返回本文件数据 |

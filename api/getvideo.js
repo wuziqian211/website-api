@@ -11,14 +11,16 @@ import { zones, states } from '../assets/constants.js';
 const handler = async (req, res) => {
   const { startTime, accept } = utils.initialize(req); // 获取 API 开始执行时间与客户端接受响应的类型
   try {
-    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
+    const sendHTML = data => utils.sendHTML(res, startTime, { ...data, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
-      </form>` })); // 将 HTML 响应发送到客户端
+        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+      </form>` }); // 发送 HTML 响应到客户端
+    const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
+    
     const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
-    if ((req.query.cookie === 'true' || req.query.type === 'data' || req.query.force != undefined) && req.query.cookie !== 'false') { // 如果用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），且没有要求不使用 Cookie，就加入账号登录信息
+    if ((req.query.cookie === 'true' || req.query.type === 'data' || req.query.force != undefined) && req.query.cookie !== 'false') { // 如果用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有要求不使用 Cookie，就添加账号登录信息
       headers.Cookie = `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`;
     } else if (req.query.force != undefined && req.query.cookie === 'false') { // 既要求强制获取视频信息（需要登录）又要求不使用 Cookie，这种情况无法获取到视频信息
       res.status(400);
@@ -26,6 +28,7 @@ const handler = async (req, res) => {
         在不使用 Cookie 的情况下，无法强制获取视频信息 qwq<br />
         如果您要强制获取视频信息，则必须使用 Cookie（把“cookie=false”参数去掉）awa`, vid: req.query.vid });
     }
+    
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
     if (type === 1) { // 编号为 AV 号或 BV 号
       let json;
@@ -40,8 +43,9 @@ const handler = async (req, res) => {
           json = { code: -404, message: '啥都木有' };
         }
       } else {
-        json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息 https://api.bilibili.com/x/web-interface/view/detail?bvid=BV1……
+        json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
       }
+      
       if (req.query.type === 'data') { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
@@ -53,6 +57,7 @@ const handler = async (req, res) => {
             cid = json.data.cid; // 将变量“cid”设置为该视频第 1 P 的 cid
           }
         }
+        
         if (cid) { // 视频有效
           const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
           let url;
@@ -64,15 +69,17 @@ const handler = async (req, res) => {
               break;
             }
           }
+          
           if (url) { // 视频地址获取成功
-            const { pathname } = new URL(url);
-            const filename = encodeURIComponent(`${json.data.title}.${pathname.slice(pathname.lastIndexOf('.') + 1)}`); // 设置视频的文件名
+            const filename = encodeURIComponent(`${json.data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
             const resp = await fetch(url, { headers });
             if (resp.ok) {
-              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
+              utils.send(Buffer.from(await resp.arrayBuffer()));
             } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
-                res.status(200).setHeader('Content-Type', 'video/mp4').send(await fs.readFile('./assets/error.mp4'));
+                res.status(200).setHeader('Content-Type', 'video/mp4');
+                utils.send(await fs.readFile('./assets/error.mp4'));
               } else {
                 res.status(404);
                 sendHTML({ title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid });
@@ -80,7 +87,8 @@ const handler = async (req, res) => {
             }
           } else { // 视频地址获取失败
             if (req.headers['sec-fetch-dest'] === 'video') {
-              res.status(200).setHeader('Content-Type', 'video/mp4').send(await fs.readFile('./assets/error.mp4'));
+              res.status(200).setHeader('Content-Type', 'video/mp4');
+              utils.send(await fs.readFile('./assets/error.mp4'));
             } else {
               res.status(500);
               sendHTML({ title: '无法获取视频数据', content: `
@@ -90,7 +98,8 @@ const handler = async (req, res) => {
           }
         } else { // 视频无效
           if (req.headers['sec-fetch-dest'] === 'video') {
-            res.status(200).setHeader('Content-Type', 'video/mp4').send(await fs.readFile('./assets/error.mp4'));
+            res.status(200).setHeader('Content-Type', 'video/mp4');
+            utils.send(await fs.readFile('./assets/error.mp4'));
           } else {
             res.status(404);
             sendHTML({ title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: req.query.vid });
@@ -115,6 +124,7 @@ const handler = async (req, res) => {
                   }
                 }
               }
+              
               const content = `
                 <div class="info">
                   <div class="wrap">
@@ -217,50 +227,59 @@ const handler = async (req, res) => {
           switch (json.code) {
             case 0:
               if (req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的封面地址
-                res.status(307).setHeader('Location', utils.toHTTPS(json.data.pic)).json({ code: 307, data: { url: utils.toHTTPS(json.data.pic) } });
+                utils.redirect(res, startTime, utils.toHTTPS(json.data.pic), 307);
               } else {
-                const filename = encodeURIComponent(`${json.data.title} 的封面.${utils.toHTTPS(json.data.pic).split('.').at(-1)}`); // 设置封面的文件名
+                const filename = encodeURIComponent(`${json.data.title} 的封面.${new URL(json.data.pic).pathname.split('.').at(-1)}`); // 设置封面的文件名
                 const resp = await fetch(utils.toHTTPS(json.data.pic)); // 获取 B 站服务器存储的封面
                 if (resp.status === 200) {
-                  res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+                  res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
+                  utils.send(Buffer.from(await resp.arrayBuffer()));
                 } else {
-                  res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+                  res.status(404).setHeader('Content-Type', 'image/png');
+                  utils.send(await fs.readFile('./assets/nocover.png'));
                 }
               }
               break;
             case -403:
               if (['true', 'false'].includes(req.query.cookie)) {
-                res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+                res.status(404).setHeader('Content-Type', 'image/png');
+                utils.send(await fs.readFile('./assets/nocover.png'));
               } else {
-                await handler({ headers: { accept: 'image/*' }, query: { cookie: 'true', vid: req.query.vid } }, res);
+                await handler({ __startTime__: startTime, headers: { accept: 'image/*' }, query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             default:
-              res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png')); // 返回默认封面
+              res.status(404).setHeader('Content-Type', 'image/png');
+              utils.send(await fs.readFile('./assets/nocover.png')); // 返回默认封面
           }
         } else { // 否则，返回 JSON
           switch (json.code) {
             case 0:
-              res.status(200).json({ code: 0, message: json.message, data: json.data });
+              res.status(200);
+              sendJSON({ code: 0, message: json.message, data: json.data });
               break;
             case -412:
-              res.status(429).setHeader('Retry-After', '600').json({ code: -412, message: json.message });
+              res.status(429).setHeader('Retry-After', '600');
+              sendJSON({ code: -412, message: json.message });
               break;
             case -404:
             case 62002:
             case 62003:
             case 62004:
-              res.status(404).json({ code: json.code, message: json.message });
+              res.status(404);
+              sendJSON({ code: json.code, message: json.message });
               break;
             case -403:
               if (['true', 'false'].includes(req.query.cookie)) {
-                res.status(403).json({ code: -403, message: json.message });
+                res.status(403);
+                sendJSON({ code: -403, message: json.message });
               } else {
-                await handler({ headers: {}, query: { cookie: 'true', vid: req.query.vid } }, res);
+                await handler({ __startTime__: startTime, headers: {}, query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             default:
-              res.status(400).json({ code: json.code, message: json.message });
+              res.status(400);
+              sendJSON({ code: json.code, message: json.message });
           }
         }
       }
@@ -299,32 +318,39 @@ const handler = async (req, res) => {
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
         if (json.code === 0) {
           if (req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的封面地址
-            res.status(307).setHeader('Location', utils.toHTTPS(json.result.media.cover)).json({ code: 307, data: { url: utils.toHTTPS(json.result.media.cover) } });
+            utils.redirect(res, startTime, utils.toHTTPS(json.result.media.cover), 307);
           } else {
-            const filename = encodeURIComponent(`${json.result.media.title} 的封面.${utils.toHTTPS(json.result.media.cover).split('.').at(-1)}`); // 设置封面的文件名
+            const filename = encodeURIComponent(`${json.result.media.title} 的封面.${new URL(json.result.media.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
             const resp = await fetch(utils.toHTTPS(json.result.media.cover)); // 获取 B 站服务器存储的封面
             if (resp.status === 200) {
-              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
+              utils.send(Buffer.from(await resp.arrayBuffer()));
             } else {
-              res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+              res.status(404).setHeader('Content-Type', 'image/png');
+              utils.send(await fs.readFile('./assets/nocover.png'));
             }
           }
         } else { // 剧集信息获取失败，返回默认封面
-          res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+          res.status(404).setHeader('Content-Type', 'image/png');
+          utils.send(await fs.readFile('./assets/nocover.png'));
         }
       } else { // 否则，返回 JSON
         switch (json.code) {
           case 0:
-            res.status(200).json({ code: 0, message: json.message, result: json.result });
+            res.status(200);
+            sendJSON({ code: 0, message: json.message, result: json.result });
             break;
           case -412:
-            res.status(429).setHeader('Retry-After', '600').json({ code: -412, message: json.message });
+            res.status(429).setHeader('Retry-After', '600');
+            sendJSON({ code: -412, message: json.message });
             break;
           case -404:
-            res.status(404).json({ code: -404, message: json.message });
+            res.status(404);
+            sendJSON({ code: -404, message: json.message });
             break;
           default:
-            res.status(400).json({ code: json.code, message: json.message });
+            res.status(400);
+            sendJSON({ code: json.code, message: json.message });
         }
       }
     } else if ([3, 4].includes(type)) { // 编号为 ssid 或 epid
@@ -356,6 +382,7 @@ const handler = async (req, res) => {
             }
           }
         }
+        
         if (P) { // 剧集有效
           const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
           let url;
@@ -367,15 +394,17 @@ const handler = async (req, res) => {
               break;
             }
           }
+          
           if (url) { // 视频地址获取成功
-            const { pathname } = new URL(url);
-            const filename = encodeURIComponent(`${json.result.title}.${pathname.slice(pathname.lastIndexOf('.') + 1)}`); // 设置视频的文件名
+            const filename = encodeURIComponent(`${json.result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
             const resp = await fetch(url, { headers });
             if (resp.ok) {
-              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
+              utils.send(Buffer.from(await resp.arrayBuffer()));
             } else {
               if (req.headers['sec-fetch-dest'] === 'video') {
-                res.status(200).setHeader('Content-Type', 'video/mp4').send(await fs.readFile('./assets/error.mp4'));
+                res.status(200).setHeader('Content-Type', 'video/mp4');
+                utils.send(await fs.readFile('./assets/error.mp4'));
               } else {
                 res.status(404);
                 sendHTML({ title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid });
@@ -383,7 +412,8 @@ const handler = async (req, res) => {
             }
           } else { // 视频地址获取失败
             if (req.headers['sec-fetch-dest'] === 'video') {
-              res.status(200).setHeader('Content-Type', 'video/mp4').send(await fs.readFile('./assets/error.mp4'));
+              res.status(200).setHeader('Content-Type', 'video/mp4');
+              utils.send(await fs.readFile('./assets/error.mp4'));
             } else {
               res.status(500);
               sendHTML({ title: '无法获取视频数据', content: `
@@ -393,7 +423,8 @@ const handler = async (req, res) => {
           }
         } else { // 剧集无效
           if (req.headers['sec-fetch-dest'] === 'video') {
-            res.status(200).setHeader('Content-Type', 'video/mp4').send(await fs.readFile('./assets/error.mp4'));
+            res.status(200).setHeader('Content-Type', 'video/mp4');
+            utils.send(await fs.readFile('./assets/error.mp4'));
           } else {
             res.status(404);
             sendHTML({ title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在，或者您可能输入了错误的集号哟 qwq', vid: req.query.vid });
@@ -475,32 +506,39 @@ const handler = async (req, res) => {
         } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取封面
           if (json.code === 0) {
             if (req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的封面地址
-              res.status(307).setHeader('Location', utils.toHTTPS(json.result.cover)).json({ code: 307, data: { url: utils.toHTTPS(json.result.cover) } });
+              utils.redirect(res, startTime, utils.toHTTPS(json.result.cover), 307);
             } else {
-              const filename = encodeURIComponent(`${json.result.title} 的封面.${utils.toHTTPS(json.result.cover).split('.').at(-1)}`); // 设置封面的文件名
+              const filename = encodeURIComponent(`${json.result.title} 的封面.${new URL(json.result.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
               const resp = await fetch(utils.toHTTPS(json.result.cover)); // 获取 B 站服务器存储的封面
               if (resp.status === 200) {
-                res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+                res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
+                utils.send(Buffer.from(await resp.arrayBuffer()));
               } else {
-                res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+                res.status(404).setHeader('Content-Type', 'image/png');
+                utils.send(await fs.readFile('./assets/nocover.png'));
               }
             }
           } else { // 视频信息获取失败，返回默认封面
-            res.status(404).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+            res.status(404).setHeader('Content-Type', 'image/png');
+            utils.send(await fs.readFile('./assets/nocover.png'));
           }
         } else { // 否则，返回 JSON
           switch (json.code) {
             case 0:
-              res.status(200).json({ code: 0, message: json.message, result: json.result });
+              res.status(200);
+              sendJSON({ code: 0, message: json.message, result: json.result });
               break;
             case -412:
-              res.status(429).setHeader('Retry-After', '600').json({ code: -412, message: json.message });
+              res.status(429).setHeader('Retry-After', '600');
+              sendJSON({ code: -412, message: json.message });
               break;
             case -404:
-              res.status(404).json({ code: -404, message: json.message });
+              res.status(404);
+              sendJSON({ code: -404, message: json.message });
               break;
             default:
-              res.status(400).json({ code: json.code, message: json.message });
+              res.status(400);
+              sendJSON({ code: json.code, message: json.message });
           }
         }
       }
@@ -519,13 +557,15 @@ const handler = async (req, res) => {
             请输入一个正确的编号吧 awa`, vid: '' });
         }
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，返回默认封面
-        res.status(400).setHeader('Content-Type', 'image/png').send(await fs.readFile('./assets/nocover.png'));
+        res.status(400).setHeader('Content-Type', 'image/png');
+        utils.send(await fs.readFile('./assets/nocover.png'));
       } else { // 否则，返回 JSON
-        res.status(400).json({ code: -400, message: '请求错误' });
+        res.status(400);
+        sendJSON({ code: -400, message: '请求错误' });
       }
     }
   } catch (e) {
-    res.status(500).send(utils.render500(startTime, e));
+    utils.send500(accept, res, startTime, e);
   }
 };
 
