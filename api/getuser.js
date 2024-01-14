@@ -1,7 +1,7 @@
 /* 获取哔哩哔哩用户信息
  *   https://api.yumeharu.top/api/getuser
  * 使用说明见 https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF。
- * 作者：wuziqian211（https://wuziqian211.top/）
+ * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
 import fs from 'node:fs/promises';
@@ -10,25 +10,29 @@ import utils from '../assets/utils.js';
 export default async (req, res) => {
   const { startTime, accept } = utils.initialize(req);
   try {
-    const sendHTML = data => res.setHeader('Content-Type', 'text/html; charset=utf-8').send(utils.renderHTML({ ...data, startTime, desc: '获取哔哩哔哩用户信息', body: `
+    const sendHTML = data => utils.sendHTML(res, startTime, { ...data, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
       <form>
         <div><label for="mid">请输入您想要获取信息的用户的 UID：</label></div>
         <div><input type="number" name="mid" id="mid" value="${data.mid}" min="1" max="9223372036854775807" autocomplete="off" /> <input type="submit" value="获取" /></div>
-      </form>` })); // 将 HTML 数据发送到客户端
+      </form>` }); // 发送 HTML 响应到客户端
+    const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
+    
     if (/^\d+$/.test(req.query.mid) && parseInt(req.query.mid) > 0) { // 判断 UID 是否是正整数
       const headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent };
+      
       let json;
       const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${req.query.mid}`, { headers })).json();
       if (cjson.code === 0) {
         json = { code: 0, message: cjson.message, data: { face_nft: null, face_nft_type: null, jointime: 0, moral: 0, fans_badge: null, fans_medal: null, vip: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: null, sys_notice: null, live_room: null, school: null, profession: null, tags: null, series: null, is_senior_member: null, mcn_info: null, is_risk: null, elec: null, contract: null, ...cjson.card, mid: parseInt(cjson.card.mid), rank: parseInt(cjson.card.rank), birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000, level: cjson.card.level_info.current_level, silence: cjson.card.spacesta === -2 ? 1 : 0, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, following: cjson.card.attention, follower: cjson.card.fans } };
-        const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?mid=${req.query.mid}`, { headers })).json(); // （备用）获取多用户信息 https://api.vc.bilibili.com/account/v1/user/cards?uids=xxx,xxx,……（最多50个）
+        const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid: req.query.mid })}`, { headers })).json(); // （备用）获取多用户信息：https://api.vc.bilibili.com/account/v1/user/cards?uids=(...),(...),……（最多 50 个用户）
         if (ujson.code === 0) {
-          json.data = { ...json.data, ...ujson.data, coins: cjson.card.coins, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 };
+          json.message = ujson.message, json.data = { ...json.data, ...ujson.data, coins: cjson.card.coins, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 };
         }
       } else {
         json = cjson;
       }
+      
       if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回 HTML
         switch (json.code) {
           case 0:
@@ -79,33 +83,40 @@ export default async (req, res) => {
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
         if (json.code === 0) {
           if (req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的头像地址
-            res.status(307).setHeader('Location', utils.toHTTPS(json.data.face)).json({ code: 307, data: { url: utils.toHTTPS(json.data.face) } });
+            utils.redirect(res, startTime, utils.toHTTPS(json.data.face), 307);
           } else {
-            const filename = encodeURIComponent(`${json.data.name} 的头像.${utils.toHTTPS(json.data.face).split('.').at(-1)}`); // 设置头像的文件名
+            const filename = encodeURIComponent(`${json.data.name} 的头像.${new URL(json.data.face).pathname.split('.').at(-1)}`); // 设置头像的文件名
             const resp = await fetch(utils.toHTTPS(json.data.face)); // 获取 B 站服务器存储的头像
             if (resp.ok) {
-              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`).send(Buffer.from(await resp.arrayBuffer()));
+              res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
+              utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
             } else {
-              res.status(404).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('./assets/noface.jpg'));
+              res.status(404).setHeader('Content-Type', 'image/jpeg');
+              utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
             }
           }
         } else { // 用户信息获取失败，返回默认头像
-          res.status(404).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('./assets/noface.jpg'));
+          res.status(404).setHeader('Content-Type', 'image/jpeg');
+          utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
         }
       } else { // 否则，返回 JSON
         switch (json.code) {
           case 0:
-            res.status(200).json({ code: 0, message: json.message, data: json.data });
+            res.status(200);
+            sendJSON({ code: 0, message: json.message, data: json.data });
             break;
           case -412:
-            res.status(429).setHeader('Retry-After', '600').json({ code: -412, message: json.message });
+            res.status(429).setHeader('Retry-After', '600');
+            sendJSON({ code: -412, message: json.message, data: null });
             break;
           case -404:
           case -626:
-            res.status(404).json({ code: -404, message: json.message });
+            res.status(404);
+            sendJSON({ code: -404, message: json.message, data: null });
             break;
           default:
-            res.status(400).json({ code: json.code, message: json.message });
+            res.status(400);
+            sendJSON({ code: json.code, message: json.message, data: null });
         }
       }
     } else { // UID 无效
@@ -125,15 +136,18 @@ export default async (req, res) => {
       } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
         if (!req.query.mid) { // 没有设置 UID 参数，返回随机头像
           const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-          res.status(200).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile(`./assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
+          res.status(200).setHeader('Content-Type', 'image/jpeg');
+          utils.send(res, startTime, await fs.readFile(`./assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
         } else { // 设置了 UID 参数但无效，返回默认头像
-          res.status(400).setHeader('Content-Type', 'image/jpeg').send(await fs.readFile('./assets/noface.jpg'));
+          res.status(400).setHeader('Content-Type', 'image/jpeg');
+          utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
         }
       } else { // 否则，返回 JSON
-        res.status(400).json({ code: -400, message: '请求错误' });
+        res.status(400);
+        sendJSON({ code: -400, message: '请求错误', data: null });
       }
     }
   } catch (e) {
-    res.status(500).send(utils.render500(startTime, e));
+    utils.send500(accept, res, startTime, e);
   }
 };

@@ -276,9 +276,6 @@ footer {
   }
 }
 @media (max-width: 359px) {
-  :root {
-    color-scheme: dark;
-  }
   * {
     animation: none !important;
     -webkit-backdrop-filter: none !important;
@@ -315,6 +312,9 @@ footer {
   }
 }
 @media (max-width: 359px), (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
   body {
     color: var(--text-color-dark);
   }
