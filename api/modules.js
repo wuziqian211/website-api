@@ -48,7 +48,7 @@ export default async (req, res) => {
           break;
         default:
           res.status(400);
-          sendJSON({ code: -400, message: '请求错误' });
+          sendJSON({ code: -400, message: '请求错误', data: null });
       }
     }
   } catch (e) {

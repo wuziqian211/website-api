@@ -107,16 +107,16 @@ export default async (req, res) => {
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
-            sendJSON({ code: -412, message: json.message });
+            sendJSON({ code: -412, message: json.message, data: null });
             break;
           case -404:
           case -626:
             res.status(404);
-            sendJSON({ code: -404, message: json.message });
+            sendJSON({ code: -404, message: json.message, data: null });
             break;
           default:
             res.status(400);
-            sendJSON({ code: json.code, message: json.message });
+            sendJSON({ code: json.code, message: json.message, data: null });
         }
       }
     } else { // UID 无效
@@ -144,7 +144,7 @@ export default async (req, res) => {
         }
       } else { // 否则，返回 JSON
         res.status(400);
-        sendJSON({ code: -400, message: '请求错误' });
+        sendJSON({ code: -400, message: '请求错误', data: null });
       }
     }
   } catch (e) {

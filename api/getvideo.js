@@ -260,26 +260,26 @@ const handler = async (req, res) => {
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendJSON({ code: -412, message: json.message });
+              sendJSON({ code: -412, message: json.message, data: null });
               break;
             case -404:
             case 62002:
             case 62003:
             case 62004:
               res.status(404);
-              sendJSON({ code: json.code, message: json.message });
+              sendJSON({ code: json.code, message: json.message, data: null });
               break;
             case -403:
               if (['true', 'false'].includes(req.query.cookie)) {
                 res.status(403);
-                sendJSON({ code: -403, message: json.message });
+                sendJSON({ code: -403, message: json.message, data: null });
               } else {
                 await handler({ __startTime__: startTime, headers: {}, query: { cookie: 'true', vid: req.query.vid } }, res);
               }
               break;
             default:
               res.status(400);
-              sendJSON({ code: json.code, message: json.message });
+              sendJSON({ code: json.code, message: json.message, data: null });
           }
         }
       }
@@ -338,19 +338,19 @@ const handler = async (req, res) => {
         switch (json.code) {
           case 0:
             res.status(200);
-            sendJSON({ code: 0, message: json.message, result: json.result });
+            sendJSON({ code: 0, message: json.message, data: json.result, result: json.result });
             break;
           case -412:
             res.status(429).setHeader('Retry-After', '600');
-            sendJSON({ code: -412, message: json.message });
+            sendJSON({ code: -412, message: json.message, data: null, result: null });
             break;
           case -404:
             res.status(404);
-            sendJSON({ code: -404, message: json.message });
+            sendJSON({ code: -404, message: json.message, data: null, result: null });
             break;
           default:
             res.status(400);
-            sendJSON({ code: json.code, message: json.message });
+            sendJSON({ code: json.code, message: json.message, data: null, result: null });
         }
       }
     } else if ([3, 4].includes(type)) { // 编号为 ssid 或 epid
@@ -526,19 +526,19 @@ const handler = async (req, res) => {
           switch (json.code) {
             case 0:
               res.status(200);
-              sendJSON({ code: 0, message: json.message, result: json.result });
+              sendJSON({ code: 0, message: json.message, data: json.result, result: json.result });
               break;
             case -412:
               res.status(429).setHeader('Retry-After', '600');
-              sendJSON({ code: -412, message: json.message });
+              sendJSON({ code: -412, message: json.message, data: null, result: null });
               break;
             case -404:
               res.status(404);
-              sendJSON({ code: -404, message: json.message });
+              sendJSON({ code: -404, message: json.message, data: null, result: null });
               break;
             default:
               res.status(400);
-              sendJSON({ code: json.code, message: json.message });
+              sendJSON({ code: json.code, message: json.message, data: null, result: null });
           }
         }
       }
@@ -561,7 +561,7 @@ const handler = async (req, res) => {
         utils.send(await fs.readFile('./assets/nocover.png'));
       } else { // 否则，返回 JSON
         res.status(400);
-        sendJSON({ code: -400, message: '请求错误' });
+        sendJSON({ code: -400, message: '请求错误', data: null });
       }
     }
   } catch (e) {
