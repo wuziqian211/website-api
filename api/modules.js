@@ -9,7 +9,7 @@ export default async (req, res) => {
     if (accept === 1) {
       switch (req.query.id) {
         case 'friends': // 对用浏览器直接访问 /api/modules?id=friends 的用户进行重定向
-          utils.redirect(res, startTime, 'https://wuziqian211.top/friends/');
+          utils.redirect(res, startTime, 'https://wuziqian211.top/friends/', 307);
           break;
         default:
           utils.send404(1, res, startTime);
