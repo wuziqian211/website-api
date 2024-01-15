@@ -140,8 +140,8 @@ const handler = async (req, res) => {
                   </div>
                 </div>
                 <strong>分区：</strong>${zone}<br />
-                <strong>投稿/审核通过时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span><br />
-                <strong>${json.data.state === -40 ? '审核通过' : '发布'}时间：</strong>${utils.getDate(json.data.pubdate)}
+                <strong>${json.data.state === -40 ? '审核通过' : '投稿/审核通过'}时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span><br />
+                <strong>${json.data.state === -40 ? '投稿' : '发布'}时间：</strong>${utils.getDate(json.data.pubdate)}
                 <table>
                   <thead>
                     <tr><th>播放</th><th>弹幕</th><th>评论</th><th>点赞</th><th>投币</th><th>收藏</th><th>分享</th></tr>
