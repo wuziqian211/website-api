@@ -8,7 +8,21 @@ import fs from 'node:fs/promises';
 import utils from '../assets/utils.js';
 
 export default async (req, res) => {
-  const { startTime, accept } = utils.initialize(req);
+  let { startTime, accept } = utils.initialize(req), // 获取 API 开始执行时间与客户端接受响应的类型
+    responseType = accept, responseAttributes = [];
+  if (req.query.type?.toUpperCase() === 'JSON') {
+    responseType = 0;
+  } else if (['HTML', 'PAGE'].includes(req.query.type?.toUpperCase())) {
+    responseType = 1;
+  } else {
+    const splitString = req.query.type?.toUpperCase().split('_');
+    if (['IMAGE', 'FACE', 'AVATAR'].includes(splitString?.[0])) {
+      responseType = 2;
+      splitString.shift(); // 删除第一个元素
+      responseAttributes = splitString;
+    }
+  }
+  
   try {
     const sendHTML = data => utils.sendHTML(res, startTime, { ...data, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
@@ -19,13 +33,13 @@ export default async (req, res) => {
     const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
     
     if (/^\d+$/.test(req.query.mid) && parseInt(req.query.mid) > 0) { // 判断 UID 是否是正整数
-      const headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent };
+      const headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent }, mid = parseInt(req.query.mid);
       
       let json;
-      const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${req.query.mid}`, { headers })).json();
+      const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
       if (cjson.code === 0) {
         json = { code: 0, message: cjson.message, data: { face_nft: null, face_nft_type: null, jointime: 0, moral: 0, fans_badge: null, fans_medal: null, vip: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: null, sys_notice: null, live_room: null, school: null, profession: null, tags: null, series: null, is_senior_member: null, mcn_info: null, is_risk: null, elec: null, contract: null, ...cjson.card, mid: parseInt(cjson.card.mid), rank: parseInt(cjson.card.rank), birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000, level: cjson.card.level_info.current_level, silence: cjson.card.spacesta === -2 ? 1 : 0, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, following: cjson.card.attention, follower: cjson.card.fans } };
-        const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid: req.query.mid })}`, { headers })).json(); // （备用）获取多用户信息：https://api.vc.bilibili.com/account/v1/user/cards?uids=(...),(...),……（最多 50 个用户）
+        const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid })}`, { headers })).json(); // （备用）获取多用户信息：https://api.vc.bilibili.com/account/v1/user/cards?uids=(...),(...),……（最多 50 个用户）
         if (ujson.code === 0) {
           json.message = ujson.message, json.data = { ...json.data, ...ujson.data, coins: cjson.card.coins, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 };
         }
@@ -33,14 +47,14 @@ export default async (req, res) => {
         json = cjson;
       }
       
-      if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回 HTML
+      if (responseType === 1) { // 回复 HTML
         switch (json.code) {
           case 0:
             const content = `
               <img style="display: none;" src="${json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'}" referrerpolicy="no-referrer" />
               <div class="info">
                 <div class="wrap${json.data.pendant?.image ? ' has-frame' : ''}">
-                  <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">
+                  <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">
                     <img class="face" alt title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" />
                     ${json.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(json.data.pendant.name)}" src="${utils.toHTTPS(json.data.pendant.image_enhance || json.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
                     ${json.data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(json.data.official.type) || json.data.vip?.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
@@ -48,7 +62,7 @@ export default async (req, res) => {
                   </a>
                 </div>
                 <div>
-                  <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${req.query.mid}">${utils.encodeHTML(json.data.name)}</a>
+                  <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">${utils.encodeHTML(json.data.name)}</a>
                   ${json.data.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
                   <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>
                   ${json.data.spacesta === -10 ? '<span class="description">（账号已注销）</span>' : ''}
@@ -65,24 +79,28 @@ export default async (req, res) => {
               <strong>个性签名：</strong><br />
               ${utils.markText(utils.encodeHTML(json.data.sign))}`;
             res.status(200);
-            sendHTML({ title: `${utils.encodeHTML(json.data.name)} 的信息`, appleTouchIcon: utils.toHTTPS(json.data.face), style: utils.renderExtraStyle(json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'), content, mid: req.query.mid });
+            sendHTML({ title: `${json.data.name} 的信息`, appleTouchIcon: utils.toHTTPS(json.data.face), style: utils.renderExtraStyle(json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'), content, mid: req.query.mid });
             break;
-          case -412:
+          case -352: // 风控校验失败（请求标头不合法）
+          case -401: // 非法访问
+          case -403: // 访问权限不足（wbi 参数不合法）
+          case -412: // 请求被拦截
+          case -799: // 请求过于频繁，请稍后再试（URL 非 wbi）
             res.status(429).setHeader('Retry-After', '600');
             sendHTML({ title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: req.query.mid });
             break;
-          case -404:
-          case -626:
+          case -404: // 啥都木有
+          case -626: // 用户不存在
             res.status(404);
-            sendHTML({ title: '用户不存在', content: `UID${req.query.mid} 对应的用户不存在！QAQ`, mid: req.query.mid });
+            sendHTML({ title: '用户不存在', content: `UID${mid} 对应的用户不存在！QAQ`, mid: req.query.mid });
             break;
           default:
             res.status(400);
-            sendHTML({ title: '获取用户信息失败', content: `获取 UID${req.query.mid} 的信息失败，请稍后重试 awa`, mid: req.query.mid });
+            sendHTML({ title: '获取用户信息失败', content: `获取 UID${mid} 的信息失败，请稍后重试 awa`, mid: req.query.mid });
         }
-      } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
+      } else if (responseType === 2) { // 回复头像数据
         if (json.code === 0) {
-          if (req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的头像地址
+          if (responseAttributes.includes('REDIRECT') || req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的头像地址
             utils.redirect(res, startTime, utils.toHTTPS(json.data.face), 307);
           } else {
             const filename = encodeURIComponent(`${json.data.name} 的头像.${new URL(json.data.face).pathname.split('.').at(-1)}`); // 设置头像的文件名
@@ -91,23 +109,45 @@ export default async (req, res) => {
               res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
               utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
             } else {
-              res.status(404).setHeader('Content-Type', 'image/jpeg');
-              utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
+              res.status(404);
+              if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
+                if (accept === 1) {
+                  sendHTML({ title: `获取 ${json.data.name} 的头像数据失败`, content: `获取 ${utils.encodeHTML(json.data.name)} 的头像数据失败，请稍后重试 awa`, mid: req.query.mid });
+                } else {
+                  sendJSON({ code: -404, message: '啥都木有', data: null });
+                }
+              } else {
+                res.setHeader('Content-Type', 'image/jpeg');
+                utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
+              }
             }
           }
-        } else { // 用户信息获取失败，返回默认头像
-          res.status(404).setHeader('Content-Type', 'image/jpeg');
-          utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
+        } else { // 用户信息获取失败，回复默认头像
+          res.status(404);
+          if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
+            if (accept === 1) {
+              sendHTML({ title: `获取 UID${mid} 的头像数据失败`, content: `获取 UID${mid} 的头像数据失败，请稍后重试 awa`, mid: req.query.mid });
+            } else {
+              sendJSON({ code: -404, message: '啥都木有', data: null });
+            }
+          } else {
+            res.setHeader('Content-Type', 'image/jpeg');
+            utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
+          }
         }
-      } else { // 否则，返回 JSON
+      } else { // 回复 JSON
         switch (json.code) {
           case 0:
             res.status(200);
             sendJSON({ code: 0, message: json.message, data: json.data });
             break;
+          case -352:
+          case -401:
+          case -403:
           case -412:
+          case -799:
             res.status(429).setHeader('Retry-After', '600');
-            sendJSON({ code: -412, message: json.message, data: null });
+            sendJSON({ code: json.code, message: json.message, data: null });
             break;
           case -404:
           case -626:
@@ -120,7 +160,7 @@ export default async (req, res) => {
         }
       }
     } else { // UID 无效
-      if (accept === 1) { // 客户端想要获取类型为“文档”的数据，返回 HTML
+      if (responseType === 1) { // 回复 HTML
         if (!req.query.mid) { // 没有设置 UID 参数
           res.status(200);
           sendHTML({ title: '获取哔哩哔哩用户信息', content: `
@@ -133,16 +173,27 @@ export default async (req, res) => {
             您输入的 UID 无效！<br />
             请输入一个正确的 UID 吧 awa`, mid: '' });
         }
-      } else if (accept === 2) { // 客户端想要获取类型为“图片”的数据，获取头像
-        if (!req.query.mid) { // 没有设置 UID 参数，返回随机头像
+      } else if (responseType === 2) { // 回复头像数据
+        if (!req.query.mid) { // 没有设置 UID 参数，回复随机头像
           const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
           res.status(200).setHeader('Content-Type', 'image/jpeg');
           utils.send(res, startTime, await fs.readFile(`./assets/${faces[Math.floor(Math.random() * 11)]}.jpg`));
-        } else { // 设置了 UID 参数但无效，返回默认头像
-          res.status(400).setHeader('Content-Type', 'image/jpeg');
-          utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
+        } else { // 设置了 UID 参数但无效，回复默认头像
+          res.status(400);
+          if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
+            if (accept === 1) {
+              sendHTML({ title: 'UID 无效', content: `
+                您输入的 UID 无效！<br />
+                请输入一个正确的 UID 吧 awa`, mid: '' });
+            } else {
+              sendJSON({ code: -400, message: '请求错误', data: null });
+            }
+          } else {
+            res.setHeader('Content-Type', 'image/jpeg');
+            utils.send(res, startTime, await fs.readFile('./assets/noface.jpg'));
+          }
         }
-      } else { // 否则，返回 JSON
+      } else { // 回复 JSON
         res.status(400);
         sendJSON({ code: -400, message: '请求错误', data: null });
       }

@@ -27,7 +27,10 @@ export default async (req, res) => {
             resps.push(fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } })); // 获取多用户信息，每次获取 50 个
             users = users.slice(50);
           }
-          const info = [].concat(...await Promise.all(resps.map(async resp => (await (await resp).json()).data)));
+          const info = [].concat(...(await Promise.all(resps.map(async resp => {
+            const ujson = await (await resp).json();
+            return ujson.code === 0 && ujson.data;
+          }))).filter(u => u));
           
           res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (req.query.version === '3') { // 第 3 版：简化名称

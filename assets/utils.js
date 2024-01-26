@@ -4,9 +4,9 @@ import md5 from 'md5';
 let cachedWbiKeys;
 const initialize = req => { // 初始化 API
   let accept;
-  if (req.headers.accept?.includes('html') || req.headers['sec-fetch-dest'] === 'document') { // 客户端想要获取类型为“文档”的数据
+  if (req.headers.accept?.toUpperCase().includes('HTML') || req.headers['sec-fetch-dest']?.toUpperCase() === 'DOCUMENT') { // 客户端想要获取类型为“文档”的数据
     accept = 1;
-  } else if (req.headers.accept?.includes('image') || req.headers['sec-fetch-dest'] === 'image') { // 客户端想要获取类型为“图片”的数据
+  } else if (req.headers.accept?.toUpperCase().includes('IMAGE') || req.headers['sec-fetch-dest']?.toUpperCase() === 'IMAGE') { // 客户端想要获取类型为“图片”的数据
     accept = 2;
   } else {
     accept = 0;
@@ -24,10 +24,10 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
-        <title>${data.title} | wuziqian211's Blog API</title>
+        <title>${encodeHTML(data.title)} | wuziqian211's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="${data.appleTouchIcon || '/favicon.ico'}" referrerpolicy="no-referrer" />
+        <link rel="apple-touch-icon" href="${encodeHTML(data.appleTouchIcon || '/favicon.ico')}" referrerpolicy="no-referrer" />
         <style class="extra">${data.style || ''}</style>
       </head>
       <body>
@@ -50,18 +50,19 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
 };
 const sendJSON = (res, startTime, data) => res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).setHeader('X-Api-Status-Code', data.code).json(data); // 发送 JSON 数据到客户端
 const send = (res, startTime, data) => res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).send(data); // 发送其他数据到客户端
-const send404 = (accept, res, startTime) => {
+const send404 = (responseType, res, startTime) => {
   res.status(404);
-  if (accept === 1) {
+  if (responseType === 1) {
     sendHTML(res, startTime, { title: 'API 不存在', body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
   } else {
     sendJSON(res, startTime, { code: -404, message: '啥都木有', data: null });
   }
 };
-const send500 = (accept, res, startTime, error) => {
+const send500 = (responseType, res, startTime, error) => {
   console.error(error);
-  res.status(500);
-  if (accept === 1) {
+  // res.status(500).getHeaderNames().forEach(h => res.removeHeader(h)); // 删除抛出错误前的所有标头
+  res.status(500).removeHeader('Cache-Control').removeHeader('Content-Disposition').removeHeader('Content-Type').removeHeader('Retry-After');
+  if (responseType === 1) {
     sendHTML(res, startTime, { title: 'API 执行时出现异常', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉 wuziqian211 哟 awa<br />
