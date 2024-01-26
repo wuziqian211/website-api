@@ -158,4 +158,4 @@ const getWbiKeys = async noCache => { // 获取最新的 img_key 和 sub_key，�
   }
 };
 
-export default { initialize, sendHTML, sendJSON, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, getVidType, encodeWbi, getWbiKeys };
+export default { initialize, sendHTML, sendJSON, send, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, getVidType, encodeWbi, getWbiKeys };

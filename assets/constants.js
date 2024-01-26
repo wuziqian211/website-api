@@ -1,7 +1,7 @@
 // 一些常量
 
 // 1. 视频分区列表
-const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md（以下简称“API 文档”）
+const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md（以下简称“API 文档”）；分区有“expired: true”属性的表示该分区已下线，已下线分区的信息均来自“API 文档”
   { tid: 217, name: '动物圈', url: 'v/animal', sub: [
     { tid: 218, name: '喵星人', desc: '喵喵喵喵喵', url: 'v/animal/cat' },
     { tid: 219, name: '汪星人', desc: '汪汪汪汪汪', url: 'v/animal/dog' },
@@ -25,6 +25,9 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 240, name: '摩托车', desc: '骑士们集合啦', url: 'v/car/motorcycle' },
     { tid: 248, name: '房车', desc: '房车及营地相关内容，包括不限于产品介绍、驾驶体验、房车生活和房车旅行等内容', url: 'v/car/touringcar' },
     { tid: 176, name: '汽车生活', desc: '分享汽车及出行相关的生活体验类视频', url: 'v/car/life' },
+    { tid: 224, name: '汽车文化', desc: '车迷的精神圣地，包括汽车赛事、品牌历史、汽车改装、经典车型和汽车模型等', url: 'v/car/culture', expired: true },
+    { tid: 225, name: '汽车极客', desc: '汽车硬核达人聚集地，包括DIY造车、专业评测和技术知识分享', url: 'v/car/geek', expired: true },
+    { tid: 226, name: '智能出行', desc: '探索新能源汽车和未来智能出行的前沿阵地', url: 'v/car/smart', expired: true },
   ] },
   { tid: 181, name: '影视', url: 'v/cinephile', sub: [
     { tid: 182, name: '影视杂谈', desc: '影视评论、解说、吐槽、科普等', url: 'v/cinephile/cinecism' },
@@ -63,12 +66,14 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 241, name: '娱乐杂谈', desc: '娱乐人物解读、娱乐热点点评、娱乐行业分析', url: 'v/ent/talker' },
     { tid: 242, name: '粉丝创作', desc: '粉丝向创作视频', url: 'v/ent/fans' },
     { tid: 137, name: '明星综合', desc: '娱乐圈动态、明星资讯相关', url: 'v/ent/celebrity' },
+    { tid: 131, name: 'Korea相关', desc: 'Korea相关音乐、舞蹈、综艺等视频', url: 'v/ent/korea', expired: true },
   ] },
   { tid: 155, name: '时尚', url: 'v/fashion', sub: [
     { tid: 157, name: '美妆护肤', desc: '彩妆护肤、美甲美发、仿妆、医美相关内容分享或产品测评', url: 'v/fashion/makeup' },
     { tid: 252, name: '仿妆cos', desc: '对二次元、三次元人物角色进行模仿、还原、展示、演绎的内容', url: 'v/fashion/cos' },
     { tid: 158, name: '穿搭', desc: '穿搭风格、穿搭技巧的展示分享，涵盖衣服、鞋靴、箱包配件、配饰（帽子、钟表、珠宝首饰）等', url: 'v/fashion/clothing' },
     { tid: 159, name: '时尚潮流', desc: '时尚街拍、时装周、时尚大片，时尚品牌、潮流等行业相关记录及知识科普', url: 'v/fashion/trend' },
+    { tid: 192, name: '风尚标', desc: '时尚明星专访、街拍、时尚购物相关知识科普', url: 'v/fashion/trends', expired: true },
   ] },
   { tid: 211, name: '美食', url: 'v/food', sub: [
     { tid: 76, name: '美食制作', desc: '学做人间美味，展示精湛厨艺', url: 'v/food/make' },
@@ -100,6 +105,9 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 205, name: '社会', desc: '日常生活的社会事件、社会问题、社会风貌的报道', url: 'v/information/social' },
     { tid: 206, name: '综合', desc: '除上述领域外其它垂直领域的综合资讯', url: 'v/information/multiple' },
   ] },
+  { tid: 165, name: '广告', url: 'v/ad', expired: true, sub: [
+    { tid: 166, name: '广告', url: 'v/ad/ad', expired: true },
+  ] },
   { tid: 119, name: '鬼畜', url: 'v/kichiku/', sub: [
     { tid: 22, name: '鬼畜调教', desc: '使用素材在音频、画面上做一定处理，达到与BGM一定的同步感', url: 'v/kichiku/guide' },
     { tid: 26, name: '音MAD', desc: '使用素材音频进行一定的二次创作来达到还原原曲的非商业性质稿件', url: 'v/kichiku/mad' },
@@ -116,6 +124,9 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 209, name: '职业职场', desc: '职业分享、升级指南，一起成为最有料的职场人', url: 'v/knowledge/career' },
     { tid: 229, name: '设计·创意', desc: '天马行空，创意设计，都在这里', url: 'v/knowledge/design' },
     { tid: 122, name: '野生技能协会', desc: '技能党集合，是时候展示真正的技术了', url: 'v/knowledge/skill' },
+    { tid: 39, name: '演讲·公开课', desc: '涨知识的好地方，给爱学习的你', url: 'v/technology/speech_course', expired: true },
+    { tid: 96, name: '星海', desc: '军事类内容的圣地', url: 'v/technology/military', expired: true },
+    { tid: 98, name: '机械', desc: '机械设备展示或制作视频', url: 'v/technology/mechanical', expired: true },
   ] },
   { tid: 160, name: '生活', url: 'v/life', sub: [
     { tid: 138, name: '搞笑', desc: '各种沙雕有趣的搞笑剪辑，挑战，表演，配音等视频', url: 'v/life/funny' },
@@ -126,6 +137,8 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 161, name: '手工', desc: '手工制品的制作过程或成品展示、教程、测评类视频', url: 'v/life/handmake' },
     { tid: 162, name: '绘画', desc: '绘画过程或绘画教程，以及绘画相关的所有视频', url: 'v/life/painting' },
     { tid: 21, name: '日常', desc: '记录日常生活，分享生活故事', url: 'v/life/daily' },
+    { tid: 163, name: '运动', desc: '运动相关的记录、教程、装备评测和精彩瞬间剪辑视频', url: 'v/life/sports', expired: true },
+    { tid: 174, name: '其他', desc: '对于分区归属不明的视频进行归纳整合的特定分区', url: 'v/life/other', expired: true },
   ] },
   { tid: 23, name: '电影', url: 'movie/', sub: [ // 本分区中的各子分区来自“API 文档”
     { tid: 147, name: '华语电影', url: 'v/movie/chinese' },
@@ -143,6 +156,7 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 243, name: '乐评盘点', desc: '音乐类新闻、盘点、点评、reaction、榜单、采访、幕后故事、唱片开箱等', url: 'v/music/commentary' },
     { tid: 244, name: '音乐教学', desc: '以音乐教学为目的的内容', url: 'v/music/tutorial' },
     { tid: 130, name: '音乐综合', desc: '所有无法被收纳到其他音乐二级分区的音乐类视频', url: 'v/music/other' },
+    { tid: 194, name: '电音', desc: '以电子合成器、音乐软体等产生的电子声响制作的音乐', url: 'v/music/electronic', expired: true },
   ] },
   { tid: 234, name: '运动', url: 'v/sports', sub: [
     { tid: 235, name: '篮球', desc: '与篮球相关的视频，包括但不限于篮球赛事、教学、评述、剪辑、剧情等相关内容', url: 'v/sports/basketball' },
@@ -158,6 +172,9 @@ const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilib
     { tid: 231, name: '计算机技术', desc: '研究分析、教学演示、经验分享......有关计算机技术的都在这里', url: 'v/tech/computer_tech' },
     { tid: 232, name: '科工机械', desc: '前方高能，机甲重工即将出没', url: 'v/tech/industry' },
     { tid: 233, name: '极客DIY', desc: '炫酷技能，极客文化，硬核技巧，准备好你的惊讶', url: 'v/tech/diy' },
+    { tid: 189, name: '电脑装机', desc: '电脑、笔记本、装机配件、外设和软件教程等相关视频', url: 'v/digital/pc', expired: true },
+    { tid: 190, name: '摄影摄像', desc: '摄影摄像器材、拍摄剪辑技巧、拍摄作品分享等相关视频', url: 'v/digital/photography', expired: true },
+    { tid: 191, name: '影音智能', desc: '影音设备、智能产品等相关视频', url: 'v/digital/intelligence_av', expired: true },
   ] },
   { tid: 11, name: '电视剧', url: 'tv/', sub: [ // 本分区中的各子分区来自“API 文档”
     { tid: 185, name: '国产剧', url: 'v/tv/mainland' },
@@ -172,7 +189,7 @@ const states = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collec
   '-1': '该视频正在审核', // 待审
   '-2': '该视频已被退回', // 被打回
   '-3': '该视频已被锁定', // 网警锁定
-  '-4': '该视频已与其他视频撞车而被锁定', // 被锁定（撞车）
+  '-4': '该视频已被锁定', // 被锁定
   '-5': '该视频已被锁定', // 管理员锁定
   '-6': '该视频正在审核', // 修复待审
   '-7': '该视频正在等待审核', // 暂缓审核

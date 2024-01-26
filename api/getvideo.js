@@ -112,13 +112,13 @@ const handler = async (req, res) => {
               let zone = utils.encodeHTML(json.data.tname) || '未知';
               const mainZone = zones.find(m => m.tid === json.data.tid);
               if (mainZone) {
-                zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${mainZone.url}">${mainZone.name}</a>`;
+                zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${mainZone.url}">${mainZone.name}</a>${mainZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
               } else {
                 for (const m of zones) {
                   if (m.sub) {
                     const subZone = m.sub.find(s => s.tid === json.data.tid);
                     if (subZone) {
-                      zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${m.url}">${m.name}</a> &gt; <a target="_blank" rel="noopener external nofollow noreferrer" title="${subZone.desc || ''}" href="https://www.bilibili.com/${subZone.url}">${subZone.name}</a>`;
+                      zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${m.url}">${m.name}</a>${m.expired ? '<span class="description">（已下线）</span>' : ''} &gt; <a target="_blank" rel="noopener external nofollow noreferrer" title="${subZone.desc || ''}" href="https://www.bilibili.com/${subZone.url}">${subZone.name}</a>${subZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
                       break;
                     }
                   }
@@ -140,8 +140,8 @@ const handler = async (req, res) => {
                   </div>
                 </div>
                 <strong>分区：</strong>${zone}<br />
-                <s><strong>投稿时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span></s><br />
-                <strong>发布时间：</strong>${utils.getDate(json.data.pubdate)}
+                <strong>${json.data.state === -40 ? '审核通过' : '投稿/审核通过'}时间：</strong>${utils.getDate(json.data.ctime)}<span class="description">（可能不准确）</span><br />
+                <strong>${json.data.state === -40 ? '投稿' : '发布'}时间：</strong>${utils.getDate(json.data.pubdate)}
                 <table>
                   <thead>
                     <tr><th>播放</th><th>弹幕</th><th>评论</th><th>点赞</th><th>投币</th><th>收藏</th><th>分享</th></tr>
