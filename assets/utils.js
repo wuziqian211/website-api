@@ -11,7 +11,7 @@ const initialize = req => { // 初始化 API
   } else {
     accept = 0;
   }
-  return { startTime: req.__startTime__ || performance.now(), accept };
+  return { startTime: req.__startTime__ ?? performance.now(), accept, canAcceptVideo: req.headers['sec-fetch-dest']?.toUpperCase() === 'VIDEO' };
 };
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
@@ -27,13 +27,13 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
         <title>${encodeHTML(data.title)} | wuziqian211's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="${encodeHTML(data.appleTouchIcon || '/favicon.ico')}" referrerpolicy="no-referrer" />
-        <style class="extra">${data.style || ''}</style>
+        <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/favicon.ico'}" referrerpolicy="no-referrer" />
+        <style class="extra">${data.style ?? ''}</style>
       </head>
       <body>
         <header>
           <div class="header">
-            <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc || '一个简单的 API 页面'}</span></div>
+            <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
             <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
           </div>
         </header>
@@ -46,7 +46,7 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
         </footer>
         <script src="/assets/main.js"></script>
       </body>
-    </html>`.replace(/<br \/>(?: |\n)*(?=<\/)/gm, '').replace(/(?: |\n)+/gm, ' ').trim());
+    </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim());
 };
 const sendJSON = (res, startTime, data) => res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).setHeader('X-Api-Status-Code', data.code).json(data); // 发送 JSON 数据到客户端
 const send = (res, startTime, data) => res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).send(data); // 发送其他数据到客户端
@@ -96,8 +96,38 @@ const renderExtraStyle = pic => `
       background: var(--background-color-dark-translucent);
     }
   }`;
-const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />') : '';
-const markText = str => typeof str === 'string' ? str.replace(/(BV|bv|Bv|bV)(1[1-9A-HJ-NP-Za-km-z]{2}4[1-9A-HJ-NP-Za-km-z]1[1-9A-HJ-NP-Za-km-z]7[1-9A-HJ-NP-Za-km-z]{2})/g, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/video/BV${p2}/`).toString('hex')};${Buffer.from(p1 + p2).toString('hex')};`).replace(/(av(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/video/av${p2}/`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(cv(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/read/cv${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(md(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/bangumi/media/md${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(ss(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/bangumi/play/ss${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/(ep(\d+))/gi, (match, p1, p2) => `&m${Buffer.from(`https://www.bilibili.com/bangumi/play/ep${p2}`).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/((https?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?)/gi, (match, p1) => `&m${Buffer.from(p1).toString('hex')};${Buffer.from(p1).toString('hex')};`).replace(/&m([\da-f]+);([\da-f]+);/g, (match, p1, p2) => `<a target="_blank" rel="noopener external nofollow noreferrer" href="${Buffer.from(p1, 'hex').toString()}">${Buffer.from(p2, 'hex').toString()}</a>`) : ''; // 将纯文本中的特殊标记转化成可点击的链接
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
+const markText = str => { // 将纯文本中的特殊标记转化成可点击的链接
+  if (typeof str !== 'string') return '';
+  const components = [{ content: str }],
+    replacementRules = [
+    { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacement: match => match },
+    { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacement: (match, p1) => `https://www.bilibili.com/video/BV${p1}/` },
+    { pattern: /av(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/video/av${p1}/` },
+    { pattern: /sm(\d+)/i, replacement: (match, p1) => `https://www.nicovideo.jp/watch/sm${p1}` },
+    { pattern: /cv(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/read/cv${p1}` },
+    { pattern: /md(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/media/md${p1}` },
+    { pattern: /ss(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/play/ss${p1}` },
+    { pattern: /ep(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/play/ep${p1}` },
+  ]; // 定义替换规则
+  for (const p of replacementRules) {
+    let i = 0;
+    while (i < components.length) { // 由于下面的代码可能会导致 components 的元素数量变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (let i = 0; i < components.length; i++) 或 for (const c of components) 等语句
+      if (!components[i].url) { // 该组成部分没有转化成链接
+        const { content } = components[i];
+        const result = p.pattern.exec(content);
+        if (result) {
+          const [match, ...capturedMatches] = result, { index } = result;
+          components.splice(i, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
+          components[i + 1].content = match, components[i + 1].url = p.replacement(match, ...capturedMatches); // 将该组成部分修改成已经转化的链接
+          components.splice(i + 2, 0, { content: content.slice(index + match.length) }); // 在该组成部分后插入一个内容为匹配文本之后的文本的组成部分
+        }
+      }
+      i++;
+    }
+  }
+  return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${utils.encodeHTML(c.url)}">${utils.encodeHTML(c.content)}</a>` : utils.encodeHTML(c.content)).join('');
+};
 const toHTTPS = url => { // 将网址协议改成 HTTPS
   if (!url) return 'data:,';
   const u = new URL(url);
@@ -142,7 +172,7 @@ const encodeWbi = async (originalQuery, keys) => { // 对请求参数进行 wbi 
   let t = '';
   [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].forEach(n => t += (keys.imgKey + keys.subKey)[n]);
   const mixinKey = t.slice(0, 32), query = { ...originalQuery, wts: Math.floor(Date.now() / 1000) }; // 对 imgKey 和 subKey 进行字符顺序打乱编码，添加 wts 字段
-  const params = new URLSearchParams(Object.keys(query).sort().map(name => [name, query[name].toString().replace(/[!'()*]/g, '')])); // 按照 key 重排参数，过滤 value 中的 “!”“'”“(”“)”“*” 字符
+  const params = new URLSearchParams(Object.keys(query).toSorted().map(name => [name, query[name].toString().replace(/[!'()*]/g, '')])); // 按照 key 重排参数，过滤 value 中的 “!”“'”“(”“)”“*” 字符
   params.append('w_rid', md5(params + mixinKey)); // 计算 w_rid
   return params;
 };
@@ -150,7 +180,7 @@ const getWbiKeys = async noCache => { // 获取最新的 img_key 和 sub_key，�
   if (!noCache && !cachedWbiKeys) cachedWbiKeys = await kv.get('wbiKeys');
   if (noCache || !cachedWbiKeys || Math.floor(cachedWbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
     const ujson = await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent } })).json();
-    const wbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?(.+)$/, '$1').replace(/^(.*)(?:\..*)$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?(.+)$/, '$1').replace(/^(.*)(?:\..*)$/, '$1') };
+    const wbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^\.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^\.]+)(?:\..*)?$/, '$1') };
     cachedWbiKeys = { ...wbiKeys, updatedTimestamp: Date.now() };
     await kv.set('wbiKeys', cachedWbiKeys);
     return wbiKeys;

@@ -77,7 +77,7 @@ export default async (req, res) => {
               <strong>关注数：</strong>${utils.getNumber(json.data.following)}<br />
               <strong>粉丝数：</strong>${utils.getNumber(json.data.follower)}<br />
               <strong>个性签名：</strong><br />
-              ${utils.markText(utils.encodeHTML(json.data.sign))}`;
+              ${utils.markText(json.data.sign)}`;
             res.status(200);
             sendHTML({ title: `${json.data.name} 的信息`, appleTouchIcon: utils.toHTTPS(json.data.face), style: utils.renderExtraStyle(json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'), content, mid: req.query.mid });
             break;
@@ -114,7 +114,7 @@ export default async (req, res) => {
                 if (accept === 1) {
                   sendHTML({ title: `获取 ${json.data.name} 的头像数据失败`, content: `获取 ${utils.encodeHTML(json.data.name)} 的头像数据失败，请稍后重试 awa`, mid: req.query.mid });
                 } else {
-                  sendJSON({ code: -404, message: '啥都木有', data: null });
+                  sendJSON({ code: -404, message: 'cannot fetch image', data: null });
                 }
               } else {
                 res.setHeader('Content-Type', 'image/jpeg');
@@ -126,7 +126,7 @@ export default async (req, res) => {
           res.status(404);
           if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
             if (accept === 1) {
-              sendHTML({ title: `获取 UID${mid} 的头像数据失败`, content: `获取 UID${mid} 的头像数据失败，请稍后重试 awa`, mid: req.query.mid });
+              sendHTML({ title: `获取 UID${mid} 的头像数据失败`, content: `获取 UID${mid} 的头像数据失败，该用户可能不存在哟 qwq`, mid: req.query.mid });
             } else {
               sendJSON({ code: -404, message: '啥都木有', data: null });
             }
