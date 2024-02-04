@@ -50,12 +50,17 @@ const handler = async (req, res) => {
     if (type === 1) { // 编号为 AV 号或 BV 号
       let json;
       if (req.query.force != undefined) { // 强制获取视频信息
-        const rjson = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', headers, body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, dt: 2, play_type: 1, csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录加入这个视频
+        const rjson1 = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', headers, body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, sub_type: 0, dt: 2, play_type: 1, csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录首次加入这个视频（可不带 cid）
         await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 1 秒
-        const hjson = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
-        const info = hjson.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid); // 获取 BV 号相同的视频信息
-        if (hjson.code === 0 && info) {
-          json = { code: 0, message: '0', data: { desc_v2: null, cid: null, dimension: null, premiere: null, pages: null, subtitle: null, honor_reply: null, need_jump_bv: false, ...info, stat: { ...info.stat, evaluation: '', argue_msg: '', vv: undefined }, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
+        const hjson1 = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
+        let info = hjson1.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid); // 获取 BV 号相同的视频信息
+        if (hjson1.code === 0 && info) {
+          const rjson2 = await (await fetch('https://api.bilibili.com/x/v2/history/report', { method: 'POST', headers, body: new URLSearchParams({ aid: utils.toAV(vid), cid: info.cid, progress: 0, platform: 'web', csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录再次加入这个视频（带 cid，此时可以获取更多信息）
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 1 秒
+          const hjson2 = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
+          const info2 = hjson2.data?.find(h => h.type === 3 && h.sub_type === 0 && h.bvid === vid); // 获取 BV 号相同的视频信息
+          if (info2) info = info2;
+          json = { code: 0, message: '0', data: { bvid: vid, aid: utils.toAV(vid), videos: null, tid: null, tname: null, copyright: null, pic: '', title: null, pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, rights: null, owner: { mid: null, name: null, face: '' }, stat: { aid: utils.toAV(vid), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: null, dynamic: null, cid: null, dimension: null, premiere: null, teenage_mode: 0, is_chargeable_season: null, is_story: null, is_upower_exclusive: null, is_upower_play: null, is_upower_preview: null, enable_vt: 0, vt_display: '', no_cache: false, pages: null, subtitle: null, is_season_display: null, user_garb: null, honor_reply: null, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: null, ...info, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
         } else {
           json = { code: -404, message: '啥都木有' };
         }
@@ -66,10 +71,10 @@ const handler = async (req, res) => {
       if (['VIDEO', 'DATA'].includes(req.query.type?.toUpperCase())) { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data.pages) {
-          if (/^\d+$/.test(req.query.cid) && parseInt(req.query.cid) > 0) { // 用户提供的 cid 有效
-            cid = json.data.pages.find(p => p.cid === parseInt(req.query.cid)) && parseInt(req.query.cid); // 若 API 回复的 pages 中包含用户提供的 cid，则将变量“cid”设置为用户提供的 cid
-          } else if (/^\d+$/.test(req.query.p) && parseInt(req.query.p) > 0) { // 用户提供的参数“p”有效
-            cid = json.data.pages[parseInt(req.query.p) - 1]?.cid; // 将变量“cid”设置为该 P 的 cid
+          if (/^\d+$/.test(req.query.cid) && +req.query.cid > 0 && json.data.pages.some(p => p.cid === +req.query.cid)) { // 用户提供的 cid 有效，且 API 回复的 pages 中包含用户提供的 cid
+            cid = +req.query.cid; // 将变量“cid”设置为用户提供的 cid
+          } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 用户提供的参数“p”有效
+            cid = json.data.pages[+req.query.p - 1]?.cid; // 将变量“cid”设置为该 P 的 cid
           } else {
             cid = json.data.cid; // 将变量“cid”设置为该视频第 1 P 的 cid
           }
@@ -418,16 +423,16 @@ const handler = async (req, res) => {
         let P;
         if (json.code === 0) {
           if (type === 3) { // 编号为 ssid
-            if (/^\d+$/.test(req.query.cid) && parseInt(req.query.cid) > 0) { // 用户提供的 cid 有效
-              P = json.result.episodes.find(p => p.cid === parseInt(req.query.cid)); // 在正片中寻找 cid 与用户提供的 cid 相同的一集
+            if (/^\d+$/.test(req.query.cid) && +req.query.cid > 0) { // 用户提供的 cid 有效
+              P = json.result.episodes.find(p => p.cid === +req.query.cid); // 在正片中寻找 cid 与用户提供的 cid 相同的一集
               if (!P) { // 在正片中没有找到
                 for (const s of json.result.section) { // 在其他部分寻找
-                  P = s.episodes.find(p => p.cid === parseInt(req.query.cid));
+                  P = s.episodes.find(p => p.cid === +req.query.cid);
                   if (P) break;
                 }
               }
-            } else if (/^\d+$/.test(req.query.p) && parseInt(req.query.p) > 0) { // 用户提供的参数“p”有效
-              P = json.result.episodes[parseInt(req.query.p) - 1];
+            } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 用户提供的参数“p”有效
+              P = json.result.episodes[+req.query.p - 1];
             } else {
               P = json.result.episodes[0]; // 第 1 集
             }

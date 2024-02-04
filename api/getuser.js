@@ -32,16 +32,16 @@ export default async (req, res) => {
       </form>` }); // 发送 HTML 响应到客户端
     const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
     
-    if (/^\d+$/.test(req.query.mid) && parseInt(req.query.mid) > 0) { // 判断 UID 是否是正整数
-      const headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent }, mid = parseInt(req.query.mid);
+    if (/^\d+$/.test(req.query.mid) && +req.query.mid > 0) { // 判断 UID 是否是正整数
+      const headers = { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${req.query.mid}`, 'User-Agent': process.env.userAgent }, mid = +req.query.mid;
       
       let json;
       const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
       if (cjson.code === 0) {
-        json = { code: 0, message: cjson.message, data: { face_nft: null, face_nft_type: null, jointime: 0, moral: 0, fans_badge: null, fans_medal: null, vip: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: null, sys_notice: null, live_room: null, school: null, profession: null, tags: null, series: null, is_senior_member: null, mcn_info: null, is_risk: null, elec: null, contract: null, ...cjson.card, mid: parseInt(cjson.card.mid), rank: parseInt(cjson.card.rank), birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000, level: cjson.card.level_info.current_level, silence: cjson.card.spacesta === -2 ? 1 : 0, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, following: cjson.card.attention, follower: cjson.card.fans } };
+        json = { code: 0, message: cjson.message, data: { mid, name: null, approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: null, place: '', moral: 0, silence: null, coins: null, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: false, fans_medal: null, official: { role: null, title: '', desc: '', type: null }, official_verify: { type: null, desc: '' }, vip: null, pendant: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: '', theme: null, sys_notice: null, live_room: null, birthday: 0, school: null, profession: null, tags: null, series: null, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: null, contract: null, certificate_show: false, ...cjson.card, mid: +cjson.card.mid, rank: +cjson.card.rank, level: cjson.card.level_info.current_level, silence: +(cjson.card.spacesta === -2), following: cjson.card.attention, follower: cjson.card.fans, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, birthday: Math.floor(new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000) } };
         const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid })}`, { headers })).json(); // （备用）获取多用户信息：https://api.vc.bilibili.com/account/v1/user/cards?uids=(...),(...),……（最多 50 个用户）
         if (ujson.code === 0) {
-          json.message = ujson.message, json.data = { ...json.data, ...ujson.data, coins: cjson.card.coins, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 };
+          json.message = ujson.message, json.data = { ...json.data, ...ujson.data, coins: cjson.card.coins, is_followed: false, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 };
         }
       } else {
         json = cjson;

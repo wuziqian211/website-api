@@ -152,20 +152,32 @@ const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/ques
   }
   return 'BV1' + bvid.join('');
 };
+const toAV = bvid => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
+  if (!/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new SyntaxError('Invalid BV Number');
+  const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8];
+  const base = BigInt(alphabet.length);
+  let t = 0n;
+  bvid = bvid.slice(3);
+  for (let i = 0n; i < decodeMap.length; i++) {
+    index = BigInt(alphabet.indexOf(bvid[decodeMap[i]]));
+    t = t * base + index;
+  }
+  return Number((t & maskCode) ^ xorCode);
+};
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
-  if (/^av\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
+  if (/^av\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
-  } else if (/^\d+$/.test(vid) && parseInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
+  } else if (/^\d+$/.test(vid) && +vid > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
   } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: 'BV' + vid.slice(2) };
-  } else if (/^md\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
-    return { type: 2, vid: parseInt(vid.slice(2)) };
-  } else if (/^ss\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 ssid
-    return { type: 3, vid: parseInt(vid.slice(2)) };
-  } else if (/^ep\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 epid
-    return { type: 4, vid: parseInt(vid.slice(2)) };
+  } else if (/^md\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为 mdid
+    return { type: 2, vid: +vid.slice(2) };
+  } else if (/^ss\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为 ssid
+    return { type: 3, vid: +vid.slice(2) };
+  } else if (/^ep\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为 epid
+    return { type: 4, vid: +vid.slice(2) };
   } else { // 编号无效
     return {};
   }
@@ -192,4 +204,4 @@ const getWbiKeys = async noCache => { // 获取最新的 img_key 和 sub_key，�
   }
 };
 
-export default { initialize, sendHTML, sendJSON, send, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, getVidType, encodeWbi, getWbiKeys };
+export default { initialize, sendHTML, sendJSON, send, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
