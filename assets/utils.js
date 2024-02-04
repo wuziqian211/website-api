@@ -61,7 +61,8 @@ const send404 = (responseType, res, startTime) => {
 const send500 = (responseType, res, startTime, error) => {
   console.error(error);
   // res.status(500).getHeaderNames().forEach(h => res.removeHeader(h)); // 删除抛出错误前的所有标头
-  res.status(500).removeHeader('Cache-Control').removeHeader('Content-Disposition').removeHeader('Content-Type').removeHeader('Retry-After');
+  res.status(500);
+  ['Cache-Control', 'Content-Disposition', 'Content-Type', 'Retry-After'].forEach(h => res.removeHeader(h));
   if (responseType === 1) {
     sendHTML(res, startTime, { title: 'API 执行时出现异常', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
