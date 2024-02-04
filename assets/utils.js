@@ -126,7 +126,7 @@ const markText = str => { // 将纯文本中的特殊标记转化成可点击的
       i++;
     }
   }
-  return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${utils.encodeHTML(c.url)}">${utils.encodeHTML(c.content)}</a>` : utils.encodeHTML(c.content)).join('');
+  return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
 const toHTTPS = url => { // 将网址协议改成 HTTPS
   if (!url) return 'data:,';
