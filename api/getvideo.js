@@ -32,7 +32,7 @@ const handler = async (req, res) => {
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
       </form>` }); // 发送 HTML 响应到客户端
     const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
     
@@ -259,7 +259,7 @@ const handler = async (req, res) => {
                 res.status(404);
                 if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
                   if (accept === 1) {
-                    sendHTML({ title: `获取 ${json.data.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.data.title)} 的封面数据失败，请稍后重试 awa`, mid: req.query.mid });
+                    sendHTML({ title: `获取 ${json.data.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.data.title)} 的封面数据失败，请稍后重试 awa`, vid: req.query.vid });
                   } else {
                     sendJSON({ code: -404, message: 'cannot fetch image', data: null });
                   }
@@ -275,7 +275,7 @@ const handler = async (req, res) => {
             res.status(404);
             if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
               if (accept === 1) {
-                sendHTML({ title: `获取 ${vid} 的封面数据失败`, content: `获取 ${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, mid: req.query.mid });
+                sendHTML({ title: `获取 ${vid} 的封面数据失败`, content: `获取 ${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: req.query.vid });
               } else {
                 sendJSON({ code: -404, message: '啥都木有', data: null });
               }
@@ -367,7 +367,7 @@ const handler = async (req, res) => {
               res.status(404);
               if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
                 if (accept === 1) {
-                  sendHTML({ title: `获取 ${json.result.media.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.media.title)} 的封面数据失败，请稍后重试 awa`, mid: req.query.mid });
+                  sendHTML({ title: `获取 ${json.result.media.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: req.query.vid });
                 } else {
                   sendJSON({ code: -404, message: 'cannot fetch image', data: null });
                 }
@@ -381,7 +381,7 @@ const handler = async (req, res) => {
           res.status(404);
           if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
             if (accept === 1) {
-              sendHTML({ title: `获取 md${vid} 的封面数据失败`, content: `获取 md${vid} 的封面数据失败，这个剧集可能不存在哟 qwq`, mid: req.query.mid });
+              sendHTML({ title: `获取 md${vid} 的封面数据失败`, content: `获取 md${vid} 的封面数据失败，这个剧集可能不存在哟 qwq`, vid: req.query.vid });
             } else {
               sendJSON({ code: -404, message: '啥都木有', data: null });
             }
@@ -580,7 +580,7 @@ const handler = async (req, res) => {
                 res.status(404);
                 if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
                   if (accept === 1) {
-                    sendHTML({ title: `获取 ${json.result.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.title)} 的封面数据失败，请稍后重试 awa`, mid: req.query.mid });
+                    sendHTML({ title: `获取 ${json.result.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.title)} 的封面数据失败，请稍后重试 awa`, vid: req.query.vid });
                   } else {
                     sendJSON({ code: -404, message: 'cannot fetch image', data: null });
                   }
@@ -594,7 +594,7 @@ const handler = async (req, res) => {
             res.status(404);
             if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
               if (accept === 1) {
-                sendHTML({ title: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败`, content: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, mid: req.query.mid });
+                sendHTML({ title: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败`, content: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: req.query.vid });
               } else {
                 sendJSON({ code: -404, message: '啥都木有', data: null });
               }

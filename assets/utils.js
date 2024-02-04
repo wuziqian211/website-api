@@ -143,11 +143,14 @@ const getDate = ts => { // 根据时间戳返回日期时间
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
 const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
-  const t = (BigInt(aid) ^ 177451812n) + 100618342136696320n, bvid = [];
-  for (let i = 0n; i < 10n; i++) {
-    bvid[[9, 8, 1, 6, 2, 4, 0, 7, 3, 5][i]] = 'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'[t / 58n ** i % 58n];
+  const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
+  const base = BigInt(alphabet.length);
+  let t = (maxAid | BigInt(aid)) ^ xorCode;
+  for (let i = 0n; i < encodeMap.length; i++) {
+    bvid[encodeMap[i]] = alphabet[t % base];
+    t /= base;
   }
-  return 'BV' + bvid.join('');
+  return 'BV1' + bvid.join('');
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
@@ -155,7 +158,7 @@ const getVidType = vid => { // 判断编号类型
     return { type: 1, vid: toBV(vid.slice(2)) };
   } else if (/^\d+$/.test(vid) && parseInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
-  } else if (/^(?:BV|bv|Bv|bV)[1-9A-HJ-NP-Za-km-z]{10}$/.test(vid)) { // 判断编号是否为 BV 号
+  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: 'BV' + vid.slice(2) };
   } else if (/^md\d+$/i.test(vid) && parseInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
     return { type: 2, vid: parseInt(vid.slice(2)) };
