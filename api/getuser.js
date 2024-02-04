@@ -8,7 +8,7 @@ import fs from 'node:fs/promises';
 import utils from '../assets/utils.js';
 
 export default async (req, res) => {
-  let { startTime, accept } = utils.initialize(req), // 获取 API 开始执行时间与客户端接受响应的类型
+  let { startTime, accept } = utils.initialize(req, res), // 获取 API 开始执行时间与客户端接受响应的类型
     responseType = accept, responseAttributes = [];
   if (req.query.type?.toUpperCase() === 'JSON') {
     responseType = 0;

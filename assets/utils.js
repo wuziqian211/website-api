@@ -1,8 +1,9 @@
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
-let cachedWbiKeys;
-const initialize = req => { // 初始化 API
+let cachedWbiKeys, timer;
+const initialize = (req, res) => { // 初始化 API
+  const startTime = req.__startTime__ ?? performance.now();
   let accept;
   if (req.headers.accept?.toUpperCase().includes('HTML') || req.headers['sec-fetch-dest']?.toUpperCase() === 'DOCUMENT') { // 客户端想要获取类型为“文档”的数据
     accept = 1;
@@ -11,10 +12,12 @@ const initialize = req => { // 初始化 API
   } else {
     accept = 0;
   }
-  return { startTime: req.__startTime__ ?? performance.now(), accept, canAcceptVideo: req.headers['sec-fetch-dest']?.toUpperCase() === 'VIDEO' };
+  timer = setTimeout(() => send500(accept, res, performance.now() - startTime, new TypeError('Server timed out')), 9500); // API 超时处理
+  return { startTime, accept, canAcceptVideo: req.headers['sec-fetch-dest']?.toUpperCase() === 'VIDEO' };
 };
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
+  clearTimeout(timer);
   const execTime = (performance.now() - startTime).toFixed(3);
   res.setHeader('Content-Type', 'text/html; charset=utf-8').setHeader('X-Api-Exec-Time', execTime).send(`
     <!DOCTYPE html>
@@ -48,8 +51,14 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
       </body>
     </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim());
 };
-const sendJSON = (res, startTime, data) => res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).setHeader('X-Api-Status-Code', data.code).json(data); // 发送 JSON 数据到客户端
-const send = (res, startTime, data) => res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).send(data); // 发送其他数据到客户端
+const sendJSON = (res, startTime, data) => { // 发送 JSON 数据到客户端
+  clearTimeout(timer);
+  res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).setHeader('X-Api-Status-Code', data.code).json(data);
+};
+const send = (res, startTime, data) => { // 发送其他数据到客户端
+  clearTimeout(timer);
+  res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).send(data);
+};
 const send404 = (responseType, res, startTime) => {
   res.status(404);
   if (responseType === 1) {

@@ -2,7 +2,7 @@ import utils from '../assets/utils.js';
 import { friends } from '../assets/constants.js';
 
 export default async (req, res) => {
-  const { startTime, accept } = utils.initialize(req);
+  const { startTime, accept } = utils.initialize(req, res);
   try {
     const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
     

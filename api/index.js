@@ -1,7 +1,7 @@
 import utils from '../assets/utils.js';
 
 export default (req, res) => {
-  const { startTime, accept } = utils.initialize(req);
+  const { startTime, accept } = utils.initialize(req, res);
   try {
     if (req.method === 'OPTIONS') {
       res.status(204);
