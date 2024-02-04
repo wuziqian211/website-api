@@ -159,7 +159,7 @@ const toAV = bvid => { // BV 号转 AV 号，改编自 https://www.zhihu.com/que
   let t = 0n;
   bvid = bvid.slice(3);
   for (let i = 0n; i < decodeMap.length; i++) {
-    index = BigInt(alphabet.indexOf(bvid[decodeMap[i]]));
+    const index = BigInt(alphabet.indexOf(bvid[decodeMap[i]]));
     t = t * base + index;
   }
   return Number((t & maskCode) ^ xorCode);
