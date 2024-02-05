@@ -1,12 +1,18 @@
 :root {
   --background-color: #fff;
   --background-color-translucent: #fff9;
+  --background-color-quarter-transparent: #fff5;
   --background-color-dark: #222;
   --background-color-dark-translucent: #2229;
+  --background-color-dark-quarter-transparent: #2225;
   --highlight-color: #09f;
   --highlight-color-dark: #08e;
   --highlight-hover-color: #3bf;
   --highlight-hover-color-dark: #3ae;
+  --invalid-color: #f33;
+  --invalid-color-dark: #f22;
+  --invalid-hover-color: #f66;
+  --invalid-hover-color-dark: #f66;
   --notice-background-color: #fff3db;
   --notice-background-color-dark: #999183;
   --notice-text-color: #ffb112;
@@ -77,10 +83,20 @@ main.loading {
 ul {
   margin: 0;
 }
+div.user-background {
+  border-radius: 10px;
+}
 div.info {
   align-items: center;
+  background: var(--background-color-quarter-transparent);
+  border-radius: 10px;
   display: flex;
   margin: 0 0 5px;
+  padding: 5px 10px;
+}
+div.info.user {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 div.info > strong, table * {
   overflow-wrap: break-word;
@@ -169,6 +185,12 @@ a.title {
 a:hover {
   text-decoration-color: #aaa;
 }
+a.invalid {
+  color: var(--invalid-color);
+}
+a.invalid:hover {
+  color: var(--invalid-hover-color);
+}
 img.sex {
   height: 30px;
 }
@@ -226,6 +248,12 @@ table tr th:first-child, table tr td:first-child {
 }
 table tr th:last-child, table tr td:last-child {
   border-right: none;
+}
+table tr th {
+  background: var(--background-color-translucent);
+}
+table tr td {
+  background: var(--background-color-quarter-transparent);
 }
 img.ppic {
   border-radius: 10px;
@@ -333,6 +361,9 @@ footer {
   body, header {
     background: var(--background-color-dark);
   }
+  div.info {
+    background: var(--background-color-dark-quarter-transparent);
+  }
   span.description, footer {
     color: var(--secondary-color-dark);
   }
@@ -360,11 +391,23 @@ footer {
   a:hover {
     text-decoration-color: #ccc;
   }
+  a.invalid {
+    color: var(--invalid-color-dark);
+  }
+  a.invalid:hover {
+    color: var(--invalid-hover-color-dark);
+  }
   span.notice, a.notice {
     background: var(--notice-background-color-dark);
   }
   table, table th, table td, input {
     border-color: var(--highlight-color-dark);
+  }
+  table tr th {
+    background: var(--background-color-dark-translucent);
+  }
+  table tr td {
+    background: var(--background-color-dark-quarter-transparent);
   }
   input:hover, input[type='text']:focus, input[type='number']:focus {
     background: #2226;

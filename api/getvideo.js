@@ -51,15 +51,17 @@ const handler = async (req, res) => {
       let json;
       if (req.query.force != undefined) { // 强制获取视频信息
         const rjson1 = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', headers, body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, sub_type: 0, dt: 2, play_type: 1, csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录首次加入这个视频（可不带 cid）
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 1 秒
+        await new Promise(resolve => setTimeout(resolve, 500)); // 等待 0.5 秒
         const hjson1 = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
         let info = hjson1.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
         if (hjson1.code === 0 && info) {
-          const rjson2 = await (await fetch('https://api.bilibili.com/x/v2/history/report', { method: 'POST', headers, body: new URLSearchParams({ aid: utils.toAV(vid), cid: info.cid, progress: 0, platform: 'web', csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录再次加入这个视频（带 cid，此时可以获取更多信息）
-          await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 1 秒
-          const hjson2 = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
-          const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
-          if (info2) info = info2;
+          if (info.cid) {
+            const rjson2 = await (await fetch('https://api.bilibili.com/x/v2/history/report', { method: 'POST', headers, body: new URLSearchParams({ aid: utils.toAV(vid), cid: info.cid, progress: 0, platform: 'web', csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录再次加入这个视频（带 cid，此时可以获取更多信息）
+            await new Promise(resolve => setTimeout(resolve, 500)); // 等待 0.5 秒
+            const hjson2 = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
+            const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
+            if (info2) info = info2;
+          }
           json = { code: 0, message: '0', data: { bvid: vid, aid: utils.toAV(vid), videos: null, tid: null, tname: null, copyright: null, pic: '', title: null, pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, rights: null, owner: { mid: null, name: null, face: '' }, stat: { aid: utils.toAV(vid), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: null, dynamic: null, cid: null, dimension: null, premiere: null, teenage_mode: 0, is_chargeable_season: null, is_story: null, is_upower_exclusive: null, is_upower_play: null, is_upower_preview: null, enable_vt: 0, vt_display: '', no_cache: false, pages: null, subtitle: null, is_season_display: null, user_garb: null, honor_reply: null, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: null, ...info, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
         } else {
           json = { code: -404, message: '啥都木有' };
@@ -134,13 +136,13 @@ const handler = async (req, res) => {
               let zone = utils.encodeHTML(json.data.tname ?? '未知');
               const mainZone = zones.find(m => m.tid === json.data.tid);
               if (mainZone) {
-                zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${mainZone.url}">${mainZone.name}</a>${mainZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
+                zone = `<a ${mainZone.expired ? 'class="invalid" ' : ''}target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${mainZone.url}">${mainZone.name}</a>${mainZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
               } else {
                 for (const m of zones) {
                   if (m.sub) {
                     const subZone = m.sub.find(s => s.tid === json.data.tid);
                     if (subZone) {
-                      zone = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${m.url}">${m.name}</a>${m.expired ? '<span class="description">（已下线）</span>' : ''} &gt; <a target="_blank" rel="noopener external nofollow noreferrer" title="${subZone.desc ?? ''}" href="https://www.bilibili.com/${subZone.url}">${subZone.name}</a>${subZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
+                      zone = `<a ${m.expired ? 'class="invalid" ' : ''}target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${m.url}">${m.name}</a>${m.expired ? '<span class="description">（已下线）</span>' : ''} &gt; <a ${subZone.expired ? 'class="invalid" ' : ''}target="_blank" rel="noopener external nofollow noreferrer" title="${subZone.desc ?? ''}" href="https://www.bilibili.com/${subZone.url}">${subZone.name}</a>${subZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
                       break;
                     }
                   }
@@ -175,20 +177,22 @@ const handler = async (req, res) => {
                 ${json.data.rights?.is_cooperation && json.data.staff ? `
                 <strong>合作成员：</strong>
                 ${json.data.staff.map(u => `
-                <div class="info">
-                  <div class="wrap">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
-                      <img class="face" alt title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />
-                      ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
-                    </a>
-                  </div>
-                  <div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">${utils.encodeHTML(u.name)}</a> ${utils.encodeHTML(u.title)}<br />
-                    ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(u.official.title)}<br />` : ''}
-                    <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
+                <div class="user-background" id="user-${u.mid}" style="background: url(${utils.toHTTPS(u.face)}) center/cover no-repeat fixed;">
+                  <div class="info user">
+                    <div class="wrap">
+                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
+                        <img class="face" alt title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />
+                        ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
+                      </a>
+                    </div>
+                    <div>
+                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">${utils.encodeHTML(u.name)}</a> ${utils.encodeHTML(u.title)}<br />
+                      ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(u.official.title)}<br />` : ''}
+                      <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
+                    </div>
                   </div>
                 </div>`).join('')}` : `
-                <div class="info">
+                <div class="info user">
                   <strong>UP 主：</strong>
                   <div class="wrap">
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">
