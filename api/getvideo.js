@@ -8,7 +8,7 @@ import fs from 'node:fs/promises';
 import utils from '../assets/utils.js';
 import { zones, states } from '../assets/constants.js';
 
-export default async (req, res) => {
+export default (req, res) => {
   let { startTime, accept, canAcceptVideo } = utils.initialize(req, res), // 获取 API 开始执行时间与客户端接受响应的类型
     responseType = accept, responseAttributes = [];
   if (req.query.type?.toUpperCase() === 'JSON') {
@@ -52,7 +52,7 @@ export default async (req, res) => {
     }
     
     const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
-    const handler = useCookie => {
+    const handler = async useCookie => {
       if (useCookie) headers.Cookie = `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`; // 如果指定了使用 Cookie，就添加账号登录信息
       if (type === 1) { // 编号为 AV 号或 BV 号
         let json;
