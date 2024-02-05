@@ -3,7 +3,7 @@ import md5 from 'md5';
 
 let cachedWbiKeys, timer;
 const initialize = (req, res) => { // 初始化 API
-  const startTime = req.__startTime__ ?? performance.now();
+  const startTime = performance.now();
   let accept;
   if (req.headers.accept?.toUpperCase().includes('HTML') || req.headers['sec-fetch-dest']?.toUpperCase() === 'DOCUMENT') { // 客户端想要获取类型为“文档”的数据
     accept = 1;
@@ -69,6 +69,7 @@ const send404 = (responseType, res, startTime) => {
 };
 const send500 = (responseType, res, startTime, error) => {
   console.error(error);
+  if (res.headersSent) return; // 如果是在发送响应之后抛出的错误，就防止再次发送响应到客户端
   // res.status(500).getHeaderNames().forEach(h => res.removeHeader(h)); // 删除抛出错误前的所有标头
   res.status(500);
   ['Cache-Control', 'Content-Disposition', 'Content-Type', 'Retry-After'].forEach(h => res.removeHeader(h));
