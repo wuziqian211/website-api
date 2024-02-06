@@ -184,7 +184,7 @@ export default (req, res) => {
                   ${json.data.rights?.is_cooperation && json.data.staff ? `
                   <strong>合作成员：</strong>
                   ${json.data.staff.map(u => `
-                  <div class="user-background" id="user-${u.mid}" style="background: url(${utils.toHTTPS(u.face)}) center/cover no-repeat fixed;">
+                  <div class="user-background" id="user-${u.mid}" style="background: url(${utils.toHTTPS(u.face)}) center/cover no-repeat;">
                     <div class="info user">
                       <div class="wrap">
                         <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
@@ -199,14 +199,16 @@ export default (req, res) => {
                       </div>
                     </div>
                   </div>`).join('')}` : `
-                  <div class="info user">
-                    <strong>UP 主：</strong>
-                    <div class="wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">
-                        <img class="face" alt title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" />
-                      </a>
+                  <div class="user-background" id="user-${json.data.owner.mid}" style="background: url(${utils.toHTTPS(json.data.owner.face)}) center/cover no-repeat;">
+                    <div class="info user">
+                      <strong>UP 主：</strong>
+                      <div class="wrap">
+                        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">
+                          <img class="face" alt title="${utils.encodeHTML(json.data.owner.name)}" src="${utils.toHTTPS(json.data.owner.face)}" referrerpolicy="no-referrer" />
+                        </a>
+                      </div>
+                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">${utils.encodeHTML(json.data.owner.name)}</a>
                     </div>
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">${utils.encodeHTML(json.data.owner.name)}</a>
                   </div>`}
                   ${json.data.pages ? json.data.pages.map(p => `
                   <div class="info">
