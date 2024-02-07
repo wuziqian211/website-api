@@ -33,7 +33,7 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
         <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/favicon.ico'}" referrerpolicy="no-referrer" />
         <style class="extra">${data.style ?? ''}</style>
       </head>
-      <body>
+      <body${data.newStyle ? ' class="new-style"' : ''}>
         <header>
           <div class="header">
             <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
@@ -101,10 +101,6 @@ const renderExtraStyle = pic => `
     body {
       -webkit-backdrop-filter: blur(20px) brightness(0.5);
       backdrop-filter: blur(20px) brightness(0.5);
-      background-color: var(--background-color-dark);
-    }
-    header, main {
-      background: var(--background-color-dark-translucent);
     }
   }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';

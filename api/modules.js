@@ -1,3 +1,4 @@
+import { kv } from '@vercel/kv';
 import utils from '../assets/utils.js';
 import { friends } from '../assets/constants.js';
 
@@ -48,6 +49,28 @@ export default async (req, res) => {
           res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
           sendJSON({ code: 0, message: '0', data: { blocked } });
           break;
+        case 'qmimg':
+          if (/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[\da-f]{4}-[\da-f]{12}$/.test(req.query.h)) {
+            const hashes = await kv.get('hashes');
+            const hash = hashes.find(h => h.h === req.query.h);
+            if (hash) {
+              const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hash.s}&spec=4`);
+              if (resp.ok) {
+                res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type'));
+                utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
+              } else {
+                res.status(404);
+                sendJSON({ code: -404, message: 'cannot fetch image', data: null });
+              }
+            } else {
+              res.status(404);
+              sendJSON({ code: -404, message: 'hash not found', data: null });
+            }
+            break;
+          } else {
+            res.status(400);
+            sendJSON({ code: -400, message: '请求错误', data: null });
+          }
         default:
           res.status(400);
           sendJSON({ code: -400, message: '请求错误', data: null });

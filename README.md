@@ -48,7 +48,7 @@
 
 本存储库中的所有 API 文件均为 ECMAScript modules 文件，使用 [Vercel](https://vercel.com/) 部署。您也可以选择其他平台进行部署，但可能需要改动一些文件。
 
-### 回复数据类型
+### 回复数据类型规则
 
 与大部分其他网站的 API 不同，本存储库中的 API 在调用后，既可以回复 HTML，也可以回复 JSON，有些 API 可以回复图片数据。
 
@@ -64,16 +64,20 @@
 
 本 API 可以获取指定 B 站用户的信息。**目前本 API 始终带 Cookie 获取用户信息。**
 
+#### 请求参数（参数名区分大小写）
+
 | 请求参数（参数名区分大小写） | 说明 |
 | ---------------------------- | ---- |
 | mid | 您想获取用户信息的用户的 UID，只能是纯数字。 |
-| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据；<br />值为 `html` 或 `page`，则回复 HTML 页面；<br />值为 `image`、`face` 或 `avatar`，则成功时回复用户的头像数据，失败时回复默认头像数据（且响应 404 状态代码）；<br />值为 `image_errorwhenfailed`、`face_errorwhenfailed` 或 `avatar_errorwhenfailed`，则成功时回复用户的头像数据，失败时提示获取头像失败（回复数据类型规则为 “特性”——“回复数据类型” 部分中的规则，响应 404 状态代码）；<br />值为 `image_redirect`、`face_redirect` 或 `avatar_redirect`，则成功时重定向到 B 站服务器的头像地址，失败时回复默认头像数据（且响应 404 状态代码）；<br />值为 `image_redirect_errorwhenfailed`、`face_redirect_errorwhenfailed` 或 `avatar_redirect_errorwhenfailed`，则成功时重定向到 B 站服务器的头像地址，失败时提示获取头像失败（回复数据类型规则为 “特性”——“回复数据类型” 部分中的规则，响应 404 状态代码）。<br />本参数的值不区分大小写。 |
+| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据；<br />值为 `html` 或 `page`，则回复 HTML 页面；<br />值为 `image`、`face` 或 `avatar`，则成功时回复用户的头像数据，失败时回复默认头像数据；<br />值为 `image_errorwhenfailed`、`face_errorwhenfailed` 或 `avatar_errorwhenfailed`，则成功时回复用户的头像数据，失败时根据 “特性” 中的 “回复数据类型规则” 提示获取头像失败；<br />值为 `image_redirect`、`face_redirect` 或 `avatar_redirect`，则成功时重定向到 B 站服务器的头像地址，失败时回复默认头像数据；<br />值为 `image_redirect_errorwhenfailed`、`face_redirect_errorwhenfailed` 或 `avatar_redirect_errorwhenfailed`，则成功时重定向到 B 站服务器的头像地址，失败时根据回复数据类型规则提示获取头像失败。<br />本参数的值不区分大小写。 |
 | ~~allow_redirect（即将弃用）~~ | ~~允许本 API 在获取头像数据成功时重定向。如果**存在**本参数，且本 API 将回复图片数据，那么获取头像数据成功时可能会重定向到 B 站服务器的头像地址。~~<br />本参数即将删除，请使用 `type=image_redirect`、`type=face_redirect` 或 `type=avatar_redirect` 参数代替。 |
 
 如果没有填写 “mid” 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
 
-| 响应代码 | 说明 |
-| -------- | ---- |
+#### 响应状态代码
+
+| 响应状态代码 | 说明 |
+| ------------ | ---- |
 | 200 | 请求成功（用户存在） |
 | 307（**不是** 302） | 获取用户头像时的临时重定向 |
 | 404 | 用户不存在 |
@@ -86,12 +90,14 @@
 
 **注意：获取的视频的数据仅供预览，要下载视频，请使用其他工具，本 API 只能获取大小不超过 4.5 MB（在这里 1 MB = 1000 KB）的视频。**
 
+#### 请求参数（参数名区分大小写）
+
 | 请求参数（参数名区分大小写） | 说明 |
 | ---------------------------- | ---- |
 | vid | 您想获取信息或数据的视频、剧集、番剧的编号。用前缀为 `av` 或没有前缀的 AV 号，前缀为 `BV` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧等的编号都是可以的（前缀不区分大小写）。 |
 | cid | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid。 |
 | p | 该视频的第几个分 P，或者该剧集中的第几集。 |
-| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据；<br />值为 `html` 或 `page`，则回复 HTML 页面；<br /><!-- 值为 `video` 或 `data`，则成功时回复视频数据，失败时以视频形式提示视频不存在，并且失败时**若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则响应 200 状态代码**，否则响应 404 状态代码（这样做的目的是让播放器能够加载提示“视频不存在”的视频，不会因本 API 响应 404 状态代码而不加载视频）；<br />值为 `video_errorwhenfailed` 或 `data_errorwhenfailed`，则成功时回复视频数据，失败时提示视频不存在（回复数据类型规则为 “特性”——“回复数据类型” 部分中的规则，始终响应 404 状态代码）；-->值为 `video` 或 `data`，则成功时回复视频数据，失败时若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则以视频形式提示视频不存在（且**响应 200 状态代码**），否则提示视频不存在（回复数据类型规则为 “特性”——“回复数据类型” 部分中的规则，响应 404 状态代码）；<br />值为 `image`、`cover` 或 `pic`，则成功时回复视频封面数据，失败时回复默认封面数据（且响应 404 状态代码）；<br />值为 `image_errorwhenfailed`、`cover_errorwhenfailed` 或 `pic_errorwhenfailed`，则成功时回复视频封面数据，失败时提示获取封面失败（回复数据类型规则为 “特性”——“回复数据类型” 部分中的规则，响应 404 状态代码）；<br />值为 `image_redirect`、`cover_redirect` 或 `pic_redirect`，则成功时重定向到 B 站服务器的封面地址，失败时回复默认封面数据（且响应 404 状态代码）；<br />值为 `image_redirect_errorwhenfailed`、`cover_redirect_errorwhenfailed` 或 `pic_redirect_errorwhenfailed`，则成功时重定向到 B 站服务器的封面地址，失败时提示获取封面失败（回复数据类型规则为 “特性”——“回复数据类型” 部分中的规则，响应 404 状态代码）。<br />本参数的值不区分大小写。 |
+| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据；<br />值为 `html` 或 `page`，则回复 HTML 页面；<br />值为 `video` 或 `data`，则成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则响应 200 状态代码**，否则响应 404 状态代码（这样做的目的是让播放器能够加载提示“视频不存在”的视频，不会因本 API 响应 404 状态代码而不加载视频）；<br />值为 `video_errorwhenfailed` 或 `data_errorwhenfailed`，则成功时回复视频数据，失败时若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应 404 状态代码）；<br />值为 `image_errorwhenfailed`、`cover_errorwhenfailed` 或 `pic_errorwhenfailed`，则成功时回复视频封面数据，失败时根据回复数据类型规则提示获取封面失败；<br />值为 `image_redirect`、`cover_redirect` 或 `pic_redirect`，则成功时重定向到 B 站服务器的封面地址，失败时回复默认封面数据；<br />值为 `image_redirect_errorwhenfailed`、`cover_redirect_errorwhenfailed` 或 `pic_redirect_errorwhenfailed`，则成功时重定向到 B 站服务器的封面地址，失败时根据回复数据类型规则提示获取封面失败。<br />本参数的值不区分大小写。 |
 | ~~allow_redirect（即将弃用）~~ | ~~允许本 API 在获取封面数据成功时重定向。如果**存在**本参数，且本 API 将回复图片数据，那么获取封面数据成功时可能会重定向到 B 站服务器的封面地址。~~<br />本参数即将删除，请使用 `type=image_redirect`、`type=cover_redirect` 或 `type=pic_redirect` 参数代替。 |
 | cookie | 获取信息时是否带 Cookie。如果本参数的值为 `true`，则强制带 Cookie 获取信息（**如果您是在其他地方部署的本 API，需要您手动设置环境变量 `SESSDATA` 与 `bili_jct`**）；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。本参数的值不区分大小写。 |
 | force | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。 |
@@ -100,8 +106,10 @@
 
 当您想要本 API 回复视频的数据（设置 `type=video`、`type=data`、`type=video_errorwhenfailed` 或 `type=data_errorwhenfailed` 参数）时，为了能尽可能获取到更高清晰度的视频，本 API 会自动设置 `cookie=true` 参数，您可以手动设置 `cookie=false` 参数以覆盖此行为；**如果参数 “vid” 的值是前缀为 `md` 的剧集编号，则暂不支持获取视频数据。**
 
-| 响应代码 | 说明 |
-| -------- | ---- |
+#### 响应状态代码
+
+| 响应状态代码 | 说明 |
+| ------------ | ---- |
 | 200 | 请求成功（视频、剧集、番剧存在） |
 | 307（**不是** 302） | 获取视频封面时的临时重定向 |
 | 403 | 需登录才能获取该视频的信息 |

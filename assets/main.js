@@ -4,7 +4,9 @@
 const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
 const replacePage = text => {
   const html = new DOMParser().parseFromString(text, 'text/html');
+  if (html.querySelector('parsererror')) throw new TypeError('Cannot parse HTML');
   ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).outerHTML = html.querySelector(s).outerHTML);
+  document.body.className = html.body.className;
 };
 const load = (url, event) => {
   if (isLoadAvailable(url)) {

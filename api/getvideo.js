@@ -22,6 +22,7 @@ export default (req, res) => {
       splitString.shift(); // 删除第一个元素
       responseAttributes = splitString;
     } else if (['VIDEO', 'DATA'].includes(splitString?.[0])) {
+      responseType = 3;
       splitString.shift(); // 删除第一个元素
       responseAttributes = splitString;
     }
@@ -77,7 +78,7 @@ export default (req, res) => {
           json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
         }
         
-        if (['VIDEO', 'DATA'].includes(req.query.type?.toUpperCase())) { // 获取视频数据
+        if (responseType === 3) { // 获取视频数据
           let cid;
           if (json.code === 0 && json.data.pages) {
             if (/^\d+$/.test(req.query.cid) && +req.query.cid > 0 && json.data.pages.some(p => p.cid === +req.query.cid)) { // 用户提供的 cid 有效，且 API 回复的 pages 中包含用户提供的 cid
@@ -108,32 +109,32 @@ export default (req, res) => {
                 res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
                 utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
               } else {
-                if (canAcceptVideo) {
-                  res.status(200).setHeader('Content-Type', 'video/mp4');
-                  utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
-                } else {
+                if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
                   res.status(404);
                   sendHTML({ title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid });
+                } else {
+                  res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                  utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
                 }
               }
             } else { // 视频地址获取失败
-              if (canAcceptVideo) {
-                res.status(200).setHeader('Content-Type', 'video/mp4');
-                utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
-              } else {
+              if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
                 res.status(500);
                 sendHTML({ title: '无法获取视频数据', content: `
                   抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
                   如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid });
+              } else {
+                res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
               }
             }
           } else { // 视频无效
-            if (canAcceptVideo) {
-              res.status(200).setHeader('Content-Type', 'video/mp4');
-              utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
-            } else {
+            if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
               res.status(404);
               sendHTML({ title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: req.query.vid });
+            } else {
+              res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+              utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
             }
           }
         } else { // 获取视频信息
@@ -432,7 +433,7 @@ export default (req, res) => {
         }
       } else if ([3, 4].includes(type)) { // 编号为 ssid 或 epid
         const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
-        if (['VIDEO', 'DATA'].includes(req.query.type?.toUpperCase())) { // 获取剧集中某一集的视频数据
+        if (responseType === 3) { // 获取剧集中某一集的视频数据
           let P;
           if (json.code === 0) {
             if (type === 3) { // 编号为 ssid
@@ -479,32 +480,32 @@ export default (req, res) => {
                 res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type')).setHeader('Content-Disposition', `inline; filename=${filename}`);
                 utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
               } else {
-                if (canAcceptVideo) {
-                  res.status(200).setHeader('Content-Type', 'video/mp4');
-                  utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
-                } else {
+                if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
                   res.status(404);
                   sendHTML({ title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid });
+                } else {
+                  res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                  utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
                 }
               }
             } else { // 视频地址获取失败
-              if (canAcceptVideo) {
-                res.status(200).setHeader('Content-Type', 'video/mp4');
-                utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
-              } else {
+              if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
                 res.status(500);
                 sendHTML({ title: '无法获取视频数据', content: `
                   抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
                   如果您想下载这一集，最好使用其他工具哟 awa`, vid: req.query.vid });
+              } else {
+                res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
               }
             }
           } else { // 剧集无效
-            if (canAcceptVideo) {
-              res.status(200).setHeader('Content-Type', 'video/mp4');
-              utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
-            } else {
+            if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
               res.status(404);
               sendHTML({ title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在，或者您可能输入了错误的集号哟 qwq', vid: req.query.vid });
+            } else {
+              res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+              utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
             }
           }
         } else { // 获取剧集信息
