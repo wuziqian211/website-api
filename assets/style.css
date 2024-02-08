@@ -42,7 +42,7 @@ body.new-style {
     radial-gradient(circle at 90% 90%, var(--highlight-color), transparent 30%), 
     var(--background-color);
 }
-@supports (background: color-mix(in srgb, var(--highlight-color), transparent 50%)) {
+@supports (background: color-mix(in srgb, #000, transparent 50%)) {
   body.new-style {
     background: radial-gradient(circle at 10% 30%, color-mix(in srgb, var(--highlight-color), transparent 70%), transparent 20%),
       radial-gradient(circle at 40% 70%, color-mix(in srgb, var(--highlight-color), transparent 60%), transparent 60%),
@@ -51,12 +51,8 @@ body.new-style {
       var(--background-color);
   }
 }
-body.new-style header, body.new-style main {
+body.new-style header {
   background: var(--background-color-translucent);
-}
-body.new-style main {
-  animation: none;
-  padding: 20px;
 }
 header {
   background: var(--background-color);
@@ -127,11 +123,18 @@ div.grid {
   padding: 10px 0;
 }
 div.grid-item {
-  background: var(--background-color-translucent);
+  background: var(--background-color-quarter-transparent);
   border-radius: 10px;
   box-shadow: 10px 10px 5px #0007;
   padding: 10px;
   position: relative;
+}
+div.grid-item:hover {
+  background: var(--background-color-translucent);
+}
+body.new-style div.grid-item {
+  border-radius: 20px;
+  padding: 20px;
 }
 div.grid-item a {
   height: 100%;
