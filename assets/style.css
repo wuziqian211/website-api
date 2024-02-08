@@ -2,6 +2,7 @@
   --background-color: #fff;
   --background-color-translucent: #fff9;
   --background-color-quarter-transparent: #fff5;
+  --background-hover-color-quarter-transparent: #ddd5;
   --highlight-color: #09f;
   --highlight-color-translucent: #09f7;
   --highlight-hover-color: #3bf;
@@ -11,6 +12,47 @@
   --notice-text-color: #ffb112;
   --secondary-color: #777;
   --text-color: #222;
+  --anchor-decoration-color: #333;
+  --anchor-decoration-hover-color: #aaa;
+}
+
+span.description {
+  color: var(--secondary-color);
+}
+.text-personal {
+  color: #ffc62e;
+}
+.text-business {
+  color: #4ac7ff;
+}
+.text-big-vip {
+  color: #fb7299;
+}
+.text-small-vip {
+  color: #6dc781;
+}
+img.icon-personal {
+  content: url(/assets/personal.svg);
+}
+img.icon-business {
+  content: url(/assets/business.svg);
+}
+img.icon-big-vip {
+  content: url(/assets/big-vip.svg);
+}
+img.icon-small-vip {
+  content: url(/assets/small-vip.svg);
+}
+img.icon-face-nft {
+  border: 2px solid var(--background-color);
+  box-sizing: border-box;
+  content: url(/assets/nft.gif);
+}
+h2, a, strong, table th, label, input[type='submit'] {
+  color: var(--highlight-color);
+}
+a:hover, input[type='submit']:hover {
+  color: var(--highlight-hover-color);
 }
 
 * {
@@ -51,22 +93,15 @@ body.new-style {
       var(--background-color);
   }
 }
-body.new-style header {
-  background: var(--background-color-translucent);
-}
-body.new-style main {
-  animation: 0.5s both fadeIn;
-}
-body.new-style main.loading {
-  animation-name: fadeOut;
-  transform-origin: initial;
-}
 header {
   background: var(--background-color);
   box-shadow: 0 0 5px #777;
   position: sticky;
   top: 0;
   z-index: 10;
+}
+body.new-style header {
+  background: var(--background-color-translucent);
 }
 div.header {
   align-items: center;
@@ -78,9 +113,6 @@ div.header {
 div.header > div.left {
   flex: 1;
   font-size: 24px;
-}
-span.description {
-  color: var(--secondary-color);
 }
 div.header > div.left > span.description {
   font-size: 14px;
@@ -97,8 +129,24 @@ main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
 }
+body.new-style main {
+  animation: 0.5s both fadeIn;
+}
+body.new-style main.loading {
+  animation-name: fadeOut;
+  transform-origin: initial;
+}
 h2, p {
   margin: 10px 0;
+}
+pre {
+  background: #333;
+  border-radius: 10px;
+  color: #f66;
+  font-family: consolas, Menlo, monospace, 'PingFang SC', 'Microsoft YaHei';
+  font-size: 16px;
+  overflow: auto;
+  padding: 10px;
 }
 div.user-background {
   border-radius: 10px;
@@ -139,6 +187,9 @@ div.grid-item {
 div.grid-item:hover {
   background: var(--background-color-translucent);
 }
+div.grid-item:active {
+  background: var(--background-hover-color-quarter-transparent);
+}
 body.new-style div.grid-item {
   border-radius: 20px;
   padding: 20px;
@@ -150,35 +201,8 @@ div.grid-item a {
   top: 0;
   width: 100%;
 }
-.text-personal {
-  color: #ffc62e;
-}
-.text-business {
-  color: #4ac7ff;
-}
-.text-big-vip {
-  color: #fb7299;
-}
-.text-small-vip {
-  color: #6dc781;
-}
 img {
   vertical-align: middle;
-}
-img.icon-personal {
-  content: url(/assets/personal.svg);
-}
-img.icon-business {
-  content: url(/assets/business.svg);
-}
-img.icon-big-vip {
-  content: url(/assets/big-vip.svg);
-}
-img.icon-small-vip {
-  content: url(/assets/small-vip.svg);
-}
-img.icon-face-nft {
-  content: url(/assets/nft-label.gif);
 }
 img.face {
   border-radius: 50%;
@@ -211,24 +235,18 @@ div.wrap.has-frame img.face-icon {
 div.wrap.has-frame img.face-icon.second {
   left: calc(50% - 8px);
 }
-h2, a, strong, table th, label, input[type='submit'] {
-  color: var(--highlight-color);
-}
-a:hover, input[type='submit']:hover {
-  color: var(--highlight-hover-color);
-}
 a {
-  text-decoration: underline dotted #333;
+  text-decoration: underline dotted var(--anchor-decoration-color);
   text-decoration-thickness: 2px;
+}
+a:hover {
+  text-decoration-color: var(--anchor-decoration-hover-color);
 }
 div.header a, a.title, a.notice {
   text-decoration: none;
 }
 a.title {
   font-weight: bold;
-}
-a:hover {
-  text-decoration-color: #aaa;
 }
 a.invalid {
   color: var(--invalid-color);
@@ -250,6 +268,10 @@ img.vpic {
 img.spic {
   border-radius: 10px;
   height: 160px;
+}
+img.ppic {
+  border-radius: 10px;
+  height: 80px;
 }
 span.notice, a.notice {
   background: var(--notice-background-color);
@@ -300,10 +322,6 @@ table tr th {
 table tr td {
   background: var(--background-color-quarter-transparent);
 }
-img.ppic {
-  border-radius: 10px;
-  height: 80px;
-}
 form {
   font-size: 16px;
   margin: 10px 0 0;
@@ -313,7 +331,8 @@ input {
   border-radius: 5px;
   box-sizing: content-box;
   color: var(--text-color);
-  height: 20px;
+  font-size: 15px;
+  height: 22.5px;
 }
 input:hover, input[type='text']:focus, input[type='number']:focus {
   background: var(--background-color-quarter-transparent);
@@ -322,16 +341,7 @@ input:hover {
   border-color: var(--highlight-hover-color);
 }
 input[type='submit']:active {
-  background: #ddd6;
-}
-pre {
-  background: #333;
-  border-radius: 10px;
-  color: #f66;
-  font-family: consolas, Menlo, monospace, 'PingFang SC', 'Microsoft YaHei';
-  font-size: 16px;
-  overflow: auto;
-  padding: 10px;
+  background: var(--background-hover-color-quarter-transparent);
 }
 footer {
   color: var(--secondary-color);
@@ -408,6 +418,7 @@ footer {
     --background-color: #222;
     --background-color-translucent: #2229;
     --background-color-quarter-transparent: #2225;
+    --background-hover-color-quarter-transparent: #0005;
     --highlight-color: #08e;
     --highlight-hover-color: #3ae;
     --invalid-color: #f22;
@@ -415,6 +426,8 @@ footer {
     --notice-background-color: #999183;
     --secondary-color: #999;
     --text-color: #ccc;
+    --anchor-decoration-color: #aaa;
+    --anchor-decoration-hover-color: #ccc;
   }
   
   img.icon-personal {
@@ -428,15 +441,6 @@ footer {
   }
   img.icon-small-vip {
     content: url(/assets/small-vip_dark.svg);
-  }
-  a {
-    text-decoration-color: #aaa;
-  }
-  a:hover {
-    text-decoration-color: #ccc;
-  }
-  input[type='submit']:active {
-    background: #0006;
   }
 }
 
