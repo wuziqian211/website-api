@@ -1,19 +1,16 @@
 :root {
   --background-color: #fff;
   --background-color-translucent: #fff9;
-  --background-color-dark: #222;
-  --background-color-dark-translucent: #2229;
+  --background-color-quarter-transparent: #fff5;
   --highlight-color: #09f;
-  --highlight-color-dark: #08e;
+  --highlight-color-translucent: #09f7;
   --highlight-hover-color: #3bf;
-  --highlight-hover-color-dark: #3ae;
+  --invalid-color: #f33;
+  --invalid-hover-color: #f66;
   --notice-background-color: #fff3db;
-  --notice-background-color-dark: #999183;
   --notice-text-color: #ffb112;
   --secondary-color: #777;
-  --secondary-color-dark: #999;
   --text-color: #222;
-  --text-color-dark: #ccc;
 }
 
 * {
@@ -37,6 +34,32 @@ body {
   color: var(--text-color);
   margin: 0;
   min-height: 100%;
+}
+body.new-style {
+  background: radial-gradient(circle at 10% 30%, var(--highlight-color), transparent 20%),
+    radial-gradient(circle at 40% 70%, var(--highlight-color), transparent 60%),
+    radial-gradient(circle at 80% 35%, var(--highlight-color), transparent 40%),
+    radial-gradient(circle at 90% 90%, var(--highlight-color), transparent 30%), 
+    var(--background-color);
+}
+@supports (background: color-mix(in srgb, #000, transparent 50%)) {
+  body.new-style {
+    background: radial-gradient(circle at 10% 30%, color-mix(in srgb, var(--highlight-color), transparent 70%), transparent 20%),
+      radial-gradient(circle at 40% 70%, color-mix(in srgb, var(--highlight-color), transparent 60%), transparent 60%),
+      radial-gradient(circle at 80% 35%, color-mix(in srgb, var(--highlight-color), transparent 40%), transparent 40%),
+      radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--highlight-color), transparent 85%), transparent 30%), 
+      var(--background-color);
+  }
+}
+body.new-style header {
+  background: var(--background-color-translucent);
+}
+body.new-style main {
+  animation: 0.5s both fadeIn;
+}
+body.new-style main.loading {
+  animation-name: fadeOut;
+  transform-origin: initial;
 }
 header {
   background: var(--background-color);
@@ -74,13 +97,23 @@ main.loading {
   animation-name: zoomOutUp;
   transform-origin: center bottom;
 }
-ul {
-  margin: 0;
+h2, p {
+  margin: 10px 0;
+}
+div.user-background {
+  border-radius: 10px;
 }
 div.info {
   align-items: center;
+  background: var(--background-color-quarter-transparent);
+  border-radius: 10px;
   display: flex;
   margin: 0 0 5px;
+  padding: 5px 10px;
+}
+div.info.user {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 div.info > strong, table * {
   overflow-wrap: break-word;
@@ -88,6 +121,34 @@ div.info > strong, table * {
 div.wrap {
   margin: 0 5px 0 0;
   position: relative;
+}
+div.grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 20px;
+  padding: 10px 0;
+}
+div.grid-item {
+  background: var(--background-color-quarter-transparent);
+  border-radius: 10px;
+  box-shadow: 10px 10px 5px #0007;
+  padding: 10px;
+  position: relative;
+}
+div.grid-item:hover {
+  background: var(--background-color-translucent);
+}
+body.new-style div.grid-item {
+  border-radius: 20px;
+  padding: 20px;
+}
+div.grid-item a {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 .text-personal {
   color: #ffc62e;
@@ -150,7 +211,7 @@ div.wrap.has-frame img.face-icon {
 div.wrap.has-frame img.face-icon.second {
   left: calc(50% - 8px);
 }
-a, strong, th, label, input[type='submit'] {
+h2, a, strong, table th, label, input[type='submit'] {
   color: var(--highlight-color);
 }
 a:hover, input[type='submit']:hover {
@@ -168,6 +229,12 @@ a.title {
 }
 a:hover {
   text-decoration-color: #aaa;
+}
+a.invalid {
+  color: var(--invalid-color);
+}
+a.invalid:hover {
+  color: var(--invalid-hover-color);
 }
 img.sex {
   height: 30px;
@@ -208,12 +275,30 @@ table {
   max-width: max-content;
   overflow: auto;
 }
-th, td {
+table tr th, table tr td {
   padding: 8px;
   text-align: center;
 }
-th, td, input {
+table tr th, table tr td, input {
   border: 1px solid var(--highlight-color);
+}
+table tr:first-child th {
+  border-top: none;
+}
+table tr:last-child td {
+  border-bottom: none;
+}
+table tr th:first-child, table tr td:first-child {
+  border-left: none;
+}
+table tr th:last-child, table tr td:last-child {
+  border-right: none;
+}
+table tr th {
+  background: var(--background-color-translucent);
+}
+table tr td {
+  background: var(--background-color-quarter-transparent);
 }
 img.ppic {
   border-radius: 10px;
@@ -224,18 +309,17 @@ form {
   margin: 10px 0 0;
 }
 input {
-  background: inherit;
+  background: none;
   border-radius: 5px;
   box-sizing: content-box;
-  color: inherit;
+  color: var(--text-color);
   height: 20px;
 }
-input:hover {
-  background: #fff6;
-  border-color: var(--highlight-hover-color);
+input:hover, input[type='text']:focus, input[type='number']:focus {
+  background: var(--background-color-quarter-transparent);
 }
-input[type='text']:focus, input[type='number']:focus {
-  background: #fff6;
+input:hover {
+  border-color: var(--highlight-hover-color);
 }
 input[type='submit']:active {
   background: #ddd6;
@@ -255,11 +339,13 @@ footer {
   margin: 10px 10px 0;
   text-align: center;
 }
+
 @media (max-width: 1439px) {
   div.header, main {
     width: 900px;
   }
 }
+
 @media (max-width: 959px) {
   div.header {
     width: auto;
@@ -275,6 +361,13 @@ footer {
     width: auto;
   }
 }
+
+@media (max-width: 767px) {
+  div.grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 359px) {
   * {
     animation: none !important;
@@ -285,9 +378,6 @@ footer {
   }
   body {
     background: #000 !important;
-  }
-  header {
-    display: none;
   }
   main {
     background: none !important;
@@ -311,19 +401,22 @@ footer {
     height: 20px;
   }
 }
+
 @media (max-width: 359px), (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
+    --background-color: #222;
+    --background-color-translucent: #2229;
+    --background-color-quarter-transparent: #2225;
+    --highlight-color: #08e;
+    --highlight-hover-color: #3ae;
+    --invalid-color: #f22;
+    --invalid-hover-color: #f66;
+    --notice-background-color: #999183;
+    --secondary-color: #999;
+    --text-color: #ccc;
   }
-  body {
-    color: var(--text-color-dark);
-  }
-  body, header {
-    background: var(--background-color-dark);
-  }
-  span.description, footer {
-    color: var(--secondary-color-dark);
-  }
+  
   img.icon-personal {
     content: url(/assets/personal_dark.svg);
   }
@@ -336,34 +429,17 @@ footer {
   img.icon-small-vip {
     content: url(/assets/small-vip_dark.svg);
   }
-  a, strong, th, label, input[type='submit'] {
-    color: var(--highlight-color-dark);
-  }
-  a:hover, input[type='submit']:hover {
-    color: var(--highlight-hover-color-dark);
-  }
   a {
     text-decoration-color: #aaa;
   }
   a:hover {
     text-decoration-color: #ccc;
   }
-  span.notice, a.notice {
-    background: var(--notice-background-color-dark);
-  }
-  table, th, td, input {
-    border-color: var(--highlight-color-dark);
-  }
-  input:hover, input[type='text']:focus, input[type='number']:focus {
-    background: #2226;
-  }
-  input:hover {
-    border-color: var(--highlight-hover-color-dark);
-  }
   input[type='submit']:active {
     background: #0006;
   }
 }
+
 @media only print {
   * {
     animation: none !important;
@@ -389,7 +465,23 @@ footer {
   }
 }
 
-/* From animate.css - https://animate.style */
+/* From Animate.css - https://animate.style/ - MIT License */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 @keyframes zoomInDown {
   from {
     animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);

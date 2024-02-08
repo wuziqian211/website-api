@@ -4,7 +4,9 @@
 const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
 const replacePage = text => {
   const html = new DOMParser().parseFromString(text, 'text/html');
-  ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
+  if (html.querySelector('parsererror')) throw new TypeError('Cannot parse HTML');
+  ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).outerHTML = html.querySelector(s).outerHTML);
+  document.body.className = html.body.className;
 };
 const load = (url, event) => {
   if (isLoadAvailable(url)) {
@@ -14,8 +16,10 @@ const load = (url, event) => {
 };
 const bindLoad = () => {
   document.querySelectorAll('a').forEach(a => {
-    a.onclick = event => load(a.href, event);
-    a.onkeyup = event => event.code === 'Enter' && load(a.href, event);
+    a.onclick = event => load(a.href, event),
+    a.onkeyup = event => {
+      if (event.code === 'Enter') load(a.href, event);
+    };
   });
   document.querySelectorAll('form').forEach(form => {
     form.onsubmit = event => {
@@ -41,10 +45,9 @@ const loadPage = async url => {
       return;
     }
     const text = await resp.text();
-    history.pushState({ text }, '', resp.url);
     replacePage(text);
+    history.pushState({ text }, '', resp.url);
     bindLoad();
-    document.querySelector('main').classList.remove('loading');
   } catch (e) {
     console.error(e);
     document.location.href = url;
