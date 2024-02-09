@@ -31,6 +31,9 @@ span.description {
 .text-small-vip {
   color: #6dc781;
 }
+img.icon-personal, img.icon-business, img.icon-big-vip, img.icon-small-vip, img.icon-face-nft, img.notice-icon {
+  display: inline-block;
+}
 img.icon-personal {
   content: url(/assets/personal.svg);
 }
@@ -148,28 +151,6 @@ pre {
   overflow: auto;
   padding: 10px;
 }
-div.user-background {
-  border-radius: 10px;
-}
-div.info {
-  align-items: center;
-  background: var(--background-color-quarter-transparent);
-  border-radius: 10px;
-  display: flex;
-  margin: 0 0 5px;
-  padding: 5px 10px;
-}
-div.info.user {
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
-div.info > strong, table * {
-  overflow-wrap: break-word;
-}
-div.wrap {
-  margin: 0 5px 0 0;
-  position: relative;
-}
 div.grid {
   display: grid;
   gap: 15px;
@@ -201,6 +182,36 @@ div.grid-item a {
   top: 0;
   width: 100%;
 }
+div.image-background {
+  border-radius: 10px;
+}
+div.main-info {
+  align-items: center;
+  background: var(--background-color-quarter-transparent);
+  border-radius: 10px;
+  display: flex;
+  margin: 0 0 5px;
+  padding: 5px 10px;
+}
+div.main-info.image {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+div.main-info > div.left, table * {
+  overflow-wrap: break-word;
+}
+div.main-info > div.left, div.main-info > div.image-wrap {
+  margin: 0 5px 0 0;
+}
+div.main-info > div.detail {
+  flex: 1;
+}
+div.image-wrap {
+  position: relative;
+}
+div.split-line {
+  height: 10px;
+}
 img {
   vertical-align: middle;
 }
@@ -208,31 +219,31 @@ img.face {
   border-radius: 50%;
   height: 60px;
 }
-div.wrap.has-frame img.face {
+div.image-wrap.has-frame img.face {
   height: 51px;
   padding: 19.5px;
 }
-div.wrap.has-frame img.face-frame {
+div.image-wrap.has-frame img.face-frame {
   height: 90px;
   left: calc(50% - 45px);
   position: absolute;
   top: 0;
 }
-div.wrap img.face-icon {
+div.image-wrap img.face-icon {
   border-radius: 50%;
   height: 18px;
   left: calc(50% + 13.25px);
   position: absolute;
   top: calc(50% + 13.25px);
 }
-div.wrap img.face-icon.second {
+div.image-wrap img.face-icon.second {
   left: calc(50% - 3.75px);
 }
-div.wrap.has-frame img.face-icon {
+div.image-wrap.has-frame img.face-icon {
   left: calc(50% + 9px);
   top: calc(50% + 9px);
 }
-div.wrap.has-frame img.face-icon.second {
+div.image-wrap.has-frame img.face-icon.second {
   left: calc(50% - 8px);
 }
 a {
@@ -333,6 +344,7 @@ input {
   color: var(--text-color);
   font-size: 15px;
   height: 22.5px;
+  vertical-align: middle;
 }
 input:hover, input[type='text']:focus, input[type='number']:focus {
   background: var(--background-color-quarter-transparent);
@@ -383,10 +395,11 @@ footer {
     animation: none !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
+    background-image: none !important;
     text-align: center;
     transition: none;
   }
-  body {
+  body, header {
     background: #000 !important;
   }
   main {
@@ -394,7 +407,18 @@ footer {
     font-size: 16px;
     padding: 0;
   }
-  div.info {
+  h2, p {
+    margin: 0;
+  }
+  div.grid {
+    margin-bottom: 0;
+    padding: 0;
+  }
+  div.grid-item {
+    box-shadow: none;
+    padding: 0 !important;
+  }
+  div.main-info {
     display: block;
   }
   img.sex {

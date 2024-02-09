@@ -52,8 +52,8 @@ export default async (req, res) => {
           case 0:
             const content = `
               <img style="display: none;" src="${json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'}" referrerpolicy="no-referrer" />
-              <div class="info">
-                <div class="wrap${json.data.pendant?.image ? ' has-frame' : ''}">
+              <div class="main-info">
+                <div class="image-wrap${json.data.pendant?.image ? ' has-frame' : ''}">
                   <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">
                     <img class="face" alt title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" referrerpolicy="no-referrer" />
                     ${json.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(json.data.pendant.name)}" src="${utils.toHTTPS(json.data.pendant.image_enhance || json.data.pendant.image)}" referrerpolicy="no-referrer" />` : ''}
@@ -61,21 +61,22 @@ export default async (req, res) => {
                     ${json.data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : json.data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : json.data.vip?.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                   </a>
                 </div>
-                <div>
+                <div class="detail">
                   <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">${utils.encodeHTML(json.data.name)}</a>
-                  ${json.data.sex === '男' ? '<img class="sex" alt="男" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? '<img class="sex" alt="女" title="女" src="/assets/female.png" />' : ''}
-                  <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6+' : json.data.level} 级" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>
+                  ${json.data.sex === '男' ? '<img class="sex" alt="♂️" title="男" src="/assets/male.png" />' : json.data.sex === '女' ? '<img class="sex" alt="♀️" title="女" src="/assets/female.png" />' : ''}
+                  <a class="no-underline" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6 级（硬核会员）' : `${json.data.level} 级`}" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>
                   ${json.data.is_deleted ? '<span class="description">（账号已注销）</span>' : ''}
                   <br />
-                  ${[0, 1].includes(json.data.official.type) ? `<img class="official-icon icon-${json.data.official.type === 0 ? 'personal" alt title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(json.data.official.title)}${json.data.official.desc ? `<span class="description">（${utils.encodeHTML(json.data.official.desc)}）` : ''}</span><br />` : ''}
-                  ${json.data.silence ? '<span class="notice"><img class="notice-icon" alt /> 该账号封禁中</span><br />' : ''}
-                  ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : 'span class="notice"'} style="${json.data.sys_notice.bg_color ? `background: ${json.data.sys_notice.bg_color};` : ''}${json.data.sys_notice.text_color ? `color: ${json.data.sys_notice.text_color};` : ''}"><img class="notice-icon" alt src="${utils.toHTTPS(json.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}>` : ''}
+                  ${[0, 1].includes(json.data.official.type) ? `<img class="official-icon icon-${json.data.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(json.data.official.title)}${json.data.official.desc ? `<span class="description">（${utils.encodeHTML(json.data.official.desc)}）</span>` : ''}<br />` : ''}
+                  ${json.data.silence ? '<span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span><br />' : ''}
+                  ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : 'span class="notice"'} style="${json.data.sys_notice.bg_color ? `background: ${json.data.sys_notice.bg_color};` : ''}${json.data.sys_notice.text_color ? `color: ${json.data.sys_notice.text_color};` : ''}"><img class="notice-icon" alt="${json.data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" src="${utils.toHTTPS(json.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}>` : ''}
                 </div>
               </div>
               <strong>生日：</strong>${json.data.birthday ? utils.getDate(json.data.birthday).slice(0, 10) : '保密'}<br />
               <strong>注册时间：</strong>${utils.getDate(json.data.regtime)}<br />
               <strong>关注数：</strong>${utils.getNumber(json.data.following)}<br />
               <strong>粉丝数：</strong>${utils.getNumber(json.data.follower)}<br />
+              ${json.data.tags?.length ? `<strong>标签：</strong>${json.data.tags.join(' ')}<br />` : ''}
               <strong>个性签名：</strong><br />
               ${utils.markText(json.data.sign)}`;
             res.status(200);

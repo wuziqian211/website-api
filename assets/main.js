@@ -1,11 +1,12 @@
 'use strict';
 
-// From pjax.js - https://github.com/MoOx/pjax
+// Adapted from pjax.js - https://github.com/MoOx/pjax - MIT License
 const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
 const replacePage = text => {
   const html = new DOMParser().parseFromString(text, 'text/html');
   if (html.querySelector('parsererror')) throw new TypeError('Cannot parse HTML');
-  ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).outerHTML = html.querySelector(s).outerHTML);
+  ['title', 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
+  document.querySelector("link[rel='apple-touch-icon']").href = html.querySelector("link[rel='apple-touch-icon']").href;
   document.body.className = html.body.className;
 };
 const load = (url, event) => {
@@ -16,23 +17,23 @@ const load = (url, event) => {
 };
 const bindLoad = () => {
   document.querySelectorAll('a').forEach(a => {
-    a.onclick = event => load(a.href, event),
-    a.onkeyup = event => {
+    a.addEventListener('click', event => load(a.href, event), { passive: false });
+    a.addEventListener('keyup', event => {
       if (event.code === 'Enter') load(a.href, event);
-    };
+    }, { passive: false });
   });
   document.querySelectorAll('form').forEach(form => {
-    form.onsubmit = event => {
+    form.addEventListener('submit', event => {
       const url = new URL(form.action, window.location);
-      const params = new URLSearchParams(url.search);
+      const params = new URLSearchParams();
       for (const e of form.elements) {
-        if (e.tagName.toLowerCase() === 'input' && e.type !== 'submit') {
+        if (e.tagName === 'INPUT' && e.type.toUpperCase() !== 'SUBMIT' && (e.type.toUpperCase() !== 'CHECKBOX' || e.checked)) {
           params.set(e.name, e.value);
         }
       }
       url.search = params;
       load(url, event);
-    };
+    }, { passive: false });
   });
 };
 const loadPage = async url => {
@@ -40,24 +41,25 @@ const loadPage = async url => {
   document.activeElement?.blur();
   try {
     const resp = await fetch(url, { headers: { accept: 'text/html' } });
-    if (!isLoadAvailable(resp.url)) {
+    if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
+      const text = await resp.text();
+      replacePage(text);
+      history.pushState({ text }, '', resp.url);
+      document.querySelector('main').classList.remove('loading');
+      bindLoad();
+    } else {
       document.location.href = resp.url;
-      return;
     }
-    const text = await resp.text();
-    replacePage(text);
-    history.pushState({ text }, '', resp.url);
-    bindLoad();
   } catch (e) {
     console.error(e);
     document.location.href = url;
   }
 };
-window.onpopstate = event => {
+window.addEventListener('popstate', event => {
   document.activeElement?.blur();
   replacePage(event.state.text);
   bindLoad();
-};
+}, { passive: true });
 history.replaceState({ text: document.documentElement.outerHTML }, '');
 bindLoad();
 
