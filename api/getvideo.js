@@ -185,22 +185,24 @@ export default (req, res) => {
                   </table>
                   ${json.data.rights?.is_cooperation && json.data.staff ? `
                   <strong>合作成员：</strong>
-                  ${json.data.staff.map(u => `
-                  <div class="image-background" id="user-${u.mid}" style="background: url(${utils.toHTTPS(u.face)}) center/cover no-repeat;">
-                    <div class="main-info image">
-                      <div class="image-wrap">
-                        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
-                          <img class="face" alt title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />
-                          ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
-                        </a>
+                  <div class="grid user-list">
+                    ${json.data.staff.map(u => `
+                    <div class="grid-item image-background" id="user-${u.mid}" style="background: url(${utils.toHTTPS(u.face)}) center/cover no-repeat;">
+                      <div class="main-info image">
+                        <div class="image-wrap">
+                          <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
+                            <img class="face" alt title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />
+                            ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
+                          </a>
+                        </div>
+                        <div class="detail">
+                          <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">${utils.encodeHTML(u.name)}</a> ${utils.encodeHTML(u.title)}<br />
+                          ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(u.official.title)}${u.official.desc ? `<span class="description">（${utils.encodeHTML(u.official.desc)}）</span>` : ''}<br />` : ''}
+                          <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
+                        </div>
                       </div>
-                      <div class="detail">
-                        <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">${utils.encodeHTML(u.name)}</a> ${utils.encodeHTML(u.title)}<br />
-                        ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(u.official.title)}${u.official.desc ? `<span class="description">（${utils.encodeHTML(u.official.desc)}）</span>` : ''}<br />` : ''}
-                        <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
-                      </div>
-                    </div>
-                  </div>`).join('')}` : `
+                    </div>`).join('')}
+                  </div>` : `
                   <div class="image-background" id="user-${json.data.owner.mid}" style="background: url(${utils.toHTTPS(json.data.owner.face)}) center/cover no-repeat;">
                     <div class="main-info image">
                       <div class="left"><strong>UP 主：</strong></div>

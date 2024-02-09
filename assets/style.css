@@ -158,12 +158,21 @@ div.grid {
   margin-bottom: 20px;
   padding: 10px 0;
 }
+div.grid.user-list {
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 0;
+}
 div.grid-item {
   background: var(--background-color-quarter-transparent);
   border-radius: 10px;
   box-shadow: 10px 10px 5px #0007;
   padding: 10px;
   position: relative;
+}
+div.grid-item.image-background {
+  box-shadow: none;
+  padding: 0;
 }
 div.grid-item:hover {
   background: var(--background-color-translucent);
@@ -175,7 +184,7 @@ body.new-style div.grid-item {
   border-radius: 20px;
   padding: 20px;
 }
-div.grid-item a {
+div.grid-item a.grid-link {
   height: 100%;
   left: 0;
   position: absolute;
@@ -196,6 +205,9 @@ div.main-info {
 div.main-info.image {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
 }
 div.main-info > div.left, table * {
   overflow-wrap: break-word;
