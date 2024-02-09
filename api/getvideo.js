@@ -214,7 +214,6 @@ export default (req, res) => {
                       <div class="detail"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">${utils.encodeHTML(json.data.owner.name)}</a></div>
                     </div>
                   </div>`}
-                  <div class="split-line"></div>
                   ${json.data.pages ? json.data.pages.map(p => `
                   ${p.first_frame ? `<div class="image-background" id="part-${p.page}" style="background: url(${utils.toHTTPS(p.first_frame)}) center/cover no-repeat;">` : ''}
                   <div class="main-info${p.first_frame ? ' image' : ''}">

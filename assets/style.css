@@ -160,7 +160,6 @@ div.grid {
 }
 div.grid.user-list {
   gap: 10px;
-  margin-bottom: 10px;
   padding: 0;
 }
 div.grid-item {
@@ -220,9 +219,6 @@ div.main-info > div.detail {
 }
 div.image-wrap {
   position: relative;
-}
-div.split-line {
-  height: 10px;
 }
 img {
   vertical-align: middle;
