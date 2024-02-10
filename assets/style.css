@@ -1,0 +1,161 @@
+* {
+  font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow-wrap: break-word;
+  text-align: justify;
+  transition: all 0.5s;
+}
+::selection {
+  background: #333;
+  color: #ccc;
+}
+html {
+  height: 100%;
+}
+body {
+  background: #fff;
+  color: #222;
+  margin: 0;
+  min-height: 100%;
+}
+span.description {
+  color: #777;
+}
+main {
+  animation: 0.5s both zoomInDown;
+  border-radius: 20px;
+  font-size: 20px;
+  margin: 20px auto;
+  padding: 10px;
+  width: 1200px;
+}
+div.info {
+  align-items: center;
+  display: flex;
+  margin: 0 0 5px;
+}
+div.wrap {
+  margin: 0 5px 0 0;
+  position: relative;
+}
+img {
+  vertical-align: middle;
+}
+img.face {
+  border-radius: 50%;
+  height: 60px;
+}
+div.wrap.has-frame img.face {
+  height: 51px;
+  padding: 19.5px;
+}
+div.wrap.has-frame img.face-frame {
+  height: 90px;
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+div.wrap img.face-icon {
+  border-radius: 50%;
+  bottom: -1.25px;
+  height: 18px;
+  position: absolute;
+  right: -1.25px;
+}
+div.wrap img.face-icon.second {
+  right: 15.75px;
+}
+div.wrap.has-frame img.face-icon {
+  bottom: 18px;
+  right: 18px;
+}
+div.wrap.has-frame img.face-icon.second {
+  right: 35px;
+}
+a, strong, th {
+  color: #09f;
+}
+a {
+  text-decoration: underline dotted #333;
+  text-decoration-thickness: 2px;
+}
+a:hover {
+  color: #3bf;
+  text-decoration-color: #aaa;
+}
+a.title {
+  font-weight: bold;
+  text-decoration: none;
+}
+img.sex {
+  height: 30px;
+}
+img.level, img.official-icon {
+  height: 25px;
+  vertical-align: -5px;
+}
+table {
+  border: 2px solid #09f;
+  border-collapse: collapse;
+  border-radius: 10px;
+  display: block;
+  margin: 10px 0;
+  max-width: max-content;
+  overflow: auto;
+}
+th, td {
+  border: 1px solid #09f;
+  padding: 8px;
+  text-align: center;
+}
+footer {
+  color: #777;
+  font-size: 16px;
+  text-align: center;
+}
+@media (max-width: 1439px) {
+  main {
+    width: 900px;
+  }
+}
+@media (max-width: 959px) {
+  main {
+    margin: 10px;
+    width: auto;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #222;
+    color: #ccc;
+  }
+  span.description, footer {
+    color: #999;
+  }
+  a, strong, th {
+    color: #08e;
+  }
+  a {
+    text-decoration-color: #aaa;
+  }
+  a:hover {
+    color: #3ae;
+    text-decoration-color: #ccc;
+  }
+  table, th, td {
+    border-color: #08e;
+  }
+}
+
+/* From animate.css - https://animate.style */
+@keyframes zoomInDown {
+  from {
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    opacity: 0;
+    transform: scale3d(0.1, 0.1, 0.1) translate3d(0, -1000px, 0);
+  }
+  60% {
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
+    opacity: 1;
+    transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
+  }
+}

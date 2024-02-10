@@ -1,15 +1,17 @@
+const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
+
 export default async (req, res) => {
   try { 
     const { headers } = req;
-    Object.keys(headers).forEach(name => (['connection', 'host', 'forwarded', 'if-none-match'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-')) && delete headers[name]);
-    const requestedUrl = new URL(req.query.url);
-    headers.origin = requestedUrl.origin;
-    const referrer = new URL(req.headers.referer || req.query.url);
-    referrer.host = requestedUrl.host;
+    Object.keys(headers).filter(name => ['connection', 'host', 'forwarded', 'if-none-match'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-')).forEach(name => delete headers[name]);
+    const requestUrl = new URL(req.query.url);
+    headers.origin = requestUrl.origin;
+    const referrer = new URL(req.headers.referer || requestUrl);
+    referrer.host = requestUrl.host;
     headers.referer = referrer.href;
-    Object.keys(req.query).forEach(name => name !== 'url' && (headers[name] = req.query[name]));
+    Object.keys(req.query).filter(name => name !== 'url').forEach(name => headers[name] = req.query[name]);
     let body;
-    if (req.method === 'POST' || req.method === 'PUT') {
+    if (['POST', 'PUT'].includes(req.method)) {
       switch (req.headers['content-type']) {
         case 'application/json':
           body = JSON.stringify(req.body);
@@ -21,13 +23,18 @@ export default async (req, res) => {
           body = req.body;
       }
     }
-    const resp = await fetch(req.query.url, { method: req.method, headers, body });
+    const resp = await fetch(requestUrl, { method: req.method, headers, body, redirect: 'manual' });
     res.status(resp.status);
     if (resp.headers.has('Content-Type')) res.setHeader('Content-Type', resp.headers.get('Content-Type').replace(/text\/html/g, 'text/plain'));
-    ['Content-Disposition', 'Content-Range'].forEach(h => resp.headers.has(h) && res.setHeader(h, resp.headers.get(h)));
+    ['Content-Disposition', 'Content-Range', 'Refresh'].forEach(h => resp.headers.has(h) && res.setHeader(h, resp.headers.get(h)));
+    if (resp.headers.has('Location')) {
+      const params = new URLSearchParams(req.query);
+      params.set('url', new URL(resp.headers.get('Location'), requestUrl));
+      res.setHeader('Location', `?${params}`);
+    }
     resp.headers.forEach((value, name) => res.setHeader('X-Http-' + name, value));
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
-    res.status(500).send(`Error<br /><pre>${e.stack.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\n/g, '<br />')}</pre>`);
+    res.status(500).send(`Error while visiting ${encodeHTML(req.query.url)}<br /><pre>${encodeHTML(e.stack)}</pre>`);
   }
 };
