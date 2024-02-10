@@ -1,14 +1,11 @@
 :root {
   --background-color: #fff;
-  --background-color-dark: #222;
   --highlight-color: #09f;
-  --highlight-color-dark: #08e;
   --highlight-hover-color: #3bf;
-  --highlight-hover-color-dark: #3ae;
   --secondary-color: #777;
-  --secondary-color-dark: #999;
   --text-color: #222;
-  --text-color-dark: #ccc;
+  --anchor-decoration-color: #333;
+  --anchor-decoration-hover-color: #aaa;
 }
 
 * {
@@ -59,12 +56,12 @@ main {
 }
 a {
   color: var(--highlight-color);
-  text-decoration: underline dotted #333;
+  text-decoration: underline dotted var(--anchor-decoration-color);
   text-decoration-thickness: 2px;
 }
 a:hover {
   color: var(--highlight-hover-color);
-  text-decoration-color: #aaa;
+  text-decoration-color: var(--anchor-decoration-hover-color);
 }
 div.header a {
   text-decoration: none;
@@ -75,11 +72,13 @@ footer {
   margin: 10px 10px 0;
   text-align: center;
 }
+
 @media (max-width: 1439px) {
   div.header, main {
     width: 900px;
   }
 }
+
 @media (max-width: 959px) {
   div.header {
     text-align: center;
@@ -93,27 +92,21 @@ footer {
     width: auto;
   }
 }
+
 @media (prefers-color-scheme: dark) {
-  body {
-    color: var(--text-color-dark);
-  }
-  body, header {
-    background: var(--background-color-dark);
-  }
-  span.description, footer {
-    color: var(--secondary-color-dark);
-  }
-  a {
-    color: var(--highlight-color-dark);
-    text-decoration-color: #aaa;
-  }
-  a:hover {
-    color: var(--highlight-hover-color-dark);
-    text-decoration-color: #ccc;
+  :root {
+    color-scheme: dark;
+    --background-color: #222;
+    --highlight-color: #08e;
+    --highlight-hover-color: #3ae;
+    --secondary-color: #999;
+    --text-color: #ccc;
+    --anchor-decoration-color: #aaa;
+    --anchor-decoration-hover-color: #ccc;
   }
 }
 
-/* From animate.css - https://animate.style */
+/* From animate.css - https://animate.style/ - MIT License */
 @keyframes zoomInDown {
   from {
     animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
@@ -124,17 +117,5 @@ footer {
     animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
     opacity: 1;
     transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
-  }
-}
-@keyframes zoomOutUp {
-  40% {
-    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-    opacity: 1;
-    transform: scale3d(0.475, 0.475, 0.475) translate3d(0, 60px, 0);
-  }
-  to {
-    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1);
-    opacity: 0;
-    transform: scale3d(0.1, 0.1, 0.1) translate3d(0, -2000px, 0);
   }
 }
