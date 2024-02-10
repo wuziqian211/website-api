@@ -9,7 +9,7 @@
 | 文件或文件夹 | 说明 |
 | ------------ | ---- |
 | api/ | 本文件夹包含所有 API，在网站上访问里面的文件会调用对应 API |
-| api/redirect.js | 主要的 API |
+| api/redirect.ts | 主要的 API |
 | LICENSE | MIT 许可证 |
 | package.json, package-lock.json | 供 Node.js 与 npm 使用 |
 | vercel.json | Vercel（API 服务商）的配置文件 |
