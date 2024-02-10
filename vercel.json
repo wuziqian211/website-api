@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/redirect.js": {
-      "memory": 128
-    }
-  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/redirect.js" }
   ]
