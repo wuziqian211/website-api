@@ -1,7 +1,7 @@
 // 一些常量
 
 // 1. 视频分区列表
-const zones = [ // 来自 B 站官方与 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md（以下简称“API 文档”）；分区有“expired: true”属性的表示该分区已下线，已下线分区的信息均来自“API 文档”
+const zones = [ // 来自 B 站与 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md（以下简称“API 文档”）；分区有“expired: true”属性的表示该分区已下线，已下线分区的信息均来自“API 文档”
   { tid: 217, name: '动物圈', url: 'v/animal', sub: [
     { tid: 218, name: '喵星人', desc: '喵喵喵喵喵', url: 'v/animal/cat' },
     { tid: 219, name: '汪星人', desc: '汪汪汪汪汪', url: 'v/animal/dog' },
