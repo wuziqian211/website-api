@@ -11,16 +11,18 @@ const replacePage = text => {
 };
 const load = (url, event) => {
   if (isLoadAvailable(url)) {
+    controller.abort();
     event.preventDefault();
     loadPage(url);
   }
 };
 const bindLoad = () => {
+  controller = new AbortController();
   document.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', event => load(a.href, event), { passive: false });
+    a.addEventListener('click', event => load(a.href, event), { passive: false, signal: controller.signal });
     a.addEventListener('keyup', event => {
       if (event.code === 'Enter') load(a.href, event);
-    }, { passive: false });
+    }, { passive: false, signal: controller.signal });
   });
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', event => {
@@ -33,7 +35,7 @@ const bindLoad = () => {
       }
       url.search = params;
       load(url, event);
-    }, { passive: false });
+    }, { passive: false, signal: controller.signal });
   });
 };
 const loadPage = async url => {
@@ -55,6 +57,7 @@ const loadPage = async url => {
     document.location.href = url;
   }
 };
+let controller;
 window.addEventListener('popstate', event => {
   document.activeElement?.blur();
   replacePage(event.state.text);
