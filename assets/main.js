@@ -47,12 +47,15 @@ const loadPage = async url => {
         const text = await resp.text();
         const html = new DOMParser().parseFromString(text, 'text/html');
         if (isValidPage(html)) {
-          history.pushState({ html }, '', resp.url);
+          history.pushState({ text }, '', resp.url);
           replacePage(html);
           bindLoad();
           document.querySelector('main').classList.remove('loading');
           return true;
         }
+      } else {
+        document.location.href = resp.url;
+        return false;
       }
     } catch (e) {
       console.error(e);
@@ -63,11 +66,16 @@ const loadPage = async url => {
 };
 let controller;
 window.addEventListener('popstate', event => {
-  document.activeElement?.blur();
-  replacePage(event.state.html);
-  bindLoad();
+  if (isValidPage(document)) {
+    document.activeElement?.blur();
+    const html = new DOMParser().parseFromString(event.state.text, 'text/html');
+    replacePage(html);
+    bindLoad();
+  } else {
+    document.location.reload();
+  }
 }, { passive: true });
-history.replaceState({ html: document }, '');
+history.replaceState({ text: document.documentElement.outerHTML }, '');
 bindLoad();
 
 const runningTime = document.querySelector('span.running-time');
