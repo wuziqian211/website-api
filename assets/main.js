@@ -10,12 +10,12 @@ const replacePage = html => {
 };
 const load = (url, event) => {
   if (isLoadAvailable(url)) {
-    controller.abort();
     event.preventDefault();
     loadPage(url);
   }
 };
 const bindLoad = () => {
+  if (controller) controller.abort();
   controller = new AbortController();
   document.querySelectorAll('a').forEach(a => {
     a.addEventListener('click', event => load(a.href, event), { passive: false, signal: controller.signal });
