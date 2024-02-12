@@ -54,14 +54,14 @@ const loadPage = async url => {
           return true;
         }
       } else {
-        document.location.href = resp.url;
+        window.location.href = resp.url;
         return false;
       }
     } catch (e) {
       console.error(e);
     }
   }
-  document.location.href = url;
+  window.location.href = url;
   return false;
 };
 let controller;
@@ -72,7 +72,7 @@ window.addEventListener('popstate', event => {
     replacePage(html);
     bindLoad();
   } else {
-    document.location.reload();
+    window.location.reload();
   }
 }, { passive: true });
 history.replaceState({ text: document.documentElement.outerHTML }, '');
