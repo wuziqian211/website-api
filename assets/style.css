@@ -211,7 +211,7 @@ div.main-info > div.left, table * {
   overflow-wrap: break-word;
 }
 div.main-info > div.left, div.main-info > div.image-wrap {
-  margin: 0 5px 0 0;
+  margin-right: 5px;
 }
 div.main-info > div.detail {
   flex: 1;

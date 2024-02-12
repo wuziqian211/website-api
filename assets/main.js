@@ -2,9 +2,8 @@
 
 // Adapted from pjax.js - https://github.com/MoOx/pjax - MIT License
 const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
-const replacePage = text => {
-  const html = new DOMParser().parseFromString(text, 'text/html');
-  if (html.querySelector('parsererror')) throw new TypeError('Cannot parse HTML');
+const isValidPage = html => !html.querySelector('parsererror') && ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].every(s => html.querySelector(s));
+const replacePage = html => {
   ['title', 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
   document.querySelector("link[rel='apple-touch-icon']").href = html.querySelector("link[rel='apple-touch-icon']").href;
   document.body.className = html.body.className;
@@ -39,31 +38,36 @@ const bindLoad = () => {
   });
 };
 const loadPage = async url => {
-  document.querySelector('main').classList.add('loading');
-  document.activeElement?.blur();
-  try {
-    const resp = await fetch(url, { headers: { accept: 'text/html' } });
-    if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
-      const text = await resp.text();
-      replacePage(text);
-      history.pushState({ text }, '', resp.url);
-      document.querySelector('main').classList.remove('loading');
-      bindLoad();
-    } else {
-      document.location.href = resp.url;
+  if (isValidPage(document)) {
+    document.querySelector('main').classList.add('loading');
+    document.activeElement?.blur();
+    try {
+      const resp = await fetch(url, { headers: { accept: 'text/html' } });
+      if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
+        const text = await resp.text();
+        const html = new DOMParser().parseFromString(text, 'text/html');
+        if (isValidPage(html)) {
+          history.pushState({ html }, '', resp.url);
+          replacePage(html);
+          bindLoad();
+          document.querySelector('main').classList.remove('loading');
+          return true;
+        }
+      }
+    } catch (e) {
+      console.error(e);
     }
-  } catch (e) {
-    console.error(e);
-    document.location.href = url;
   }
+  document.location.href = url;
+  return false;
 };
 let controller;
 window.addEventListener('popstate', event => {
   document.activeElement?.blur();
-  replacePage(event.state.text);
+  replacePage(event.state.html);
   bindLoad();
 }, { passive: true });
-history.replaceState({ text: document.documentElement.outerHTML }, '');
+history.replaceState({ html: document }, '');
 bindLoad();
 
 const runningTime = document.querySelector('span.running-time');
