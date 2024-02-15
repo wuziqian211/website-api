@@ -274,10 +274,11 @@ a.invalid:hover {
 }
 img.sex {
   height: 30px;
+  vertical-align: bottom;
 }
 img.level, img.official-icon {
   height: 25px;
-  vertical-align: -5px;
+  vertical-align: sub;
 }
 img.vpic {
   border-radius: 10px;

@@ -42,7 +42,7 @@ export default (req, res) => {
     let useCookie;
     if ((req.query.cookie?.toUpperCase() === 'TRUE' || req.query.type?.toUpperCase() === 'DATA' || req.query.force != undefined) && req.query.cookie?.toUpperCase() !== 'FALSE') { // 用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有要求不使用 Cookie
       useCookie = true;
-    } else if (req.query.cookie?.toUpperCase() === 'FALSE') { // 用户要求不适用 Cookie
+    } else if (req.query.cookie?.toUpperCase() === 'FALSE') { // 用户要求不使用 Cookie
       if (req.query.force == undefined) {
         useCookie = false;
       } else { // 既要求强制获取视频信息（需要登录）又要求不使用 Cookie，这种情况无法获取到视频信息
@@ -76,7 +76,7 @@ export default (req, res) => {
             json = { code: -404, message: '啥都木有' };
           }
         } else {
-          json = await (await fetch(`https://api.bilibili.com/x/web-interface/view?bvid=${vid}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
+          json = await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
         }
         
         if (responseType === 3) { // 获取视频数据
@@ -94,8 +94,8 @@ export default (req, res) => {
           if (cid) { // 视频有效
             const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
             let url;
-            for (const q of qualities) {
-              const vjson = await (await fetch(`https://api.bilibili.com/x/player/playurl?bvid=${vid}&cid=${cid}&qn=${q}&fnval=1&fnver=0&platform=${q === 6 ? 'pc' : 'html5'}`, { headers })).json();
+            for (const qn of qualities) {
+              const vjson = await (await fetch(`https://api.bilibili.com/x/player/wbi/playurl?${await utils.encodeWbi({ bvid: vid, cid, qn, fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: '', platform: qn === 6 ? 'pc' : 'html5', high_quality: 1 })}`, { headers })).json();
               if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
                 url = vjson.data.durl[0].url;
               } else {
@@ -142,7 +142,7 @@ export default (req, res) => {
           if (responseType === 1) { // 回复 HTML
             switch (json.code) {
               case 0:
-                let zone = utils.encodeHTML(json.data.tname ?? '未知');
+                let zone = json.data.tname ? utils.encodeHTML(json.data.tname) : '未知';
                 const mainZone = zones.find(m => m.tid === json.data.tid);
                 if (mainZone) {
                   zone = `<a ${mainZone.expired ? 'class="invalid" ' : ''}target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${mainZone.url}">${mainZone.name}</a>${mainZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
@@ -202,7 +202,7 @@ export default (req, res) => {
                         </div>
                       </div>
                     </div>`).join('')}
-                  </div>` : `
+                  </div>` : json.data.owner.mid ? `
                   <div class="image-background" id="user-${json.data.owner.mid}" style="background: url(${utils.toHTTPS(json.data.owner.face)}) center/cover no-repeat;">
                     <div class="main-info image">
                       <div class="left"><strong>UP 主：</strong></div>
@@ -213,7 +213,7 @@ export default (req, res) => {
                       </div>
                       <div class="detail"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.data.owner.mid}">${utils.encodeHTML(json.data.owner.name)}</a></div>
                     </div>
-                  </div>`}
+                  </div>` : ''}
                   ${json.data.pages ? json.data.pages.map(p => `
                   ${p.first_frame ? `<div class="image-background" id="part-${p.page}" style="background: url(${utils.toHTTPS(p.first_frame)}) center/cover no-repeat;">` : ''}
                   <div class="main-info${p.first_frame ? ' image' : ''}">
@@ -226,10 +226,11 @@ export default (req, res) => {
                     </div>` : ''}
                     <div class="detail">
                       <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}">${utils.encodeHTML(p.part)}</a> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
-                      <strong>cid：</strong>${p.cid}
+                      <strong>cid：</strong>${p.cid || '未知'}
                     </div>
                   </div>
                   ${p.first_frame ? '</div>' : ''}`).join('') : ''}
+                  ${json.data.dynamic ? `<strong>同步发布动态的文字内容：</strong>${utils.encodeHTML(json.data.dynamic)}<br />` : ''}
                   <strong>简介：</strong><br />
                   ${json.data.desc_v2 ? json.data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)} </a>` : utils.markText(d.raw_text)).join('') : utils.markText(json.data.desc)}`;
                 res.status(200);
@@ -470,7 +471,7 @@ export default (req, res) => {
             const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
             let url;
             for (const q of qualities) {
-              const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0`, { headers })).json();
+              const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0&fourk=1&from_client=BROWSER`, { headers })).json();
               if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
                 url = vjson.result.durl[0].url;
               } else {
@@ -517,7 +518,7 @@ export default (req, res) => {
           if (responseType === 1) { // 回复 HTML
             switch (json.code) {
               case 0:
-                const types = { 1: '番剧', 2: '电影', 3: '纪录片', 4: '国创', 5: '电视剧', 7: '综艺' }
+                const types = { 1: '番剧', 2: '电影', 3: '纪录片', 4: '国创', 5: '电视剧', 7: '综艺' };
                 const content = `
                   <div class="main-info">
                     <div class="image-wrap">
