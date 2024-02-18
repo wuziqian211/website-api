@@ -50,6 +50,7 @@ export default (req, res) => {
         sendHTML({ title: '无法强制获取视频信息', content: `
           在不使用 Cookie 的情况下，无法强制获取视频信息 qwq<br />
           如果您要强制获取视频信息，则必须使用 Cookie（把“cookie=false”参数去掉）awa`, vid: req.query.vid });
+        return;
       }
     }
     
