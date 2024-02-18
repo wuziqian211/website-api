@@ -12,7 +12,7 @@ export default async (req, res) => {
     Object.keys(req.query).filter(name => name !== 'url').forEach(name => headers[name] = req.query[name]);
     let body;
     if (['POST', 'PUT'].includes(req.method)) {
-      switch (req.headers['content-type']) {
+      switch (req.headers['content-type']?.split(';')[0]) {
         case 'application/json':
           body = JSON.stringify(req.body);
           break;
