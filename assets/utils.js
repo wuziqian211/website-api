@@ -107,7 +107,7 @@ const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').r
 const markText = str => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
   const components = [{ content: str }],
-    replacementRules = [
+    replacementRules = [ // 替换规则
     { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacement: match => match },
     { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacement: (match, p1) => `https://www.bilibili.com/video/BV${p1}/` },
     { pattern: /av(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/video/av${p1}/` },
@@ -116,21 +116,19 @@ const markText = str => { // 将纯文本中的特殊标记转化成可点击的
     { pattern: /md(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/media/md${p1}` },
     { pattern: /ss(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/play/ss${p1}` },
     { pattern: /ep(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/play/ep${p1}` },
-  ]; // 定义替换规则
+  ];
   for (const p of replacementRules) {
-    let i = 0;
-    while (i < components.length) { // 由于下面的代码可能会导致 components 的元素数量变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (let i = 0; i < components.length; i++) 或 for (const c of components) 等语句
+    for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
       if (!components[i].url) { // 该组成部分没有转化成链接
         const { content } = components[i];
         const result = p.pattern.exec(content);
         if (result) {
           const [match, ...capturedMatches] = result, { index } = result;
-          components.splice(i, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
-          components[i + 1].content = match, components[i + 1].url = p.replacement(match, ...capturedMatches); // 将该组成部分修改成已经转化的链接
-          components.splice(i + 2, 0, { content: content.slice(index + match.length) }); // 在该组成部分后插入一个内容为匹配文本之后的文本的组成部分
+          components.splice(i++, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
+          components[i].content = match, components[i].url = p.replacement(match, ...capturedMatches); // 将该组成部分修改成已经转化的链接
+          components.splice(i + 1, 0, { content: content.slice(index + match.length) }); // 在该组成部分后插入一个内容为匹配文本之后的文本的组成部分
         }
       }
-      i++;
     }
   }
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
