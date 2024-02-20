@@ -22,15 +22,12 @@ export default async (req, res) => {
           sendJSON({ code: 0, message: '0', data: { token: btoa('b3b46a4146e79d57c5d3227cdf949f0e') } });
           break;
         case 'friends': // 关系好的朋友们（不一定互关）
-          const users = friends.toSorted(() => 0.5 - Math.random()), resps = [];
+          const users = friends.toSorted(() => 0.5 - Math.random()), jsonList = [];
           while (users.length) {
-            resps.push(fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } })); // 获取多用户信息，每次获取 50 个
+            jsonList.push(fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } }).then(resp => resp.json())); // 获取多用户信息，每次获取 50 个
             users.splice(0, 50);
           }
-          const info = (await Promise.all(resps.map(async resp => {
-            const ujson = await (await resp).json();
-            return ujson.code === 0 && ujson.data;
-          }))).filter(u => u).flat();
+          const info = (await Promise.all(jsonList)).filter(ujson => ujson.code === 0).map(ujson => ujson.data).flat();
           
           res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (req.query.version === '3') { // 第 3 版：简化名称
