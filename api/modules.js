@@ -47,7 +47,7 @@ export default async (req, res) => {
           sendJSON({ code: 0, message: '0', data: { blocked } });
           break;
         case 'qmimg':
-          if (/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[\da-f]{4}-[\da-f]{12}$/.test(req.query.h)) {
+          if (/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/.test(req.query.h)) {
             const hashes = await kv.get('hashes');
             const hash = hashes.find(h => h.h === req.query.h);
             if (hash) {
