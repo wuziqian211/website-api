@@ -10,17 +10,13 @@ export default async (req, res) => {
     if (accept === 1) {
       switch (req.query.id) {
         case 'friends': // 对用浏览器直接访问 /api/modules?id=friends 的用户进行重定向
-          utils.redirect(res, startTime, 'https://wuziqian211.top/friends/', 307);
+          utils.redirect(res, startTime, 'https://www.yumeharu.top/friends/', 307);
           break;
         default:
           utils.send404(1, res, startTime);
       }
     } else {
       switch (req.query.id) {
-        case 'token': // 评论图床的 token
-          res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-          sendJSON({ code: 0, message: '0', data: { token: btoa('b3b46a4146e79d57c5d3227cdf949f0e') } });
-          break;
         case 'friends': // 关系好的朋友们（不一定互关）
           const users = friends.toSorted(() => 0.5 - Math.random()), jsonList = [];
           while (users.length) {
