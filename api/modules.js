@@ -43,11 +43,11 @@ export default async (req, res) => {
           sendJSON({ code: 0, message: '0', data: { blocked } });
           break;
         case 'upload':
-          if (req.method === 'POST' && req.headers['content-type']?.split(';')[0] === 'multipart/form-data') {
-            const { body: requestBody } = req;
-            if (requestBody.has('file')) {
+          if (req.method === 'POST' && req.headers['content-type']?.split(';')[0] === 'application/octet-stream') {
+            const { body: file } = req;
+            if (file.length) {
               const body = new FormData();
-              body.set('smfile', requestBody.get('file'));
+              body.set('smfile', new Blob([file]));
               body.set('format', 'json');
               const resp = await fetch('https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body });
               if (resp.ok) {
