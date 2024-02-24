@@ -42,6 +42,36 @@ export default async (req, res) => {
           res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
           sendJSON({ code: 0, message: '0', data: { blocked } });
           break;
+        case 'upload':
+          if (req.method === 'POST' && req.headers['content-type']?.split(';')[0] === 'multipart/form-data') {
+            const { body: requestBody } = req;
+            if (requestBody.has('file')) {
+              const body = new FormData();
+              body.set('smfile', requestBody.get('file'));
+              body.set('format', 'json');
+              const resp = await fetch('https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body });
+              if (resp.ok) {
+                const json = await resp.json();
+                if (json.success) {
+                  res.status(200);
+                  sendJSON({ code: 0, message: '0', data: { filename: json.data.filename, url: json.data.url, size: json.data.size, width: json.data.width, height: json.data.height } });
+                  return;
+                }
+              }
+              res.status(500);
+              sendJSON({ code: -500, message: 'upload image failed', data: null });
+            } else {
+              res.status(400);
+              sendJSON({ code: -400, message: '请求错误', data: null });
+            }
+          } else if (req.method === 'OPTIONS') {
+            res.status(204);
+            utils.send(res, startTime, '');
+          } else {
+            res.status(400);
+            sendJSON({ code: -400, message: '请求错误', data: null });
+          }
+          break;
         case 'qmimg':
           if (/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/.test(req.query.h)) {
             const hashes = await kv.get('hashes');
@@ -59,11 +89,11 @@ export default async (req, res) => {
               res.status(404);
               sendJSON({ code: -404, message: 'hash not found', data: null });
             }
-            break;
           } else {
             res.status(400);
             sendJSON({ code: -400, message: '请求错误', data: null });
           }
+          break;
         default:
           res.status(400);
           sendJSON({ code: -400, message: '请求错误', data: null });
