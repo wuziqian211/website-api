@@ -566,7 +566,7 @@ export default (req, res) => {
                   ${s.episodes.map(p => `
                   <div class="main-info">
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="${p.status === 0 ? `?vid=${p.link.slice(p.link.lastIndexOf('/') + 1)}` : `https://www.bilibili.com/bangumi/play/ep${p.id}`}">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</a>${p.status === 0 ? '' : ` ${utils.getTime(p.duration / 1000)}`}<br />
+                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="${p.status === 0 ? `?vid=${new URL(p.link).pathname.split('/').filter(n => n).at(-1)}` : `https://www.bilibili.com/bangumi/play/ep${p.id}`}">${utils.encodeHTML(p.title)} ${utils.encodeHTML(p.long_title)}</a>${p.status === 0 ? '' : ` ${utils.getTime(p.duration / 1000)}`}<br />
                       ${p.status === 0 ? '' : `
                       <strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />
                       <strong>cid：</strong>${p.cid}；<a href="?vid=${p.bvid}">${p.bvid}</a>`}
