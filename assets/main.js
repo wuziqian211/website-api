@@ -15,13 +15,13 @@ const load = (url, event) => {
   }
 };
 const bindLoad = () => {
-  if (controller) controller.abort();
-  controller = new AbortController();
+  if (bindController) bindController.abort();
+  bindController = new AbortController();
   document.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', event => load(a.href, event), { passive: false, signal: controller.signal });
+    a.addEventListener('click', event => load(a.href, event), { passive: false, signal: bindController.signal });
     a.addEventListener('keyup', event => {
       if (event.code === 'Enter') load(a.href, event);
-    }, { passive: false, signal: controller.signal });
+    }, { passive: false, signal: bindController.signal });
   });
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', event => {
@@ -34,15 +34,17 @@ const bindLoad = () => {
       }
       url.search = params;
       load(url, event);
-    }, { passive: false, signal: controller.signal });
+    }, { passive: false, signal: bindController.signal });
   });
 };
 const loadPage = async url => {
+  if (loadController) loadController.abort();
+  loadController = new AbortController();
   if (isValidPage(document)) {
     document.querySelector('main').classList.add('loading');
     document.activeElement?.blur();
     try {
-      const resp = await fetch(url, { headers: { accept: 'text/html' } });
+      const resp = await fetch(url, { headers: { accept: 'text/html' }, signal: loadController.signal });
       if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
         const text = await resp.text();
         const html = new DOMParser().parseFromString(text, 'text/html');
@@ -64,7 +66,7 @@ const loadPage = async url => {
   window.location.href = url;
   return false;
 };
-let controller;
+let bindController, loadController;
 window.addEventListener('popstate', event => {
   if (isValidPage(document)) {
     document.activeElement?.blur();
