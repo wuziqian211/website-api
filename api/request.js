@@ -1,3 +1,5 @@
+import util from 'node:util';
+
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
 
 export default async (req, res) => {
@@ -35,6 +37,6 @@ export default async (req, res) => {
     resp.headers.forEach((value, name) => res.setHeader('X-Http-' + name, value));
     res.send(Buffer.from(await resp.arrayBuffer()));
   } catch (e) {
-    res.status(500).send(`Error while visiting ${encodeHTML(req.query.url)}<br /><pre>${encodeHTML(e.stack)}</pre>`);
+    res.status(500).send(`An error occurred while requesting ${encodeHTML(req.query.url)}:<pre>${encodeHTML(util.inspect(e, { depth: Infinity }))}</pre>`);
   }
 };
