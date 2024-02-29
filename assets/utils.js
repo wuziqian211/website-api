@@ -1,3 +1,4 @@
+import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
@@ -76,10 +77,10 @@ const send500 = (responseType, res, startTime, error) => {
   if (responseType === 1) {
     sendHTML(res, startTime, { title: 'API 执行时出现异常', body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
-      您可以将下面的错误信息告诉 wuziqian211 哟 awa<br />
-      <pre>${encodeHTML(error.stack)}</pre>` });
+      您可以将下面的错误信息告诉 wuziqian211 哟 awa
+      <pre>${encodeHTML(util.inspect(error, { depth: Infinity }))}</pre>` });
   } else {
-    sendJSON(res, startTime, { code: -500, message: error.stack, data: null });
+    sendJSON(res, startTime, { code: -500, message: util.inspect(error, { depth: Infinity }), data: null });
   }
 };
 const redirect = (res, startTime, url, statusCode = 308) => { // 发送重定向信息到客户端
