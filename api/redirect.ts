@@ -48,6 +48,6 @@ export const GET = (request: Request) => {
     return new Response(JSON.stringify({ code: 308, data: { url } }), { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
   } else {
     const url = 'https://www.yumeharu.top/';
-    return new Response(JSON.stringify({ code: 307, data: { url } }), { status: 307, headers: { 'Content-Type': 'application/json; charset=utf-8', Location: url } });
+    return new Response(JSON.stringify({ code: 307, data: { url } }), { status: 307, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url } });
   }
 };
