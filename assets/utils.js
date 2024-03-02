@@ -63,7 +63,7 @@ const send = (res, startTime, data) => { // 发送其他数据到客户端
 const send404 = (responseType, res, startTime) => {
   res.status(404);
   if (responseType === 1) {
-    sendHTML(res, startTime, { title: 'API 不存在', body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
+    sendHTML(res, startTime, { title: 'API 不存在', newStyle: true, body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
   } else {
     sendJSON(res, startTime, { code: -404, message: '啥都木有', data: null });
   }

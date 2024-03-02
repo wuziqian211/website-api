@@ -3,16 +3,18 @@
   --background-color-translucent: #fff9;
   --background-color-quarter-transparent: #fff5;
   --background-hover-color-quarter-transparent: #ddd5;
+  --text-color: #222;
   --highlight-color: #09f;
   --highlight-hover-color: #3bf;
   --invalid-color: #f33;
   --invalid-hover-color: #f66;
-  --notice-background-color: #fff3db;
-  --notice-text-color: #ffb112;
-  --secondary-color: #777;
-  --text-color: #222;
   --anchor-decoration-color: #333;
   --anchor-decoration-hover-color: #aaa;
+  --notice-background-color: #fff3db;
+  --notice-text-color: #ffb112;
+  --notice-tribute-background-color: #e7e7e7;
+  --notice-tribute-text-color: #999;
+  --secondary-color: #777;
 }
 
 span.description {
@@ -300,10 +302,17 @@ span.notice, a.notice {
   font-weight: bold;
   padding: 2.5px;
 }
+span.notice.tribute, a.notice.tribute {
+  background: var(--notice-tribute-background-color);
+  color: var(--notice-tribute-text-color);
+}
 img.notice-icon {
   content: url(/assets/warning.png);
   height: 24px;
   vertical-align: sub;
+}
+img.notice-icon.tribute {
+  content: url(/assets/tribute.png);
 }
 img.notice-icon[src] {
   content: initial;
@@ -452,15 +461,16 @@ footer {
     --background-color-translucent: #2229;
     --background-color-quarter-transparent: #2225;
     --background-hover-color-quarter-transparent: #0005;
+    --text-color: #ccc;
     --highlight-color: #08e;
     --highlight-hover-color: #3ae;
     --invalid-color: #f22;
     --invalid-hover-color: #f66;
-    --notice-background-color: #999183;
-    --secondary-color: #999;
-    --text-color: #ccc;
     --anchor-decoration-color: #aaa;
     --anchor-decoration-hover-color: #ccc;
+    --notice-background-color: #999183;
+    --notice-tribute-background-color: #666;
+    --secondary-color: #999;
   }
   
   img.icon-personal {

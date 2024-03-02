@@ -34,16 +34,16 @@ export default (req, res) => {
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
         <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
-        <div><input type="checkbox" name="force" id="force" value="true"${req.query.force == undefined ? '' : ' checked="true"'} autocomplete="off" /><label for="force">强制获取信息（仅适用于获取编号为 AV 号或 BV 号的视频的信息）</label></div>
+        <div><input type="checkbox" name="force" id="force" value="true"${'force' in req.query ? ' checked="true"' : ''} autocomplete="off" /><label for="force">强制获取信息（仅适用于获取编号为 AV 号或 BV 号的视频的信息）</label></div>
       </form>` }); // 发送 HTML 响应到客户端
     const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
     
     const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     let useCookie;
-    if ((req.query.cookie?.toUpperCase() === 'TRUE' || req.query.type?.toUpperCase() === 'DATA' || req.query.force != undefined) && req.query.cookie?.toUpperCase() !== 'FALSE') { // 用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有要求不使用 Cookie
+    if ((req.query.cookie?.toUpperCase() === 'TRUE' || req.query.type?.toUpperCase() === 'DATA' || 'force' in req.query) && req.query.cookie?.toUpperCase() !== 'FALSE') { // 用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有要求不使用 Cookie
       useCookie = true;
     } else if (req.query.cookie?.toUpperCase() === 'FALSE') { // 用户要求不使用 Cookie
-      if (req.query.force == undefined) {
+      if (!('force' in req.query)) {
         useCookie = false;
       } else { // 既要求强制获取视频信息（需要登录）又要求不使用 Cookie，这种情况无法获取到视频信息
         res.status(400);
@@ -59,7 +59,7 @@ export default (req, res) => {
       if (useCookie) headers.Cookie = `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`; // 如果指定了使用 Cookie，就添加账号登录信息
       if (type === 1) { // 编号为 AV 号或 BV 号
         let json;
-        if (req.query.force != undefined) { // 强制获取视频信息
+        if ('force' in req.query) { // 强制获取视频信息
           const rjson1 = await (await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', headers, body: new URLSearchParams({ bvid: vid, played_time: 0, realtime: 0, start_ts: Math.floor(Date.now() / 1000), type: 3, sub_type: 0, dt: 2, play_type: 1, csrf: process.env.bili_jct }) })).json(); // 在 B 站历史记录首次加入这个视频（可不带 cid）
           await new Promise(resolve => setTimeout(resolve, 500)); // 等待 0.5 秒
           const hjson1 = await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
@@ -273,7 +273,7 @@ export default (req, res) => {
             }
           } else if (responseType === 2) { // 回复封面数据
             if (json.code === 0) {
-              if (responseAttributes.includes('REDIRECT') || req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的封面地址
+              if (responseAttributes.includes('REDIRECT') || 'allow_redirect' in req.query) { // 允许本 API 重定向到 B 站服务器的封面地址
                 utils.redirect(res, startTime, utils.toHTTPS(json.data.pic), 307);
               } else {
                 const filename = encodeURIComponent(`${json.data.title} 的封面.${new URL(json.data.pic).pathname.split('.').at(-1)}`); // 设置封面的文件名
@@ -381,7 +381,7 @@ export default (req, res) => {
           }
         } else if (responseType === 2) { // 回复封面数据
           if (json.code === 0) {
-            if (responseAttributes.includes('REDIRECT') || req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的封面地址
+            if (responseAttributes.includes('REDIRECT') || 'allow_redirect' in req.query) { // 允许本 API 重定向到 B 站服务器的封面地址
               utils.redirect(res, startTime, utils.toHTTPS(json.result.media.cover), 307);
             } else {
               const filename = encodeURIComponent(`${json.result.media.title} 的封面.${new URL(json.result.media.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
@@ -594,7 +594,7 @@ export default (req, res) => {
             }
           } else if (responseType === 2) { // 回复封面数据
             if (json.code === 0) {
-              if (responseAttributes.includes('REDIRECT') || req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的封面地址
+              if (responseAttributes.includes('REDIRECT') || 'allow_redirect' in req.query) { // 允许本 API 重定向到 B 站服务器的封面地址
                 utils.redirect(res, startTime, utils.toHTTPS(json.result.cover), 307);
               } else {
                 const filename = encodeURIComponent(`${json.result.title} 的封面.${new URL(json.result.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
@@ -656,7 +656,7 @@ export default (req, res) => {
         if (responseType === 1) { // 回复 HTML
           if (!req.query.vid) { // 没有设置参数“vid”
             res.status(200);
-            sendHTML({ title: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', content: `
+            sendHTML({ title: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', newStyle: true, content: `
               本 API 可以获取指定 B 站视频、剧集、番剧的信息及数据。<br />
               基本用法：https://${req.headers.host}/api/getvideo?vid=<span class="notice">您想获取信息的视频、剧集、番剧的编号</span><br />
               更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7--%E5%BD%B1%E8%A7%86%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。`, vid: '' });

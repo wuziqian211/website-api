@@ -69,7 +69,7 @@ export default async (req, res) => {
                   <br />
                   ${[0, 1].includes(json.data.official.type) ? `<img class="official-icon icon-${json.data.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(json.data.official.title)}${json.data.official.desc ? `<span class="description">（${utils.encodeHTML(json.data.official.desc)}）</span>` : ''}<br />` : ''}
                   ${json.data.silence ? '<span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span><br />' : ''}
-                  ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : 'span class="notice"'} style="${json.data.sys_notice.bg_color ? `background: ${json.data.sys_notice.bg_color};` : ''}${json.data.sys_notice.text_color ? `color: ${json.data.sys_notice.text_color};` : ''}"><img class="notice-icon" alt="${json.data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" src="${utils.toHTTPS(json.data.sys_notice.icon)}" referrerpolicy="no-referrer" /> ${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}>` : ''}
+                  ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice${json.data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : `span class="notice${json.data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${json.data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${json.data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}>` : ''}
                 </div>
               </div>
               <strong>生日：</strong>${json.data.birthday ? utils.getDate(json.data.birthday).slice(0, 10) : '保密'}<br />
@@ -101,7 +101,7 @@ export default async (req, res) => {
         }
       } else if (responseType === 2) { // 回复头像数据
         if (json.code === 0) {
-          if (responseAttributes.includes('REDIRECT') || req.query.allow_redirect != undefined) { // 允许本 API 重定向到 B 站服务器的头像地址
+          if (responseAttributes.includes('REDIRECT') || 'allow_redirect' in req.query) { // 允许本 API 重定向到 B 站服务器的头像地址
             utils.redirect(res, startTime, utils.toHTTPS(json.data.face), 307);
           } else {
             const filename = encodeURIComponent(`${json.data.name} 的头像.${new URL(json.data.face).pathname.split('.').at(-1)}`); // 设置头像的文件名
@@ -164,7 +164,7 @@ export default async (req, res) => {
       if (responseType === 1) { // 回复 HTML
         if (!req.query.mid) { // 没有设置 UID 参数
           res.status(200);
-          sendHTML({ title: '获取哔哩哔哩用户信息', content: `
+          sendHTML({ title: '获取哔哩哔哩用户信息', newStyle: true, content: `
             本 API 可以获取指定 B 站用户的信息。<br />
             基本用法：https://${req.headers.host}/api/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
             更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。`, mid: '' });
