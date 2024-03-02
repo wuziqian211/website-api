@@ -32,6 +32,15 @@ span.description {
 .text-small-vip {
   color: #6dc781;
 }
+.icon-font {
+  font-family: iconfont;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.icon-tag::before {
+  content: '\e6ce';
+}
 img.icon-personal, img.icon-business, img.icon-big-vip, img.icon-small-vip, img.icon-face-nft, img.notice-icon {
   display: inline-block;
 }
@@ -385,7 +394,6 @@ footer {
     width: 900px;
   }
 }
-
 @media (max-width: 959px) {
   div.header {
     width: auto;
@@ -401,7 +409,6 @@ footer {
     width: auto;
   }
 }
-
 @media (max-width: 767px) {
   div.grid {
     grid-template-columns: 1fr;
@@ -510,6 +517,11 @@ footer {
   main {
     margin: 0;
   }
+}
+
+@font-face {
+  font-family: iconfont;
+  src: url(/assets/iconfont.woff2) format('woff2');
 }
 
 /* From Animate.css - https://animate.style/ - MIT License */

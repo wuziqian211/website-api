@@ -30,6 +30,7 @@
 | assets/constants.js | 一些常量，如视频分区与状态信息、朋友列表 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就回复本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
+| assets/iconfont.woff2 | 图标字体文件 |
 | assets/level_\[0-6\].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
 | assets/main.js | 页面使用的 JS |
 | assets/nocover.png | 获取视频封面时，如果视频不存在，就回复本文件数据 |

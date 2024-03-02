@@ -67,16 +67,17 @@ export default async (req, res) => {
                   <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${json.data.is_senior_member ? '6⚡' : json.data.level}" title="${json.data.is_senior_member ? '6 级（硬核会员）' : `${json.data.level} 级`}" src="/assets/level_${json.data.is_senior_member ? '6%2B' : json.data.level}.svg" /></a>
                   ${json.data.is_deleted ? '<span class="description">（账号已注销）</span>' : ''}
                   <br />
-                  ${[0, 1].includes(json.data.official.type) ? `<img class="official-icon icon-${json.data.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证：</strong>${utils.encodeHTML(json.data.official.title)}${json.data.official.desc ? `<span class="description">（${utils.encodeHTML(json.data.official.desc)}）</span>` : ''}<br />` : ''}
+                  ${[0, 1].includes(json.data.official.type) ? `<img class="official-icon icon-${json.data.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${json.data.official.title ? '：' : ''}</strong>${utils.encodeHTML(json.data.official.title)}${json.data.official.desc ? `<span class="description">（${utils.encodeHTML(json.data.official.desc)}）</span>` : ''}<br />` : ''}
+                  ${json.data.tags?.length ? `<span class="description">${json.data.tags.map(t => `<span class="icon-font icon-tag"></span>${t}`).join(' ')}</span><br />` : ''}
                   ${json.data.silence ? '<span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span><br />' : ''}
                   ${json.data.sys_notice?.content ? `<${json.data.sys_notice.url ? `a class="notice${json.data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${json.data.sys_notice.url}"` : `span class="notice${json.data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${json.data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${json.data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${json.data.sys_notice.content}</${json.data.sys_notice.url ? 'a' : 'span'}>` : ''}
                 </div>
               </div>
               <strong>生日：</strong>${json.data.birthday ? utils.getDate(json.data.birthday).slice(0, 10) : '保密'}<br />
+              ${json.data.school?.name ? `<strong>学校：</strong>${json.data.school.name}<br />` : ''}
               <strong>注册时间：</strong>${utils.getDate(json.data.regtime)}<br />
               <strong>关注数：</strong>${utils.getNumber(json.data.following)}<br />
               <strong>粉丝数：</strong>${utils.getNumber(json.data.follower)}<br />
-              ${json.data.tags?.length ? `<strong>标签：</strong>${json.data.tags.join(' ')}<br />` : ''}
               <strong>个性签名：</strong><br />
               ${utils.markText(json.data.sign)}`;
             res.status(200);
