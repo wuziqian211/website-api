@@ -37,7 +37,7 @@ export default async (req, res) => {
         case 'blocked': // 可能被屏蔽的域名
           let blocked = '';
           if (req.headers['x-vercel-ip-country'] === 'CN') { // 在中国内地（不含港澳台地区）
-            blocked = '^(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net)$';
+            blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net|vercel\\.app)|cdn\\.jsdelivr\\.net)$';
           }
           res.status(200).setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
           sendJSON({ code: 0, message: '0', data: { blocked } });
@@ -79,7 +79,7 @@ export default async (req, res) => {
             if (hash) {
               const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hash.s}&spec=4`);
               if (resp.ok) {
-                res.status(200).setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate').setHeader('Content-Type', resp.headers.get('Content-Type'));
+                res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000').setHeader('Content-Type', resp.headers.get('Content-Type'));
                 utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
               } else {
                 res.status(404);

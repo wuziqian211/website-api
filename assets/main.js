@@ -61,6 +61,7 @@ const loadPage = async url => {
       }
     } catch (e) {
       console.error(e);
+      if (e instanceof DOMException && e.name === 'AbortError') return false;
     }
   }
   window.location.href = url;

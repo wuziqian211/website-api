@@ -85,7 +85,17 @@ const send500 = (responseType, res, startTime, error) => {
 };
 const redirect = (res, startTime, url, statusCode = 308) => { // 发送重定向信息到客户端
   res.status(statusCode).setHeader('Location', url);
-  if (statusCode === 308) res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate').setHeader('Refresh', `0; url=${url}`);
+  switch (statusCode) {
+    case 308:
+      res.setHeader('Refresh', `0; url=${url}`);
+    case 301:
+      res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+      break;
+    case 307:
+    case 302:
+      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+      break;
+  }
   sendJSON(res, startTime, { code: statusCode, data: { url } });
 };
 const renderExtraStyle = pic => `
@@ -148,6 +158,7 @@ const getDate = ts => { // 根据时间戳返回日期时间
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
+const largeNumberHandler = s => !/^\d+$/.test(s) || +s > Number.MAX_SAFE_INTEGER || +s < Number.MIN_SAFE_INTEGER ? s : +s; // 大数处理（参数类型为文本），对于过大或过小的数字直接返回文本，否则返回数字
 const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
   const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
   const base = BigInt(alphabet.length);
@@ -172,18 +183,18 @@ const toAV = bvid => { // BV 号转 AV 号，改编自 https://www.zhihu.com/que
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
-  if (/^av\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为前缀为“av”的 AV 号
+  if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
-  } else if (/^\d+$/.test(vid) && +vid > 0) { // 判断编号是否为不带前缀的 AV 号
+  } else if (/^\d+$/.test(vid) && BigInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
   } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: 'BV' + vid.slice(2) };
-  } else if (/^md\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为 mdid
-    return { type: 2, vid: +vid.slice(2) };
-  } else if (/^ss\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为 ssid
-    return { type: 3, vid: +vid.slice(2) };
-  } else if (/^ep\d+$/i.test(vid) && +vid.slice(2) > 0) { // 判断编号是否为 epid
-    return { type: 4, vid: +vid.slice(2) };
+  } else if (/^md\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
+    return { type: 2, vid: BigInt(vid.slice(2)) };
+  } else if (/^ss\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 ssid
+    return { type: 3, vid: BigInt(vid.slice(2)) };
+  } else if (/^ep\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 epid
+    return { type: 4, vid: BigInt(vid.slice(2)) };
   } else { // 编号无效
     return {};
   }
@@ -210,4 +221,4 @@ const getWbiKeys = async noCache => { // 获取最新的 img_key 和 sub_key，�
   }
 };
 
-export default { initialize, sendHTML, sendJSON, send, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
+export default { initialize, sendHTML, sendJSON, send, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };

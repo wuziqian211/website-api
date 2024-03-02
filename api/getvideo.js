@@ -33,7 +33,7 @@ export default (req, res) => {
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="12" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><input type="text" name="vid" id="vid" value="${data.vid}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
         <div><input type="checkbox" name="force" id="force" value="true"${req.query.force == undefined ? '' : ' checked="true"'} autocomplete="off" /><label for="force">强制获取信息（仅适用于获取编号为 AV 号或 BV 号的视频的信息）</label></div>
       </form>` }); // 发送 HTML 响应到客户端
     const sendJSON = data => utils.sendJSON(res, startTime, data); // 发送 JSON 数据到客户端
@@ -83,8 +83,8 @@ export default (req, res) => {
         if (responseType === 3) { // 获取视频数据
           let cid;
           if (json.code === 0 && json.data.pages) {
-            if (/^\d+$/.test(req.query.cid) && +req.query.cid > 0 && json.data.pages.some(p => p.cid === +req.query.cid)) { // 用户提供的 cid 有效，且 API 回复的 pages 中包含用户提供的 cid
-              cid = +req.query.cid; // 将变量“cid”设置为用户提供的 cid
+            if (/^\d+$/.test(req.query.cid) && BigInt(req.query.cid) > 0 && json.data.pages.some(p => BigInt(p.cid) === BigInt(req.query.cid))) { // 用户提供的 cid 有效，且 API 回复的 pages 中包含用户提供的 cid
+              cid = BigInt(req.query.cid); // 将变量“cid”设置为用户提供的 cid
             } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 用户提供的参数“p”有效
               cid = json.data.pages[+req.query.p - 1]?.cid; // 将变量“cid”设置为该 P 的 cid
             } else {
@@ -444,11 +444,11 @@ export default (req, res) => {
           let P;
           if (json.code === 0) {
             if (type === 3) { // 编号为 ssid
-              if (/^\d+$/.test(req.query.cid) && +req.query.cid > 0) { // 用户提供的 cid 有效
-                P = json.result.episodes.find(p => p.cid === +req.query.cid); // 在正片中寻找 cid 与用户提供的 cid 相同的一集
+              if (/^\d+$/.test(req.query.cid) && BigInt(req.query.cid) > 0) { // 用户提供的 cid 有效
+                P = json.result.episodes.find(p => BigInt(p.cid) === BigInt(req.query.cid)); // 在正片中寻找 cid 与用户提供的 cid 相同的一集
                 if (!P) { // 在正片中没有找到
                   for (const s of json.result.section) { // 在其他部分寻找
-                    P = s.episodes.find(p => p.cid === +req.query.cid);
+                    P = s.episodes.find(p => BigInt(p.cid) === BigInt(req.query.cid));
                     if (P) break;
                   }
                 }
