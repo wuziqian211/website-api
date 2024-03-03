@@ -5,7 +5,7 @@ const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').r
 export default async (req, res) => {
   try { 
     const { headers } = req;
-    Object.keys(headers).filter(name => ['connection', 'host', 'forwarded', 'if-none-match'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-')).forEach(name => delete headers[name]);
+    Object.keys(headers).filter(name => ['connection', 'host', 'forwarded', 'content-length', 'if-none-match', 'access-control-max-age'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-allow-')).forEach(name => delete headers[name]);
     const requestUrl = new URL(req.query.url);
     headers.origin = requestUrl.origin;
     const referrer = new URL(req.headers.referer || requestUrl);
