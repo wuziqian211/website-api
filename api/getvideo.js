@@ -112,10 +112,10 @@ export default (req, res) => {
                 utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
-                  res.status(404);
+                  res.status(400);
                   sendHTML({ title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: req.query.vid });
                 } else {
-                  res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                  res.status(canAcceptVideo ? 200 : 400).setHeader('Content-Type', 'video/mp4');
                   utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
                 }
               }
@@ -126,7 +126,7 @@ export default (req, res) => {
                   抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
                   如果您想下载视频，最好使用其他工具哟 awa`, vid: req.query.vid });
               } else {
-                res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                res.status(canAcceptVideo ? 200 : 500).setHeader('Content-Type', 'video/mp4');
                 utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
               }
             }
@@ -488,10 +488,10 @@ export default (req, res) => {
                 utils.send(res, startTime, Buffer.from(await resp.arrayBuffer()));
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
-                  res.status(404);
+                  res.status(400);
                   sendHTML({ title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: req.query.vid });
                 } else {
-                  res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                  res.status(canAcceptVideo ? 200 : 400).setHeader('Content-Type', 'video/mp4');
                   utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
                 }
               }
@@ -502,7 +502,7 @@ export default (req, res) => {
                   抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
                   如果您想下载这一集，最好使用其他工具哟 awa`, vid: req.query.vid });
               } else {
-                res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+                res.status(canAcceptVideo ? 200 : 500).setHeader('Content-Type', 'video/mp4');
                 utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
               }
             }

@@ -83,18 +83,20 @@ const send500 = (responseType, res, startTime, error) => {
     sendJSON(res, startTime, { code: -500, message: util.inspect(error, { depth: Infinity }), data: null });
   }
 };
-const redirect = (res, startTime, url, statusCode = 308) => { // 发送重定向信息到客户端
+const redirect = (res, startTime, url, statusCode = 308, noCache) => { // 发送重定向信息到客户端
   res.status(statusCode).setHeader('Location', url);
-  switch (statusCode) {
-    case 308:
-      res.setHeader('Refresh', `0; url=${url}`);
-    case 301:
-      res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-      break;
-    case 307:
-    case 302:
-      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
-      break;
+  if (!noCache) {
+    switch (statusCode) {
+      case 308:
+        res.setHeader('Refresh', `0; url=${url}`);
+      case 301:
+        res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+        break;
+      case 307:
+      case 302:
+        res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate');
+        break;
+    }
   }
   sendJSON(res, startTime, { code: statusCode, data: { url } });
 };
@@ -170,7 +172,7 @@ const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/ques
   return 'BV1' + bvid.join('');
 };
 const toAV = bvid => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
-  if (!/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new SyntaxError('Invalid BV number');
+  if (!/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new TypeError('Invalid BV number');
   const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8];
   const base = BigInt(alphabet.length);
   let t = 0n;

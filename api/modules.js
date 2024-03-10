@@ -10,7 +10,7 @@ export default async (req, res) => {
     if (accept === 1) {
       switch (req.query.id) {
         case 'friends': // 对用浏览器直接访问 /api/modules?id=friends 的用户进行重定向
-          utils.redirect(res, startTime, 'https://www.yumeharu.top/friends/', 307);
+          utils.redirect(res, startTime, 'https://www.yumeharu.top/friends/', 307, true);
           break;
         default:
           utils.send404(1, res, startTime);
@@ -18,20 +18,21 @@ export default async (req, res) => {
     } else {
       switch (req.query.id) {
         case 'friends': // 关系好的朋友们（不一定互关）
-          const users = friends.toSorted(() => 0.5 - Math.random()), jsonList = [];
-          while (users.length) {
-            jsonList.push(fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.slice(0, 50).join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } }).then(resp => resp.json())); // 获取多用户信息，每次获取 50 个
-            users.splice(0, 50);
-          }
-          const info = (await Promise.all(jsonList)).filter(ujson => ujson.code === 0).map(ujson => ujson.data).flat().toSorted(() => 0.5 - Math.random());
-          
-          res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
-          if (req.query.version === '3') { // 第 3 版：简化名称
-            sendJSON({ code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) } });
-          } else if (req.query.version === '2') { // 第 2 版
-            sendJSON({ code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => ({ image: utils.toHTTPS(u.face), icon: u.official?.type === 0 ? 'personal' : u.official?.type === 1 ? 'business' : u.vip?.status ? 'big-vip' : undefined, color: u.vip?.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })) });
+          const users = friends.toSorted(() => 0.5 - Math.random());
+          const ijson = await (await fetch(`https://api.vc.bilibili.com/account/v1/user/cards?uids=${users.join(',')}`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent } })).json(); // 获取多用户信息
+          if (ijson.code === 0) {
+            const info = ijson.data.toSorted(() => 0.5 - Math.random());
+            res.status(200).setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
+            if (req.query.version === '3') { // 第 3 版：简化名称
+              sendJSON({ code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) } });
+            } else if (req.query.version === '2') { // 第 2 版
+              sendJSON({ code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => ({ image: utils.toHTTPS(u.face), icon: u.official?.type === 0 ? 'personal' : u.official?.type === 1 ? 'business' : u.vip?.status ? 'big-vip' : undefined, color: u.vip?.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })) });
+            } else {
+              sendJSON({ code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />${u.official?.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/images/personal.svg" />' : u.official?.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/images/business.svg" />' : u.vip?.status ? '<img class="face-icon" alt title="大会员" src="/images/big-vip.svg" />' : ''}<p${u.vip?.type === 2 ? ' style="color: #fb7299;"' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
+            }
           } else {
-            sendJSON({ code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />${u.official?.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/images/personal.svg" />' : u.official?.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/images/business.svg" />' : u.vip?.status ? '<img class="face-icon" alt title="大会员" src="/images/big-vip.svg" />' : ''}<p${u.vip?.type === 2 ? ' style="color: #fb7299;"' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join('') });
+            res.status(500);
+            sendJSON({ code: -500, message: 'fetch failed', data: null });
           }
           break;
         case 'blocked': // 可能被屏蔽的域名
