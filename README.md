@@ -25,6 +25,7 @@
 | api/modules.js | [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能使用的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/\[1-5\]-22.jpg, assets/\[1-6\]-33.jpg | 哔哩哔哩的一些随机头像 |
+| assets/apple-touch-icon.png | 网站图标 |
 | assets/big-vip.svg, assets/business.svg, assets/nft.gif, assets/nft-label.gif, assets/nft-label-oversea.gif, assets/personal.svg, assets/small-vip.svg | 哔哩哔哩大会员、机构认证、数字藏品头像（无白色边框）、数字藏品头像、海外版数字藏品头像、UP 主认证与愚人节限定的 “小会员” 图标 |
 | assets/big-vip_dark.svg, assets/business_dark.svg, assets/personal_dark.svg, assets/small-vip_dark.svg | 深色模式下的哔哩哔哩大会员、机构认证、UP 主认证与愚人节限定的 “小会员” 图标 |
 | assets/constants.js | 一些常量，如视频分区与状态信息、朋友列表 |

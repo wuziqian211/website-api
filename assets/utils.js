@@ -31,7 +31,7 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
         <title>${encodeHTML(data.title)} | wuziqian211's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/favicon.ico'}" referrerpolicy="no-referrer" />
+        <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/assets/apple-touch-icon.png'}" referrerpolicy="no-referrer" />
         <style class="extra">${data.style ?? ''}</style>
       </head>
       <body${data.newStyle ? ' class="new-style"' : ''}>
