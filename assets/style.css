@@ -504,7 +504,7 @@ footer {
   html {
     height: initial;
   }
-  body, main {
+  body, main, div.image-background {
     background: none !important;
   }
   body {
