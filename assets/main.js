@@ -2,11 +2,12 @@
 
 // Adapted from pjax.js - https://github.com/MoOx/pjax - MIT License
 const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
-const isValidPage = html => !html.querySelector('parsererror') && ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].every(s => html.querySelector(s));
+const isValidPage = html => !html.querySelector('parsererror') && ['title', "link[rel='apple-touch-icon']", 'div.header > div.left > span.description', 'main', 'span.time-taken'].every(s => html.querySelector(s));
 const replacePage = html => {
-  ['title', 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
+  ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
   document.querySelector("link[rel='apple-touch-icon']").href = html.querySelector("link[rel='apple-touch-icon']").href;
   document.body.className = html.body.className;
+  document.body.style.backgroundImage = html.body.style.backgroundImage;
 };
 const load = (url, event) => {
   if (isLoadAvailable(url)) {

@@ -13,7 +13,7 @@ const initialize = (req, res) => { // 初始化 API
   } else {
     accept = 0;
   }
-  timer = setTimeout(() => send500(accept, res, performance.now() - startTime, new TypeError('Server timed out')), 9500); // API 超时处理
+  timer = setTimeout(() => send504(accept, res, performance.now() - startTime), 9500); // API 超时处理
   return { startTime, accept, canAcceptVideo: req.headers['sec-fetch-dest']?.toUpperCase() === 'VIDEO' };
 };
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
@@ -32,13 +32,13 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/assets/apple-touch-icon.png'}" referrerpolicy="no-referrer" />
-        <style class="extra">${data.style ?? ''}</style>
+        <link rel="preload" href="/assets/iconfont.woff2" as="font" type="font/woff2" crossorigin />
       </head>
-      <body${data.newStyle ? ' class="new-style"' : ''}>
+      <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${data.imageBackground});"` : ''}>
         <header>
           <div class="header">
             <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
-            <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
+            <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/#readme">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
           </div>
         </header>
         <main>${data.body}</main>
@@ -54,41 +54,54 @@ const sendHTML = (res, startTime, data) => { // 发送 HTML 页面到客户端
 };
 const sendJSON = (res, startTime, data) => { // 发送 JSON 数据到客户端
   clearTimeout(timer);
-  res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).setHeader('X-Api-Status-Code', data.code).json(data);
+  const execTime = (performance.now() - startTime).toFixed(3);
+  res.setHeader('X-Api-Exec-Time', execTime).setHeader('X-Api-Status-Code', data.code).json({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } });
 };
 const send = (res, startTime, data) => { // 发送其他数据到客户端
   clearTimeout(timer);
   res.setHeader('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3)).send(data);
 };
-const send404 = (responseType, res, startTime) => {
+const send404 = (responseType, res, startTime, noCache) => {
   res.status(404);
   if (responseType === 1) {
+    if (!noCache) res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
     sendHTML(res, startTime, { title: 'API 不存在', newStyle: true, body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
   } else {
-    sendJSON(res, startTime, { code: -404, message: '啥都木有', data: null });
+    sendJSON(res, startTime, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
   }
 };
 const send500 = (responseType, res, startTime, error) => {
   console.error(error);
-  if (res.headersSent) return; // 如果是在发送响应之后抛出的错误，就防止再次发送响应到客户端
-  // res.status(500).getHeaderNames().forEach(h => res.removeHeader(h)); // 删除抛出错误前的所有标头
+  if (res.headersSent) return; // 如果是在发送响应之后抛出错误的，就防止再次发送响应到客户端
   res.status(500);
   ['Cache-Control', 'Content-Disposition', 'Content-Type', 'Retry-After'].forEach(h => res.removeHeader(h));
   if (responseType === 1) {
-    sendHTML(res, startTime, { title: 'API 执行时出现异常', body: `
+    sendHTML(res, startTime, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉 wuziqian211 哟 awa
       <pre>${encodeHTML(util.inspect(error, { depth: Infinity }))}</pre>` });
   } else {
-    sendJSON(res, startTime, { code: -500, message: util.inspect(error, { depth: Infinity }), data: null });
+    sendJSON(res, startTime, { code: -500, message: error.message, data: null, extInfo: { errType: 'internalServerError', errStack: util.inspect(error, { depth: Infinity }) } });
+  }
+};
+const send504 = (responseType, res, startTime) => {
+  if (res.headersSent) return; // 如果是在发送响应之后超时的，就防止再次发送响应到客户端
+  res.status(504);
+  ['Cache-Control', 'Content-Disposition', 'Content-Type', 'Retry-After'].forEach(h => res.removeHeader(h));
+  if (responseType === 1) {
+    sendHTML(res, startTime, { title: 'API 执行超时', newStyle: true, body: `
+      抱歉，本 API 的执行已经超时了，请您再尝试调用一次本 API 吧 qwq<br />
+      如果您仍然看到本错误信息，请跟 wuziqian211 反馈哟 awa` });
+  } else {
+    sendJSON(res, startTime, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
   }
 };
 const redirect = (res, startTime, url, statusCode = 308, noCache) => { // 发送重定向信息到客户端
   res.status(statusCode).setHeader('Location', url);
+  if (statusCode === 308) res.setHeader('Refresh', `0; url=${url}`);
   if (!noCache) {
     switch (statusCode) {
       case 308:
-        res.setHeader('Refresh', `0; url=${url}`);
       case 301:
         res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
         break;
@@ -98,24 +111,8 @@ const redirect = (res, startTime, url, statusCode = 308, noCache) => { // 发送
         break;
     }
   }
-  sendJSON(res, startTime, { code: statusCode, data: { url } });
+  sendJSON(res, startTime, { code: statusCode, message: 'redirect', data: null, extInfo: { redirectUrl: url } });
 };
-const renderExtraStyle = pic => `
-  body {
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    background: url(${pic}) center/cover no-repeat fixed var(--background-color);
-    transition: background 0.5s 0.5s;
-  }
-  header, main {
-    background: var(--background-color-translucent);
-  }
-  @media (prefers-color-scheme: dark) {
-    body {
-      -webkit-backdrop-filter: blur(20px) brightness(0.5);
-      backdrop-filter: blur(20px) brightness(0.5);
-    }
-  }`;
 const encodeHTML = str => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
 const markText = str => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
@@ -160,7 +157,7 @@ const getDate = ts => { // 根据时间戳返回日期时间
 };
 const getTime = s => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 const getNumber = n => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-const largeNumberHandler = s => !/^\d+$/.test(s) || +s > Number.MAX_SAFE_INTEGER || +s < Number.MIN_SAFE_INTEGER ? s : +s; // 大数处理（参数类型为文本），对于过大或过小的数字直接返回文本，否则返回数字
+const largeNumberHandler = s => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
 const toBV = aid => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
   const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
   const base = BigInt(alphabet.length);
@@ -181,7 +178,7 @@ const toAV = bvid => { // BV 号转 AV 号，改编自 https://www.zhihu.com/que
     const index = BigInt(alphabet.indexOf(bvid[decodeMap[i]]));
     t = t * base + index;
   }
-  return Number((t & maskCode) ^ xorCode);
+  return (t & maskCode) ^ xorCode;
 };
 const getVidType = vid => { // 判断编号类型
   if (typeof vid !== 'string') return {};
@@ -223,4 +220,4 @@ const getWbiKeys = async noCache => { // 获取最新的 img_key 和 sub_key，�
   }
 };
 
-export default { initialize, sendHTML, sendJSON, send, send404, send500, redirect, renderExtraStyle, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
+export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
