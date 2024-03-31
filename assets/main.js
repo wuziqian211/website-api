@@ -1,12 +1,13 @@
 'use strict';
 
-// From pjax.js - https://github.com/MoOx/pjax
+// Adapted from pjax.js - https://github.com/MoOx/pjax - MIT License
 const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
-const replacePage = text => {
-  const html = new DOMParser().parseFromString(text, 'text/html');
-  if (html.querySelector('parsererror')) throw new TypeError('Cannot parse HTML');
-  ['title', "link[rel='apple-touch-icon']", 'style.extra', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).outerHTML = html.querySelector(s).outerHTML);
+const isValidPage = html => !html.querySelector('parsererror') && ['title', "link[rel='apple-touch-icon']", 'div.header > div.left > span.description', 'main', 'span.time-taken'].every(s => html.querySelector(s));
+const replacePage = html => {
+  ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
+  document.querySelector("link[rel='apple-touch-icon']").href = html.querySelector("link[rel='apple-touch-icon']").href;
   document.body.className = html.body.className;
+  document.body.style.backgroundImage = html.body.style.backgroundImage;
 };
 const load = (url, event) => {
   if (isLoadAvailable(url)) {
@@ -15,49 +16,69 @@ const load = (url, event) => {
   }
 };
 const bindLoad = () => {
+  if (bindController) bindController.abort();
+  bindController = new AbortController();
   document.querySelectorAll('a').forEach(a => {
-    a.onclick = event => load(a.href, event),
-    a.onkeyup = event => {
+    a.addEventListener('click', event => load(a.href, event), { passive: false, signal: bindController.signal });
+    a.addEventListener('keyup', event => {
       if (event.code === 'Enter') load(a.href, event);
-    };
+    }, { passive: false, signal: bindController.signal });
   });
   document.querySelectorAll('form').forEach(form => {
-    form.onsubmit = event => {
+    form.addEventListener('submit', event => {
       const url = new URL(form.action, window.location);
-      const params = new URLSearchParams(url.search);
+      const params = new URLSearchParams();
       for (const e of form.elements) {
-        if (e.tagName.toLowerCase() === 'input' && e.type !== 'submit') {
+        if (e.tagName === 'INPUT' && e.type.toUpperCase() !== 'SUBMIT' && (e.type.toUpperCase() !== 'CHECKBOX' || e.checked)) {
           params.set(e.name, e.value);
         }
       }
       url.search = params;
       load(url, event);
-    };
+    }, { passive: false, signal: bindController.signal });
   });
 };
 const loadPage = async url => {
-  document.querySelector('main').classList.add('loading');
-  document.activeElement?.blur();
-  try {
-    const resp = await fetch(url, { headers: { accept: 'text/html' } });
-    if (!isLoadAvailable(resp.url)) {
-      document.location.href = resp.url;
-      return;
+  if (loadController) loadController.abort();
+  loadController = new AbortController();
+  if (isValidPage(document)) {
+    document.querySelector('main').classList.add('loading');
+    document.activeElement?.blur();
+    try {
+      const resp = await fetch(url, { headers: { accept: 'text/html' }, signal: loadController.signal });
+      if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
+        const text = await resp.text();
+        const html = new DOMParser().parseFromString(text, 'text/html');
+        if (isValidPage(html)) {
+          history.pushState({ text }, '', resp.url);
+          replacePage(html);
+          bindLoad();
+          document.querySelector('main').classList.remove('loading');
+          return true;
+        }
+      } else {
+        window.location.href = resp.url;
+        return false;
+      }
+    } catch (e) {
+      console.error(e);
+      if (e instanceof DOMException && e.name === 'AbortError') return false;
     }
-    const text = await resp.text();
-    replacePage(text);
-    history.pushState({ text }, '', resp.url);
-    bindLoad();
-  } catch (e) {
-    console.error(e);
-    document.location.href = url;
   }
+  window.location.href = url;
+  return false;
 };
-window.onpopstate = event => {
-  document.activeElement?.blur();
-  replacePage(event.state.text);
-  bindLoad();
-};
+let bindController, loadController;
+window.addEventListener('popstate', event => {
+  if (isValidPage(document)) {
+    document.activeElement?.blur();
+    const html = new DOMParser().parseFromString(event.state.text, 'text/html');
+    replacePage(html);
+    bindLoad();
+  } else {
+    window.location.reload();
+  }
+}, { passive: true });
 history.replaceState({ text: document.documentElement.outerHTML }, '');
 bindLoad();
 
