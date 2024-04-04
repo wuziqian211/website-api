@@ -231,7 +231,7 @@ export default (req, res) => {
                     </div>
                   </div>
                   ${p.first_frame ? '</div>' : ''}`).join('') : ''}
-                  ${json.data.dynamic ? `<strong>同步发布动态的文字内容：</strong>${utils.encodeHTML(json.data.dynamic)}<br />` : ''}
+                  ${json.data.dynamic ? `<strong>同步发布动态的文字内容：</strong>${utils.markText(json.data.dynamic)}<br />` : ''}
                   <strong>简介：</strong><br />
                   ${json.data.desc_v2 ? json.data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)} </a>` : utils.markText(d.raw_text)).join('') : utils.markText(json.data.desc)}`;
                 res.status(200);
@@ -346,7 +346,21 @@ export default (req, res) => {
         }
       } else if (type === 2) { // 编号为 mdid
         const json = await (await fetch(`https://api.bilibili.com/pgc/review/user?media_id=${vid}`, { headers })).json();
-        if (responseType === 1) { // 回复 HTML
+        if (responseType === 3) { // 获取视频数据
+          if (json.code === 0 && json.result.media.season_id) {
+            const params = new URLSearchParams(req.query);
+            params.set('vid', `ss${json.result.media.season_id}`);
+            utils.redirect(res, startTime, `?${params}`, 308);
+          } else { // 视频无效
+            if (responseAttributes.includes('ERRORWHENFAILED') && !canAcceptVideo) {
+              res.status(404);
+              sendHTML({ title: '无法获取视频数据', content: '获取视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: req.query.vid });
+            } else {
+              res.status(canAcceptVideo ? 200 : 404).setHeader('Content-Type', 'video/mp4');
+              utils.send(res, startTime, await fs.readFile('./assets/error.mp4'));
+            }
+          }
+        } else if (responseType === 1) { // 回复 HTML
           switch (json.code) {
             case 0:
               const content = `

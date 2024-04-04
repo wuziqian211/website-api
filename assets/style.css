@@ -94,7 +94,7 @@ body {
 body.image-background {
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  background: url(data:,) center/cover no-repeat fixed var(--background-color);
+  background: center/cover no-repeat fixed var(--background-color);
   transition: background 0.5s 0.5s;
 }
 body.new-style {
@@ -174,7 +174,7 @@ pre {
   padding: 10px;
 }
 div.image-background {
-  background: url(data:,) center/cover no-repeat;
+  background: center/cover no-repeat;
 }
 div.grid {
   display: grid;
@@ -304,11 +304,11 @@ a.broken:hover {
 }
 img.sex {
   height: 30px;
-  vertical-align: bottom;
+  vertical-align: -9px;
 }
 img.level, img.official-icon {
   height: 25px;
-  vertical-align: sub;
+  vertical-align: -5px;
 }
 img.vpic {
   border-radius: 10px;
@@ -336,7 +336,7 @@ span.notice.tribute, a.notice.tribute {
 img.notice-icon {
   content: url(/assets/warning.png);
   height: 24px;
-  vertical-align: sub;
+  vertical-align: -5px;
 }
 img.notice-icon.tribute {
   content: url(/assets/tribute.png);
@@ -489,6 +489,7 @@ footer {
   }
   img.sex {
     height: 25px;
+    vertical-align: -7.5px;
   }
   img.level, img.official-icon {
     height: 20px;

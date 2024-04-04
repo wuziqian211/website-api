@@ -18,11 +18,11 @@
 | 文件或文件夹 | 说明 |
 | ------------ | ---- |
 | api/ | 本文件夹包含所有 API，在网站上访问里面的文件会调用对应 API |
-| api/404.js | 网站上的页面不存在时调用的 API |
+| api/404.ts | 网站上的页面不存在时调用的 API |
 | api/getuser.js | “获取哔哩哔哩用户信息” API |
 | api/getvideo.js | “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API |
-| api/index.js | 用于渲染网站首页的 API |
-| api/modules.js | [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能使用的 API |
+| api/index.ts | 用于渲染网站首页的 API |
+| api/modules.ts | [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能使用的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/\[1-5\]-22.jpg, assets/\[1-6\]-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/apple-touch-icon.png | 网站图标 |
@@ -38,7 +38,7 @@
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就回复本文件数据 |
 | assets/style.css | 页面使用的 CSS |
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
-| assets/utils.js | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
+| assets/utils.js, assets/utilities.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | LICENSE | MIT 许可证 |
 | package.json, package-lock.json | 供 Node.js 与 npm 使用 |
@@ -56,8 +56,8 @@
 
 | 请求参数（参数名区分大小写） | 说明 |
 | ---------------------------- | ---- |
-| mid | 您想获取用户信息的用户的 UID，只能是纯数字。 |
-| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据；<br />值为 `html` 或 `page`，则回复 HTML 页面；<br />值为 `image`、`face` 或 `avatar`，则成功时回复用户的头像数据，失败时回复默认头像数据；<br />值为 `image_errorwhenfailed`、`face_errorwhenfailed` 或 `avatar_errorwhenfailed`，则成功时回复用户的头像数据，失败时根据 “特性” 中的 “回复数据类型规则” 提示获取头像失败；<br />值为 `image_redirect`、`face_redirect` 或 `avatar_redirect`，则成功时重定向到 B 站服务器的头像地址，失败时回复默认头像数据；<br />值为 `image_redirect_errorwhenfailed`、`face_redirect_errorwhenfailed` 或 `avatar_redirect_errorwhenfailed`，则成功时重定向到 B 站服务器的头像地址，失败时根据回复数据类型规则提示获取头像失败。<br />本参数的值不区分大小写。 |
+| mid | 您想获取用户信息的用户的 UID，只能是正整数。 |
+| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据。<br />值为 `html` 或 `page`，则回复 HTML 页面。<br />值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据；若加上 `_errorwhenfailed` 后缀，则失败时根据 “特性” 中的 “回复数据类型规则” 提示获取头像失败；若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址；可以添加多个后缀。<br />本参数的值不区分大小写。 |
 
 如果没有填写 “mid” 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
 
@@ -84,13 +84,13 @@
 | vid | 您想获取信息或数据的视频、剧集、番剧的编号。用前缀为 `av` 或没有前缀的 AV 号，前缀为 `BV` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧等的编号都是可以的（前缀不区分大小写）。 |
 | cid | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid。 |
 | p | 该视频的第几个分 P，或者该剧集中的第几集。 |
-| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据；<br />值为 `html` 或 `page`，则回复 HTML 页面；<br />值为 `video` 或 `data`，则成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（如 404、400、500 等；这样做的目的是让播放器能够加载提示“视频不存在”的视频，不会因本 API 响应表示错误的状态代码而不加载视频）；<br />值为 `video_errorwhenfailed` 或 `data_errorwhenfailed`，则成功时回复视频数据，失败时若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）；<br />值为 `image_errorwhenfailed`、`cover_errorwhenfailed` 或 `pic_errorwhenfailed`，则成功时回复视频封面数据，失败时根据回复数据类型规则提示获取封面失败；<br />值为 `image_redirect`、`cover_redirect` 或 `pic_redirect`，则成功时重定向到 B 站服务器的封面地址，失败时回复默认封面数据；<br />值为 `image_redirect_errorwhenfailed`、`cover_redirect_errorwhenfailed` 或 `pic_redirect_errorwhenfailed`，则成功时重定向到 B 站服务器的封面地址，失败时根据回复数据类型规则提示获取封面失败。<br />本参数的值不区分大小写。 |
+| type | 本 API 回复的数据类型。<br />如果本参数的值为 `json`，则回复 JSON 数据。<br />值为 `html` 或 `page`，则回复 HTML 页面。<br />值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（如 404、400、500 等；这样做的目的是让播放器能够加载提示“视频不存在”的视频，不会因本 API 响应表示错误的状态代码而不加载视频）；若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 “Sec-Fetch-Dest” 的值为 “video”（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。<br />值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据；若加上 `_errorwhenfailed` 后缀，则失败时根据回复数据类型规则提示获取封面失败；若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址；可以添加多个后缀。<br />本参数的值不区分大小写。 |
 | cookie | 获取信息时是否带 Cookie。如果本参数的值为 `true`，则强制带 Cookie 获取信息（**如果您是在其他地方部署的本 API，需要您手动设置环境变量 `SESSDATA` 与 `bili_jct`**）；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。本参数的值不区分大小写。 |
 | force | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。 |
 
 其中，“cid” 与 “p” **只能在获取数据时填写，且只能填写其中一个**，如果不填，默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
 
-当您想要本 API 回复视频的数据（设置 `type=video`、`type=data`、`type=video_errorwhenfailed` 或 `type=data_errorwhenfailed` 参数）时，为了能尽可能获取到更高清晰度的视频，本 API 会自动设置 `cookie=true` 参数，您可以手动设置 `cookie=false` 参数以覆盖此行为；**如果参数 “vid” 的值是前缀为 `md` 的剧集编号，则暂不支持获取视频数据。**
+当您想要本 API 回复视频的数据（设置 `type=video` 或 `type=data` 参数）时，为了能尽可能获取到更高清晰度的视频，本 API 会自动设置 `cookie=true` 参数，您可以手动设置 `cookie=false` 参数以覆盖此行为。
 
 #### 响应状态代码
 
@@ -116,7 +116,7 @@
 
 - 回复 **HTML** 页面：如果 HTTP 请求头 “Accept” 的值包含 `html`，或者 “Sec-Fetch-Dest” 的值为 `document`（比如用浏览器直接访问这些 API 的页面），就回复 HTML；
 - 回复**图片**数据：若上一个条件不满足，则在 “获取哔哩哔哩用户信息” 与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，如果 “Accept” 的值包含 `image`，或者 “Sec-Fetch-Dest” 的值为 `image`（比如在 HTML `<img>` 标签的 “src” 参数填写其中一个 API 的网址），那么这些 API 会回复头像或封面数据；
-- 回复 **JSON**：如果以上两个条件均不满足，就回复 JSON。数据结构见[回复的 JSON 对象数据结构](#回复的json对象数据结构)。
+- 回复 **JSON**：如果以上两个条件均不满足，就回复 JSON。数据结构见[回复的 JSON 对象数据结构](#回复的-json-对象数据结构)。
 
 #### 回复的 JSON 对象数据结构
 
@@ -144,7 +144,7 @@
 <details>
 <summary>查看响应示例</summary>
 
-```json
+```js
 {
   "code": 0, // 返回值
   "message": "0", // 错误信息
@@ -202,7 +202,7 @@
         "is_lighted": 1,
         "light_status": 1,
         "wearing_status": 1,
-        "score": 0 // 因涉及隐私，此处隐藏信息数据
+        "score": 0 // 因涉及隐私，此处隐藏具体数据
       }
     },
     "official": {

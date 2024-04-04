@@ -5,5 +5,8 @@
   "dependencies": {
     "@vercel/kv": "latest",
     "md5": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.4"
   }
 }

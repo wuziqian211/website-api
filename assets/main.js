@@ -58,6 +58,7 @@ const loadPage = async url => {
         }
       } else {
         window.location.href = resp.url;
+        document.querySelector('main').classList.remove('loading');
         return false;
       }
     } catch (e) {
@@ -66,10 +67,12 @@ const loadPage = async url => {
     }
   }
   window.location.href = url;
+  document.querySelector('main').classList.remove('loading');
   return false;
 };
 let bindController, loadController;
 window.addEventListener('popstate', event => {
+  document.querySelector('main').classList.remove('loading');
   if (isValidPage(document)) {
     document.activeElement?.blur();
     const html = new DOMParser().parseFromString(event.state.text, 'text/html');

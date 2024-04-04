@@ -1,8 +1,8 @@
 {
   "functions": {
-    "api/{404,index}.js": {
+    "api/{404,index}.ts": {
       "memory": 128,
-      "includeFiles": "assets/utils.js"
+      "includeFiles": "assets/utilities.ts"
     },
     "api/getuser.js": {
       "memory": 256,
@@ -12,9 +12,9 @@
       "memory": 256,
       "includeFiles": "assets/{constants.js,error.mp4,nocover.png,utils.js}"
     },
-    "api/modules.js": {
+    "api/modules.ts": {
       "memory": 192,
-      "includeFiles": "assets/{constants,utils}.js"
+      "includeFiles": "assets/utilities.ts"
     }
   },
   "headers": [
@@ -33,6 +33,6 @@
     { "source": "/", "destination": "/api/" }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api/404.js" }
+    { "source": "/(.*)", "destination": "/api/404.ts" }
   ]
 }
