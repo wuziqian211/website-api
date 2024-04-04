@@ -1,8 +1,8 @@
 export const config = { runtime: 'edge' };
 
-export const GET = (request: Request) => {
-  const requestPath = new URL(request.url).pathname,
-    host = request.headers.get('Host');
+export const GET = (req: Request): Response => {
+  const requestPath = new URL(req.url).pathname,
+    host = req.headers.get('Host');
   if (/^(?:.+\.)?yumeharu.top$/.test(host)) {
     let expectedURL;
     if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(requestPath)) {
