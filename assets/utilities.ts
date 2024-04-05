@@ -16,7 +16,6 @@ interface WbiKeys {
   updatedTimestamp?: number;
 }
 
-import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
@@ -115,9 +114,9 @@ const send500 = (responseType: number, error: Error): Response => {
     return sendHTML(500, headers, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉 wuziqian211 哟 awa
-      <pre>${encodeHTML(util.inspect(error, { depth: Infinity }))}</pre>` });
+      <pre>${encodeHTML(error.stack)}</pre>` });
   } else {
-    return sendJSON(500, headers, { code: -500, message: error.message, data: null, extInfo: { errType: 'internalServerError', errStack: util.inspect(error, { depth: Infinity }) } });
+    return sendJSON(500, headers, { code: -500, message: error.message, data: null, extInfo: { errType: 'internalServerError', errStack: error.stack } });
   }
 };
 const send504 = (responseType: number): Response => {
