@@ -139,7 +139,7 @@
 | spaceAccInfoCode | number | B 站 API `x/space/wbi/acc/info` 的返回值，仅在 “获取哔哩哔哩用户信息” API 中调用该 API 失败时出现。 |
 | spaceAccInfoMessage | string | B 站 API `x/space/wbi/acc/info` 的错误信息，仅在 “获取哔哩哔哩用户信息” API 中调用该 API 失败时出现。 |
 | dataSource | string\[\] 或 string | 数据来源。 |
-| apiExecTime | string | 本 API 调用耗时（单位：毫秒）。 |
+| apiExecTime | number | 本 API 调用耗时（单位：毫秒）。 |
 
 <details>
 <summary>查看响应示例</summary>
@@ -333,7 +333,7 @@
       "getCardByMid",
       "spaceAccInfo"
     ],
-    "apiExecTime": "1933.766" // 调用本 API 耗时（单位：毫秒）
+    "apiExecTime": 1933 // 调用本 API 耗时（单位：毫秒）
   }
 }
 ```

@@ -35,7 +35,7 @@ const initialize = (req: Request, resolve?: (value: Response) => void): { accept
     timer = setTimeout(() => {
       timer = undefined;
       resolve(send504(accept));
-    }, 9500); // API 超时处理
+    }, 10000); // API 超时处理
   }
   return { accept, canAcceptVideo: req.headers.get('sec-fetch-dest')?.toUpperCase() === 'VIDEO' };
 };
@@ -45,9 +45,9 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
     clearTimeout(timer);
     timer = undefined;
   }
-  const execTime = (performance.now() - startTime).toFixed(3);
+  const execTime = performance.now() - startTime;
   headers.set('Content-Type', 'text/html; charset=utf-8');
-  headers.set('X-Api-Exec-Time', execTime);
+  headers.set('X-Api-Exec-Time', execTime.toString());
   return new Response(`
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -72,7 +72,7 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
         <main>${data.body}</main>
         <footer>
           本 API 版权：© 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} wuziqian211<br />
-          执行本 API 耗时 <span class="time-taken">${execTime}</span> ms<br />
+          执行本 API 耗时 <span class="time-taken">${(execTime / 1000).toFixed(3)}</span> s<br />
           本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
           部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
         </footer>
@@ -85,9 +85,9 @@ const sendJSON = (status: number, headers: Headers, data: { code: number, messag
     clearTimeout(timer);
     timer = undefined;
   }
-  const execTime = (performance.now() - startTime).toFixed(3);
+  const execTime = performance.now() - startTime;
   headers.set('Content-Type', 'application/json; charset=utf-8');
-  headers.set('X-Api-Exec-Time', execTime);
+  headers.set('X-Api-Exec-Time', execTime.toString());
   headers.set('X-Api-Status-Code', data.code.toString());
   return new Response(JSON.stringify({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }), { status, headers });
 };
