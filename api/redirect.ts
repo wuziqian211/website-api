@@ -1,10 +1,10 @@
 export const config = { runtime: 'edge' };
 
-export const GET = (req: Request): Response => {
+export default (req: Request): Response => {
   const requestPath = new URL(req.url).pathname,
     host = req.headers.get('Host');
   if (/^(?:.+\.)?yumeharu.top$/.test(host)) {
-    let expectedURL;
+    let expectedURL: string;
     if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(requestPath)) {
       expectedURL = `https://www.yumeharu.top${requestPath}`;
     } else if (/^\/api|^\/get/.test(requestPath)) {
@@ -39,15 +39,15 @@ export const GET = (req: Request): Response => {
       </html>`.replace(/[ \n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
   } else if (/^(?:.+\.)?w211.top$/.test(host)) {
     const url = `https://${host.replace(/^(.+\.)?w211.top$/, '$1yumeharu.top')}${requestPath}`;
-    return new Response(JSON.stringify({ code: 308, data: { url } }), { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
+    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
   } else if (/^(?:.+\.)?wuziqian211.top$/.test(host)) {
     const url = `https://${host.replace(/^(.+\.)?wuziqian211.top$/, '$1yumeharu.top')}${requestPath}`;
-    return new Response(JSON.stringify({ code: 308, data: { url } }), { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
+    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
   } else if (/^(?:.+\.)?happycola.top$/.test(host)) {
     const url = `https://et19798147-2.icoc.vc${requestPath}`;
-    return new Response(JSON.stringify({ code: 308, data: { url } }), { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
+    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
   } else {
     const url = 'https://www.yumeharu.top/';
-    return new Response(JSON.stringify({ code: 307, data: { url } }), { status: 307, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url } });
+    return Response.json({ code: 307, data: { url } }, { status: 307, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url } });
   }
 };
