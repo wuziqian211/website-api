@@ -40,9 +40,9 @@ export default (req, res) => {
     
     const headers = { Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent };
     let useCookie;
-    if ((req.query.cookie?.toUpperCase() === 'TRUE' || req.query.type?.toUpperCase() === 'DATA' || 'force' in req.query) && req.query.cookie?.toUpperCase() !== 'FALSE') { // 用户要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有要求不使用 Cookie
+    if ((req.query.cookie?.toUpperCase() === 'TRUE' || req.query.type?.toUpperCase() === 'DATA' || 'force' in req.query) && req.query.cookie?.toUpperCase() !== 'FALSE') { // 客户端要求强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有要求不使用 Cookie
       useCookie = true;
-    } else if (req.query.cookie?.toUpperCase() === 'FALSE') { // 用户要求不使用 Cookie
+    } else if (req.query.cookie?.toUpperCase() === 'FALSE') { // 客户端要求不使用 Cookie
       if (!('force' in req.query)) {
         useCookie = false;
       } else { // 既要求强制获取视频信息（需要登录）又要求不使用 Cookie，这种情况无法获取到视频信息
@@ -54,7 +54,7 @@ export default (req, res) => {
       }
     }
     
-    const { type, vid } = utils.getVidType(req.query.vid); // 判断用户给出的编号类型
+    const { type, vid } = utils.getVidType(req.query.vid); // 判断客户端给出的编号类型
     const handler = async useCookie => {
       if (useCookie) headers.Cookie = `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`; // 如果指定了使用 Cookie，就添加账号登录信息
       if (type === 1) { // 编号为 AV 号或 BV 号
@@ -83,9 +83,9 @@ export default (req, res) => {
         if (responseType === 3) { // 获取视频数据
           let cid;
           if (json.code === 0 && json.data.pages) {
-            if (/^\d+$/.test(req.query.cid) && BigInt(req.query.cid) > 0 && json.data.pages.some(p => BigInt(p.cid) === BigInt(req.query.cid))) { // 用户提供的 cid 有效，且 API 回复的 pages 中包含用户提供的 cid
-              cid = BigInt(req.query.cid); // 将变量“cid”设置为用户提供的 cid
-            } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 用户提供的参数“p”有效
+            if (/^\d+$/.test(req.query.cid) && BigInt(req.query.cid) > 0 && json.data.pages.some(p => BigInt(p.cid) === BigInt(req.query.cid))) { // 客户端提供的 cid 有效，且 API 回复的 pages 中包含客户端提供的 cid
+              cid = BigInt(req.query.cid); // 将变量“cid”设置为客户端提供的 cid
+            } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 客户端提供的参数“p”有效
               cid = json.data.pages[+req.query.p - 1]?.cid; // 将变量“cid”设置为该 P 的 cid
             } else {
               cid = json.data.cid; // 将变量“cid”设置为该视频第 1 P 的 cid
@@ -459,21 +459,21 @@ export default (req, res) => {
           let P;
           if (json.code === 0) {
             if (type === 3) { // 编号为 ssid
-              if (/^\d+$/.test(req.query.cid) && BigInt(req.query.cid) > 0) { // 用户提供的 cid 有效
-                P = json.result.episodes.find(p => BigInt(p.cid) === BigInt(req.query.cid)); // 在正片中寻找 cid 与用户提供的 cid 相同的一集
+              if (/^\d+$/.test(req.query.cid) && BigInt(req.query.cid) > 0) { // 客户端提供的 cid 有效
+                P = json.result.episodes.find(p => BigInt(p.cid) === BigInt(req.query.cid)); // 在正片中寻找 cid 与客户端提供的 cid 相同的一集
                 if (!P) { // 在正片中没有找到
                   for (const s of json.result.section) { // 在其他部分寻找
                     P = s.episodes.find(p => BigInt(p.cid) === BigInt(req.query.cid));
                     if (P) break;
                   }
                 }
-              } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 用户提供的参数“p”有效
+              } else if (/^\d+$/.test(req.query.p) && +req.query.p > 0) { // 客户端提供的参数“p”有效
                 P = json.result.episodes[+req.query.p - 1];
               } else {
                 P = json.result.episodes[0]; // 第 1 集
               }
             } else { // 编号为 epid
-              P = json.result.episodes.find(p => p.id === vid); // 在正片中寻找 epid 与用户提供的 epid 相同的一集
+              P = json.result.episodes.find(p => p.id === vid); // 在正片中寻找 epid 与客户端提供的 epid 相同的一集
               if (!P) { // 在正片中没有找到
                 for (const s of json.result.section) { // 在其他部分寻找
                   P = s.episodes.find(p => p.id === vid);

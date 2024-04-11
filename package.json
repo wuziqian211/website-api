@@ -7,6 +7,7 @@
     "md5": "latest"
   },
   "devDependencies": {
+    "@types/md5": "^2.3.5",
     "@types/node": "^20.12.4"
   }
 }

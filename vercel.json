@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/{404,index}.ts": {
+    "api/{404,index,modules}.ts": {
       "includeFiles": "assets/utilities.ts"
     },
     "api/getuser.js": {
@@ -10,9 +10,6 @@
     "api/getvideo.js": {
       "memory": 256,
       "includeFiles": "assets/{constants.js,error.mp4,nocover.png,utils.js}"
-    },
-    "api/modules.ts": {
-      "includeFiles": "assets/utilities.ts"
     }
   },
   "headers": [

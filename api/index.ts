@@ -1,15 +1,14 @@
 export const config = { runtime: 'edge' };
 
-import utils from '../assets/utilities';
+import utils from '../assets/utilities.js';
 
 export default (req: Request): Response => {
-  const { accept } = utils.initialize(req);
+  const { headers, responseType } = utils.initialize(req, [0, 1]);
   try {
-    const headers = new Headers();
     if (req.method === 'OPTIONS') {
       return utils.send(204, headers, '');
     }
-    if (accept === 1) {
+    if (responseType === 1) {
       headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
       return utils.sendHTML(200, headers, { title: '欢迎来到 API 页面', newStyle: true, body: `
         <h2>欢迎您来到 <a target="_blank" href="https://www.yumeharu.top/">wuziqian211's Blog</a> 的 API 页面！</h2>
@@ -23,6 +22,6 @@ export default (req: Request): Response => {
       return utils.sendJSON(200, headers, { code: 0, message: '0', data: null });
     }
   } catch (e) {
-    return utils.send500(accept, e);
+    return utils.send500(responseType, <Error>e);
   }
 };

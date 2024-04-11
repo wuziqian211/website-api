@@ -1,3 +1,18 @@
+interface APIResponse<dataType> {
+  code: number;
+  message: string;
+  data: dataType;
+}
+interface InternalAPIResponse<dataType> extends APIResponse<dataType> {
+  extInfo?: object;
+}
+interface NavData { // 此处仅定义部分必要字段
+  isLogin: boolean;
+  wbi_img: {
+    img_url: string;
+    sub_url: string;
+  }
+}
 interface SendHTMLData {
   title: string; // 页面标题
   appleTouchIcon?: string; // 页面图标链接
@@ -13,30 +28,50 @@ interface Component {
 interface WbiKeys {
   imgKey: string;
   subKey: string;
-  updatedTimestamp?: number;
+}
+interface CachedWbiKeys extends WbiKeys {
+  updatedTimestamp: number;
 }
 
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
-let cachedWbiKeys: WbiKeys | undefined, timer: NodeJS.Timeout | undefined, startTime: number | undefined;
-const initialize = (req: Request, resolve?: (value: Response) => void): { accept: number, canAcceptVideo: boolean } => { // 初始化 API
+let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: number;
+const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: (value: Response) => void): { params: URLSearchParams; headers: Headers; accepts: number[]; responseType: number } => { // 初始化 API
   startTime = performance.now();
-  let accept;
-  if (req.headers.get('accept')?.toUpperCase().includes('HTML') || req.headers.get('sec-fetch-dest')?.toUpperCase() === 'DOCUMENT') { // 客户端想要获取类型为“文档”的数据
-    accept = 1;
-  } else if (req.headers.get('accept')?.toUpperCase().includes('IMAGE') || req.headers.get('sec-fetch-dest')?.toUpperCase() === 'IMAGE') { // 客户端想要获取类型为“图片”的数据
-    accept = 2;
-  } else {
-    accept = 0;
+  const params = new URL(req.url).searchParams, accepts: number[] = [],
+    requestAccept = req.headers.get('accept')?.toUpperCase(), requestSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
+    requestResponseType = params.get('type');
+  let responseType: number | undefined;
+  
+  if (requestAccept?.includes('HTML') || requestSecFetchDest === 'DOCUMENT') accepts.push(1); // 客户端可以接受回应类型为“文档”的数据
+  if (requestAccept?.includes('IMAGE') || requestSecFetchDest === 'IMAGE') accepts.push(2); // 客户端可以接受回应类型为“图片”的数据
+  if (requestSecFetchDest === 'VIDEO') accepts.push(3); // 客户端可以接受回应类型为“视频”的数据
+  
+  if (requestResponseType) {
+    if (acceptedResponseTypes.includes(0) && requestResponseType.toUpperCase() === 'JSON') { // 客户端指定回复数据类型为 JSON
+      responseType = 0;
+    } else if (acceptedResponseTypes.includes(1) && ['HTML', 'PAGE'].includes(requestResponseType.toUpperCase())) { // 客户端指定回复数据类型为页面
+      responseType = 1;
+    } else if (acceptedResponseTypes.includes(2) && requestResponseType.toUpperCase() === 'IMAGE') { // 客户端指定回复数据类型为图片
+      responseType = 2;
+    } else if (acceptedResponseTypes.includes(3) && requestResponseType.toUpperCase() === 'VIDEO') { // 客户端指定回复数据类型为视频
+      responseType = 3;
+    }
   }
+  if (responseType == undefined) { // 若客户端未指定回复数据类型，则取接受的数据类型；若仍未取到，则默认回复 JSON
+    const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
+    responseType = filteredAccepts.length ? Math.min(...filteredAccepts) : 0;
+  }
+  
   if (resolve) {
     timer = setTimeout(() => {
       timer = undefined;
-      resolve(send504(accept));
-    }, 10000); // API 超时处理
+      resolve(send504(responseType!));
+    }, 15000); // API 超时处理
   }
-  return { accept, canAcceptVideo: req.headers.get('sec-fetch-dest')?.toUpperCase() === 'VIDEO' };
+  
+  return { params, headers: new Headers(), accepts, responseType };
 };
 const getRunningTime = (ts: number): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
@@ -79,7 +114,7 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
       </body>
     </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim(), { status, headers });
 };
-const sendJSON = (status: number, headers: Headers, data: { code: number, message: string, data: any, extInfo?: object }): Response => { // 发送 JSON 数据到客户端
+const sendJSON = (status: number, headers: Headers, data: InternalAPIResponse<any>): Response => { // 发送 JSON 数据到客户端
   if (timer) {
     clearTimeout(timer);
     timer = undefined;
@@ -88,7 +123,7 @@ const sendJSON = (status: number, headers: Headers, data: { code: number, messag
   headers.set('Content-Type', 'application/json; charset=utf-8');
   headers.set('X-Api-Exec-Time', execTime.toString());
   headers.set('X-Api-Status-Code', data.code.toString());
-  return new Response(JSON.stringify({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }), { status, headers });
+  return Response.json({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }, { status, headers });
 };
 const send = (status: number, headers: Headers, data: any): Response => { // 发送其他数据到客户端
   if (timer) {
@@ -151,14 +186,14 @@ const markText = (str?: string | null): string => { // 将纯文本中的特殊�
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
     replacementRules = [ // 替换规则
-    { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacement: match => match },
-    { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacement: (match, p1) => `https://www.bilibili.com/video/BV${p1}/` },
-    { pattern: /av(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/video/av${p1}/` },
-    { pattern: /sm(\d+)/i, replacement: (match, p1) => `https://www.nicovideo.jp/watch/sm${p1}` },
-    { pattern: /cv(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/read/cv${p1}` },
-    { pattern: /md(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/media/md${p1}` },
-    { pattern: /ss(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/play/ss${p1}` },
-    { pattern: /ep(\d+)/i, replacement: (match, p1) => `https://www.bilibili.com/bangumi/play/ep${p1}` },
+    { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacement: (match: string): string => match },
+    { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacement: (match: string, p1: string): string => `https://www.bilibili.com/video/BV${p1}/` },
+    { pattern: /av(\d+)/i, replacement: (match: string, p1: string): string => `https://www.bilibili.com/video/av${p1}/` },
+    { pattern: /sm(\d+)/i, replacement: (match: string, p1: string): string => `https://www.nicovideo.jp/watch/sm${p1}` },
+    { pattern: /cv(\d+)/i, replacement: (match: string, p1: string): string => `https://www.bilibili.com/read/cv${p1}` },
+    { pattern: /md(\d+)/i, replacement: (match: string, p1: string): string => `https://www.bilibili.com/bangumi/media/md${p1}` },
+    { pattern: /ss(\d+)/i, replacement: (match: string, p1: string): string => `https://www.bilibili.com/bangumi/play/ss${p1}` },
+    { pattern: /ep(\d+)/i, replacement: (match: string, p1: string): string => `https://www.bilibili.com/bangumi/play/ep${p1}` },
   ];
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
@@ -195,8 +230,8 @@ const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，
   const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
   const base = BigInt(alphabet.length);
   let t = (maxAid | BigInt(aid)) ^ xorCode;
-  for (let i = 0n; i < encodeMap.length; i++) {
-    bvid[encodeMap[i]] = alphabet[t % base];
+  for (const n of encodeMap) {
+    bvid[n] = alphabet[Number(t % base)];
     t /= base;
   }
   return 'BV1' + bvid.join('');
@@ -206,14 +241,13 @@ const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https:/
   const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8];
   const base = BigInt(alphabet.length);
   let t = 0n;
-  bvid = bvid.slice(3);
-  for (let i = 0n; i < decodeMap.length; i++) {
-    const index = BigInt(alphabet.indexOf(bvid[decodeMap[i]]));
+  for (const n of decodeMap) {
+    const index = BigInt(alphabet.indexOf(bvid[n + 3]));
     t = t * base + index;
   }
   return (t & maskCode) ^ xorCode;
 };
-const getVidType = (vid?: string): { type?: number, vid?: string | bigint } => { // 判断编号类型
+const getVidType = (vid?: string): { type?: number; vid?: string | bigint } => { // 判断编号类型
   if (typeof vid !== 'string') return {};
   if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
@@ -233,17 +267,16 @@ const getVidType = (vid?: string): { type?: number, vid?: string | bigint } => {
 };
 const encodeWbi = async (originalQuery: object, keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   if (!keys) keys = await getWbiKeys();
-  let t = '';
-  [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].forEach(n => t += (keys.imgKey + keys.subKey)[n]);
-  const mixinKey = t.slice(0, 32), query = { ...originalQuery, wts: Math.floor(Date.now() / 1000) }; // 对 imgKey 和 subKey 进行字符顺序打乱编码，添加 wts 字段
+  const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys!.imgKey + keys!.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
+    query = { ...originalQuery, wts: Math.floor(Date.now() / 1000) }; // 添加 wts 字段
   const params = new URLSearchParams(Object.keys(query).toSorted().map(name => [name, query[name].toString().replace(/[!'()*]/g, '')])); // 按照 key 重排参数，过滤 value 中的“!”“'”“(”“)”“*”字符
   params.append('w_rid', md5(params + mixinKey)); // 计算 w_rid
   return params;
 };
 const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
-  if (!noCache && !cachedWbiKeys) cachedWbiKeys = await kv.get('wbiKeys');
+  if (!noCache && !cachedWbiKeys) cachedWbiKeys = <CachedWbiKeys>await kv.get('wbiKeys');
   if (noCache || !cachedWbiKeys || Math.floor(cachedWbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
-    const ujson = await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent } })).json();
+    const ujson: APIResponse<NavData> = await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent } })).json();
     const wbiKeys: WbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^\.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^\.]+)(?:\..*)?$/, '$1') };
     cachedWbiKeys = { ...wbiKeys, updatedTimestamp: Date.now() };
     await kv.set('wbiKeys', cachedWbiKeys);
@@ -254,3 +287,4 @@ const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最
 };
 
 export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
+export type { APIResponse };

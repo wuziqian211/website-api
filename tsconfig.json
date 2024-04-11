@@ -1,6 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "moduleResolution": "node"
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strict": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "checkJs": true,
+    "target": "ES2022"
   }
 }

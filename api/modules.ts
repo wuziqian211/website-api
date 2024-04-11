@@ -6,15 +6,14 @@ interface Hash {
 export const config = { runtime: 'edge' };
 
 import { kv } from '@vercel/kv';
-import utils from '../assets/utilities';
+import utils from '../assets/utilities.js';
 
 export default (req: Request): Promise<Response> => new Promise(async (resolve: (value: Response) => void): Promise<void> => {
-  const { accept } = utils.initialize(req, resolve);
+  const { params, headers, responseType } = utils.initialize(req, [0, 1], resolve);
   try {
-    const headers = new Headers(), params = new URL(req.url).searchParams;
-    if (accept === 1) {
+    if (responseType === 1) {
       switch (params.get('id')) {
-        case 'friends': // 对用浏览器直接访问 /api/modules?id=friends 的用户进行重定向
+        case 'friends': // 对直接访问 /api/modules?id=friends 的浏览器发送重定向的回应
           resolve(utils.redirect(307, 'https://www.yumeharu.top/friends/', true));
           break;
         default:
@@ -93,6 +92,6 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
       }
     }
   } catch (e) {
-    resolve(utils.send500(accept, e));
+    resolve(utils.send500(responseType, <Error>e));
   }
 });
