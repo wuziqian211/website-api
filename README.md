@@ -167,7 +167,6 @@
     "place": "",
     "moral": 0,
     "silence": 0,
-    "is_deleted": 0,
     "coins": 0, // 因涉及隐私，此处隐藏具体数据
     "article": 0,
     "attentions": [], // 因涉及隐私，此处隐藏具体数据

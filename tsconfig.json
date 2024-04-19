@@ -9,6 +9,9 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "checkJs": true,
-    "target": "ES2022"
+    "esModuleInterop": true,
+    "lib": ["ES2023"],
+    "target": "ES2022",
+    "skipLibCheck": true
   }
 }
