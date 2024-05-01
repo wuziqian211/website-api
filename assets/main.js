@@ -9,43 +9,52 @@ const replacePage = html => {
   document.body.className = html.body.className;
   document.body.style.backgroundImage = html.body.style.backgroundImage;
 };
-const load = (url, event) => {
-  if (isLoadAvailable(url)) {
-    event.preventDefault();
-    loadPage(url);
-  }
-};
 const bindLoad = () => {
   if (bindController) bindController.abort();
   bindController = new AbortController();
   document.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', event => load(a.href, event), { passive: false, signal: bindController.signal });
+    a.addEventListener('click', event => {
+      if (isLoadAvailable(a.href)) {
+        event.preventDefault();
+        loadPage(a.href);
+      }
+    }, { passive: false, signal: bindController.signal });
     a.addEventListener('keyup', event => {
-      if (event.code === 'Enter') load(a.href, event);
+      if (event.code === 'Enter' && isLoadAvailable(a.href)) {
+        event.preventDefault();
+        loadPage(a.href);
+      }
     }, { passive: false, signal: bindController.signal });
   });
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', event => {
       const url = new URL(form.action, window.location);
-      const params = new URLSearchParams();
-      for (const e of form.elements) {
-        if (e.tagName === 'INPUT' && e.type.toUpperCase() !== 'SUBMIT' && (e.type.toUpperCase() !== 'CHECKBOX' || e.checked)) {
-          params.set(e.name, e.value);
+      if (isLoadAvailable(url)) {
+        event.preventDefault();
+        const params = new URLSearchParams();
+        for (const e of form.elements) {
+          if (e.tagName === 'INPUT' && e.type.toUpperCase() !== 'SUBMIT' && (e.type.toUpperCase() !== 'CHECKBOX' || e.checked)) {
+            params.set(e.name, e.value);
+          }
         }
+        url.search = params;
+        loadPage(url);
       }
-      url.search = params;
-      load(url, event);
     }, { passive: false, signal: bindController.signal });
   });
 };
 const loadPage = async url => {
   if (loadController) loadController.abort();
   loadController = new AbortController();
+  const urlObj = new URL(url, window.location);
+  if (urlObj.origin === window.location.origin && (urlObj.pathname.startsWith('/api/') || urlObj.pathname === '/api') && !urlObj.searchParams.has('type')) {
+    urlObj.searchParams.set('type', 'html');
+  }
   if (isValidPage(document)) {
     document.querySelector('main').classList.add('loading');
     document.activeElement?.blur();
     try {
-      const resp = await fetch(url, { headers: { accept: 'text/html' }, signal: loadController.signal });
+      const resp = await fetch(urlObj, { keepalive: true, signal: loadController.signal });
       if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
         const text = await resp.text();
         const html = new DOMParser().parseFromString(text, 'text/html');
@@ -66,7 +75,7 @@ const loadPage = async url => {
       if (e instanceof DOMException && e.name === 'AbortError') return false;
     }
   }
-  window.location.href = url;
+  window.location.href = urlObj;
   document.querySelector('main').classList.remove('loading');
   return false;
 };

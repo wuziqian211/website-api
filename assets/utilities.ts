@@ -46,31 +46,60 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
     requestedResponseType = params.get('type')?.toUpperCase();
   let responseType: number | undefined;
   
-  if (requestedAccept?.includes('HTML') || requestedSecFetchDest === 'DOCUMENT') accepts.push(1); // 客户端可以接受回应类型为“文档”的数据
-  if (requestedAccept?.includes('IMAGE') || requestedSecFetchDest === 'IMAGE') accepts.push(2); // 客户端可以接受回应类型为“图片”的数据
-  if (requestedSecFetchDest === 'VIDEO') accepts.push(3); // 客户端可以接受回应类型为“视频”的数据
+  if (requestedAccept) {
+    if (requestedAccept.includes('*/*')) { // 客户端接受所有类型的数据
+      accepts.push(0, 1, 2, 3);
+    } else {
+      if (requestedAccept.includes('JSON') || requestedSecFetchDest === 'JSON') accepts.push(0);
+      if (requestedAccept.includes('HTML') || (requestedSecFetchDest && ['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest))) accepts.push(1);
+      if (requestedAccept.includes('IMAGE') || requestedSecFetchDest === 'IMAGE') accepts.push(2);
+      if (requestedAccept.includes('VIDEO') || requestedSecFetchDest === 'VIDEO') accepts.push(3);
+    }
+  }
   
-  if (requestedResponseType) {
-    if (acceptedResponseTypes.includes(0) && requestedResponseType === 'JSON') { // 客户端指定回复数据类型为 JSON
+  // 回复数据类型判断优先级：“type”参数＞“Sec-Fetch-Dest”标头＞“Accept”标头
+  if (requestedResponseType) { // 先取客户端指定的回复数据类型
+    if (acceptedResponseTypes.includes(0) && requestedResponseType === 'JSON') {
       responseType = 0;
-    } else if (acceptedResponseTypes.includes(1) && ['HTML', 'PAGE'].includes(requestedResponseType)) { // 客户端指定回复数据类型为页面
+    } else if (acceptedResponseTypes.includes(1) && ['HTML', 'PAGE'].includes(requestedResponseType)) {
       responseType = 1;
-    } else if (acceptedResponseTypes.includes(2) && requestedResponseType === 'IMAGE') { // 客户端指定回复数据类型为图片
+    } else if (acceptedResponseTypes.includes(2) && ['IMAGE', 'IMG'].includes(requestedResponseType)) {
       responseType = 2;
-    } else if (acceptedResponseTypes.includes(3) && requestedResponseType === 'VIDEO') { // 客户端指定回复数据类型为视频
+    } else if (acceptedResponseTypes.includes(3) && requestedResponseType === 'VIDEO') {
       responseType = 3;
     }
   }
-  if (responseType == undefined) { // 若客户端未指定回复数据类型，则取接受的数据类型；若仍未取到，则默认回复 JSON
-    const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
-    responseType = filteredAccepts.length ? Math.min(...filteredAccepts) : 0;
+
+  if (responseType == undefined && requestedSecFetchDest) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+    if (acceptedResponseTypes.includes(0) && requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
+      responseType = 0;
+    } else if (acceptedResponseTypes.includes(1) && ['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
+      responseType = 1;
+    } else if (acceptedResponseTypes.includes(2) && requestedSecFetchDest === 'IMAGE') {
+      responseType = 2;
+    } else if (acceptedResponseTypes.includes(3) && requestedSecFetchDest === 'VIDEO') {
+      responseType = 3;
+    }
   }
   
-  if (resolve) {
+  if (responseType == undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
+    const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
+    if (filteredAccepts.includes(1)) {
+      responseType = 1;
+    } else if (filteredAccepts.includes(2)) {
+      responseType = 2;
+    } else if (filteredAccepts.includes(3)) {
+      responseType = 3;
+    } else { // 默认回复 JSON
+      responseType = 0;
+    }
+  }
+  
+  if (resolve) { // API 超时处理
     timer = setTimeout(() => {
       timer = undefined;
       resolve(send504(responseType));
-    }, 15000); // API 超时处理
+    }, 15000);
   }
   
   return { params, headers: new Headers(), accepts, responseType };
@@ -189,13 +218,13 @@ const markText = (str?: string | null): string => { // 将纯文本中的特殊�
   const components: Component[] = [{ content: str }],
     replacementRules = [ // 替换规则
     { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: string): string => match },
-    { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacer: (match: string, ...matches: string[]): string => `https://www.bilibili.com/video/BV${matches[0]}/` },
-    { pattern: /av(\d+)/i, replacer: (match: string, ...matches: string[]): string => `https://www.bilibili.com/video/av${matches[0]}/` },
-    { pattern: /sm(\d+)/i, replacer: (match: string, ...matches: string[]): string => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
-    { pattern: /cv(\d+)/i, replacer: (match: string, ...matches: string[]): string => `https://www.bilibili.com/read/cv${matches[0]}` },
-    { pattern: /md(\d+)/i, replacer: (match: string, ...matches: string[]): string => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
-    { pattern: /ss(\d+)/i, replacer: (match: string, ...matches: string[]): string => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
-    { pattern: /ep(\d+)/i, replacer: (match: string, ...matches: string[]): string => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
+    { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/BV${matches[0]}/` },
+    { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/av${matches[0]}/` },
+    { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
+    { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/read/cv${matches[0]}` },
+    { pattern: /md(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
+    { pattern: /ss(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
+    { pattern: /ep(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
   ];
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
@@ -205,7 +234,7 @@ const markText = (str?: string | null): string => { // 将纯文本中的特殊�
         if (result) {
           const [match, ...capturedMatches] = result, { index } = result;
           components.splice(i++, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
-          components[i].content = match, components[i].url = p.replacer(match, ...capturedMatches); // 将该组成部分修改成已经转化的链接
+          components[i].content = match, components[i].url = p.replacer(match, capturedMatches); // 将该组成部分修改成已经转化的链接
           components.splice(i + 1, 0, { content: content.slice(index + match.length) }); // 在该组成部分后插入一个内容为匹配文本之后的文本的组成部分
         }
       }
