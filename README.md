@@ -93,21 +93,23 @@
 | `cid` | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid，只能是正整数。**仅在获取视频数据时使用本参数。** |
 | `p` | 该视频的第几个分 P，或者该剧集中的第几集，只能是正整数。**仅在获取视频数据时使用本参数。** |
 | `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<br />如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（**例如**：`404`、`400`、`500` 等；这样做的目的是让播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应表示错误的状态代码而不加载视频）；此条件下若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。<br />值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据；此条件下若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Accept` 标头对应的回复数据类型](#通过-accept-标头判断)提示获取封面失败；若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址；可以添加多个后缀。<br />本参数的值不区分大小写。 |
-| `cookie` | 获取信息时是否带 Cookie。如果本参数的值为 `true`，则强制带 Cookie 获取信息；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。本参数的值不区分大小写。<br />**示例**：[BV16s411f7x<!-- 分隔符，防止 “x” 被自动转换成 “×” -->2](https://api.yumeharu.top/api/getvideo?vid=BV16s411f7x2&cookie=true) |
-| `force` | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。<br />**示例**：[av10388](https://api.yumeharu.top/api/getvideo?vid=10388&force=true)、[av10492](https://api.yumeharu.top/api/getvideo?vid=10492&force=true) |
+| `cookie` | 获取信息时是否带 Cookie。如果本参数的值为 `true`，则强制带 Cookie 获取信息；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。本参数的值不区分大小写。<br />**示例**：获取仅对登录用户可见的视频信息：[BV16s411f7x<!-- 分隔符，防止 “x” 被自动转换成 “×” -->2](https://api.yumeharu.top/api/getvideo?vid=BV16s411f7x2&cookie=true) |
+| `force` | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。<br />**示例**：获取被退回或锁定的视频信息：[av10388](https://api.yumeharu.top/api/getvideo?vid=10388&force=true)、[av10492](https://api.yumeharu.top/api/getvideo?vid=10492&force=true) |
 
 其中，`cid` 与 `p` 参数**仅在获取数据时被使用，且只能填写其中一个**；若这些参数均未填写，则默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
 
 > [!NOTE]
-> 当您想要本 API 回复视频的数据（设置 `type=video` 或 `type=data` 参数）时，为了能尽可能获取到更高清晰度的视频，本 API 会自动设置 `cookie=true` 参数，您可以手动设置 `cookie=false` 参数以覆盖此行为。
+> 当您想要本 API 回复视频的数据（设置 `type=video` 或 `type=data` 参数）时，本 API 为了尽可能获取到更高清晰度的视频，**会自动设置 `cookie=true` 参数**，您可以手动设置 `cookie=false` 参数以覆盖此行为。
+>
+> 然而，**如果您设置了 `force` 参数，由于本 API 必须要带 Cookie 才能强制获取视频信息，因此您手动设置 `cookie=false` 参数会报错**。
 
 ## 附录
 
-本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 [Vercel](https://vercel.com/) 部署，不使用任何框架。您也可以选择其他平台进行部署，但可能需要改动一些文件。
-
-**如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。
+本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 [Vercel](https://vercel.com/) 部署，不使用任何框架。
 
 目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，使用 JavaScript 编写；有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)，使用 TypeScript 编写。
+
+**如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 回复数据类型规则
 
@@ -141,8 +143,8 @@
 
 - 当 `Accept` 的值包含 `json` 时，回复 **JSON**；
 - 当 `Accept` 的值包含 `html`（**例如**：使用浏览器直接访问 API 的页面）时，回复 **HTML** 页面；
-- 当 `Accept` 的值包含 `image`（**例如**：在 HTML [`<img>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img) 标签的 `src` 参数中直接填写 API 的地址）时，回复**图片**数据；
-- 当 `Accept` 的值包含 `video`（**例如**：在 HTML [`<video>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video) 标签中 [`<source>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source) 标签的 `src` 参数直接填写 API 的地址）时，回复**视频**数据；
+- 当 `Accept` 的值包含 `image`（**例如**：在 [HTML `<img>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img)的 `src` 参数中直接填写 API 的地址）时，回复**图片**数据；
+- 当 `Accept` 的值包含 `video`（**例如**：在 [HTML `<video>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)中 [`<source>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source)的 `src` 参数直接填写 API 的地址）时，回复**视频**数据；
 
 #### 默认回复 JSON
 
