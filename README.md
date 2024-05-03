@@ -141,10 +141,9 @@
 
 若上述过程仍无法判断回复数据类型，则根据 [HTTP 请求头 `Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept) 的值判断回复数据类型（标头名称与值均不区分大小写，需要 API 支持您指定的回复数据类型）：
 
-- 当 `Accept` 的值包含 `json` 时，回复 **JSON**；
 - 当 `Accept` 的值包含 `html`（**例如**：使用浏览器直接访问 API 的页面）时，回复 **HTML** 页面；
 - 当 `Accept` 的值包含 `image`（**例如**：在 [HTML `<img>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img)的 `src` 参数中直接填写 API 的地址）时，回复**图片**数据；
-- 当 `Accept` 的值包含 `video`（**例如**：在 [HTML `<video>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)中 [`<source>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source)的 `src` 参数直接填写 API 的地址）时，回复**视频**数据；
+- 当 `Accept` 的值包含 `video`（**例如**：在 [HTML `<video>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)中 [`<source>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source)的 `src` 参数直接填写 API 的地址）时，回复**视频**数据。
 
 #### 默认回复 JSON
 

@@ -58,7 +58,7 @@ export default async (req, res) => {
         switch (json.code) {
           case 0:
             const content = `
-              <img style="display: none;" src="${json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'}" referrerpolicy="no-referrer" />
+              <img style="display: none;" alt src="${json.data.top_photo ? utils.toHTTPS(json.data.top_photo) : '/assets/top-photo.png'}" referrerpolicy="no-referrer" />
               <div class="main-info-outer">
                 <div class="main-info-inner">
                   <div class="image-wrap${json.data.pendant?.image ? ' has-frame' : ''}">
