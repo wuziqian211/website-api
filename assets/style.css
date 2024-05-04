@@ -173,9 +173,6 @@ pre {
   overflow: auto;
   padding: 10px;
 }
-div.main-info-outer {
-  background: center/cover no-repeat;
-}
 div.grid {
   display: grid;
   gap: 15px;
@@ -196,6 +193,7 @@ div.grid-item {
 }
 div.grid-item.main-info-outer {
   box-shadow: none;
+  margin: 0;
   padding: 0;
 }
 div.grid-item:hover {
@@ -219,6 +217,7 @@ div.grid-item > a.grid-link {
   width: 100%;
 }
 div.main-info-outer {
+  background: center/cover no-repeat;
   border-radius: 10px;
   margin: 0 0 5px;
   overflow: hidden;
@@ -233,6 +232,9 @@ div.main-info-inner.image {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   background: var(--background-color-translucent);
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
 }
 div.main-info-inner > div.left, table * {
   overflow-wrap: break-word;

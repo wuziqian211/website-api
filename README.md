@@ -30,7 +30,7 @@
 | [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（**例如**：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
 | [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
 | [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
-| [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在 |
+| [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
 | [`429`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/429)（**不是** [`412`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/412)） | 请求太频繁 |
 | [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) 或 [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用异常或超时（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频太大，API 无法回复视频数据） |
 | [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效（或其他原因）而请求失败 |
@@ -99,17 +99,17 @@
 其中，`cid` 与 `p` 参数**仅在获取数据时被使用，且只能填写其中一个**；若这些参数均未填写，则默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
 
 > [!NOTE]
-> 当您想要本 API 回复视频的数据（设置 `type=video` 或 `type=data` 参数）时，本 API 为了尽可能获取到更高清晰度的视频，**会自动设置 `cookie=true` 参数**，您可以手动设置 `cookie=false` 参数以覆盖此行为。
+> 当您想要本 API 回复视频的数据（设置 `type=video` 或 `type=data` 参数，可能带后缀）时，本 API 为了尽可能获取到更高清晰度的视频，**会自动设置 `cookie=true` 参数**，您可以手动设置 `cookie=false` 参数以覆盖此行为。
 >
 > 然而，**如果您设置了 `force` 参数，由于本 API 必须要带 Cookie 才能强制获取视频信息，因此您手动设置 `cookie=false` 参数会报错**。
 
 ## 🗒附录
 
-本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 [Vercel](https://vercel.com/) 部署，不使用任何框架。
+本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 TypeScript 编写，不使用任何框架。
 
-目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，使用 JavaScript 编写；有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)，使用 TypeScript 编写。
+目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
 
-**如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
+本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型规则
 
@@ -155,7 +155,7 @@
 
 | 字段 | 类型 | 说明 |
 | :--: | :--: | ---- |
-| `code` | number | 返回值。常见的返回值有：<br />0：成功<br />-400：请求错误（**例如**：参数不合法）<br />-403：访问权限不足（**例如**：未使用 Cookie 获取信息）<br />-404：啥都木有<br />-412：请求被拦截 |
+| `code` | number | 返回值。常见的返回值有：<br />`0`：成功<br />`-400`：请求错误（**例如**：参数不合法）<br />`-403`：访问权限不足（**例如**：未使用 Cookie 获取信息）<br />`-404`：啥都木有<br />`-412`：请求被拦截 |
 | `message` | string | 错误信息，若请求成功则一般为 `0` 或 `success`。 |
 | `data` | 有效时：object<br />无效时：null | 回复数据本体。对于 “获取哔哩哔哩用户信息” 与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 的数据本体，请自行查找对应的 B 站 API 的说明，此处不再进行说明。 |
 | `extInfo` | object | API 返回的扩展信息，包括调用所耗时间、数据来源、错误类型等。 |
@@ -376,8 +376,8 @@
 | ------------ | ---- |
 | api/ | 本文件夹包含所有 API，在网站上访问里面的文件会调用对应 API |
 | api/404.ts | 网站上的页面不存在时调用的 API |
-| api/getuser.js | “获取哔哩哔哩用户信息” API |
-| api/getvideo.js | “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API |
+| api/getuser.ts | “获取哔哩哔哩用户信息” API |
+| api/getvideo.ts | “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API |
 | api/index.ts | 用于渲染网站首页的 API |
 | api/modules.ts | [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能使用的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
@@ -395,7 +395,7 @@
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就回复本文件数据 |
 | assets/style.css | 页面使用的 CSS |
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
-| assets/utils.js, assets/utilities.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
+| assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | LICENSE | MIT 许可证 |
 | package.json, package-lock.json | 本 API 使用的库列表 |
@@ -403,4 +403,4 @@
 
 ## 📄许可证
 
-本项目使用 [MIT](LICENSE) 许可证。
+本项目使用 [MIT 许可证](LICENSE)。
