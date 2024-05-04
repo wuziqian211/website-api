@@ -2,15 +2,15 @@
 
 <https://api.yumeharu.top/api/>
 
-- [✨介绍](#✨介绍)
-- [📖详细用法](#📖详细用法)
-  - [👤获取哔哩哔哩用户信息](#👤获取哔哩哔哩用户信息)
-  - [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#📺获取哔哩哔哩视频--剧集--番剧信息及数据)
-- [🗒️附录](#🗒️附录)
-  - [⚙️回复数据类型规则](#⚙️回复数据类型规则)
-  - [🔗回复的 JSON 对象数据结构](#🔗回复的-json-对象数据结构)
-  - [🗂️目录结构](#🗂️目录结构)
-- [📄许可证](#📄许可证)
+- [✨介绍](#介绍)
+- [📖详细用法](#详细用法)
+  - [👤获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)
+  - [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)
+- [🗒️附录](#附录)
+  - [⚙️回复数据类型规则](#回复数据类型规则)
+  - [🔗回复的 JSON 对象数据结构](#回复的-json-对象数据结构)
+  - [🗂️目录结构](#目录结构)
+- [📄许可证](#许可证)
 
 ## ✨介绍
 
@@ -21,7 +21,7 @@
 - **API 类型**：[RESTful API](https://www.restapitutorial.com/)
 - **请求方式**：一般为 [GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)（理论上可以使用任何请求方式）
 - **请求参数**：[URL 查询字符串](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#%E5%8F%82%E6%95%B0)（如 `?mid=425503913&type=html`），**参数名区分大小写**
-- **回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#⚙️回复数据类型规则)
+- **回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
 - **HTTP 状态代码**：
 
 | 状态代码 | 说明 |
@@ -39,8 +39,8 @@
 
 您可以使用以下公开的 API：
 
-- [👤获取哔哩哔哩用户信息](#👤获取哔哩哔哩用户信息)（<https://api.yumeharu.top/api/getuser>）
-- [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#📺获取哔哩哔哩视频--剧集--番剧信息及数据)（<https://api.yumeharu.top/api/getvideo>）
+- [👤获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)（<https://api.yumeharu.top/api/getuser>）
+- [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)（<https://api.yumeharu.top/api/getvideo>）
 
 这些 API 允许任何合法网站与程序等调用，而 API 的服务器不会存储任何访问记录与哔哩哔哩用户、视频、剧集、番剧等的信息、数据等，仅转发与处理哔哩哔哩 API 的回复数据。
 
