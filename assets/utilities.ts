@@ -250,8 +250,7 @@ const toHTTPS = (url?: string | null): string => { // 将网址协议改成 HTTP
 };
 const getDate = (ts?: number | null): string => { // 根据时间戳返回日期时间
   if (typeof ts !== 'number' || ts === 0) return '未知';
-  const t = new Date(ts * 1000);
-  const d = new Date(t.getTime() + (t.getTimezoneOffset() + 480) * 60000);
+  const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
 const getTime = (s?: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒

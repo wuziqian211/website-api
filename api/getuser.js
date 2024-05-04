@@ -1,6 +1,6 @@
 /* 获取哔哩哔哩用户信息
  *   https://api.yumeharu.top/api/getuser
- * 使用说明见 https://github.com/wuziqian211/website-api/blob/main/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF。
+ * 使用说明见 https://github.com/wuziqian211/website-api/blob/main/README.md#%F0%9F%91%A4%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF。
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
@@ -39,12 +39,12 @@ export default async (req, res) => {
       let json;
       const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
       if (cjson.code === 0) {
-        json = { code: 0, message: cjson.message, data: { mid: utils.largeNumberHandler(mid), name: null, approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: null, coins: null, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: false, fans_medal: null, official: { role: null, title: '', desc: '', type: null }, official_verify: { type: null, desc: '' }, vip: null, pendant: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: '', theme: null, sys_notice: null, live_room: null, birthday: 0, school: null, profession: null, tags: null, series: null, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: null, contract: null, certificate_show: false, ...cjson.card, mid: utils.largeNumberHandler(cjson.card.mid), rank: utils.largeNumberHandler(cjson.card.rank), level: cjson.card.level_info.current_level, silence: +(cjson.card.spacesta === -2), following: cjson.card.attention, follower: cjson.card.fans, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, birthday: Math.floor(new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000) }, extInfo: { dataSource: ['getCardByMid'] } };
+        json = { code: 0, message: cjson.message, data: { mid: utils.largeNumberHandler(mid), name: null, approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: null, coins: null, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: false, fans_medal: null, official: { role: null, title: '', desc: '', type: null }, official_verify: { type: null, desc: '' }, vip: null, pendant: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: '', theme: null, sys_notice: null, live_room: null, birthday: 0, school: null, profession: null, tags: null, series: null, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: null, contract: null, certificate_show: false, ...cjson.card, mid: utils.largeNumberHandler(cjson.card.mid), rank: utils.largeNumberHandler(cjson.card.rank), level: cjson.card.level_info.current_level, silence: +(cjson.card.spacesta === -2), following: cjson.card.attention, follower: cjson.card.fans, official: { role: null, title: cjson.card.official_verify.desc, desc: '', type: cjson.card.official_verify.type }, birthday: Math.floor(Date.parse(`${cjson.card.birthday}T00:00:00+08:00`) / 1000) }, extInfo: { dataSource: ['getCardByMid'] } };
         if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 即可获取头像地址
           const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid })}`, { headers })).json(); // （备用）获取多用户信息：https://api.vc.bilibili.com/account/v1/user/cards?uids=(...),(...),……（最多 50 个用户）
           if (ujson.code === 0) {
             json.message = ujson.message;
-            Object.assign(json.data, { ...ujson.data, coins: cjson.card.coins, is_followed: false, birthday: new Date(`${cjson.card.birthday}T00:00:00+08:00`).getTime() / 1000 });
+            Object.assign(json.data, { ...ujson.data, coins: cjson.card.coins, is_followed: false, birthday: Date.parse(`${cjson.card.birthday}T00:00:00+08:00`) / 1000 });
             json.extInfo.dataSource.push('spaceAccInfo');
           } else {
             Object.assign(json.extInfo, { spaceAccInfoCode: ujson.code, spaceAccInfoMessage: ujson.message });
@@ -176,7 +176,7 @@ export default async (req, res) => {
           sendHTML({ title: '获取哔哩哔哩用户信息', newStyle: true, content: `
             本 API 可以获取指定 B 站用户的信息。<br />
             基本用法：https://${req.headers.host}/api/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
-            更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。`, mid: '' });
+            更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%F0%9F%91%A4%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。`, mid: '' });
         } else { // 设置了 UID 参数但无效
           res.status(400);
           sendHTML({ title: 'UID 无效', content: `

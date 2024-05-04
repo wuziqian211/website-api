@@ -68,7 +68,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
         case 'blocked': // 可能被屏蔽的域名
           let blocked = '';
           if (req.headers.get('x-vercel-ip-country') === 'CN') { // 在中国内地（不含港澳台地区）
-            blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net|vercel\\.app)|cdn\\.jsdelivr\\.net)$';
+            blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|openai\\.com|chatgpt\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net|vercel\\.app)|cdn\\.jsdelivr\\.net)$';
           }
           headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
           resolve(utils.sendJSON(200, headers, { code: 0, message: '0', data: { blocked }, extInfo: { ipCountry: req.headers.get('x-vercel-ip-country') } }));
@@ -95,7 +95,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
               resolve(utils.sendJSON(400, headers, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } }));
             }
           } else if (req.method === 'OPTIONS') {
-            resolve(utils.send(204, headers, ''));
+            resolve(utils.send(204, headers, null));
           } else {
             resolve(utils.sendJSON(405, headers, { code: -405, message: 'method not allowed', data: null, extInfo: { errType: 'internalServerInvalidRequest' } }));
           }

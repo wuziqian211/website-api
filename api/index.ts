@@ -6,7 +6,7 @@ export default (req: Request): Response => {
   const { headers, responseType } = utils.initialize(req, [0, 1]);
   try {
     if (req.method === 'OPTIONS') {
-      return utils.send(204, headers, '');
+      return utils.send(204, headers, null);
     }
     if (responseType === 1) {
       headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');

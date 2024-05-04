@@ -2,17 +2,17 @@
 
 <https://api.yumeharu.top/api/>
 
-- [介绍](#介绍)
-- [详细用法](#详细用法)
-  - [获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)
-  - [获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)
-- [附录](#附录)
-  - [目录结构](#目录结构)
-  - [回复数据类型规则](#回复数据类型规则)
-  - [回复的 JSON 对象数据结构](#回复的-json-对象数据结构)
-- [许可证](#许可证)
+- [✨介绍](#✨介绍)
+- [📖详细用法](#📖详细用法)
+  - [👤获取哔哩哔哩用户信息](#👤获取哔哩哔哩用户信息)
+  - [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#📺获取哔哩哔哩视频--剧集--番剧信息及数据)
+- [🗒️附录](#🗒️附录)
+  - [⚙️回复数据类型规则](#⚙️回复数据类型规则)
+  - [🔗回复的 JSON 对象数据结构](#🔗回复的-json-对象数据结构)
+  - [🗂️目录结构](#🗂️目录结构)
+- [📄许可证](#📄许可证)
 
-## 介绍
+## ✨介绍
 
 本项目的 API 主要为 [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能提供服务。
 
@@ -21,7 +21,7 @@
 - **API 类型**：[RESTful API](https://www.restapitutorial.com/)
 - **请求方式**：一般为 [GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)（理论上可以使用任何请求方式）
 - **请求参数**：[URL 查询字符串](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#%E5%8F%82%E6%95%B0)（如 `?mid=425503913&type=html`），**参数名区分大小写**
-- **回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
+- **回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#⚙️回复数据类型规则)
 - **HTTP 状态代码**：
 
 | 状态代码 | 说明 |
@@ -39,8 +39,8 @@
 
 您可以使用以下公开的 API：
 
-- [获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)（<https://api.yumeharu.top/api/getuser>）
-- [获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)（<https://api.yumeharu.top/api/getvideo>）
+- [👤获取哔哩哔哩用户信息](#👤获取哔哩哔哩用户信息)（<https://api.yumeharu.top/api/getuser>）
+- [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#📺获取哔哩哔哩视频--剧集--番剧信息及数据)（<https://api.yumeharu.top/api/getvideo>）
 
 这些 API 允许任何合法网站与程序等调用，而 API 的服务器不会存储任何访问记录与哔哩哔哩用户、视频、剧集、番剧等的信息、数据等，仅转发与处理哔哩哔哩 API 的回复数据。
 
@@ -59,9 +59,9 @@
 > - **请勿将这些 API 用于非法目的！这些 API 的目的是方便大家的使用，并且可能会随时停止开发或删档。因利用这些 API 而造成的不良影响及后果与本项目无关。**
 > - 本项目为开源项目，不接受任何形式的索取或催单行为，更不容许存在付费内容。
 
-## 详细用法
+## 📖详细用法
 
-### 获取哔哩哔哩用户信息
+### 👤获取哔哩哔哩用户信息
 
 <https://api.yumeharu.top/api/getuser>
 
@@ -76,7 +76,7 @@
 
 如果没有填写 `mid` 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
 
-### 获取哔哩哔哩视频 / 剧集 / 番剧信息及数据
+### 📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据
 
 <https://api.yumeharu.top/api/getvideo>
 
@@ -103,7 +103,7 @@
 >
 > 然而，**如果您设置了 `force` 参数，由于本 API 必须要带 Cookie 才能强制获取视频信息，因此您手动设置 `cookie=false` 参数会报错**。
 
-## 附录
+## 🗒️附录
 
 本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 [Vercel](https://vercel.com/) 部署，不使用任何框架。
 
@@ -111,7 +111,7 @@
 
 **如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
-### 回复数据类型规则
+### ⚙️回复数据类型规则
 
 与大部分其他网站的 API 不同，本项目的 API 在调用后，既可以回复 HTML，也可以回复 JSON，有些 API 可以回复图片与视频数据。
 
@@ -149,7 +149,7 @@
 
 若上述过程无法判断回复数据类型，则回复 JSON。
 
-### 回复的 JSON 对象数据结构
+### 🔗回复的 JSON 对象数据结构
 
 根对象：
 
@@ -370,7 +370,7 @@
 
 </details>
 
-### 目录结构
+### 🗂️目录结构
 
 | 文件或文件夹 | 说明 |
 | ------------ | ---- |
@@ -401,6 +401,6 @@
 | package.json, package-lock.json | 本 API 使用的库列表 |
 | vercel.json | Vercel（API 服务提供者）的配置文件 |
 
-## 许可证
+## 📄许可证
 
 本项目使用 [MIT](LICENSE) 许可证。
