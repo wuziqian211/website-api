@@ -7,7 +7,7 @@
   - [👤获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)
   - [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)
 - [🗒附录](#附录)
-  - [⚙回复数据类型规则](#回复数据类型规则)
+  - [💬回复数据类型规则](#回复数据类型规则)
   - [🔗回复的 JSON 对象数据结构](#回复的-json-对象数据结构)
   - [🗂目录结构](#目录结构)
 - [📄许可证](#许可证)
@@ -18,11 +18,11 @@
 
 对于大多数 API：
 
-- **API 类型**：[RESTful API](https://www.restapitutorial.com/)
-- **请求方式**：一般为 [GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)（理论上可以使用任何请求方式）
-- **请求参数**：[URL 查询字符串](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#%E5%8F%82%E6%95%B0)（如 `?mid=425503913&type=html`），**参数名区分大小写**
-- **回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
-- **HTTP 状态代码**：
+- **🚩API 类型**：[RESTful API](https://www.restapitutorial.com/)
+- **✏请求方式**：一般为 [GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)（理论上可以使用任何请求方式）
+- **🔖请求参数**：[URL 查询字符串](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#%E5%8F%82%E6%95%B0)（如 `?mid=425503913&type=html`），**参数名区分大小写**
+- **💬回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
+- **🔢HTTP 状态代码**：
 
 | 状态代码 | 说明 |
 | :------: | ---- |
@@ -67,7 +67,7 @@
 
 本 API 可以获取指定 B 站用户的信息。**目前本 API 始终带 Cookie 获取用户信息。**
 
-#### 请求参数
+#### 🔖请求参数
 
 | 请求参数 | 说明 |
 | :------: | ---- |
@@ -85,7 +85,7 @@
 > [!WARNING]
 > 本 API 获取到的视频数据**仅供预览**，如果您想下载视频，请使用其他工具，本 API 只能获取大小不超过 4.5 MB（在这里 1 MB = 1000 KB）的视频。
 
-#### 请求参数
+#### 🔖请求参数
 
 | 请求参数 | 说明 |
 | :------: | ---- |
@@ -111,11 +111,11 @@
 
 **如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
-### ⚙回复数据类型规则
+### 💬回复数据类型规则
 
 与大部分其他网站的 API 不同，本项目的 API 在调用后，既可以回复 HTML，也可以回复 JSON，有些 API 可以回复图片与视频数据。
 
-#### 通过 `type` 参数判断
+#### 🎉通过 `type` 参数判断
 
 当您指定 `type` 参数时，API 会根据 `type` 参数的值判断回复数据类型（**参数名区分大小写**，值不区分大小写；有些 API 会对这个列表进行扩展；需要 API 支持您指定的回复数据类型）：
 
@@ -126,7 +126,7 @@
 | `image` 或 `img` | 图片 |
 | `video` | 视频 |
 
-#### 通过 `Sec-Fetch-Dest` 标头判断
+#### 🖇通过 `Sec-Fetch-Dest` 标头判断
 
 如果上述过程无法判断回复数据类型，那么就根据 [HTTP 请求头 `Sec-Fetch-Dest`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Sec-Fetch-Dest) 的值判断回复数据类型（标头名称与值均不区分大小写，需要 API 支持您指定的回复数据类型）：
 
@@ -137,7 +137,7 @@
 | `image` | 图片 |
 | `video` | 视频 |
 
-#### 通过 `Accept` 标头判断
+#### 📥通过 `Accept` 标头判断
 
 若上述过程仍无法判断回复数据类型，则根据 [HTTP 请求头 `Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept) 的值判断回复数据类型（标头名称与值均不区分大小写，需要 API 支持您指定的回复数据类型）：
 
@@ -145,7 +145,7 @@
 - 当 `Accept` 的值包含 `image`（**例如**：在 [HTML `<img>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img)的 `src` 参数中直接填写 API 的地址）时，回复**图片**数据；
 - 当 `Accept` 的值包含 `video`（**例如**：在 [HTML `<video>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)中 [`<source>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source)的 `src` 参数直接填写 API 的地址）时，回复**视频**数据。
 
-#### 默认回复 JSON
+#### ❓默认回复 JSON
 
 若上述过程无法判断回复数据类型，则回复 JSON。
 
