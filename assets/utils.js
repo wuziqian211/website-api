@@ -13,7 +13,7 @@ const initialize = (req, res) => { // 初始化 API
   } else {
     accept = 0;
   }
-  timer = setTimeout(() => send504(accept, res, performance.now() - startTime), 9500); // API 超时处理
+  timer = setTimeout(() => send504(accept, res, startTime), 9500); // API 超时处理
   return { startTime, accept, canAcceptVideo: req.headers['sec-fetch-dest']?.toUpperCase() === 'VIDEO' };
 };
 const getRunningTime = ts => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间

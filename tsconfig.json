@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strict": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "checkJs": true,
+    "esModuleInterop": true,
+    "lib": ["ES2023"],
+    "target": "ES2022",
+    "skipLibCheck": true
+  }
+}

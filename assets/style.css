@@ -94,7 +94,7 @@ body {
 body.image-background {
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  background: url(data:,) center/cover no-repeat fixed var(--background-color);
+  background: center/cover no-repeat fixed var(--background-color);
   transition: background 0.5s 0.5s;
 }
 body.new-style {
@@ -173,9 +173,6 @@ pre {
   overflow: auto;
   padding: 10px;
 }
-div.image-background {
-  background: url(data:,) center/cover no-repeat;
-}
 div.grid {
   display: grid;
   gap: 15px;
@@ -194,8 +191,9 @@ div.grid-item {
   padding: 10px;
   position: relative;
 }
-div.grid-item.image-background {
+div.grid-item.main-info-outer {
   box-shadow: none;
+  margin: 0;
   padding: 0;
 }
 div.grid-item:hover {
@@ -208,28 +206,29 @@ body.new-style div.grid-item {
   border-radius: 20px;
   padding: 20px;
 }
-div.grid-item strong.grid-title {
+div.grid-item > strong.grid-title {
   font-size: 20px;
 }
-div.grid-item a.grid-link {
+div.grid-item > a.grid-link {
   height: 100%;
   left: 0;
   position: absolute;
   top: 0;
   width: 100%;
 }
-div.image-background {
+div.main-info-outer {
+  background: center/cover no-repeat;
   border-radius: 10px;
+  margin: 0 0 5px;
+  overflow: hidden;
 }
-div.main-info {
+div.main-info-inner {
   align-items: center;
   background: var(--background-color-quarter-transparent);
-  border-radius: 10px;
   display: flex;
-  margin: 0 0 5px;
   padding: 5px 10px;
 }
-div.main-info.image {
+div.main-info-inner.image {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   background: var(--background-color-translucent);
@@ -237,13 +236,13 @@ div.main-info.image {
   height: 100%;
   width: 100%;
 }
-div.main-info > div.left, table * {
+div.main-info-inner > div.left, table * {
   overflow-wrap: break-word;
 }
-div.main-info > div.left, div.main-info > div.image-wrap {
+div.main-info-inner > div.left, div.main-info-inner > div.image-wrap {
   margin-right: 5px;
 }
-div.main-info > div.detail {
+div.main-info-inner > div.detail {
   flex: 1;
 }
 div.image-wrap {
@@ -304,11 +303,11 @@ a.broken:hover {
 }
 img.sex {
   height: 30px;
-  vertical-align: bottom;
+  vertical-align: -9px;
 }
 img.level, img.official-icon {
   height: 25px;
-  vertical-align: sub;
+  vertical-align: -5px;
 }
 img.vpic {
   border-radius: 10px;
@@ -336,7 +335,7 @@ span.notice.tribute, a.notice.tribute {
 img.notice-icon {
   content: url(/assets/warning.png);
   height: 24px;
-  vertical-align: sub;
+  vertical-align: -5px;
 }
 img.notice-icon.tribute {
   content: url(/assets/tribute.png);
@@ -344,32 +343,34 @@ img.notice-icon.tribute {
 img.notice-icon[src] {
   content: initial;
 }
-details {
-  background: var(--highlight-color-almost-transparent);
+details, table {
+  border: 2px solid var(--highlight-color);
   border-radius: 10px;
-  margin: 20px 0;
-  padding: 10px 10px 0;
+  margin: 10px 0;
 }
-details summary {
+details {
+  overflow: hidden;
+}
+details > summary {
+  background: var(--background-color-translucent);
   border-bottom-color: var(--highlight-color);
   cursor: pointer;
   font-weight: bold;
-  margin: -10px -10px 0;
   padding: 10px;
 }
-details[open] {
-  padding: 10px;
-}
-details[open] summary {
+details[open] > summary {
   border-bottom: 1px solid var(--highlight-color);
-  margin-bottom: 10px;
+}
+details > div.details {
+  background: var(--background-color-quarter-transparent);
+  padding: 0 10px;
+}
+details[open] > div.details {
+  padding: 10px;
 }
 table {
-  border: 2px solid var(--highlight-color);
   border-collapse: collapse;
-  border-radius: 10px;
   display: block;
-  margin: 10px 0;
   max-width: max-content;
   overflow: auto;
 }
@@ -377,7 +378,7 @@ table tr th, table tr td {
   padding: 8px;
   text-align: center;
 }
-details, table tr th, table tr td, input {
+table tr th, table tr td, input {
   border: 1px solid var(--highlight-color);
 }
 table tr:first-child th {
@@ -484,11 +485,12 @@ footer {
     box-shadow: none;
     padding: 0 !important;
   }
-  div.main-info {
+  div.main-info-inner {
     display: block;
   }
   img.sex {
     height: 25px;
+    vertical-align: -7.5px;
   }
   img.level, img.official-icon {
     height: 20px;
@@ -543,15 +545,13 @@ footer {
 
 @media only print {
   * {
-    animation: none !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    transition: none;
   }
   html {
     height: initial;
   }
-  body, main, div.image-background {
+  body, main, div.main-info-outer {
     background: none !important;
   }
   body {
