@@ -103,7 +103,7 @@
 >
 > 然而，**如果您设置了 `force` 参数，由于本 API 必须要带 Cookie 才能强制获取视频信息，因此您手动设置 `cookie=false` 参数会报错**。
 
-## 🗒️附录
+## 🗒附录
 
 本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 [Vercel](https://vercel.com/) 部署，不使用任何框架。
 
@@ -111,7 +111,7 @@
 
 **如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
-### ⚙️回复数据类型规则
+### ⚙回复数据类型规则
 
 与大部分其他网站的 API 不同，本项目的 API 在调用后，既可以回复 HTML，也可以回复 JSON，有些 API 可以回复图片与视频数据。
 
@@ -370,7 +370,7 @@
 
 </details>
 
-### 🗂️目录结构
+### 🗂目录结构
 
 | 文件或文件夹 | 说明 |
 | ------------ | ---- |
