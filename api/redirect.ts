@@ -43,9 +43,6 @@ export default (req: Request): Response => {
   } else if (/^(?:.+\.)?wuziqian211.top$/.test(host)) {
     const url = `https://${host.replace(/^(.+\.)?wuziqian211.top$/, '$1yumeharu.top')}${requestPath}`;
     return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
-  } else if (/^(?:.+\.)?happycola.top$/.test(host)) {
-    const url = `https://et19798147-2.icoc.vc${requestPath}`;
-    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
   } else {
     const url = 'https://www.yumeharu.top/';
     return Response.json({ code: 307, data: { url } }, { status: 307, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url } });
