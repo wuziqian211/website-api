@@ -13,8 +13,10 @@
         { "key": "Access-Control-Allow-Methods", "value": "*" },
         { "key": "Access-Control-Allow-Headers", "value": "*" },
         { "key": "Access-Control-Max-Age", "value": "7200" },
+        { "key": "Content-Security-Policy", "value": "default-src 'none'; connect-src 'self'; img-src 'self' * data:; media-src 'self' *; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'self' https:" },
         { "key": "Referrer-Policy", "value": "same-origin" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
   ],
