@@ -1,4 +1,4 @@
-import type { resolveFn, numberBool } from '../assets/utilities.js';
+import type { InternalAPIResponse, resolveFn, numberBool } from '../assets/utils.js';
 
 interface FriendInfo {
   mid: number;
@@ -39,11 +39,14 @@ interface HashInfo {
 export const config = { runtime: 'edge' };
 
 import { kv } from '@vercel/kv';
-import utils from '../assets/utilities.js';
+import utils from '../assets/utils.js';
 
 export default (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
   const { params, headers, responseType } = utils.initialize(req, [0, 1], resolve);
   try {
+    const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, headers, data)),
+          send = (status: number, data: BodyInit): void => resolve(utils.send(status, headers, data));
+    
     if (responseType === 1) {
       switch (params.get('id')) {
         case 'friends': // 对直接访问 /api/modules?id=friends 的浏览器发送重定向的回应
@@ -58,20 +61,20 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
           const version = params.get('version'), info = (<FriendInfo[]>await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
           headers.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (version === '3') { // 第 3 版：简化名称
-            resolve(utils.sendJSON(200, headers, { code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } }));
+            sendJSON(200, { code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } });
           } else if (version === '2') { // 第 2 版
-            resolve(utils.sendJSON(200, headers, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => ({ image: utils.toHTTPS(u.face), icon: u.official?.type === 0 ? 'personal' : u.official?.type === 1 ? 'business' : u.vip?.status ? 'big-vip' : undefined, color: u.vip?.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'kv' } }));
+            sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => ({ image: utils.toHTTPS(u.face), icon: u.official?.type === 0 ? 'personal' : u.official?.type === 1 ? 'business' : u.vip?.status ? 'big-vip' : undefined, color: u.vip?.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'kv' } });
           } else {
-            resolve(utils.sendJSON(200, headers, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />${u.official?.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/images/personal.svg" />' : u.official?.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/images/business.svg" />' : u.vip?.status ? '<img class="face-icon" alt title="大会员" src="/images/big-vip.svg" />' : ''}<p${u.vip?.type === 2 ? ' style="color: #fb7299;"' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'kv' } }));
+            sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class="link-grid-container"><img class="link-grid-image" src="${utils.toHTTPS(u.face)}" referrerpolicy="no-referrer" />${u.official?.type === 0 ? '<img class="face-icon" alt title="UP 主认证" src="/images/personal.svg" />' : u.official?.type === 1 ? '<img class="face-icon" alt title="机构认证" src="/images/business.svg" />' : u.vip?.status ? '<img class="face-icon" alt title="大会员" src="/images/big-vip.svg" />' : ''}<p${u.vip?.type === 2 ? ' style="color: #fb7299;"' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'kv' } });
           }
           break;
         case 'blocked': // 可能被屏蔽的域名
           let blocked = '';
           if (req.headers.get('x-vercel-ip-country') === 'CN') { // 在中国内地（不含港澳台地区）
-            blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|openai\\.com|chatgpt\\.com|nicovideo\\.jp|archive\\.org|pixiv\\.net|vercel\\.app)|cdn\\.jsdelivr\\.net)$';
+            blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
           }
           headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-          resolve(utils.sendJSON(200, headers, { code: 0, message: '0', data: { blocked }, extInfo: { ipCountry: req.headers.get('x-vercel-ip-country') } }));
+          sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { ipCountry: req.headers.get('x-vercel-ip-country') } });
           break;
         case 'upload': // 上传图片
           if (req.method === 'POST' && req.headers.get('content-type')?.split(';')[0] === 'application/octet-stream') {
@@ -84,20 +87,20 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
               if (resp.ok) {
                 const json = <SmmsUploadResponse>await resp.json();
                 if (json.success) {
-                  resolve(utils.sendJSON(200, headers, { code: 0, message: '0', data: { filename: json.data!.filename, url: json.data!.url, size: json.data!.size, width: json.data!.width, height: json.data!.height } }));
+                  sendJSON(200, { code: 0, message: '0', data: { filename: json.data!.filename, url: json.data!.url, size: json.data!.size, width: json.data!.width, height: json.data!.height } });
                 } else {
-                  resolve(utils.sendJSON(400, headers, { code: -400, message: `${json.code}: ${json.message}`, data: null, extInfo: { errType: 'upstreamServerInvalidRequest' } }));
+                  sendJSON(400, { code: -400, message: `${json.code}: ${json.message}`, data: null, extInfo: { errType: 'upstreamServerInvalidRequest' } });
                 }
               } else {
-                resolve(utils.sendJSON(500, headers, { code: -500, message: 'upload image failed', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerRespStatus: resp.status } }));
+                sendJSON(500, { code: -500, message: 'upload image failed', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerRespStatus: resp.status } });
               }
             } else {
-              resolve(utils.sendJSON(400, headers, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } }));
+              sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
             }
           } else if (req.method === 'OPTIONS') {
-            resolve(utils.send(204, headers, null));
+            send(204, null);
           } else {
-            resolve(utils.sendJSON(405, headers, { code: -405, message: 'method not allowed', data: null, extInfo: { errType: 'internalServerInvalidRequest' } }));
+            sendJSON(405, { code: -405, message: 'method not allowed', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
           }
           break;
         case 'qmimg':
@@ -110,22 +113,22 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
               if (resp.ok) {
                 headers.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
                 headers.set('Content-Type', resp.headers.get('Content-Type')!);
-                resolve(utils.send(200, headers, Buffer.from(await resp.arrayBuffer())));
+                send(200, Buffer.from(await resp.arrayBuffer()));
               } else {
-                resolve(utils.sendJSON(404, headers, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerRespStatus: resp.status } }));
+                sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerRespStatus: resp.status } });
               }
             } else {
-              resolve(utils.sendJSON(404, headers, { code: -404, message: 'hash not found', data: null, extInfo: { errType: 'internalServerNoData' } }));
+              sendJSON(404, { code: -404, message: 'hash not found', data: null, extInfo: { errType: 'internalServerNoData' } });
             }
           } else {
-            resolve(utils.sendJSON(400, headers, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } }));
+            sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
           }
           break;
         default:
-          resolve(utils.sendJSON(400, headers, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } }));
+          sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
       }
     }
   } catch (e) {
-    resolve(utils.send500(responseType, <Error>e));
+    resolve(utils.send500(responseType, e));
   }
 });

@@ -27,7 +27,7 @@
 | 状态代码 | 说明 |
 | :------: | ---- |
 | [`200`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/200) | 请求成功 |
-| [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（**例如**：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
+| [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（如：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
 | [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
 | [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
 | [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
@@ -46,17 +46,17 @@
 
 > [!TIP]
 > 本项目的 API 可以给您带来许多好处：
-> 
+>
 > 1. 您基本不需要添加任何 “风控参数” 即可成功调用 API，因为添加 “风控参数” 等操作由 API 的服务器自动进行；
 > 2. 本项目的 API 会频繁更新，以确保能够给用户带来更好的体验；
-> 3. API 可以给您简化一些操作，**例如**：您在引用图片时，直接填写图片链接为 [`https://api.yumeharu.top/api/getuser?mid=2&type=avatar`](https://api.yumeharu.top/api/getuser?mid=2&type=avatar) 即可引用 B 站上 UID 为 2 的用户的头像。
+> 3. API 可以给您简化一些操作，如：您在引用图片时，直接填写图片链接为 [`https://api.yumeharu.top/api/getuser?mid=2&type=avatar`](https://api.yumeharu.top/api/getuser?mid=2&type=avatar) 即可引用 B 站上 UID 为 2 的用户的头像，并且会实时更新。
 
 > [!NOTE]
 > - 这些 API 的服务器不在中国大陆。如果您可以正常调用 B 站的 API，最好直接使用 B 站的 API，可以更快回复您所需要的信息。
 > - 由于本 API 可以返回多种类型的数据，因此**建议您始终带 `type` 参数调用 API**，详见[回复数据类型规则](#通过-type-参数判断)。
 
 > [!CAUTION]
-> - **请勿将这些 API 用于非法目的！这些 API 的目的是方便大家的使用，并且可能会随时停止开发或删档。因利用这些 API 而造成的不良影响及后果与本项目无关。**
+> - **请勿将这些 API 用于非法目的！这些 API 的目的是方便大家的使用，并且可能会随时停止开发或删档。因恶意使用这些 API 而造成的不良影响及后果与本项目无关。**
 > - 本项目为开源项目，不接受任何形式的索取或催单行为，更不容许存在付费内容。
 
 ## 📖详细用法
@@ -72,7 +72,7 @@
 | 请求参数 | 说明 |
 | :------: | ---- |
 | `mid` | 您想获取用户信息的用户的 UID，只能是正整数。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2) |
-| `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<br />如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据；此条件下若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Accept` 标头对应的回复数据类型](#通过-accept-标头判断)提示获取头像失败；若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址；可以添加多个后缀。<br />本参数的值不区分大小写。 |
+| `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Accept` 标头对应的回复数据类型](#通过-accept-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 
 如果没有填写 `mid` 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
 
@@ -89,11 +89,11 @@
 
 | 请求参数 | 说明 |
 | :------: | ---- |
-| `vid` | 您想获取信息或数据的视频、剧集、番剧的编号。用前缀为 `av` 或没有前缀的 AV 号，前缀为 `BV` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧等的编号都是可以的（编号的前缀不区分大小写）。<br />**示例**：[`10429`](https://api.yumeharu.top/api/getvideo?vid=10429)、[`av106`](https://api.yumeharu.top/api/getvideo?vid=av106)、[`BV17x411w7KC`](https://api.yumeharu.top/api/getvideo?vid=BV17x411w7KC)、[`ss29325`](https://api.yumeharu.top/api/getvideo?vid=ss29325) |
+| `vid` | 您想获取信息或数据的视频、剧集、番剧的编号。可以是前缀为 `av` 或没有前缀的 AV 号，前缀为 `BV` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧等的编号，编号的前缀不区分大小写。<br />**示例**：[`10429`](https://api.yumeharu.top/api/getvideo?vid=10429)、[`av106`](https://api.yumeharu.top/api/getvideo?vid=av106)、[`BV17x411w7KC`](https://api.yumeharu.top/api/getvideo?vid=BV17x411w7KC)、[`ss29325`](https://api.yumeharu.top/api/getvideo?vid=ss29325) |
 | `cid` | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid，只能是正整数。**仅在获取视频数据时使用本参数。** |
 | `p` | 该视频的第几个分 P，或者该剧集中的第几集，只能是正整数。**仅在获取视频数据时使用本参数。** |
-| `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<br />如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（**例如**：`404`、`400`、`500` 等；这样做的目的是让播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应表示错误的状态代码而不加载视频）；此条件下若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。<br />值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据；此条件下若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Accept` 标头对应的回复数据类型](#通过-accept-标头判断)提示获取封面失败；若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址；可以添加多个后缀。<br />本参数的值不区分大小写。 |
-| `cookie` | 获取信息时是否带 Cookie。如果本参数的值为 `true`，则强制带 Cookie 获取信息；如果值为 `false`，则强制不带 Cookie 获取信息；否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。本参数的值不区分大小写。<br />**示例**：获取仅对登录用户可见的视频信息：[BV16s411f7x<!-- 分隔符，防止 “x” 被自动转换成 “×” -->2](https://api.yumeharu.top/api/getvideo?vid=BV16s411f7x2&cookie=true) |
+| `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（如 `404`、`400`、`500` 等；这样做的目的是让播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应表示错误的状态代码而不加载视频）。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。</li></ul></li><li>如果本参数的值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Accept` 标头对应的回复数据类型](#通过-accept-标头判断)提示获取封面失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
+| `cookie` | 获取信息时是否带 Cookie。<ul><li>如果本参数的值为 `true`，则强制带 Cookie 获取信息；</li><li>如果值为 `false`，则强制不带 Cookie 获取信息；</li><li>否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。</li></ul>本参数的值不区分大小写。<br />**示例**：获取仅对登录用户可见的视频信息：[BV16s411f7x<!-- 分隔符，防止 “x” 被自动转换成 “×” -->2](https://api.yumeharu.top/api/getvideo?vid=BV16s411f7x2&cookie=true) |
 | `force` | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。<br />**示例**：获取被退回或锁定的视频信息：[av10388](https://api.yumeharu.top/api/getvideo?vid=10388&force=true)、[av10492](https://api.yumeharu.top/api/getvideo?vid=10492&force=true) |
 
 其中，`cid` 与 `p` 参数**仅在获取数据时被使用，且只能填写其中一个**；若这些参数均未填写，则默认为该视频的第 1 个分 P，或该剧集中的第 1 集。
@@ -123,7 +123,7 @@
 | :---------: | :----------: |
 | `json` | JSON |
 | `html` 或 `page` | HTML 页面 |
-| `image` 或 `img` | 图片 |
+| `image`、`img`、`picture` 或 `pic` | 图片 |
 | `video` | 视频 |
 
 #### 🖇通过 `Sec-Fetch-Dest` 标头判断
@@ -141,9 +141,9 @@
 
 若上述过程仍无法判断回复数据类型，则根据 [HTTP 请求头 `Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept) 的值判断回复数据类型（标头名称与值均不区分大小写，需要 API 支持您指定的回复数据类型）：
 
-- 当 `Accept` 的值包含 `html`（**例如**：使用浏览器直接访问 API 的页面）时，回复 **HTML** 页面；
-- 当 `Accept` 的值包含 `image`（**例如**：在 [HTML `<img>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img)的 `src` 参数中直接填写 API 的地址）时，回复**图片**数据；
-- 当 `Accept` 的值包含 `video`（**例如**：在 [HTML `<video>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)中 [`<source>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source)的 `src` 参数直接填写 API 的地址）时，回复**视频**数据。
+- 当 `Accept` 的值包含 `html`（比如使用浏览器直接访问 API 的页面）时，回复 **HTML** 页面；
+- 当 `Accept` 的值包含 `image`（比如在 [HTML `<img>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img)的 `src` 参数中直接填写 API 的地址）时，回复**图片**数据；
+- 当 `Accept` 的值包含 `video`（比如在 [HTML `<video>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video)中 [`<source>` 标签](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/source)的 `src` 参数直接填写 API 的地址）时，回复**视频**数据。
 
 #### ❓默认回复 JSON
 
@@ -155,7 +155,7 @@
 
 | 字段 | 类型 | 说明 |
 | :--: | :--: | ---- |
-| `code` | number | 返回值。常见的返回值有：<br />`0`：成功<br />`-400`：请求错误（**例如**：参数不合法）<br />`-403`：访问权限不足（**例如**：未使用 Cookie 获取信息）<br />`-404`：啥都木有<br />`-412`：请求被拦截 |
+| `code` | number | 返回值。常见的返回值有：<br />`0`：成功<br />`-400`：请求错误（如：参数不合法）<br />`-403`：访问权限不足（如：未使用 Cookie 获取信息）<br />`-404`：啥都木有<br />`-412`：请求被拦截 |
 | `message` | string | 错误信息，若请求成功则一般为 `0` 或 `success`。 |
 | `data` | 有效时：object<br />无效时：null | 回复数据本体。对于 “获取哔哩哔哩用户信息” 与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 的数据本体，请自行查找对应的 B 站 API 的说明，此处不再进行说明。 |
 | `extInfo` | object | API 返回的扩展信息，包括调用所耗时间、数据来源、错误类型等。 |
@@ -164,7 +164,7 @@
 
 | 字段 | 类型 | 说明 |
 | :--: | :--: | ---- |
-| `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（**例如**：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（**例如**：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（**例如**：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本 API 服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用 |
+| `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（如：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（如：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（如：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本 API 服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用 |
 | `upstreamServerUrl` | string | 上游服务器 URL，仅当 `errType` 值为 `upstreamServerRespError` 时出现。 |
 | `upstreamServerRespStatus` | number | 上游服务器的响应状态代码，仅当 `errType` 值为 `upstreamServerRespError` 时出现。 |
 | `spaceAccInfoCode` | number | B 站 API `x/space/wbi/acc/info` 的返回值，仅在 “获取哔哩哔哩用户信息” API 中调用该 API 失败时出现。 |

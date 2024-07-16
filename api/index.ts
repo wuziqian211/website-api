@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import utils from '../assets/utilities.js';
+import utils from '../assets/utils.js';
 
 export default (req: Request): Response => {
   const { headers, responseType } = utils.initialize(req, [0, 1]);
@@ -22,6 +22,6 @@ export default (req: Request): Response => {
       return utils.sendJSON(200, headers, { code: 0, message: '0', data: null });
     }
   } catch (e) {
-    return utils.send500(responseType, <Error>e);
+    return utils.send500(responseType, e);
   }
 };

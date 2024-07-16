@@ -196,10 +196,10 @@ div.grid-item.main-info-outer {
   margin: 0;
   padding: 0;
 }
-div.grid-item:hover {
+div.grid-item:not(.main-info-outer):hover {
   background: var(--background-color-translucent);
 }
-div.grid-item:active {
+div.grid-item:not(.main-info-outer):active {
   background: var(--background-hover-color-quarter-transparent);
 }
 body.new-style div.grid-item {

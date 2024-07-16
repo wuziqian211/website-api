@@ -35,6 +35,7 @@ interface CachedWbiKeys extends WbiKeys {
 type resolveFn<Type> = (returnValue: Type) => void;
 type numberBool = 0 | 1; // 用数字表示的逻辑值
 
+import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
@@ -42,12 +43,13 @@ let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: 
 const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: resolveFn<Response>): { params: URLSearchParams; headers: Headers; accepts: number[]; responseType: number } => { // 初始化 API
   startTime = performance.now();
   const params = new URL(req.url).searchParams, accepts: number[] = [],
-    requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
-    requestedResponseType = params.get('type')?.toUpperCase();
-  let responseType: number | undefined;
+        requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
+        requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
+  let responseType: number | undefined, acceptAll: boolean | undefined;
   
   if (requestedAccept) {
     if (requestedAccept.includes('*/*')) { // 客户端接受所有类型的数据
+      acceptAll = true;
       accepts.push(0, 1, 2, 3);
     } else {
       if (requestedAccept.includes('JSON') || requestedSecFetchDest === 'JSON') accepts.push(0);
@@ -63,7 +65,7 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
       responseType = 0;
     } else if (acceptedResponseTypes.includes(1) && ['HTML', 'PAGE'].includes(requestedResponseType)) {
       responseType = 1;
-    } else if (acceptedResponseTypes.includes(2) && ['IMAGE', 'IMG'].includes(requestedResponseType)) {
+    } else if (acceptedResponseTypes.includes(2) && ['IMAGE', 'IMG', 'PICTURE', 'PIC'].includes(requestedResponseType)) {
       responseType = 2;
     } else if (acceptedResponseTypes.includes(3) && requestedResponseType === 'VIDEO') {
       responseType = 3;
@@ -83,15 +85,19 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
   }
   
   if (responseType == undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
-    const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
-    if (filteredAccepts.includes(1)) {
-      responseType = 1;
-    } else if (filteredAccepts.includes(2)) {
-      responseType = 2;
-    } else if (filteredAccepts.includes(3)) {
-      responseType = 3;
-    } else { // 默认回复 JSON
+    if (acceptAll) { // 部分脚本在发送请求时会自动带上“Accept: */*”标头，此时应该回复 JSON
       responseType = 0;
+    } else {
+      const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
+      if (filteredAccepts.includes(1)) {
+        responseType = 1;
+      } else if (filteredAccepts.includes(2)) {
+        responseType = 2;
+      } else if (filteredAccepts.includes(3)) {
+        responseType = 3;
+      } else { // 默认回复 JSON
+        responseType = 0;
+      }
     }
   }
   
@@ -102,7 +108,7 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
     }, 15000);
   }
   
-  return { params, headers: new Headers(), accepts, responseType };
+  return { params, respHeaders: new Headers(), accepts, responseType };
 };
 const getRunningTime = (ts: number): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
@@ -112,7 +118,7 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
   }
   const execTime = performance.now() - startTime;
   headers.set('Content-Type', 'text/html; charset=utf-8');
-  headers.set('X-Api-Exec-Time', execTime.toString());
+  headers.set('X-Api-Exec-Time', execTime.toFixed(3));
   return new Response(`
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -124,7 +130,7 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
         <title>${encodeHTML(data.title)} | wuziqian211's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/assets/apple-touch-icon.png'}" referrerpolicy="no-referrer" />
+        <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/assets/apple-touch-icon.png'}" />
         <link rel="preload" href="/assets/iconfont.woff2" as="font" type="font/woff2" crossorigin />
       </head>
       <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${data.imageBackground});"` : ''}>
@@ -145,18 +151,18 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
       </body>
     </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim(), { status, headers });
 };
-const sendJSON = (status: number, headers: Headers, data: InternalAPIResponse<any>): Response => { // 发送 JSON 数据到客户端
+const sendJSON = (status: number, headers: Headers, data: InternalAPIResponse<unknown>): Response => { // 发送 JSON 数据到客户端
   if (timer) {
     clearTimeout(timer);
     timer = undefined;
   }
   const execTime = performance.now() - startTime;
   headers.set('Content-Type', 'application/json; charset=utf-8');
-  headers.set('X-Api-Exec-Time', execTime.toString());
+  headers.set('X-Api-Exec-Time', execTime.toFixed(3));
   headers.set('X-Api-Status-Code', data.code.toString());
   return Response.json({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }, { status, headers });
 };
-const send = (status: number, headers: Headers, data: any): Response => { // 发送其他数据到客户端
+const send = (status: number, headers: Headers, data: BodyInit): Response => { // 发送其他数据到客户端
   if (timer) {
     clearTimeout(timer);
     timer = undefined;
@@ -173,16 +179,16 @@ const send404 = (responseType: number, noCache?: boolean): Response => {
     return sendJSON(404, headers, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
   }
 };
-const send500 = (responseType: number, error: Error): Response => {
+const send500 = (responseType: number, error: unknown): Response => {
   console.error(error);
   const headers = new Headers();
   if (responseType === 1) {
     return sendHTML(500, headers, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉 wuziqian211 哟 awa
-      <pre>${encodeHTML(error.stack)}</pre>` });
+      <pre>${encodeHTML(error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error))}</pre>` });
   } else {
-    return sendJSON(500, headers, { code: -500, message: error.message, data: null, extInfo: { errType: 'internalServerError', errStack: error.stack } });
+    return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error) } });
   }
 };
 const send504 = (responseType: number): Response => {
@@ -216,16 +222,16 @@ const encodeHTML = (str?: string | null): string => typeof str === 'string' ? st
 const markText = (str?: string | null): string => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
-    replacementRules = [ // 替换规则
-    { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: string): string => match },
-    { pattern: /(?:BV|bv|Bv|bV)([1-9A-HJ-NP-Za-km-z]{10})/, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/BV${matches[0]}/` },
-    { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/av${matches[0]}/` },
-    { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
-    { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/read/cv${matches[0]}` },
-    { pattern: /md(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
-    { pattern: /ss(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
-    { pattern: /ep(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
-  ];
+        replacementRules = [ // 替换规则
+          { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: string): string => match },
+          { pattern: /(?:BV|bv|Bv|bV)1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/BV1${matches[0]}/` },
+          { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/av${matches[0]}/` },
+          { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
+          { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/read/cv${matches[0]}` },
+          { pattern: /md(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
+          { pattern: /ss(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
+          { pattern: /ep(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
+        ];
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
       if (!components[i].url) { // 该组成部分没有转化成链接
@@ -295,12 +301,13 @@ const getVidType = (vid?: string): { type?: number; vid?: string | bigint } => {
     return {};
   }
 };
-const encodeWbi = async (originalQuery: Record<string, string | number>, keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+const encodeWbi = async (query?: Record<string, string> | URLSearchParams, keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   if (!keys) keys = await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
-    query: Record<string, string | number> = { ...originalQuery, wts: Math.floor(Date.now() / 1000) }; // 添加 wts 字段
-  const params = new URLSearchParams(Object.keys(query).toSorted().map((name: string): [string, string] => [name, String(query[name]).replace(/[!'()*]/g, '')])); // 按照 key 重排参数，过滤 value 中的“!”“'”“(”“)”“*”字符
-  params.append('w_rid', md5(params + mixinKey)); // 计算 w_rid
+        params = new URLSearchParams(query);
+  params.append('wts', Math.floor(Date.now() / 1000).toString()); // 添加 wts 字段
+  params.sort(); // 按照键名排序参数
+  params.append('w_rid', md5(params.toString() + mixinKey)); // 计算 w_rid
   return params;
 };
 const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
@@ -316,5 +323,5 @@ const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最
   }
 };
 
-export type { APIResponse, resolveFn, numberBool };
+export type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool };
 export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
