@@ -11,7 +11,7 @@ import utils from '../assets/utils.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
   const initData = utils.initialize(req, [0, 1, 2], resolve); // 获取请求参数与回复数据类型
-  const { params, respHeaders } = initData, responseAttributes: string[] = [];
+  const { params, respHeaders, accepts } = initData, responseAttributes: string[] = [];
   let { responseType } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'FACE', 'AVATAR'].includes(splitString[0])) {
@@ -21,25 +21,25 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
   }
   
   try {
-    const sendHTML = (status: number, data: SendHTMLData & { content: string; mid: bigint }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩用户信息', body: `
+    const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; mid?: string }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
       <form>
         <div><label for="mid">请输入您想要获取信息的用户的 UID：</label></div>
-        <div><input type="number" name="mid" id="mid" value="${data.mid}" min="1" max="9223372036854775807" autocomplete="off" /> <input type="submit" value="获取" /></div>
+        <div><input type="number" name="mid" id="mid" value="${data.mid ?? ''}" min="1" max="9223372036854775807" autocomplete="off" /> <input type="submit" value="获取" /></div>
       </form>` })), // 发送 HTML 响应到客户端
           sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
           send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data)); // 发送其他数据到客户端
     
     const requestMid = params.get('mid');
     if (requestMid && /^\d+$/.test(requestMid) && BigInt(requestMid) > 0) { // 判断 UID 是否是正整数
-      const headers = new Headers({ Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${requestMid}`, 'User-Agent': process.env.userAgent }),
+      const headers = new Headers({ Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${requestMid}`, 'User-Agent': process.env.userAgent! }),
             mid = BigInt(requestMid);
       
       let json;
       const cjson = await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
       if (cjson.code === 0) {
-        json = { code: 0, message: cjson.message, data: { mid: utils.largeNumberHandler(mid), name: null, approve: false, sex: null, face: null, face_nft: null, face_nft_type: null, sign: null, description: '', rank: null, DisplayRank: null, level: null, jointime: 0, regtime: 0, spacesta: null, place: '', moral: 0, silence: null, coins: null, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: null, fans_medal: { show: null, wear: null, medal: null }, official: { role: null, title: null, desc: null, type: null }, official_verify: { type: null, desc: null }, vip: null, pendant: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: {}, sys_notice: null, live_room: null, birthday: 0, school: { name: null }, profession: { name: null, department: null, title: null, is_show: null }, tags: null, series: null, is_senior_member: null, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: null }, contract: { is_display: null, is_follow_display: null }, certificate_show: null, ...cjson.card, mid: utils.largeNumberHandler(cjson.card.mid), rank: utils.largeNumberHandler(cjson.card.rank), level: cjson.card.level_info.current_level, silence: +(cjson.card.spacesta === -2), following: cjson.card.attention, follower: cjson.card.fans, official: { role: null, title: cjson.card.official_verify.desc, desc: null, type: cjson.card.official_verify.type }, birthday: Math.floor(Date.parse(`${cjson.card.birthday}T00:00:00+08:00`) / 1000) }, extInfo: { dataSource: ['getCardByMid'] } };
-        if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 即可获取头像地址
+        json = { code: 0, message: cjson.message, data: { mid: utils.largeNumberHandler(mid), name: null, approve: false, sex: null, face: null, face_nft: null, face_nft_type: null, sign: null, description: '', rank: null, DisplayRank: null, level: null, jointime: 0, regtime: 0, spacesta: null, place: '', moral: 0, silence: null, coins: null, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: null, fans_medal: { show: null, wear: null, medal: null }, official: { role: null, title: null, desc: null, type: null }, official_verify: { type: null, desc: null }, vip: null, pendant: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: {}, sys_notice: null, live_room: null, birthday: 0, school: { name: null }, profession: { name: null, department: null, title: null, is_show: null }, tags: null, series: null, is_senior_member: null, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: null }, contract: { is_display: null, is_follow_display: null }, certificate_show: null, name_render: null, ...cjson.card, mid: utils.largeNumberHandler(cjson.card.mid), rank: utils.largeNumberHandler(cjson.card.rank), level: cjson.card.level_info.current_level, silence: +(cjson.card.spacesta === -2), following: cjson.card.attention, follower: cjson.card.fans, official: { role: null, title: cjson.card.official_verify.desc, desc: null, type: cjson.card.official_verify.type }, birthday: Math.floor(Date.parse(`${cjson.card.birthday}T00:00:00+08:00`) / 1000) }, extInfo: { dataSource: ['getCardByMid'] } };
+        if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 且无需调用下面的 API 即可获取头像地址
           const ujson = await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid })}`, { headers })).json(); // （备用）获取多用户信息：https://api.vc.bilibili.com/account/v1/user/cards?uids=(...),(...),……（最多 50 个用户）
           if (ujson.code === 0) {
             json.message = ujson.message;
@@ -62,7 +62,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 <div class="main-info-inner">
                   <div class="image-wrap${json.data.pendant?.image ? ' has-frame' : ''}">
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">
-                      <img class="face" alt title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" />
+                      <img class="face" title="${utils.encodeHTML(json.data.name)}" src="${utils.toHTTPS(json.data.face)}" />
                       ${json.data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(json.data.pendant.name)}" src="${utils.toHTTPS(json.data.pendant.image_enhance || json.data.pendant.image)}" />` : ''}
                       ${json.data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(json.data.official.type) || json.data.vip?.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
                       ${json.data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : json.data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : json.data.vip?.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
@@ -107,18 +107,18 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       } else if (responseType === 2) { // 回复头像数据
         if (json.code === 0) {
           if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的头像地址
-            resolve(utils.redirect(res, startTime, utils.toHTTPS(json.data.face), 307));
+            resolve(utils.redirect(307, utils.toHTTPS(json.data.face)));
           } else {
             const filename = encodeURIComponent(`${json.data.name} 的头像.${new URL(json.data.face).pathname.split('.').at(-1)}`); // 设置头像的文件名
             const resp = await fetch(utils.toHTTPS(json.data.face)); // 获取 B 站服务器存储的头像
             if (resp.ok) {
               respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
-              respHeaders.set('Content-Type', resp.headers.get('Content-Type'));
+              respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
               send(200, Buffer.from(await resp.arrayBuffer()));
             } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
-                if (accept === 1) {
+              if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
+                if (accepts.includes(1)) {
                   sendHTML(404, { title: `获取 ${json.data.name} 的头像数据失败`, content: `获取 ${utils.encodeHTML(json.data.name)} 的头像数据失败，请稍后重试 awa`, mid: requestMid });
                 } else {
                   sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.data.face), upstreamServerRespStatus: resp.status } });
@@ -130,8 +130,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           }
         } else { // 用户信息获取失败，回复默认头像
-          if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
-            if (accept === 1) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
+            if (accepts.includes(1)) {
               sendHTML(404, { title: `获取 UID${mid} 的头像数据失败`, content: `获取 UID${mid} 的头像数据失败，该用户可能不存在哟 qwq`, mid: requestMid });
             } else {
               sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
@@ -168,28 +168,28 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           sendHTML(200, { title: '获取哔哩哔哩用户信息', newStyle: true, content: `
             本 API 可以获取指定 B 站用户的信息。<br />
             基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
-            更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。`, mid: '' });
+            更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。` });
         } else { // 设置了 UID 参数但无效
           sendHTML(400, { title: 'UID 无效', content: `
             您输入的 UID 无效！<br />
-            请输入一个正确的 UID 吧 awa`, mid: '' });
+            请输入一个正确的 UID 吧 awa` });
         }
       } else if (responseType === 2) { // 回复头像数据
         if (!requestMid) { // 没有设置 UID 参数，回复随机头像
           const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-          headers.set('Content-Type', 'image/jpeg');
+          respHeaders.set('Content-Type', 'image/jpeg');
           send(200, await fs.readFile(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
         } else { // 设置了 UID 参数但无效，回复默认头像
-          if (responseAttributes.includes('ERRORWHENFAILED') && accept !== 2) {
-            if (accept === 1) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
+            if (accepts.includes(1)) {
               sendHTML(400, { title: 'UID 无效', content: `
                 您输入的 UID 无效！<br />
-                请输入一个正确的 UID 吧 awa`, mid: '' });
+                请输入一个正确的 UID 吧 awa` });
             } else {
               sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
             }
           } else {
-            headers.set('Content-Type', 'image/jpeg');
+            respHeaders.set('Content-Type', 'image/jpeg');
             send(400, await fs.readFile('./assets/noface.jpg'));
           }
         }

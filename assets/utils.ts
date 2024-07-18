@@ -40,7 +40,7 @@ import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
 let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: number;
-const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: resolveFn<Response>): { params: URLSearchParams; headers: Headers; accepts: number[]; responseType: number } => { // 初始化 API
+const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: resolveFn<Response>): { params: URLSearchParams; respHeaders: Headers; accepts: number[]; responseType: number } => { // 初始化 API
   startTime = performance.now();
   const params = new URL(req.url).searchParams, accepts: number[] = [],
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
