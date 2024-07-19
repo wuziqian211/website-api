@@ -4,6 +4,7 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
+import type { BodyInit } from 'undici-types';
 import type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool } from '../assets/utils.js';
 
 import fs from 'node:fs/promises';
@@ -12,7 +13,7 @@ import { zones, states } from '../assets/constants.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
   const initData = utils.initialize(req, [0, 1, 2, 3], resolve); // 获取请求参数与回复数据类型
-  const { params, respHeaders, accepts } = initData, responseAttributes: string[] = [];
+  const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
   let { responseType } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'COVER', 'PIC'].includes(splitString[0])) {
@@ -116,29 +117,29 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
               send(200, Buffer.from(await resp.arrayBuffer()));
             } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
                 sendHTML(400, { title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: requestVid });
               } else {
                 respHeaders.set('Content-Type', 'video/mp4');
-                send(accepts.includes(3) ? 200 : 400, await fs.readFile('./assets/error.mp4'));
+                send(fetchDest === 3 ? 200 : 400, await fs.readFile('./assets/error.mp4'));
               }
             }
           } else { // 视频地址获取失败
-            if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+            if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
               sendHTML(500, { title: '无法获取视频数据', content: `
                 抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
                 如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
-              send(accepts.includes(3) ? 200 : 500, await fs.readFile('./assets/error.mp4'));
+              send(fetchDest === 3 ? 200 : 500, await fs.readFile('./assets/error.mp4'));
             }
           }
         } else { // 视频无效
-          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
             sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
-            send(accepts.includes(3) ? 200 : 404, await fs.readFile('./assets/error.mp4'));
+            send(fetchDest === 3 ? 200 : 404, await fs.readFile('./assets/error.mp4'));
           }
         }
       } else { // 获取视频信息
@@ -278,8 +279,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                 send(200, Buffer.from(await resp.arrayBuffer()));
               } else {
-                if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-                  if (accepts.includes(1)) {
+                if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+                  if (fetchDest === 1) {
                     sendHTML(404, { title: `获取 ${json.data.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.data.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                   } else {
                     sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.data.pic), upstreamServerRespStatus: resp.status } });
@@ -291,8 +292,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             }
           } else {
-            if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-              if (accepts.includes(1)) {
+            if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+              if (fetchDest === 1) {
                 sendHTML(404, { title: `获取 ${vid} 的封面数据失败`, content: `获取 ${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: requestVid });
               } else {
                 sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
@@ -335,11 +336,11 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           params.set('vid', `ss${json.result.media.season_id}`);
           resolve(utils.redirect(308, `?${params}`));
         } else { // 视频无效
-          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
             sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
-            send(accepts.includes(3) ? 200 : 404, await fs.readFile('./assets/error.mp4'));
+            send(fetchDest === 3 ? 200 : 404, await fs.readFile('./assets/error.mp4'));
           }
         }
       } else if (responseType === 1) { // 回复 HTML
@@ -388,8 +389,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
               send(200, Buffer.from(await resp.arrayBuffer()));
             } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-                if (accepts.includes(1)) {
+              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+                if (fetchDest === 1) {
                   sendHTML(404, { title: `获取 ${json.result.media.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                 } else {
                   sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.result.media.cover), upstreamServerRespStatus: resp.status } });
@@ -401,8 +402,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           }
         } else { // 剧集信息获取失败，回复默认封面
-          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-            if (accepts.includes(1)) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+            if (fetchDest === 1) {
               sendHTML(404, { title: `获取 md${vid} 的封面数据失败`, content: `获取 md${vid} 的封面数据失败，这个剧集可能不存在哟 qwq`, vid: requestVid });
             } else {
               sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
@@ -483,29 +484,29 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
               send(200, Buffer.from(await resp.arrayBuffer()));
             } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
                 sendHTML(400, { title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: requestVid });
               } else {
                 respHeaders.set('Content-Type', 'video/mp4');
-                send(accepts.includes(3) ? 200 : 400, await fs.readFile('./assets/error.mp4'));
+                send(fetchDest === 3 ? 200 : 400, await fs.readFile('./assets/error.mp4'));
               }
             }
           } else { // 视频地址获取失败
-            if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+            if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
               sendHTML(500, { title: '无法获取视频数据', content: `
                 抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
                 如果您想下载这一集，最好使用其他工具哟 awa`, vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
-              send(accepts.includes(3) ? 200 : 500, await fs.readFile('./assets/error.mp4'));
+              send(fetchDest === 3 ? 200 : 500, await fs.readFile('./assets/error.mp4'));
             }
           }
         } else { // 剧集无效
-          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(3)) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
             sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在，或者您可能输入了错误的集号哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
-            send(accepts.includes(3) ? 200 : 404, await fs.readFile('./assets/error.mp4'));
+            send(fetchDest === 3 ? 200 : 404, await fs.readFile('./assets/error.mp4'));
           }
         }
       } else { // 获取剧集信息
@@ -575,7 +576,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     <div class="detail">
                       <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                       <strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />
-                      <strong>cid：</strong>${p.cid}；<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>；<a href="?vid=${p.bvid}">${p.bvid}</a>
+                      <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${p.bvid}">${p.bvid}</a>
                     </div>
                   </div>
                 </div>`).join('')}
@@ -593,7 +594,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     <div class="detail">
                       <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">${utils.encodeHTML(p.title)}</a>${p.badge ? ` ${p.badge}` : ''}<br />
                       ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
-                      ${p.cid ? `<strong>cid：</strong>${p.cid}；` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>；` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
+                      ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> ` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                     </div>
                   </div>
                 </div>` : `
@@ -609,7 +610,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     <div class="detail">
                       <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                       ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
-                      ${p.cid ? `<strong>cid：</strong>${p.cid}；` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a>；<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
+                      ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                     </div>
                   </div>
                 </div>`).join('')}`).join('') : ''}
@@ -643,8 +644,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                 send(200, Buffer.from(await resp.arrayBuffer()));
               } else {
-                if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-                  if (accepts.includes(1)) {
+                if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+                  if (fetchDest === 1) {
                     sendHTML(404, { title: `获取 ${json.result.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                   } else {
                     sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.result.title), upstreamServerRespStatus: resp.status } });
@@ -656,8 +657,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             }
           } else { // 番剧信息获取失败，回复默认封面
-            if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-              if (accepts.includes(1)) {
+            if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+              if (fetchDest === 1) {
                 sendHTML(404, { title: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败`, content: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: requestVid });
               } else {
                 sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
@@ -700,8 +701,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             请输入一个正确的编号吧 awa` });
         }
       } else if (responseType === 2) { // 回复封面数据
-        if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-          if (accepts.includes(1)) {
+        if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+          if (fetchDest === 1) {
             sendHTML(400, { title: '编号无效', content: `
               您输入的编号无效！<br />
               请输入一个正确的编号吧 awa` });

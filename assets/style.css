@@ -1,11 +1,12 @@
 :root {
   --background-color: #fff;
+  --background-color-three-quarters-transparent: #fffc;
   --background-color-translucent: #fff9;
   --background-color-quarter-transparent: #fff5;
+  --background-hover-color-translucent: #ddd9;
   --background-hover-color-quarter-transparent: #ddd5;
   --text-color: #222;
   --highlight-color: #09f;
-  --highlight-color-almost-transparent: #09f1;
   --highlight-hover-color: #3bf;
   --broken-color: #f33;
   --broken-hover-color: #f66;
@@ -344,7 +345,6 @@ img.notice-icon[src] {
   content: initial;
 }
 details, table {
-  border: 2px solid var(--highlight-color);
   border-radius: 10px;
   margin: 10px 0;
 }
@@ -353,19 +353,18 @@ details {
 }
 details > summary {
   background: var(--background-color-translucent);
-  border-bottom-color: var(--highlight-color);
   cursor: pointer;
   font-weight: bold;
   padding: 10px;
 }
-details[open] > summary {
-  border-bottom: 1px solid var(--highlight-color);
+details > summary:hover {
+  background: var(--background-color-three-quarters-transparent);
+}
+details > summary:active {
+  background: var(--background-hover-color-translucent);
 }
 details > div.details {
   background: var(--background-color-quarter-transparent);
-  padding: 0 10px;
-}
-details[open] > div.details {
   padding: 10px;
 }
 table {
@@ -375,11 +374,10 @@ table {
   overflow: auto;
 }
 table tr th, table tr td {
+  border-left: 1px solid var(--background-color-three-quarters-transparent);
+  border-right: 1px solid var(--background-color-three-quarters-transparent);
   padding: 8px;
   text-align: center;
-}
-table tr th, table tr td, input {
-  border: 1px solid var(--highlight-color);
 }
 table tr:first-child th {
   border-top: none;
@@ -405,6 +403,7 @@ form {
 }
 input {
   background: none;
+  border: 1px solid var(--highlight-color);
   border-radius: 5px;
   box-sizing: content-box;
   color: var(--text-color);
@@ -508,12 +507,13 @@ footer {
   :root {
     color-scheme: dark;
     --background-color: #222;
+    --background-color-three-quarters-transparent: #222c;
     --background-color-translucent: #2229;
     --background-color-quarter-transparent: #2225;
+    --background-hover-color-translucent: #0009;
     --background-hover-color-quarter-transparent: #0005;
     --text-color: #ccc;
     --highlight-color: #08e;
-    --highlight-color-almost-transparent: #08e1;
     --highlight-hover-color: #3ae;
     --broken-color: #f22;
     --broken-hover-color: #f66;

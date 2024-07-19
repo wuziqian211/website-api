@@ -4,6 +4,7 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
+import type { BodyInit } from 'undici-types';
 import type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool } from '../assets/utils.js';
 
 import fs from 'node:fs/promises';
@@ -11,7 +12,7 @@ import utils from '../assets/utils.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
   const initData = utils.initialize(req, [0, 1, 2], resolve); // 获取请求参数与回复数据类型
-  const { params, respHeaders, accepts } = initData, responseAttributes: string[] = [];
+  const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
   let { responseType } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'FACE', 'AVATAR'].includes(splitString[0])) {
@@ -117,8 +118,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
               send(200, Buffer.from(await resp.arrayBuffer()));
             } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-                if (accepts.includes(1)) {
+              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+                if (fetchDest === 1) {
                   sendHTML(404, { title: `获取 ${json.data.name} 的头像数据失败`, content: `获取 ${utils.encodeHTML(json.data.name)} 的头像数据失败，请稍后重试 awa`, mid: requestMid });
                 } else {
                   sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.data.face), upstreamServerRespStatus: resp.status } });
@@ -130,8 +131,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           }
         } else { // 用户信息获取失败，回复默认头像
-          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-            if (accepts.includes(1)) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+            if (fetchDest === 1) {
               sendHTML(404, { title: `获取 UID${mid} 的头像数据失败`, content: `获取 UID${mid} 的头像数据失败，该用户可能不存在哟 qwq`, mid: requestMid });
             } else {
               sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
@@ -180,8 +181,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           respHeaders.set('Content-Type', 'image/jpeg');
           send(200, await fs.readFile(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
         } else { // 设置了 UID 参数但无效，回复默认头像
-          if (responseAttributes.includes('ERRORWHENFAILED') && !accepts.includes(2)) {
-            if (accepts.includes(1)) {
+          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+            if (fetchDest === 1) {
               sendHTML(400, { title: 'UID 无效', content: `
                 您输入的 UID 无效！<br />
                 请输入一个正确的 UID 吧 awa` });

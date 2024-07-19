@@ -1,3 +1,5 @@
+import type { BodyInit } from 'undici-types';
+
 interface APIResponse<dataType> { // API 返回的 JSON 数据结构
   code: number;
   message: string;
@@ -40,22 +42,33 @@ import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
 let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: number;
-const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: resolveFn<Response>): { params: URLSearchParams; respHeaders: Headers; accepts: number[]; responseType: number } => { // 初始化 API
+const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: resolveFn<Response>): { params: URLSearchParams; respHeaders: Headers; fetchDest: number | undefined; responseType: number } => { // 初始化 API
   startTime = performance.now();
   const params = new URL(req.url).searchParams, accepts: number[] = [],
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
-  let responseType: number | undefined, acceptAll: boolean | undefined;
+  let acceptAll: boolean | undefined, responseType: number | undefined, fetchDest: number | undefined;
   
+  if (requestedSecFetchDest) {
+    if (requestedSecFetchDest === 'JSON') {
+      fetchDest = 0;
+    } else if (['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
+      fetchDest = 1;
+    } else if (requestedSecFetchDest === 'IMAGE') {
+      fetchDest = 2;
+    } else if (requestedSecFetchDest === 'VIDEO') {
+      fetchDest = 3;
+    }
+  }
   if (requestedAccept) {
     if (requestedAccept.includes('*/*')) { // 客户端接受所有类型的数据
       acceptAll = true;
       accepts.push(0, 1, 2, 3);
     } else {
-      if (requestedAccept.includes('JSON') || requestedSecFetchDest === 'JSON') accepts.push(0);
-      if (requestedAccept.includes('HTML') || (requestedSecFetchDest && ['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest))) accepts.push(1);
-      if (requestedAccept.includes('IMAGE') || requestedSecFetchDest === 'IMAGE') accepts.push(2);
-      if (requestedAccept.includes('VIDEO') || requestedSecFetchDest === 'VIDEO') accepts.push(3);
+      if (requestedAccept.includes('JSON')) accepts.push(0);
+      if (requestedAccept.includes('HTML')) accepts.push(1);
+      if (requestedAccept.includes('IMAGE')) accepts.push(2);
+      if (requestedAccept.includes('VIDEO')) accepts.push(3);
     }
   }
   
@@ -71,19 +84,17 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
       responseType = 3;
     }
   }
-
-  if (responseType == undefined && requestedSecFetchDest) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
-    if (acceptedResponseTypes.includes(0) && requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
+  if (responseType == undefined && fetchDest != undefined) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+    if (acceptedResponseTypes.includes(0) && fetchDest === 0) { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
       responseType = 0;
-    } else if (acceptedResponseTypes.includes(1) && ['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
+    } else if (acceptedResponseTypes.includes(1) && fetchDest === 1) {
       responseType = 1;
-    } else if (acceptedResponseTypes.includes(2) && requestedSecFetchDest === 'IMAGE') {
+    } else if (acceptedResponseTypes.includes(2) && fetchDest === 2) {
       responseType = 2;
-    } else if (acceptedResponseTypes.includes(3) && requestedSecFetchDest === 'VIDEO') {
+    } else if (acceptedResponseTypes.includes(3) && fetchDest === 3) {
       responseType = 3;
     }
   }
-  
   if (responseType == undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
     if (acceptAll) { // 部分脚本在发送请求时会自动带上“Accept: */*”标头，此时应该回复 JSON
       responseType = 0;
@@ -108,7 +119,7 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
     }, 15000);
   }
   
-  return { params, respHeaders: new Headers(), accepts, responseType };
+  return { params, respHeaders: new Headers(), fetchDest, responseType };
 };
 const getRunningTime = (ts: number): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端

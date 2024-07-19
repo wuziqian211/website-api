@@ -1,3 +1,4 @@
+import type { BodyInit } from 'undici-types';
 import type { InternalAPIResponse, resolveFn, numberBool } from '../assets/utils.js';
 
 interface FriendInfo {
@@ -42,10 +43,10 @@ import { kv } from '@vercel/kv';
 import utils from '../assets/utils.js';
 
 export default (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
-  const { params, headers, responseType } = utils.initialize(req, [0, 1], resolve);
+  const { params, respHeaders, responseType } = utils.initialize(req, [0, 1], resolve);
   try {
-    const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, headers, data)),
-          send = (status: number, data: BodyInit): void => resolve(utils.send(status, headers, data));
+    const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)),
+          send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data));
     
     if (responseType === 1) {
       switch (params.get('id')) {
@@ -59,7 +60,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
       switch (params.get('id')) {
         case 'friends': // 关系好的朋友们（不一定互关）
           const version = params.get('version'), info = (<FriendInfo[]>await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
-          headers.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
+          respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (version === '3') { // 第 3 版：简化名称
             sendJSON(200, { code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official?.type === 0 ? 0 : u.official?.type === 1 ? 1 : u.vip?.status ? 2 : undefined, n: +!!u.face_nft || undefined, o: [0, 1].includes(u.official?.type) ? u.official.title : undefined, c: u.vip?.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } });
           } else if (version === '2') { // 第 2 版
@@ -73,7 +74,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
           if (req.headers.get('x-vercel-ip-country') === 'CN') { // 在中国内地（不含港澳台地区）
             blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
           }
-          headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+          respHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
           sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { ipCountry: req.headers.get('x-vercel-ip-country') } });
           break;
         case 'upload': // 上传图片
@@ -111,8 +112,8 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
             if (hashInfo) {
               const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hashInfo.s}&spec=4`);
               if (resp.ok) {
-                headers.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
-                headers.set('Content-Type', resp.headers.get('Content-Type')!);
+                respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
+                respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                 send(200, Buffer.from(await resp.arrayBuffer()));
               } else {
                 sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerRespStatus: resp.status } });
