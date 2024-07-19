@@ -221,7 +221,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                   </div>
                 </div>` : ''}
                 ${json.data.pages ? json.data.pages.map(p => `
-                <div class="main-info-outer" id="part-${p.page}"${p.first_frame ? ` style="background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}">
+                <div class="main-info-outer" id="part-${p.page}"${p.first_frame ? ` style="background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}>
                   <div class="main-info-inner${p.first_frame ? ' image' : ''}">
                     <div class="left"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}">P${p.page}</a></div>
                     ${p.first_frame ? `
