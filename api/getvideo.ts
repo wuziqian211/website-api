@@ -7,7 +7,7 @@
 import type { BodyInit } from 'undici-types';
 import type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool } from '../assets/utils.js';
 
-import fs from 'node:fs/promises';
+import fs from 'node:fs';
 import utils from '../assets/utils.js';
 import { zones, states } from '../assets/constants.js';
 
@@ -115,13 +115,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
               respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-              send(200, Buffer.from(await resp.arrayBuffer()));
+              send(200, resp.body);
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
                 sendHTML(400, { title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: requestVid });
               } else {
                 respHeaders.set('Content-Type', 'video/mp4');
-                send(fetchDest === 3 ? 200 : 400, await fs.readFile('./assets/error.mp4'));
+                send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
               }
             }
           } else { // 视频地址获取失败
@@ -131,7 +131,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
-              send(fetchDest === 3 ? 200 : 500, await fs.readFile('./assets/error.mp4'));
+              send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
             }
           }
         } else { // 视频无效
@@ -139,7 +139,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
-            send(fetchDest === 3 ? 200 : 404, await fs.readFile('./assets/error.mp4'));
+            send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
           }
         }
       } else { // 获取视频信息
@@ -277,7 +277,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                 respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-                send(200, Buffer.from(await resp.arrayBuffer()));
+                send(200, resp.body);
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                   if (fetchDest === 1) {
@@ -287,7 +287,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                   }
                 } else {
                   respHeaders.set('Content-Type', 'image/png');
-                  send(404, await fs.readFile('./assets/nocover.png'));
+                  send(404, fs.createReadStream('./assets/nocover.png'));
                 }
               }
             }
@@ -300,7 +300,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             } else {
               respHeaders.set('Content-Type', 'image/png');
-              send(404, await fs.readFile('./assets/nocover.png'));
+              send(404, fs.createReadStream('./assets/nocover.png'));
             }
           }
         } else { // 回复 JSON
@@ -340,7 +340,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
-            send(fetchDest === 3 ? 200 : 404, await fs.readFile('./assets/error.mp4'));
+            send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
           }
         }
       } else if (responseType === 1) { // 回复 HTML
@@ -387,7 +387,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
               respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-              send(200, Buffer.from(await resp.arrayBuffer()));
+              send(200, resp.body);
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                 if (fetchDest === 1) {
@@ -397,7 +397,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 }
               } else {
                 respHeaders.set('Content-Type', 'image/png');
-                send(404, await fs.readFile('./assets/nocover.png'));
+                send(404, fs.createReadStream('./assets/nocover.png'));
               }
             }
           }
@@ -410,7 +410,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           } else {
             respHeaders.set('Content-Type', 'image/png');
-            send(404, await fs.readFile('./assets/nocover.png'));
+            send(404, fs.createReadStream('./assets/nocover.png'));
           }
         }
       } else { // 回复 JSON
@@ -482,13 +482,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
               respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-              send(200, Buffer.from(await resp.arrayBuffer()));
+              send(200, resp.body);
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
                 sendHTML(400, { title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: requestVid });
               } else {
                 respHeaders.set('Content-Type', 'video/mp4');
-                send(fetchDest === 3 ? 200 : 400, await fs.readFile('./assets/error.mp4'));
+                send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
               }
             }
           } else { // 视频地址获取失败
@@ -498,7 +498,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 如果您想下载这一集，最好使用其他工具哟 awa`, vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
-              send(fetchDest === 3 ? 200 : 500, await fs.readFile('./assets/error.mp4'));
+              send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
             }
           }
         } else { // 剧集无效
@@ -506,7 +506,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在，或者您可能输入了错误的集号哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
-            send(fetchDest === 3 ? 200 : 404, await fs.readFile('./assets/error.mp4'));
+            send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
           }
         }
       } else { // 获取剧集信息
@@ -642,7 +642,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                 respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-                send(200, Buffer.from(await resp.arrayBuffer()));
+                send(200, resp.body);
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                   if (fetchDest === 1) {
@@ -652,7 +652,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                   }
                 } else {
                   respHeaders.set('Content-Type', 'image/png');
-                  send(404, await fs.readFile('./assets/nocover.png'));
+                  send(404, fs.createReadStream('./assets/nocover.png'));
                 }
               }
             }
@@ -665,7 +665,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             } else {
               respHeaders.set('Content-Type', 'image/png');
-              send(404, await fs.readFile('./assets/nocover.png'));
+              send(404, fs.createReadStream('./assets/nocover.png'));
             }
           }
         } else { // 回复 JSON
@@ -711,7 +711,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           }
         } else {
           respHeaders.set('Content-Type', 'image/png');
-          send(400, await fs.readFile('./assets/nocover.png'));
+          send(400, fs.createReadStream('./assets/nocover.png'));
         }
       } else { // 回复 JSON
         sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });

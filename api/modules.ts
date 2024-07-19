@@ -114,7 +114,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
               if (resp.ok) {
                 respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
-                send(200, Buffer.from(await resp.arrayBuffer()));
+                send(200, resp.body);
               } else {
                 sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerRespStatus: resp.status } });
               }

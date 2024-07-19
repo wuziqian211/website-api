@@ -7,7 +7,7 @@
 import type { BodyInit } from 'undici-types';
 import type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool } from '../assets/utils.js';
 
-import fs from 'node:fs/promises';
+import fs from 'node:fs';
 import utils from '../assets/utils.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
@@ -116,7 +116,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
               respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
               respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-              send(200, Buffer.from(await resp.arrayBuffer()));
+              send(200, resp.body);
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                 if (fetchDest === 1) {
@@ -126,7 +126,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 }
               } else {
                 respHeaders.set('Content-Type', 'image/jpeg');
-                send(404, await fs.readFile('./assets/noface.jpg'));
+                send(404, fs.createReadStream('./assets/noface.jpg'));
               }
             }
           }
@@ -139,7 +139,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           } else {
             respHeaders.set('Content-Type', 'image/jpeg');
-            send(404, await fs.readFile('./assets/noface.jpg'));
+            send(404, fs.createReadStream('./assets/noface.jpg'));
           }
         }
       } else { // 回复 JSON
@@ -179,7 +179,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         if (!requestMid) { // 没有设置 UID 参数，回复随机头像
           const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
           respHeaders.set('Content-Type', 'image/jpeg');
-          send(200, await fs.readFile(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
+          send(200, fs.createReadStream(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
         } else { // 设置了 UID 参数但无效，回复默认头像
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
             if (fetchDest === 1) {
@@ -191,7 +191,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           } else {
             respHeaders.set('Content-Type', 'image/jpeg');
-            send(400, await fs.readFile('./assets/noface.jpg'));
+            send(400, fs.createReadStream('./assets/noface.jpg'));
           }
         }
       } else { // 回复 JSON

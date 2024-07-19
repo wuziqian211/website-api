@@ -50,7 +50,7 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
   let acceptAll: boolean | undefined, responseType: number | undefined, fetchDest: number | undefined;
   
   if (requestedSecFetchDest) {
-    if (requestedSecFetchDest === 'JSON') {
+    if (requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
       fetchDest = 0;
     } else if (['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
       fetchDest = 1;
@@ -61,7 +61,7 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
     }
   }
   if (requestedAccept) {
-    if (requestedAccept.includes('*/*')) { // 客户端接受所有类型的数据
+    if (requestedAccept === '*/*') { // 客户端接受所有类型的数据
       acceptAll = true;
       accepts.push(0, 1, 2, 3);
     } else {
@@ -85,7 +85,7 @@ const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: res
     }
   }
   if (responseType == undefined && fetchDest != undefined) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
-    if (acceptedResponseTypes.includes(0) && fetchDest === 0) { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
+    if (acceptedResponseTypes.includes(0) && fetchDest === 0) {
       responseType = 0;
     } else if (acceptedResponseTypes.includes(1) && fetchDest === 1) {
       responseType = 1;
