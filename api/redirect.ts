@@ -2,9 +2,9 @@ export const config = { runtime: 'edge' };
 
 export default (req: Request): Response => {
   const requestPath = new URL(req.url).pathname,
-    host = req.headers.get('Host');
+    host = req.headers.get('Host')!;
   if (/^(?:.+\.)?yumeharu.top$/.test(host)) {
-    let expectedURL: string;
+    let expectedURL: string | undefined;
     if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(requestPath)) {
       expectedURL = `https://www.yumeharu.top${requestPath}`;
     } else if (/^\/api|^\/get/.test(requestPath)) {
@@ -21,11 +21,13 @@ export default (req: Request): Response => {
           <title>页面不存在 | wuziqian211's Blog</title>
           <link rel="stylesheet" href="/assets/style.css" />
           <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+          <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
         </head>
         <body>
           <header>
             <div class="header">
-              <a href="https://www.yumeharu.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span>
+              <div class="left"><a href="https://www.yumeharu.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span></div>
+              <div class="right"><a href="https://www.yumeharu.top/">返回主站</a></div>
             </div>
           </header>
           <main>
@@ -36,7 +38,7 @@ export default (req: Request): Response => {
             © 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} wuziqian211
           </footer>
         </body>
-      </html>`.replace(/[ \n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
+      </html>`.replace(/[ \r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
   } else if (/^(?:.+\.)?w211.top$/.test(host)) {
     const url = `https://${host.replace(/^(.+\.)?w211.top$/, '$1yumeharu.top')}${requestPath}`;
     return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });

@@ -1,0 +1,19 @@
+{
+  "include": ["api/**/*"],
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "strict": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "checkJs": true,
+    "esModuleInterop": true,
+    "lib": ["ES2023"],
+    "target": "ES2022",
+    "skipLibCheck": true
+  }
+}
