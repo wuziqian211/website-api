@@ -2,8 +2,8 @@
   --background-color: #fff;
   --background-color-translucent: #fff9;
   --text-color: #222;
-  --highlight-color: #de2;
-  --highlight-hover-color: #ef3;
+  --highlight-color: #f66;
+  --highlight-hover-color: #f88;
   --anchor-decoration-color: #333;
   --anchor-decoration-hover-color: #aaa;
   --secondary-color: #777;
@@ -127,8 +127,8 @@ footer {
     --background-color: #222;
     --background-color-translucent: #2229;
     --text-color: #ccc;
-    --highlight-color: #cd1;
-    --highlight-hover-color: #de2;
+    --highlight-color: #e44;
+    --highlight-hover-color: #f66;
     --anchor-decoration-color: #aaa;
     --anchor-decoration-hover-color: #ccc;
     --secondary-color: #999;
