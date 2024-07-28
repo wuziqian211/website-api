@@ -93,6 +93,9 @@ a {
 a:hover {
   text-decoration-color: var(--anchor-decoration-hover-color);
 }
+div.header a {
+  text-decoration: none;
+}
 footer {
   color: var(--secondary-color);
   font-size: 16px;
