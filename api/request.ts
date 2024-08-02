@@ -9,9 +9,13 @@ const encodeHTML = (str?: string | null): string => typeof str === 'string' ? st
 export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
   const params = new URL(req.url).searchParams;
   try {
-    const headers = new Headers(req.headers), respHeaders = new Headers();
-    [...headers.keys()].filter(name => ['connection', 'host', 'forwarded', 'content-length', 'if-none-match', 'access-control-max-age'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-allow-')).forEach(name => headers.delete(name));
-    const requestUrl = new URL(params.get('url')!);
+    const headers = new Headers(req.headers), urlParam = params.get('url'), respHeaders = new Headers();
+    if (!urlParam) {
+      resolve(new Response(`<!DOCTYPE html><title>Request</title><form><label for=url>Request URL:</label> <input type=url name=url id=url placeholder="https://"> <input type=submit value=Request></form>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }))
+      return;
+    }
+    [...headers.keys()].filter(name => ['connection', 'content-length', 'forwarded', 'host', 'if-none-match', 'access-control-max-age', 'content-security-policy', 'referrer-policy', 'strict-transport-security'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-allow-')).forEach(name => headers.delete(name));
+    const requestUrl = new URL(urlParam);
     headers.set('Origin', requestUrl.origin);
     const referrer = new URL(req.headers.get('referer') ?? requestUrl);
     referrer.host = requestUrl.host;
@@ -20,7 +24,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
     
     let body: BodyInit = null;
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
-      body = req.body;
+      body = await req.arrayBuffer();
     }
     
     const resp = await fetch(requestUrl, { method: req.method, headers, body, redirect: 'manual' });
@@ -35,7 +39,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
     
     resolve(new Response(resp.body, { status: resp.status, headers: respHeaders }));
   } catch (e) {
-    resolve(new Response(`<!DOCTYPE html>An error occurred while requesting ${encodeHTML(params.get('url'))}:<pre>${encodeHTML(util.inspect(e, { depth: Infinity }))}</pre>`, { status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
+    resolve(new Response(`<!DOCTYPE html><title>An error occurred</title>An error occurred while requesting "${encodeHTML(params.get('url'))}":<pre>${encodeHTML(util.inspect(e, { depth: Infinity }))}</pre>`, { status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
   }
 });
 export const HEAD = GET, OPTIONS = GET, POST = GET, PUT = GET, DELETE = GET, PATCH = GET;
