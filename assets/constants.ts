@@ -1,5 +1,234 @@
-// 一些常量
+// Ⅰ. 类型定义
+// a. 快捷类型
+type resolveFn<Type> = (returnValue: Type) => void;
+type numberBool = 0 | 1; // 用数字表示的逻辑值
+type stringifiedNumber = string; // 仅含有纯数字的字符串
+type url = string;
+type hexColor = string; // 十六进制颜色代码
 
+// b. 接口类型
+// 1. 用户卡片数据（https://account.bilibili.com/api/member/getCardByMid）
+interface CardData {
+  mid: stringifiedNumber;
+  name: string;
+  approve: false;
+  sex: '男' | '女' | '保密';
+  rank: stringifiedNumber;
+  face: url;
+  coins: number;
+  DisplayRank: stringifiedNumber;
+  regtime: number;
+  spacesta: number;
+  place: '';
+  birthday: string;
+  sign: string;
+  description: '';
+  article: 0;
+  attentions: number[] | []; // 隐藏关注列表时为空数组
+  fans: number;
+  friend: number; // 同 attention
+  attention: number;
+  level_info: {
+    next_exp: 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
+    current_level: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    current_min: 0 | 1 | 200 | 1500 | 4500 | 10800 | 28800;
+    current_exp: number;
+  };
+  pendant: { pid: number; name: string; image: url; expire: 0 };
+  official_verify: { type: -1 | 0 | 1; desc: string };
+  nameplate?: { nid: number; name: string; image: url; image_small: url; level: string; condition: string };
+}
+
+// 2. 用户信息数据（https://api.bilibili.com/x/space/wbi/acc/info）
+interface SpaceAccInfoData {
+  mid: number;
+  name: string;
+  sex: '男' | '女' | '保密';
+  face: url;
+  face_nft: numberBool;
+  face_nft_type: number;
+  sign: string;
+  rank: number;
+  level: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  jointime: 0;
+  moral: 0;
+  silence: numberBool;
+  coins: 0;
+  fans_badge: boolean;
+  fans_medal: {
+    show: boolean;
+    wear: boolean;
+    medal: null | {
+      uid: number;
+      target_id: number;
+      medal_id: number;
+      level: number;
+      medal_name: string;
+      medal_color: number;
+      intimacy: number;
+      next_intimacy: number;
+      day_limit: number;
+      medal_color_start: number;
+      medal_color_end: number;
+      medal_color_border: number;
+      is_lighted: numberBool;
+      light_status: numberBool;
+      wearing_status: numberBool;
+      score: number;
+    };
+  };
+  official: { role: number; title: string; desc: string; type: -1 | 0 | 1 };
+  vip: {
+    type: 0 | 1 | 2;
+    status: numberBool;
+    due_date: number;
+    vip_pay_type: 0 | 1;
+    theme_type: 0;
+    label: {
+      path: '';
+      text: string;
+      label_theme: string;
+      text_color: hexColor;
+      bg_style: 0 | 1;
+      bg_color: hexColor;
+      border_color: hexColor;
+      use_img_label: true;
+      img_label_uri_hans: url;
+      img_label_uri_hant: url;
+      img_label_uri_hans_static: url;
+      img_label_uri_hant_static: url;
+    };
+    avatar_subscript: 0 | 1 | 2;
+    nickname_color: hexColor;
+    role: 0 | 1 | 3 | 7 | 15;
+    avatar_subscript_url: url;
+    tv_vip_status: numberBool;
+    tv_vip_pay_type: 0 | 1;
+    tv_due_date: number;
+    avatar_icon: { icon_type?: number; icon_resource: {} };
+  };
+  pendant: {
+    pid: number;
+    name: string;
+    image: url;
+    expire: 0;
+    image_enhance: url;
+    image_enhance_frame: url;
+    n_pid: number;
+  };
+  nameplate: { nid: number; name: string; image: url; image_small: url; level: string; condition: string };
+  user_honour_info: object; // 待完善
+  is_followed: false;
+  top_photo: url;
+  theme: {};
+  sys_notice: null | { id: number; content: string; url: url; notice_type: 1 | 2; icon: url; text_color: hexColor; bg_color: hexColor }; // null 应为 {}
+  live_room: null | object; // 待完善
+  birthday: string;
+  school: null | { name: string };
+  profession: { name: string; department: string; title: string; is_show: numberBool };
+  tags: null | string[];
+  series: { user_upgrade_status: 3; show_upgrade_window: false };
+  is_senior_member: numberBool;
+  mcn_info: null;
+  gaia_res_type: 0;
+  gaia_data: null;
+  is_risk: false;
+  elec: { show_info: { show: boolean; state: -1 | 1 | 3; title: '' | '充电'; icon: url; jump_url: url } };
+  contract: { is_display: false; is_follow_display: false };
+  certificate_show: false;
+  name_render: null | {
+    colors_info: { color: { color_day: hexColor; color_night: hexColor }[]; color_ids: stringifiedNumber[] };
+    render_scheme: 'Default' | 'Colorful';
+  };
+}
+
+// 3. 多用户信息数据（https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards）
+interface UserInfo {
+  face: url;
+  face_nft: numberBool;
+  face_nft_new: numberBool;
+  mid: stringifiedNumber;
+  name: string;
+  name_render: null | {
+    colors_info: { color: { color_day: hexColor; color_night: hexColor }[]; color_ids: stringifiedNumber[] };
+    render_scheme: 'Default' | 'Colorful';
+  };
+  nameplate: null | { condition: string; image: url; image_small: url; level: string; name: string; nid: number };
+  official: { desc: string; role: number; title: string; type: -1 | 0 | 1 };
+  pendant: null | {
+    expire: '0';
+    image: url;
+    image_enhance: url;
+    image_enhance_frame: url;
+    n_pid: stringifiedNumber;
+    name: string;
+    pid: number;
+  };
+  vip: {
+    avatar_icon: null | { icon_resource: null; icon_type: string };
+    avatar_subscript: 0 | 1 | 2;
+    avatar_subscript_url: url;
+    due_date: stringifiedNumber;
+    label: {
+      bg_color: hexColor;
+      bg_style: 0 | 1;
+      border_color: hexColor;
+      img_label_uri_hans: url;
+      img_label_uri_hans_static: url;
+      img_label_uri_hant: url;
+      img_label_uri_hant_static: url;
+      label_theme: string;
+      path: '';
+      text: string;
+      text_color: hexColor;
+      use_img_label: true;
+    };
+    nickname_color: hexColor;
+    role: '0' | '1' | '3' | '7' | '15';
+    status: numberBool;
+    theme_type: 0;
+    tv_due_date: stringifiedNumber;
+    tv_vip_pay_type: 0 | 1;
+    tv_vip_status: numberBool;
+    type: 0 | 1 | 2;
+    vip_pay_type: 0 | 1;
+  };
+}
+type UserCardsData = Record<number, UserInfo>;
+
+// 4. 图床的回应（https://smms.app/api/v2/upload）
+interface SmmsUploadResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  data?: {
+    file_id: number;
+    width: number;
+    height: number;
+    filename: string;
+    storename: string;
+    size: number;
+    path: string;
+    hash: string;
+    url: url;
+    delete: url;
+    page: url;
+  };
+  RequestId: string;
+}
+
+// 5. 导航栏数据（https://api.bilibili.com/x/web-interface/nav）
+interface NavData { // 此处仅定义部分必要字段
+  isLogin: boolean;
+  wbi_img: {
+    img_url: url;
+    sub_url: url;
+  }
+}
+
+export type { resolveFn, numberBool, stringifiedNumber, url, hexColor, CardData, SpaceAccInfoData, UserInfo, UserCardsData, SmmsUploadResponse, NavData };
+
+// Ⅱ. 常量定义
 // 1. 视频分区列表
 const zones = [ // 来自 B 站与 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md（以下简称“API 文档”）；分区有“expired: true”属性的表示该分区已下线，已下线分区的信息均来自“API 文档”
   { tid: 217, name: '动物圈', url: 'v/animal', sub: [

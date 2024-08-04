@@ -4,8 +4,9 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
+import type { APIResponse, InternalAPIResponse, SendHTMLData } from '../assets/utils.js';
+import type { resolveFn } from '../assets/constants.js';
 import type { BodyInit } from 'undici-types';
-import type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool } from '../assets/utils.js';
 
 import fs from 'node:fs';
 import utils from '../assets/utils.js';
@@ -416,20 +417,20 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       } else { // 回复 JSON
         switch (json.code) {
           case 0:
-            sendJSON(200, { code: 0, message: json.message, data: json.result, result: json.result });
+            sendJSON(200, { code: 0, message: json.message, data: json.result });
             break;
           case -352:
           case -401:
           case -412:
           case -799:
             respHeaders.set('Retry-After', '600');
-            sendJSON(429, { code: json.code, message: json.message, data: null, result: null, extInfo: { errType: 'upstreamServerRequestBanned' } });
+            sendJSON(429, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerRequestBanned' } });
             break;
           case -404:
-            sendJSON(404, { code: -404, message: json.message, data: null, result: null, extInfo: { errType: 'upstreamServerNoData' } });
+            sendJSON(404, { code: -404, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
             break;
           default:
-            sendJSON(400, { code: json.code, message: json.message, data: null, result: null, extInfo: { errType: 'upstreamServerNoData' } });
+            sendJSON(400, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
         }
       }
     } else if ([3, 4].includes(type)) { // 编号为 ssid 或 epid
@@ -671,20 +672,20 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         } else { // 回复 JSON
           switch (json.code) {
             case 0:
-              sendJSON(200, { code: 0, message: json.message, data: json.result, result: json.result });
+              sendJSON(200, { code: 0, message: json.message, data: json.result });
               break;
             case -352:
             case -401:
             case -412:
             case -799:
               respHeaders.set('Retry-After', '600');
-              sendJSON(429, { code: json.code, message: json.message, data: null, result: null, extInfo: { errType: 'upstreamServerRequestBanned' } });
+              sendJSON(429, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerRequestBanned' } });
               break;
             case -404:
-              sendJSON(404, { code: -404, message: json.message, data: null, result: null, extInfo: { errType: 'upstreamServerNoData' } });
+              sendJSON(404, { code: -404, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
               break;
             default:
-              sendJSON(400, { code: json.code, message: json.message, data: null, result: null, extInfo: { errType: 'upstreamServerNoData' } });
+              sendJSON(400, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
           }
         }
       }

@@ -1,10 +1,12 @@
 {
+  "include": ["api/**/*"],
   "compilerOptions": {
-    "alwaysStrict": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
     "exactOptionalPropertyTypes": true,
-    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
     "strict": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",

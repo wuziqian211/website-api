@@ -1,3 +1,4 @@
+import type { resolveFn, url, NavData } from './constants.js';
 import type { BodyInit } from 'undici-types';
 
 interface APIResponse<dataType> { // API 返回的 JSON 数据结构
@@ -8,24 +9,17 @@ interface APIResponse<dataType> { // API 返回的 JSON 数据结构
 interface InternalAPIResponse<dataType> extends APIResponse<dataType> {
   extInfo?: object;
 }
-interface NavData { // 此处仅定义部分必要字段
-  isLogin: boolean;
-  wbi_img: {
-    img_url: string;
-    sub_url: string;
-  }
-}
 interface SendHTMLData {
   title: string; // 页面标题
-  appleTouchIcon?: string; // 页面图标链接
+  appleTouchIcon?: url; // 页面图标链接
   newStyle?: boolean; // 是否使用新样式
-  imageBackground?: string; // 图片背景链接
+  imageBackground?: url; // 图片背景链接
   desc?: string; // 页面描述
   body: string; // 页面主体内容
 }
 interface Component {
   content: string; // 文本内容
-  url?: string; // 链接
+  url?: url; // 链接
 }
 interface WbiKeys {
   imgKey: string;
@@ -34,8 +28,6 @@ interface WbiKeys {
 interface CachedWbiKeys extends WbiKeys {
   updatedTimestamp: number;
 }
-type resolveFn<Type> = (returnValue: Type) => void;
-type numberBool = 0 | 1; // 用数字表示的逻辑值
 
 import util from 'node:util';
 import { kv } from '@vercel/kv';
@@ -212,7 +204,7 @@ const send504 = (responseType: number): Response => {
     return sendJSON(504, headers, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
   }
 };
-const redirect = (status: number, url: string, noCache?: boolean): Response => { // 发送重定向信息到客户端
+const redirect = (status: number, url: url, noCache?: boolean): Response => { // 发送重定向信息到客户端
   const headers = new Headers({ Location: url });
   if (status === 308) headers.set('Refresh', `0; url=${url}`);
   if (!noCache) {
@@ -259,7 +251,7 @@ const markText = (str?: string | null): string => { // 将纯文本中的特殊�
   }
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
-const toHTTPS = (url?: string | null): string => { // 将网址协议改成 HTTPS
+const toHTTPS = (url?: url | null): url => { // 将网址协议改成 HTTPS
   if (!url) return 'data:,';
   const u = new URL(url);
   u.protocol = 'https:';
@@ -313,7 +305,7 @@ const getVidType = (vid?: string): { type?: number; vid?: string | bigint } => {
   }
 };
 const encodeWbi = async (query?: Record<string, string> | URLSearchParams, keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
-  if (!keys) keys = await getWbiKeys();
+  keys ??= await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
   params.append('wts', Math.floor(Date.now() / 1000).toString()); // 添加 wts 字段
@@ -334,5 +326,5 @@ const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最
   }
 };
 
-export type { APIResponse, InternalAPIResponse, SendHTMLData, resolveFn, numberBool };
+export type { APIResponse, InternalAPIResponse, SendHTMLData };
 export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };

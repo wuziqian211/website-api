@@ -55,7 +55,7 @@ const loadPage = async url => {
     document.activeElement?.blur();
     try {
       const resp = await fetch(urlObj, { keepalive: true, signal: loadController.signal });
-      if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
+      if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') {
         const text = await resp.text();
         const html = new DOMParser().parseFromString(text, 'text/html');
         if (isValidPage(html)) {

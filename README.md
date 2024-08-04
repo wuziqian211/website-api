@@ -385,7 +385,7 @@
 | assets/apple-touch-icon.png | 网站图标 |
 | assets/big-vip.svg, assets/business.svg, assets/nft.gif, assets/nft-label.gif, assets/nft-label-oversea.gif, assets/personal.svg, assets/small-vip.svg | 哔哩哔哩大会员、机构认证、数字藏品头像（无白色边框）、数字藏品头像、海外版数字藏品头像、UP 主认证与愚人节限定的 “小会员” 图标 |
 | assets/big-vip_dark.svg, assets/business_dark.svg, assets/personal_dark.svg, assets/small-vip_dark.svg | 深色模式下的哔哩哔哩大会员、机构认证、UP 主认证与愚人节限定的 “小会员” 图标 |
-| assets/constants.js | 一些常量，如视频分区与状态信息、朋友列表 |
+| assets/constants.ts | 类型与常量（视频的分区、状态，朋友列表）定义文件 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就回复本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
 | assets/iconfont.woff2 | 图标字体文件 |
@@ -397,8 +397,12 @@
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
+| favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |
 | package.json, package-lock.json | 本 API 使用的库列表 |
+| README.md | 对本 API 的说明文件，即本文件 |
+| robots.txt | 搜索引擎爬虫配置文件 |
+| tsconfig.json | TypeScript 配置文件 |
 | vercel.json | Vercel（API 服务提供者）的配置文件 |
 
 ## 📄许可证
