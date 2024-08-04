@@ -3,7 +3,7 @@ export const config = { runtime: 'edge' };
 export default (req: Request): Response => {
   const requestPath = new URL(req.url).pathname,
     host = req.headers.get('Host')!;
-  if (/^(?:.+\.)?yumeharu.top$/.test(host)) {
+  if (/^.+\.yumeharu.top$/.test(host)) {
     let expectedURL: string | undefined;
     if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(requestPath)) {
       expectedURL = `https://www.yumeharu.top${requestPath}`;
@@ -39,6 +39,9 @@ export default (req: Request): Response => {
           </footer>
         </body>
       </html>`.replace(/[ \r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
+  } else if (host === 'yumeharu.top') {
+    const url = `https://www.yumeharu.top${requestPath}`;
+    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
   } else if (/^(?:.+\.)?w211.top$/.test(host)) {
     const url = `https://${host.replace(/^(.+\.)?w211.top$/, '$1yumeharu.top')}${requestPath}`;
     return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
