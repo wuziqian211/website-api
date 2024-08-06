@@ -1,5 +1,5 @@
 import type { APIResponse, InternalAPIResponse } from '../assets/utils.js';
-import type { resolveFn, stringifiedNumber, UserInfo, UserCardsData, SmmsUploadResponse } from '../assets/constants.js';
+import type { resolveFn, stringifiedNumber, FriendInfo, SmmsUploadResponse } from '../assets/constants.js';
 import type { BodyInit } from 'undici-types';
 
 interface HashInfo {
@@ -11,7 +11,6 @@ export const config = { runtime: 'edge' };
 
 import { kv } from '@vercel/kv';
 import utils from '../assets/utils.js';
-import { friends } from '../assets/constants.js';
 
 export default (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
   const { params, respHeaders, responseType } = utils.initialize(req, [0, 1], resolve);
@@ -30,23 +29,15 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
     } else {
       switch (params.get('id')) {
         case 'friends': // 关系好的朋友们（不一定互关）
-          const version = params.get('version'), users = friends.toSorted(() => 0.5 - Math.random());
-          let info: UserInfo[];
-          const ijson = <APIResponse<UserCardsData>>await (await fetch(`https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards?uids=${users.join(',')}&build=0&mobi_app=web`, { headers: { Origin: 'https://message.bilibili.com', Referer: 'https://message.bilibili.com/', 'User-Agent': process.env.userAgent! } })).json(); // 获取多用户信息
-          if (ijson.code === 0) {
-            info = Object.values(ijson.data).toSorted(() => 0.5 - Math.random());
-            await kv.set('friendsInfo', info);
-          } else {
-            info = (<UserInfo[]>await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
-          }
+          const version = params.get('version'), info = (<FriendInfo[]>await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
           
           respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (version === '3') { // 第 3 版：简化名称
-            sendJSON(200, { code: 0, message: '0', data: { n: info.filter(u => u.name !== '账号已注销').map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.official.title, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.name === '账号已注销').map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.official.title, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } });
+            sendJSON(200, { code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } });
           } else if (version === '2') { // 第 2 版
-            sendJSON(200, { code: 0, message: '0', data: info.filter(u => u.name !== '账号已注销').map(u => ({ image: utils.toHTTPS(u.face), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.official.title, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'kv' } });
+            sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => ({ image: utils.toHTTPS(u.face), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'kv' } });
           } else {
-            sendJSON(200, { code: 0, message: '0', data: info.filter(u => u.name !== '账号已注销').map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(u.face)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.official.title)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'kv' } });
+            sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(u.face)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'kv' } });
           }
           break;
         case 'blocked': // 可能被屏蔽的域名

@@ -226,14 +226,14 @@ const markText = (str?: string | null): string => { // 将纯文本中的特殊�
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
-          { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: string): string => match },
-          { pattern: /(?:BV|bv|Bv|bV)1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/BV1${matches[0]}/` },
-          { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/video/av${matches[0]}/` },
-          { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
-          { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/read/cv${matches[0]}` },
-          { pattern: /md(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
-          { pattern: /ss(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
-          { pattern: /ep(\d+)/i, replacer: (match: string, matches: string[]): string => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
+          { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: url): url => match },
+          { pattern: /(?:BV|bv|Bv|bV)1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/BV1${matches[0]}/` },
+          { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/av${matches[0]}/` },
+          { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
+          { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/read/cv${matches[0]}` },
+          { pattern: /md(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
+          { pattern: /ss(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
+          { pattern: /ep(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
         ];
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)

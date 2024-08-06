@@ -310,16 +310,16 @@ img.level, img.official-icon {
   height: 25px;
   vertical-align: -5px;
 }
-img.vpic {
+img.vpic, img.spic, img.ppic {
   border-radius: 10px;
+}
+img.vpic {
   height: 100px;
 }
 img.spic {
-  border-radius: 10px;
   height: 160px;
 }
 img.ppic {
-  border-radius: 10px;
   height: 80px;
 }
 span.notice, a.notice {
@@ -538,8 +538,8 @@ footer {
   }
   
   body.image-background {
-    -webkit-backdrop-filter: blur(20px) brightness(0.5);
-    backdrop-filter: blur(20px) brightness(0.5);
+    -webkit-backdrop-filter: blur(20px) brightness(0.6);
+    backdrop-filter: blur(20px) brightness(0.6);
   }
 }
 
