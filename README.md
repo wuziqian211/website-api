@@ -193,12 +193,12 @@
     "DisplayRank": "20000",
     "level": 6,
     "jointime": 0,
-    "regtime": 1245824205,
+    "regtime": 0,
     "spacesta": 0,
     "place": "",
     "moral": 0,
     "silence": 0,
-    "coins": 0, // 因涉及隐私，此处隐藏具体数据
+    "coins": 0,
     "article": 0,
     "attentions": [], // 因涉及隐私，此处隐藏具体数据
     "fans": 1132101,

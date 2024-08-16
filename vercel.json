@@ -12,7 +12,7 @@
     "api/getvideo.ts": {
       "memory": 256,
       "maxDuration": 16,
-      "includeFiles": "assets/{constants.js,error.mp4,nocover.png,utils.ts}"
+      "includeFiles": "assets/{constants.ts,error.mp4,nocover.png,utils.ts}"
     }
   },
   "headers": [

@@ -7,17 +7,23 @@ type url = string; /* `http://${string}` | `https://${string}` | `data:${string}
 type hexColor = string; // 十六进制颜色代码
 
 // b. 接口类型
+type sex = '男' | '女' | '保密';
+type officialType = -1 | 0 | 1;
+type level = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type levelNextExp = 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
+type levelCurrentMin = 0 | 1 | 200 | 1500 | 4500 | 10800 | 28800;
+
 // 1. 用户卡片数据（https://account.bilibili.com/api/member/getCardByMid）
 interface CardData {
   mid: stringifiedNumber;
   name: string;
   approve: false;
-  sex: '男' | '女' | '保密';
+  sex: sex;
   rank: stringifiedNumber;
   face: url;
-  coins: number;
+  coins: 0; // 近期改为 0
   DisplayRank: stringifiedNumber;
-  regtime: number;
+  regtime: 0; // 近期改为 0
   spacesta: number;
   place: '';
   birthday: string;
@@ -29,13 +35,13 @@ interface CardData {
   friend: number; // 同 attention
   attention: number;
   level_info: {
-    next_exp: 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
-    current_level: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-    current_min: 0 | 1 | 200 | 1500 | 4500 | 10800 | 28800;
+    next_exp: levelNextExp;
+    current_level: level;
+    current_min: levelCurrentMin;
     current_exp: number;
   };
   pendant: { pid: number; name: string; image: url; expire: 0 };
-  official_verify: { type: -1 | 0 | 1; desc: string };
+  official_verify: { type: officialType; desc: string };
   nameplate?: { nid: number; name: string; image: url; image_small: url; level: string; condition: string };
 }
 
@@ -43,13 +49,13 @@ interface CardData {
 interface SpaceAccInfoData {
   mid: number;
   name: string;
-  sex: '男' | '女' | '保密';
+  sex: sex;
   face: url;
   face_nft: numberBool;
   face_nft_type: number;
   sign: string;
   rank: number;
-  level: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  level: level;
   jointime: 0;
   moral: 0;
   silence: numberBool;
@@ -77,7 +83,7 @@ interface SpaceAccInfoData {
       score: number;
     };
   };
-  official: { role: number; title: string; desc: string; type: -1 | 0 | 1 };
+  official: { role: number; title: string; desc: string; type: officialType };
   vip: {
     type: 0 | 1 | 2;
     status: numberBool;
@@ -149,7 +155,7 @@ interface FriendInfo {
   face: url;
   face_nft: numberBool;
   sign: string;
-  official: { role: number; title: string; desc: string; type: -1 | 0 | 1 };
+  official: { role: number; title: string; desc: string; type: officialType };
   vip: { type: 0 | 1 | 2; status: numberBool };
   is_deleted: numberBool;
 }
@@ -396,7 +402,7 @@ const states = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collec
 };
 
 // 3. 朋友列表
-const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用户
+const friends = [ // 共 273（正常用户）＋8（已注销）＝281 位用户
   // 正常用户（每个 UID 后面的注释为最近一次更新此数据时 UID 对应用户的昵称）
   12767, // 艹
   72104, // 苏白
@@ -467,7 +473,7 @@ const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用�
   350848007, // 幽硫璃
   354097337, // 染浊turbid
   354758619, // 暗影孤狼天下第一帅__
-  355778940, // 此刻已成神
+  355778940, // 世上第一大奇迹
   357413690, // RPG_Teng_Lin
   358201006, // Cocoa_Ti
   361417173, // Tascota
@@ -489,6 +495,7 @@ const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用�
   396282160, // 溯源SOURCE
   396902020, // Friend1y
   397007998, // TMIANDTLI
+  397464392, // 風間爱理
   397557321, // 鬆鼠黨一鍵殺死系統
   397872234, // 時雨Septrissimo
   398217201, // 梅雨-TUYU
@@ -548,7 +555,7 @@ const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用�
   455591101, // 铃木晴香
   456527365, // Res1sT_
   457843315, // 十星淦员
-  458231747, // 天符箓
+  458231747, // 九淼淼淼淼淼
   470390768, // 啾也君
   472561665, // 元气少年帽子_进水了
   473900065, // 红杉树滑稽Flowey
@@ -577,6 +584,7 @@ const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用�
   500997122, // 求和-RYY_86-pi
   501312771, // 海鹽焦糖瑪奇朵
   503577862, // 5ATE11lte
+  504767542, // 眠雨之心
   505259355, // xiaozhuawa7656
   505570512, // 轩岚诺_
   505743888, // 红色之桶
@@ -614,7 +622,7 @@ const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用�
   624532985, // 久侘
   626699149, // 青柠ウア
   628092353, // 次元菌_
-  646061108, // 轻甄饭团_监管者坏喰
+  646061108, // 小小小坏喰
   660766077, // 观澜亭9事GLT
   694241611, // 我是小苏酱
   1052481162, // 兰德索尔憨批
@@ -666,6 +674,7 @@ const friends = [ // 共 270（正常用户）＋8（已注销）＝278 位用�
   3546394180717428, // 进击的千花
   3546572130355891, // 完颜㣟
   3546617827298156, // 塔野ing
+  3546619593099792, // 璀爱
   3546631146309753, // 刀月你好香
   3546655485856196, // StarDamsel
   // 已经注销，但曾经和 wuziqian211 存在一定关系的朋友（UID 后面的注释为注销前被大多数人所熟悉的昵称，不等同于注销前最后使用的昵称）

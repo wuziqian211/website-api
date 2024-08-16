@@ -28,18 +28,21 @@ interface WbiKeys {
 interface CachedWbiKeys extends WbiKeys {
   updatedTimestamp: number;
 }
+type ResponseType = 0 | 1 | 2 | 3; // 0：JSON，1：HTML，2：图片，3：视频，下同
+type FetchDest = 0 | 1 | 2 | 3;
+type Accept = 0 | 1 | 2 | 3;
 
 import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
 let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: number;
-const initialize = (req: Request, acceptedResponseTypes: number[], resolve?: resolveFn<Response>): { params: URLSearchParams; respHeaders: Headers; fetchDest: number | undefined; responseType: number } => { // 初始化 API
+const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: resolveFn<Response>): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType } => { // 初始化 API
   startTime = performance.now();
-  const params = new URL(req.url).searchParams, accepts: number[] = [],
+  const params = new URL(req.url).searchParams, accepts: Accept[] = [],
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
-  let acceptAll: boolean | undefined, responseType: number | undefined, fetchDest: number | undefined;
+  let acceptAll: boolean | undefined, responseType: ResponseType | undefined, fetchDest: FetchDest | undefined;
   
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
@@ -173,7 +176,7 @@ const send = (status: number, headers: Headers, data: BodyInit): Response => { /
   headers.set('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3));
   return new Response(data, { status, headers });
 };
-const send404 = (responseType: number, noCache?: boolean): Response => {
+const send404 = (responseType: ResponseType, noCache?: boolean): Response => {
   const headers = new Headers();
   if (responseType === 1) {
     if (!noCache) headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
@@ -182,7 +185,7 @@ const send404 = (responseType: number, noCache?: boolean): Response => {
     return sendJSON(404, headers, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
   }
 };
-const send500 = (responseType: number, error: unknown): Response => {
+const send500 = (responseType: ResponseType, error: unknown): Response => {
   console.error(error);
   const headers = new Headers();
   if (responseType === 1) {
@@ -194,7 +197,7 @@ const send500 = (responseType: number, error: unknown): Response => {
     return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error) } });
   }
 };
-const send504 = (responseType: number): Response => {
+const send504 = (responseType: ResponseType): Response => {
   const headers = new Headers();
   if (responseType === 1) {
     return sendHTML(504, headers, { title: 'API 执行超时', newStyle: true, body: `
@@ -286,7 +289,7 @@ const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https:/
   }
   return (t & maskCode) ^ xorCode;
 };
-const getVidType = (vid?: string): { type?: number; vid?: string | bigint } => { // 判断编号类型
+const getVidType = (vid?: string): { type?: 1 | 2 | 3 | 4; vid?: string | bigint } => { // 判断编号类型
   if (typeof vid !== 'string') return {};
   if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
@@ -304,7 +307,7 @@ const getVidType = (vid?: string): { type?: number; vid?: string | bigint } => {
     return {};
   }
 };
-const encodeWbi = async (query?: Record<string, string> | URLSearchParams, keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0], keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   keys ??= await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
