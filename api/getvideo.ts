@@ -4,8 +4,8 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
-import type { APIResponse, InternalAPIResponse, SendHTMLData } from '../assets/utils.js';
-import type { resolveFn } from '../assets/constants.js';
+import type { resolveFn, APIResponse, BangumiAPIResponse, InternalAPIResponse, VideoInfoData, BangumiMediaData, BangumiSeasonData } from '../assets/types.d.ts';
+import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
@@ -28,7 +28,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
   }
   
   try {
-    const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; vid?: string }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
+    const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; vid?: string | null }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
@@ -74,13 +74,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           }
           json = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, tid: null, tname: null, copyright: null, pic: null, title: null, pubdate: null, ctime: null, desc: null, desc_v2: [{ raw_text: null, type: 1, biz_id: 0 }], state: null, duration: null, mission_id: null, rights: null, owner: { mid: null, name: null, face: null }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: null, dynamic: null, cid: null, dimension: null, premiere: null, teenage_mode: 0, is_chargeable_season: null, is_story: null, is_upower_exclusive: null, is_upower_play: null, is_upower_preview: null, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, is_season_display: null, user_garb: null, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: null, ...info, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined } }; // 加入缺失的信息，移除“不该出现”的信息
         } else {
-          json = { code: -404, message: '啥都木有', extInfo: { errType: 'notFoundInHistory' } };
+          json = { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'notFoundInHistory' } };
         }
       } else {
-        json = await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
+        json = <APIResponse<VideoInfoData>>await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
         if (json.code === -403 && ![true, false].includes(useCookie)) { // 这个视频需要登录才能获取其信息，如果没有设置不使用 Cookie，且不是已经使用了 Cookie 仍无法获取的，就带 Cookie 重新获取信息
           headers.set('Cookie', `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`);
-          json = await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json();
+          json = <APIResponse<VideoInfoData>>await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json();
         }
       }
       
@@ -88,56 +88,63 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         let cid;
         if (json.code === 0 && json.data.pages) {
           const requestCid = params.get('cid'), requestPage = params.get('p');
-          if (/^\d+$/.test(requestCid) && BigInt(requestCid) > 0 && json.data.pages.some(p => BigInt(p.cid) === BigInt(requestCid))) { // 客户端提供的 cid 有效，且 API 回复的 pages 中包含客户端提供的 cid
+          if (requestCid && /^\d+$/.test(requestCid) && BigInt(requestCid) > 0 && json.data.pages.some(p => BigInt(p.cid) === BigInt(requestCid))) { // 客户端提供的 cid 有效，且 API 回复的 pages 中包含客户端提供的 cid
             cid = BigInt(requestCid); // 将变量“cid”设置为客户端提供的 cid
-          } else if (/^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数“p”有效
+          } else if (requestPage && /^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数“p”有效
             cid = json.data.pages[+requestPage - 1]?.cid; // 将变量“cid”设置为该 P 的 cid
           } else {
             cid = json.data.cid; // 将变量“cid”设置为该视频第 1 P 的 cid
           }
-        }
-        
-        if (cid) { // 视频有效
-          const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
-          let url;
-          for (const qn of qualities) {
-            const vjson = await (await fetch(`https://api.bilibili.com/x/player/wbi/playurl?${await utils.encodeWbi({ bvid: vid, cid, qn, fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: '', platform: qn === 6 ? 'pc' : 'html5', high_quality: 1 })}`, { headers })).json();
-            if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
-              url = vjson.data.durl[0].url;
-            } else {
-              break;
-            }
-          }
           
-          if (url) { // 视频地址获取成功
-            const filename = encodeURIComponent(`${json.data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
-            const resp = await fetch(url, { headers });
-            if (resp.ok) {
-              respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
-              respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
-              respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-              send(200, resp.body);
-            } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                sendHTML(400, { title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: requestVid });
+          if (cid) { // 客户端提供的分 P 参数有效
+            const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
+            let url;
+            for (const qn of qualities) {
+              const vjson = await (await fetch(`https://api.bilibili.com/x/player/wbi/playurl?${await utils.encodeWbi({ bvid: vid, cid, qn, fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: '', platform: qn === 6 ? 'pc' : 'html5', high_quality: 1 })}`, { headers })).json();
+              if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
+                url = vjson.data.durl[0].url;
               } else {
-                respHeaders.set('Content-Type', 'video/mp4');
-                send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
+                break;
               }
             }
-          } else { // 视频地址获取失败
+            
+            if (url) { // 视频地址获取成功
+              const filename = encodeURIComponent(`${json.data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
+              const resp = await fetch(url, { headers });
+              if (resp.ok) {
+                respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
+                respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
+                send(200, resp.body);
+              } else {
+                if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
+                  sendHTML(400, { title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: requestVid });
+                } else {
+                  respHeaders.set('Content-Type', 'video/mp4');
+                  send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
+                }
+              }
+            } else { // 视频地址获取失败
+              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
+                sendHTML(500, { title: '无法获取视频数据', content: `
+                  抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
+                  如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
+              } else {
+                respHeaders.set('Content-Type', 'video/mp4');
+                send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
+              }
+            }
+          } else { // 客户端提供的分 P 参数无效
             if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-              sendHTML(500, { title: '无法获取视频数据', content: `
-                抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
-                如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
+              sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您可能输入了错误的分 P 哟 qwq', vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
-              send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
+              send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
             }
           }
         } else { // 视频无效
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-            sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在，或者您可能输入了错误的分 P 哟 qwq', vid: requestVid });
+            sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
             send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -331,10 +338,10 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         }
       }
     } else if (type === 2) { // 编号为 mdid
-      const json = await (await fetch(`https://api.bilibili.com/pgc/review/user?media_id=${vid}`, { headers })).json();
+      const json = <BangumiAPIResponse<BangumiMediaData>>await (await fetch(`https://api.bilibili.com/pgc/review/user?media_id=${vid}`, { headers })).json();
       if (responseType === 3) { // 获取视频数据
-        if (json.code === 0 && json.result.media.season_id) {
-          params.set('vid', `ss${json.result.media.season_id}`);
+        if (json.code === 0 && json.result!.media.season_id) {
+          params.set('vid', `ss${json.result!.media.season_id}`);
           resolve(utils.redirect(308, `?${params}`));
         } else { // 视频无效
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
@@ -347,22 +354,23 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       } else if (responseType === 1) { // 回复 HTML
         switch (json.code) {
           case 0:
+            const result = json.result!;
             const content = `
               <div class="main-info-outer">
                 <div class="main-info-inner">
                   <div class="image-wrap">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"><img class="spic" title="${utils.encodeHTML(json.result.media.title)}" src="${utils.toHTTPS(json.result.media.cover)}" /></a>
+                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"><img class="spic" title="${utils.encodeHTML(result.media.title)}" src="${utils.toHTTPS(result.media.cover)}" /></a>
                   </div>
                   <div class="detail">
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}">${utils.encodeHTML(json.result.media.title)}</a><br />
-                    <span class="description">${json.result.media.season_id ? `ss${json.result.media.season_id}，` : ''}md${json.result.media.media_id}</span><br />
-                    ${utils.encodeHTML(json.result.media.type_name)} ${utils.encodeHTML(json.result.media.new_ep?.index_show)} ${json.result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${json.result.media.rating ? `${json.result.media.rating.score ? `${json.result.media.rating.score.toFixed(1)} 分` : ''}（共 ${json.result.media.rating.count} 人评分）` : '暂无评分'}
+                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}">${utils.encodeHTML(result.media.title)}</a><br />
+                    <span class="description">${result.media.season_id ? `ss${result.media.season_id}，` : ''}md${result.media.media_id}</span><br />
+                    ${utils.encodeHTML(result.media.type_name)} ${utils.encodeHTML(result.media.new_ep?.index_show)} ${result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.media.rating ? `${result.media.rating.score ? `${result.media.rating.score.toFixed(1)} 分` : ''}（共 ${result.media.rating.count} 人评分）` : '暂无评分'}
                   </div>
                 </div>
               </div>
-              ${json.result.media.new_ep?.id ? `<strong>最新一话：</strong><a href="?vid=ep${json.result.media.new_ep.id}">${utils.encodeHTML(json.result.media.new_ep.index)}</a><br />` : ''}
-              ${json.result.media.season_id ? `<a href="?vid=ss${json.result.media.season_id}">点击此处查看更多信息</a>` : ''}`;
-            sendHTML(200, { title: `${json.result.media.title} 的信息`, imageBackground: utils.toHTTPS(json.result.media.cover), content, vid: requestVid });
+              ${result.media.new_ep?.id ? `<strong>最新一话：</strong><a href="?vid=ep${result.media.new_ep.id}">${utils.encodeHTML(result.media.new_ep.index)}</a><br />` : ''}
+              ${result.media.season_id ? `<a href="?vid=ss${result.media.season_id}">点击此处查看更多信息</a>` : ''}`;
+            sendHTML(200, { title: `${result.media.title} 的信息`, imageBackground: utils.toHTTPS(result.media.horizontal_picture || result.media.cover), content, vid: requestVid });
             break;
           case -352:
           case -401:
@@ -379,11 +387,12 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         }
       } else if (responseType === 2) { // 回复封面数据
         if (json.code === 0) {
+          const result = json.result!
           if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的封面地址
-            resolve(utils.redirect(307, utils.toHTTPS(json.result.media.cover)));
+            resolve(utils.redirect(307, utils.toHTTPS(result.media.cover)));
           } else {
-            const filename = encodeURIComponent(`${json.result.media.title} 的封面.${new URL(json.result.media.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
-            const resp = await fetch(utils.toHTTPS(json.result.media.cover)); // 获取 B 站服务器存储的封面
+            const filename = encodeURIComponent(`${result.media.title} 的封面.${new URL(result.media.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
+            const resp = await fetch(utils.toHTTPS(result.media.cover)); // 获取 B 站服务器存储的封面
             if (resp.status === 200) {
               respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
               respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -392,9 +401,9 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                 if (fetchDest === 1) {
-                  sendHTML(404, { title: `获取 ${json.result.media.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
+                  sendHTML(404, { title: `获取 ${result.media.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                 } else {
-                  sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.result.media.cover), upstreamServerRespStatus: resp.status } });
+                  sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(result.media.cover), upstreamServerRespStatus: resp.status } });
                 }
               } else {
                 respHeaders.set('Content-Type', 'image/png');
@@ -417,7 +426,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       } else { // 回复 JSON
         switch (json.code) {
           case 0:
-            sendJSON(200, { code: 0, message: json.message, data: json.result });
+            sendJSON(200, { code: 0, message: json.message, data: json.result! });
             break;
           case -352:
           case -401:
@@ -433,78 +442,86 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             sendJSON(400, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
         }
       }
-    } else if ([3, 4].includes(type)) { // 编号为 ssid 或 epid
-      const json = await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
+    } else if (type && [3, 4].includes(type)) { // 编号为 ssid 或 epid
+      const json = <BangumiAPIResponse<BangumiSeasonData>>await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
       if (responseType === 3) { // 获取剧集中某一集的视频数据
-        let P;
         if (json.code === 0) {
+          const result = json.result!;
+          let P;
           if (type === 3) { // 编号为 ssid
             const requestCid = params.get('cid'), requestPage = params.get('p');
-            if (/^\d+$/.test(requestCid) && BigInt(requestCid) > 0) { // 客户端提供的 cid 有效
-              P = json.result.episodes.find(p => BigInt(p.cid) === BigInt(requestCid)); // 在正片中寻找 cid 与客户端提供的 cid 相同的一集
+            if (requestCid && /^\d+$/.test(requestCid) && BigInt(requestCid) > 0) { // 客户端提供的 cid 有效
+              P = result.episodes.find(p => BigInt(p.cid) === BigInt(requestCid)); // 在正片中寻找 cid 与客户端提供的 cid 相同的一集
               if (!P) { // 在正片中没有找到
-                for (const s of json.result.section) { // 在其他部分寻找
+                for (const s of result.section) { // 在其他部分寻找
                   P = s.episodes.find(p => BigInt(p.cid) === BigInt(requestCid));
                   if (P) break;
                 }
               }
-            } else if (/^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数“p”有效
-              P = json.result.episodes[+requestPage - 1];
+            } else if (requestPage && /^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数“p”有效
+              P = result.episodes[+requestPage - 1];
             } else {
-              P = json.result.episodes[0]; // 第 1 集
+              P = result.episodes[0]; // 第 1 集
             }
           } else { // 编号为 epid
-            P = json.result.episodes.find(p => p.id === vid); // 在正片中寻找 epid 与客户端提供的 epid 相同的一集
+            P = result.episodes.find(p => p.id === vid); // 在正片中寻找 epid 与客户端提供的 epid 相同的一集
             if (!P) { // 在正片中没有找到
-              for (const s of json.result.section) { // 在其他部分寻找
+              for (const s of result.section) { // 在其他部分寻找
                 P = s.episodes.find(p => p.id === vid);
                 if (P) break;
               }
             }
           }
-        }
-        
-        if (P) { // 剧集有效
-          const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
-          let url;
-          for (const q of qualities) {
-            const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0&fourk=1&from_client=BROWSER`, { headers })).json();
-            if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
-              url = vjson.result.durl[0].url;
-            } else {
-              break;
-            }
-          }
           
-          if (url) { // 视频地址获取成功
-            const filename = encodeURIComponent(`${json.result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
-            const resp = await fetch(url, { headers });
-            if (resp.ok) {
-              respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
-              respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
-              respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
-              send(200, resp.body);
-            } else {
-              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                sendHTML(400, { title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: requestVid });
+          if (P) { // 客户端提供的集号参数有效
+            const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
+            let url;
+            for (const q of qualities) {
+              const vjson = await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0&fourk=1&from_client=BROWSER`, { headers })).json();
+              if (vjson.code === 0 && vjson.result.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
+                url = vjson.result.durl[0].url;
               } else {
-                respHeaders.set('Content-Type', 'video/mp4');
-                send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
+                break;
               }
             }
-          } else { // 视频地址获取失败
+            
+            if (url) { // 视频地址获取成功
+              const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
+              const resp = await fetch(url, { headers });
+              if (resp.ok) {
+                respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
+                respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
+                send(200, resp.body);
+              } else {
+                if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
+                  sendHTML(400, { title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: requestVid });
+                } else {
+                  respHeaders.set('Content-Type', 'video/mp4');
+                  send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
+                }
+              }
+            } else { // 视频地址获取失败
+              if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
+                sendHTML(500, { title: '无法获取视频数据', content: `
+                  抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
+                  如果您想下载这一集，最好使用其他工具哟 awa`, vid: requestVid });
+              } else {
+                respHeaders.set('Content-Type', 'video/mp4');
+                send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
+              }
+            }
+          } else { // 客户端提供的集号参数无效
             if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-              sendHTML(500, { title: '无法获取视频数据', content: `
-                抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
-                如果您想下载这一集，最好使用其他工具哟 awa`, vid: requestVid });
+              sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您可能输入了错误的集号哟 qwq', vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
-              send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
+              send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
             }
           }
         } else { // 剧集无效
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-            sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在，或者您可能输入了错误的集号哟 qwq', vid: requestVid });
+            sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
             send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -514,29 +531,29 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         if (responseType === 1) { // 回复 HTML
           switch (json.code) {
             case 0:
-              const types = { 1: '番剧', 2: '电影', 3: '纪录片', 4: '国创', 5: '电视剧', 7: '综艺' };
+              const result = json.result!, types = { 1: '番剧', 2: '电影', 3: '纪录片', 4: '国创', 5: '电视剧', 6: '漫画', 7: '综艺' };
               const content = `
                 <div class="main-info-outer">
                   <div class="main-info-inner">
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${json.result.season_id}"><img class="spic" title="${utils.encodeHTML(json.result.title)}" src="${utils.toHTTPS(json.result.cover)}" /></a>
+                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${result.season_id}"><img class="spic" title="${utils.encodeHTML(result.title)}" src="${utils.toHTTPS(result.cover)}" /></a>
                     </div>
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${json.result.season_id}">${utils.encodeHTML(json.result.title)}</a><br />
-                      <span class="description">ss${json.result.season_id}，md${json.result.media_id}</span><br />
-                      ${json.result.styles?.length ? `<span class="description">${json.result.styles.map(s => `<span class="icon-font icon-tag"></span> ${utils.encodeHTML(s)}`).join(' ')}</span><br />` : ''}
-                      ${types[json.result.type] ?? ''}${json.result.rights.copyright === 'bilibili' ? ' 授权' : json.result.rights.copyright === 'dujia' ? ' 独家' : ''}${json.result.total === -1 ? '' : ` 已完结，共 ${json.result.total} 集`} ${json.result.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${json.result.rating?.score ? `${json.result.rating.score.toFixed(1)} 分（共 ${json.result.rating.count} 人评分）` : '暂无评分'}
+                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${result.season_id}">${utils.encodeHTML(result.title)}</a><br />
+                      <span class="description">ss${result.season_id}，md${result.media_id}</span><br />
+                      ${result.styles?.length ? `<span class="description">${result.styles.map(s => `<span class="icon-font icon-tag"></span> ${utils.encodeHTML(s)}`).join(' ')}</span><br />` : ''}
+                      ${types[result.type] ?? ''}${result.rights.copyright === 'bilibili' ? ' 授权' : result.rights.copyright === 'dujia' ? ' 独家' : ''}${result.total === -1 ? '' : ` 已完结，共 ${result.total} 集`} ${result.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.rating?.score ? `${result.rating.score.toFixed(1)} 分（共 ${result.rating.count} 人评分）` : '暂无评分'}
                     </div>
                   </div>
                 </div>
-                <strong>发布时间：</strong>${utils.encodeHTML(json.result.publish.pub_time)}<br />
-                ${json.result.record ? `<strong>备案号：</strong>${utils.encodeHTML(json.result.record)}<br />` : ''}
-                ${json.result.actors || json.result.staff ? `
+                <strong>发布时间：</strong>${utils.encodeHTML(result.publish.pub_time)}<br />
+                ${result.record ? `<strong>备案号：</strong>${utils.encodeHTML(result.record)}<br />` : ''}
+                ${result.actors || result.staff ? `
                 <details>
                   <summary>查看制作人员信息</summary>
                   <div class="details">
-                    ${json.result.actors ? `<strong>角色配音：</strong><br />${utils.encodeHTML(json.result.actors)}<br />` : ''}
-                    ${json.result.staff ? `<strong>制作人员：</strong><br />${utils.encodeHTML(json.result.staff)}` : ''}
+                    ${result.actors ? `<strong>角色配音：</strong><br />${utils.encodeHTML(result.actors)}<br />` : ''}
+                    ${result.staff ? `<strong>制作人员：</strong><br />${utils.encodeHTML(result.staff)}` : ''}
                   </details>
                 </details>` : ''}
                 <table>
@@ -544,27 +561,27 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     <tr><th>播放</th><th>追番</th><th>弹幕</th><th>评论</th><th>点赞</th><th>投币</th><th>收藏</th><th>分享</th></tr>
                   </thead>
                   <tbody>
-                    <tr><td>${utils.getNumber(json.result.stat.views)}</td><td>${utils.getNumber(json.result.stat.favorites)}</td><td>${utils.getNumber(json.result.stat.danmakus)}</td><td>${utils.getNumber(json.result.stat.reply)}</td><td>${utils.getNumber(json.result.stat.likes)}</td><td>${utils.getNumber(json.result.stat.coins)}</td><td>${utils.getNumber(json.result.stat.favorite)}</td><td>${utils.getNumber(json.result.stat.share)}</td></tr>
+                    <tr><td>${utils.getNumber(result.stat.views)}</td><td>${utils.getNumber(result.stat.favorites)}</td><td>${utils.getNumber(result.stat.danmakus)}</td><td>${utils.getNumber(result.stat.reply)}</td><td>${utils.getNumber(result.stat.likes)}</td><td>${utils.getNumber(result.stat.coins)}</td><td>${utils.getNumber(result.stat.favorite)}</td><td>${utils.getNumber(result.stat.share)}</td></tr>
                   </tbody>
                 </table>
-                ${json.result.up_info ? `
-                <div class="main-info-outer" id="user-${json.result.up_info.mid}" style="background-image: url(${utils.toHTTPS(json.result.up_info.avatar)});">
+                ${result.up_info ? `
+                <div class="main-info-outer" id="user-${result.up_info.mid}" style="background-image: url(${utils.toHTTPS(result.up_info.avatar)});">
                   <div class="main-info-inner image">
                     <div class="left"><strong>UP 主：</strong></div>
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}">
-                        <img class="face" title="${utils.encodeHTML(json.result.up_info.uname)}" src="${utils.toHTTPS(json.result.up_info.avatar)}" />
-                        ${[1, 2, 7, 9].includes(json.result.up_info.verify_type) ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : [3, 4, 5, 6].includes(json.result.up_info.verify_type) ? '<img class="face-icon icon-business" alt title="机构认证" />' : json.result.up_info.vip_status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
+                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${result.up_info.mid}">
+                        <img class="face" title="${utils.encodeHTML(result.up_info.uname)}" src="${utils.toHTTPS(result.up_info.avatar)}" />
+                        ${[1, 2, 7, 9].includes(result.up_info.verify_type) ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : [3, 4, 5, 6].includes(result.up_info.verify_type) ? '<img class="face-icon icon-business" alt title="机构认证" />' : result.up_info.vip_status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                       </a>
                     </div>
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${json.result.up_info.mid}">${utils.encodeHTML(json.result.up_info.uname)}</a><br />
-                      <strong>粉丝数：</strong>${utils.getNumber(json.result.up_info.follower)}
+                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${result.up_info.mid}">${utils.encodeHTML(result.up_info.uname)}</a><br />
+                      <strong>粉丝数：</strong>${utils.getNumber(result.up_info.follower)}
                     </div>
                   </div>
                 </div>` : ''}
                 <strong>正片：</strong>
-                ${json.result.episodes.map(p => `
+                ${result.episodes.map(p => `
                 <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
                   <div class="main-info-inner${p.cover ? ' image' : ''}">
                     <div class="left"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.title)}</a></div>
@@ -581,7 +598,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     </div>
                   </div>
                 </div>`).join('')}
-                ${json.result.section ? json.result.section.map(s => `
+                ${result.section ? result.section.map(s => `
                 <strong>${utils.encodeHTML(s.title)}：</strong>
                 ${s.episodes.map(p => s.type === 5 ? `
                 <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
@@ -616,8 +633,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                   </div>
                 </div>`).join('')}`).join('') : ''}
                 <strong>简介：</strong><br />
-                ${utils.markText(json.result.evaluate)}`;
-              sendHTML(200, { title: `${json.result.title} 的信息`, imageBackground: utils.toHTTPS(json.result.cover), content, vid: requestVid });
+                ${utils.markText(result.evaluate)}`;
+              sendHTML(200, { title: `${result.title} 的信息`, imageBackground: utils.toHTTPS(result.bkg_cover || result.cover), content, vid: requestVid });
               break;
             case -352:
             case -401:
@@ -634,11 +651,12 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           }
         } else if (responseType === 2) { // 回复封面数据
           if (json.code === 0) {
+            const result = json.result!;
             if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的封面地址
-              resolve(utils.redirect(307, utils.toHTTPS(json.result.cover)));
+              resolve(utils.redirect(307, utils.toHTTPS(result.cover)));
             } else {
-              const filename = encodeURIComponent(`${json.result.title} 的封面.${new URL(json.result.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
-              const resp = await fetch(utils.toHTTPS(json.result.cover)); // 获取 B 站服务器存储的封面
+              const filename = encodeURIComponent(`${result.title} 的封面.${new URL(result.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
+              const resp = await fetch(utils.toHTTPS(result.cover)); // 获取 B 站服务器存储的封面
               if (resp.status === 200) {
                 respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -647,9 +665,9 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                   if (fetchDest === 1) {
-                    sendHTML(404, { title: `获取 ${json.result.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(json.result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
+                    sendHTML(404, { title: `获取 ${result.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                   } else {
-                    sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(json.result.title), upstreamServerRespStatus: resp.status } });
+                    sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(result.title), upstreamServerRespStatus: resp.status } });
                   }
                 } else {
                   respHeaders.set('Content-Type', 'image/png');
@@ -672,7 +690,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         } else { // 回复 JSON
           switch (json.code) {
             case 0:
-              sendJSON(200, { code: 0, message: json.message, data: json.result });
+              sendJSON(200, { code: 0, message: json.message, data: json.result! });
               break;
             case -352:
             case -401:

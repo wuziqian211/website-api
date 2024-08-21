@@ -52,10 +52,12 @@
 > 3. API 可以给您简化一些操作，如：您在引用图片时，直接填写图片链接为 [`https://api.yumeharu.top/api/getuser?mid=2&type=avatar`](https://api.yumeharu.top/api/getuser?mid=2&type=avatar) 即可引用 B 站上 UID 为 2 的用户的头像，并且会实时更新。
 
 > [!NOTE]
+>
 > - 这些 API 的服务器不在中国大陆。如果您可以正常调用 B 站的 API，最好直接使用 B 站的 API，可以更快回复您所需要的信息。
 > - 由于本 API 可以返回多种类型的数据，因此**建议您始终带 `type` 参数调用 API**，详见[回复数据类型规则](#通过-type-参数判断)。
 
 > [!CAUTION]
+>
 > - **请勿将这些 API 用于非法目的！这些 API 的目的是方便大家的使用，并且可能会随时停止开发或删档。因恶意使用这些 API 而造成的不良影响及后果与本项目无关。**
 > - 本项目为开源项目，不接受任何形式的索取或催单行为，更不容许存在付费内容。
 
@@ -356,7 +358,8 @@
       "is_display": false,
       "is_follow_display": false
     },
-    "certificate_show": false
+    "certificate_show": false,
+    "name_render": null
   },
   "extInfo": { // 扩展信息
     "dataSource": [ // 数据来源
@@ -385,7 +388,7 @@
 | assets/apple-touch-icon.png | 网站图标 |
 | assets/big-vip.svg, assets/business.svg, assets/nft.gif, assets/nft-label.gif, assets/nft-label-oversea.gif, assets/personal.svg, assets/small-vip.svg | 哔哩哔哩大会员、机构认证、数字藏品头像（无白色边框）、数字藏品头像、海外版数字藏品头像、UP 主认证与愚人节限定的 “小会员” 图标 |
 | assets/big-vip_dark.svg, assets/business_dark.svg, assets/personal_dark.svg, assets/small-vip_dark.svg | 深色模式下的哔哩哔哩大会员、机构认证、UP 主认证与愚人节限定的 “小会员” 图标 |
-| assets/constants.ts | 类型与常量（视频的分区、状态，朋友列表）定义文件 |
+| assets/constants.ts | 常量定义文件，如视频的分区、状态，朋友列表 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就回复本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
 | assets/iconfont.woff2 | 图标字体文件 |
@@ -395,6 +398,7 @@
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就回复本文件数据 |
 | assets/style.css | 页面使用的 CSS |
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
+| assets/types.d.ts | 类型定义文件 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | favicon.ico | 网站图标 |

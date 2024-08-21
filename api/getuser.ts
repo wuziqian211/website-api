@@ -4,8 +4,8 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
-import type { APIResponse, InternalAPIResponse, SendHTMLData } from '../assets/utils.js';
-import type { resolveFn, CardData, SpaceAccInfoData } from '../assets/constants.js';
+import type { resolveFn, secondLevelTimestamp, APIResponse, InternalAPIResponse, UserCardData, UserInfoData, InternalAPIGetUserInfoData } from '../assets/types.d.ts';
+import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
@@ -38,13 +38,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             mid = BigInt(requestMid);
       
       let json;
-      const cjson = <{ ts?: number; code: number; message: string; card?: CardData }>await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
+      const cjson = <{ ts?: secondLevelTimestamp; code: number; message: string; card?: UserCardData }>await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
       if (cjson.code === 0) {
         const card = cjson.card!;
-        json = { code: 0, message: '0', data: { mid: utils.largeNumberHandler(mid), name: null, approve: false, sex: null, face: null, face_nft: null, face_nft_type: null, sign: null, description: '', rank: null, DisplayRank: null, level: null, jointime: 0, regtime: 0, spacesta: null, place: '', moral: 0, silence: null, coins: 0, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: null, fans_medal: { show: null, wear: null, medal: null }, official: { role: null, title: null, desc: null, type: null }, official_verify: { type: null, desc: null }, vip: null, pendant: null, nameplate: null, user_honour_info: null, is_followed: false, top_photo: null, theme: {}, sys_notice: null, live_room: null, birthday: 0, school: { name: null }, profession: { name: null, department: null, title: null, is_show: null }, tags: null, series: null, is_senior_member: null, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: null }, contract: { is_display: null, is_follow_display: null }, certificate_show: null, name_render: null }, extInfo: { dataSource: ['getCardByMid'] } };
-        Object.assign(json.data, { ...card, mid: utils.largeNumberHandler(card.mid), rank: utils.largeNumberHandler(card.rank), level: card.level_info.current_level, silence: +(card.spacesta === -2), following: card.attention, follower: card.fans, official: { role: null, title: card.official_verify.desc, desc: null, type: card.official_verify.type }, birthday: Math.floor(Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000) });
+        json = { code: 0, message: '0', data: <InternalAPIGetUserInfoData>{ mid: utils.largeNumberHandler(mid), name: '', approve: false, sex: '保密', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 0, DisplayRank: '0', level: 0, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: 0, coins: 0, article: 0, attentions: [], fans: 0, friend: 0, attention: 0, following: 0, follower: 0, level_info: { next_exp: 1, current_level: 0, current_min: 0, current_exp: 0 }, fans_badge: false, fans_medal: { show: false, wear: false, medal: null }, official: { role: 0, title: '', desc: '', type: -1 }, official_verify: { type: -1, desc: '' }, vip: { type: 0, status: 0, due_date: 0, vip_pay_type: 0, theme_type: 0, label: { path: '', text: '', label_theme: '', text_color: '', bg_style: 0, bg_color: '', border_color: '', use_img_label: true, img_label_uri_hans: '', img_label_uri_hant: '', img_label_uri_hans_static: '', img_label_uri_hant_static: '' }, avatar_subscript: 0, nickname_color: '', role: 0, avatar_subscript_url: '', tv_vip_status: 0, tv_vip_pay_type: 0, tv_due_date: 0, avatar_icon: { icon_resource: {} } }, pendant: { pid: 0, name: '', image: '', expire: 0, image_enhance: '', image_enhance_frame: '', n_pid: 0 }, nameplate: { nid: 0, name: '', image: '', image_small: '', level: '', condition: '' }, user_honour_info: { mid: 0, colour: null, tags: [], is_latest_100honour: 0 }, is_followed: false, top_photo: '', theme: {}, sys_notice: {}, live_room: null, birthday: 0, school: { name: '' }, profession: { name: '', department: '', title: '', is_show: 0 }, tags: null, series: { user_upgrade_status: 3, show_upgrade_window: false }, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: { show: false, state: -1, title: '', icon: '', jump_url: '' } }, contract: { is_display: false, is_follow_display: false }, certificate_show: false, name_render: null }, extInfo: { dataSource: ['getCardByMid'] } };
+        Object.assign(json.data, { ...card, mid: utils.largeNumberHandler(card.mid), rank: card.rank, level: card.level_info.current_level, silence: +(card.spacesta === -2), following: card.attention, follower: card.fans, official: { role: 0, title: card.official_verify.desc, desc: '', type: card.official_verify.type }, birthday: Math.floor(Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000) });
         if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 而无需调用下面的 API 即可获取头像地址
-          const ujson = <APIResponse<SpaceAccInfoData>>await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid: mid.toString() })}`, { headers })).json(); // （备用）获取多用户信息：https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards?uids=(...),(...),……
+          const ujson = <APIResponse<UserInfoData>>await (await fetch(`https://api.bilibili.com/x/space/wbi/acc/info?${await utils.encodeWbi({ mid: mid.toString() })}`, { headers })).json(); // （备用）获取多用户信息：https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards?uids=(...),(...),……
           if (ujson.code === 0) {
             json.message = ujson.message;
             Object.assign(json.data, { ...ujson.data, is_followed: false, birthday: Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000 });
@@ -60,7 +60,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       if (responseType === 1) { // 回复 HTML
         switch (json.code) {
           case 0:
-            const data: CardData & SpaceAccInfoData & { mid: number | string; following: number; follower: number; birthday: number } = json.data!;
+            const data = json.data!;
             const content = `
               <img style="display: none;" alt src="${data.top_photo ? utils.toHTTPS(data.top_photo) : '/assets/top-photo.png'}" />
               <div class="main-info-outer">
@@ -81,7 +81,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     ${[0, 1].includes(data.official.type) ? `<img class="official-icon icon-${data.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${data.official.title ? '：' : ''}</strong>${utils.encodeHTML(data.official.title)}${data.official.desc ? `<span class="description">（${utils.encodeHTML(data.official.desc)}）</span>` : ''}<br />` : ''}
                     ${data.tags?.length ? `<span class="description">${data.tags.map(t => `<span class="icon-font icon-tag"></span> ${utils.encodeHTML(t)}`).join(' ')}</span><br />` : ''}
                     ${data.silence ? '<span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span><br />' : ''}
-                    ${data.sys_notice?.content ? `<${data.sys_notice.url ? `a class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${data.sys_notice.url}"` : `span class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${utils.encodeHTML(data.sys_notice.content)}</${data.sys_notice.url ? 'a' : 'span'}>` : ''}
+                    ${data.sys_notice && 'content' in data.sys_notice && data.sys_notice.content ? `<${data.sys_notice.url ? `a class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${data.sys_notice.url}"` : `span class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${utils.encodeHTML(data.sys_notice.content)}</${data.sys_notice.url ? 'a' : 'span'}>` : ''}
                   </div>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         }
       } else if (responseType === 2) { // 回复头像数据
         if (json.code === 0) {
-          const data: CardData & SpaceAccInfoData & { mid: number | string; following: number; follower: number; birthday: number } = json.data!;
+          const data = json.data!;
           if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的头像地址
             resolve(utils.redirect(307, utils.toHTTPS(data.face)));
           } else {
@@ -149,7 +149,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       } else { // 回复 JSON
         switch (json.code) {
           case 0:
-            sendJSON(200, { code: 0, message: json.message, data: json.data, extInfo: json.extInfo });
+            sendJSON(200, { code: 0, message: json.message, data: json.data!, extInfo: json.extInfo! });
             break;
           case -352:
           case -401:

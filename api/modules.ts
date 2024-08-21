@@ -1,9 +1,8 @@
-import type { APIResponse, InternalAPIResponse } from '../assets/utils.js';
-import type { resolveFn, stringifiedNumber, FriendInfo, SmmsUploadResponse } from '../assets/constants.js';
+import type { resolveFn, numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 interface HashInfo {
-  s: stringifiedNumber;
+  s: numericString;
   h: string;
 }
 

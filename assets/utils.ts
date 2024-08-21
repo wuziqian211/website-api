@@ -1,14 +1,6 @@
-import type { resolveFn, url, NavData } from './constants.js';
+import type { resolveFn, numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, APIResponse, InternalAPIResponse, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
 
-interface APIResponse<dataType> { // API 返回的 JSON 数据结构
-  code: number;
-  message: string;
-  data: dataType;
-}
-interface InternalAPIResponse<dataType> extends APIResponse<dataType> {
-  extInfo?: object;
-}
 interface SendHTMLData {
   title: string; // 页面标题
   appleTouchIcon?: url; // 页面图标链接
@@ -26,7 +18,7 @@ interface WbiKeys {
   subKey: string;
 }
 interface CachedWbiKeys extends WbiKeys {
-  updatedTimestamp: number;
+  updatedTimestamp: millisecondLevelTimestamp;
 }
 type ResponseType = 0 | 1 | 2 | 3; // 0：JSON，1：HTML，2：图片，3：视频，下同
 type FetchDest = 0 | 1 | 2 | 3;
@@ -36,7 +28,7 @@ import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
-let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: number;
+let cachedWbiKeys: CachedWbiKeys, timer: NodeJS.Timeout | undefined, startTime: millisecondLevelTimestamp;
 const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: resolveFn<Response>): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType } => { // 初始化 API
   startTime = performance.now();
   const params = new URL(req.url).searchParams, accepts: Accept[] = [],
@@ -116,7 +108,7 @@ const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve
   
   return { params, respHeaders: new Headers(), fetchDest, responseType };
 };
-const getRunningTime = (ts: number): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
+const getRunningTime = (ts: secondLevelTimestamp): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
   if (timer) {
     clearTimeout(timer);
@@ -224,8 +216,8 @@ const redirect = (status: number, url: url, noCache?: boolean): Response => { //
   }
   return sendJSON(status, headers, { code: status, message: 'redirect', data: { url }, extInfo: { redirectUrl: url } });
 };
-const encodeHTML = (str?: string | null): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
-const markText = (str?: string | null): string => { // 将纯文本中的特殊标记转化成可点击的链接
+const encodeHTML = (str?: string): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
+const markText = (str?: string): string => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
@@ -254,20 +246,20 @@ const markText = (str?: string | null): string => { // 将纯文本中的特殊�
   }
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
-const toHTTPS = (url?: url | null): url => { // 将网址协议改成 HTTPS
+const toHTTPS = (url?: url): url => { // 将网址协议改成 HTTPS
   if (!url) return 'data:,';
   const u = new URL(url);
   u.protocol = 'https:';
   return u.href;
 };
-const getDate = (ts?: number | null): string => { // 根据时间戳返回日期时间
+const getDate = (ts?: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
   if (typeof ts !== 'number' || ts === 0) return '未知';
   const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
 };
-const getTime = (s?: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
-const getNumber = (n?: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-const largeNumberHandler = (s: string | bigint | number): string | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
+const getTime = (s?: number): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
+const getNumber = (n?: number): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
+const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString>s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
 const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
   const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
   const base = BigInt(alphabet.length);
@@ -289,8 +281,8 @@ const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https:/
   }
   return (t & maskCode) ^ xorCode;
 };
-const getVidType = (vid?: string): { type?: 1 | 2 | 3 | 4; vid?: string | bigint } => { // 判断编号类型
-  if (typeof vid !== 'string') return {};
+const getVidType = (vid: string | null): { type?: 1 | 2 | 3 | 4; vid?: string | bigint } => { // 判断编号类型
+  if (typeof vid !== 'string' || !vid) return {};
   if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
   } else if (/^\d+$/.test(vid) && BigInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
@@ -329,5 +321,5 @@ const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最
   }
 };
 
-export type { APIResponse, InternalAPIResponse, SendHTMLData };
+export type { SendHTMLData };
 export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
