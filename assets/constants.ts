@@ -1,5 +1,5 @@
 // 常量定义
-import type { url } from '../assets/types.d.ts';
+import type { url } from './types.ts';
 
 // 1. 视频分区列表
 interface Zone {
@@ -237,7 +237,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
 ];
 
 // 2. 视频状态
-const states = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/attribute_data.md
+const states: Record<number, string> = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/attribute_data.md
   0: '该视频已开放浏览', // 开放浏览
   1: '该视频通过审核，但可能会受到限制', // 橙色通过
   '-1': '该视频正在审核', // 待审

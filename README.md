@@ -203,11 +203,11 @@
     "coins": 0,
     "article": 0,
     "attentions": [], // 因涉及隐私，此处隐藏具体数据
-    "fans": 1132101,
-    "friend": 325,
-    "attention": 325,
-    "following": 325,
-    "follower": 1132101,
+    "fans": 1155509,
+    "friend": 344,
+    "attention": 344,
+    "following": 344,
+    "follower": 1155509,
     "level_info": {
       "next_exp": -1,
       "current_level": 6,
@@ -226,8 +226,8 @@
         "medal_name": "别嘴硬",
         "medal_color": 12478086,
         "intimacy": 0, // 因涉及隐私，此处隐藏具体数据
-        "next_intimacy": 0, // 因涉及隐私，此处隐藏具体数据
-        "day_limit": 1500,
+        "next_intimacy": 50000,
+        "day_limit": 25000,
         "medal_color_start": 12478086,
         "medal_color_end": 12478086,
         "medal_color_border": 12478086,
@@ -237,20 +237,12 @@
         "score": 0 // 因涉及隐私，此处隐藏具体数据
       }
     },
-    "official": {
-      "role": 2,
-      "title": "bilibili创始人（站长）",
-      "desc": "",
-      "type": 0
-    },
-    "official_verify": {
-      "type": 0,
-      "desc": "bilibili创始人（站长）"
-    },
+    "official": { "role": 2, "title": "bilibili创始人（站长）", "desc": "", "type": 0 },
+    "official_verify": { "type": 0, "desc": "bilibili创始人（站长）" },
     "vip": {
       "type": 2,
       "status": 1,
-      "due_date": 3960806400000,
+      "due_date": 3974198400000,
       "vip_pay_type": 0,
       "theme_type": 0,
       "label": {
@@ -274,10 +266,7 @@
       "tv_vip_status": 1,
       "tv_vip_pay_type": 1,
       "tv_due_date": 2003500800,
-      "avatar_icon": {
-        "icon_type": 1,
-        "icon_resource": {}
-      }
+      "avatar_icon": { "icon_type": 1, "icon_resource": {} }
     },
     "pendant": {
       "pid": 32257,
@@ -292,18 +281,13 @@
       "nid": 10,
       "name": "见习偶像",
       "image": "https://i1.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
-      "image_small": "https://i2.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
+      "image_small": "https://i0.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
       "level": "普通勋章",
       "condition": "所有自制视频总播放数>=10万"
     },
-    "user_honour_info": {
-      "mid": 0,
-      "colour": null,
-      "tags": [],
-      "is_latest_100honour": 0
-    },
+    "user_honour_info": { "mid": 0, "colour": null, "tags": [], "is_latest_100honour": 0 },
     "is_followed": false,
-    "top_photo": "http://i1.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+    "top_photo": "http://i2.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
     "theme": {},
     "sys_notice": {},
     "live_room": {
@@ -326,47 +310,23 @@
       }
     },
     "birthday": 622137600,
-    "school": {
-      "name": ""
-    },
-    "profession": {
-      "name": "",
-      "department": "",
-      "title": "",
-      "is_show": 0
-    },
+    "school": { "name": "" },
+    "profession": { "name": "", "department": "", "title": "", "is_show": 0 },
     "tags": null,
-    "series": {
-      "user_upgrade_status": 3,
-      "show_upgrade_window": false
-    },
+    "series": { "user_upgrade_status": 3, "show_upgrade_window": false },
     "is_senior_member": 0,
     "mcn_info": null,
     "gaia_res_type": 0,
     "gaia_data": null,
     "is_risk": false,
-    "elec": {
-      "show_info": {
-        "show": true,
-        "state": 1,
-        "title": "",
-        "icon": "",
-        "jump_url": "?oid=2"
-      }
-    },
-    "contract": {
-      "is_display": false,
-      "is_follow_display": false
-    },
+    "elec": { "show_info": { "show": true, "state": 1, "title": "", "icon": "", "jump_url": "?oid=2" } },
+    "contract": { "is_display": false, "is_follow_display": false },
     "certificate_show": false,
     "name_render": null
   },
   "extInfo": { // 扩展信息
-    "dataSource": [ // 数据来源
-      "getCardByMid",
-      "spaceAccInfo"
-    ],
-    "apiExecTime": 933 // 调用 API 耗时（单位：毫秒）
+    "dataSource": ["getCardByMid", "spaceAccInfo"], // 数据来源
+    "apiExecTime": 745.896267 // 调用 API 耗时（单位：毫秒）
   }
 }
 ```
@@ -398,7 +358,7 @@
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就回复本文件数据 |
 | assets/style.css | 页面使用的 CSS |
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
-| assets/types.d.ts | 类型定义文件 |
+| assets/types.ts | 类型定义文件 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | favicon.ico | 网站图标 |
