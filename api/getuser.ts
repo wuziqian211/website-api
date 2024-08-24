@@ -4,7 +4,7 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
-import type { resolveFn, booleanNumber, secondLevelTimestamp, InternalAPIResponse, APIResponse, UserCardData, UserInfoData, InternalAPIGetUserInfoData } from '../assets/types.ts';
+import type { resolveFn, booleanNumber, secondLevelTimestamp, InternalAPIResponse, APIResponse, UserCardData, UserInfoData, InternalAPIGetUserInfoData } from '../assets/types.d.ts';
 import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 

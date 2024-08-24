@@ -4,7 +4,7 @@
  * 作者：wuziqian211（https://www.yumeharu.top/）
  */
 
-import type { resolveFn, InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.ts';
+import type { resolveFn, InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
 import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
@@ -274,7 +274,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               sendHTML(404, { title: '视频审核中', content: '视频正在审核中，请等一下再获取信息吧 awa', vid: requestVid });
               break;
             default:
-              sendHTML(404, { title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: requestVid });
+              sendHTML(400, { title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: requestVid });
           }
         } else if (responseType === 2) { // 回复封面数据
           if (json.code === 0) {

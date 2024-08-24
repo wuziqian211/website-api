@@ -1,4 +1,4 @@
-import type { resolveFn, numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.ts';
+import type { resolveFn, numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 interface HashInfo {

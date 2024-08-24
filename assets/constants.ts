@@ -1,5 +1,5 @@
 // 常量定义
-import type { url } from './types.ts';
+import type { url } from './types.d.ts';
 
 // 1. 视频分区列表
 interface Zone {

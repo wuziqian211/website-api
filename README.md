@@ -358,7 +358,7 @@
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就回复本文件数据 |
 | assets/style.css | 页面使用的 CSS |
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
-| assets/types.ts | 类型定义文件 |
+| assets/types.d.ts | 类型定义文件 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | favicon.ico | 网站图标 |

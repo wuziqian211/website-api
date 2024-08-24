@@ -189,6 +189,7 @@ div.grid-item {
   background: var(--background-color-quarter-transparent);
   border-radius: 10px;
   box-shadow: 10px 10px 5px #0007;
+  overflow: hidden;
   padding: 10px;
   position: relative;
 }

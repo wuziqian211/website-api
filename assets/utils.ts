@@ -1,4 +1,4 @@
-import type { resolveFn, numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, APIResponse, InternalAPIResponse, NavData } from './types.ts';
+import type { resolveFn, numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, APIResponse, InternalAPIResponse, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 export interface SendHTMLData {
