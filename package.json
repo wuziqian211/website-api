@@ -3,7 +3,13 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "@vercel/edge": "latest",
     "@vercel/kv": "latest",
     "md5": "latest"
+  },
+  "devDependencies": {
+    "@types/md5": "latest",
+    "@types/node": "latest",
+    "typescript": "latest"
   }
 }

@@ -1,11 +1,12 @@
 :root {
   --background-color: #fff;
+  --background-color-quarter-transparent: #fffc;
   --background-color-translucent: #fff9;
-  --background-color-quarter-transparent: #fff5;
-  --background-hover-color-quarter-transparent: #ddd5;
+  --background-color-three-quarters-transparent: #fff5;
+  --background-active-color-translucent: #ddd9;
+  --background-active-color-three-quarters-transparent: #ddd5;
   --text-color: #222;
   --highlight-color: #09f;
-  --highlight-color-almost-transparent: #09f1;
   --highlight-hover-color: #3bf;
   --broken-color: #f33;
   --broken-hover-color: #f66;
@@ -18,9 +19,6 @@
   --secondary-color: #777;
 }
 
-span.description {
-  color: var(--secondary-color);
-}
 .text-personal {
   color: #ffc62e;
 }
@@ -94,14 +92,14 @@ body {
 body.image-background {
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  background: url(data:,) center/cover no-repeat fixed var(--background-color);
+  background: center/cover no-repeat fixed var(--background-color);
   transition: background 0.5s 0.5s;
 }
 body.new-style {
   background: radial-gradient(circle at 10% 30%, var(--highlight-color), transparent 20%),
     radial-gradient(circle at 40% 70%, var(--highlight-color), transparent 60%),
     radial-gradient(circle at 80% 35%, var(--highlight-color), transparent 40%),
-    radial-gradient(circle at 90% 90%, var(--highlight-color), transparent 30%), 
+    radial-gradient(circle at 90% 90%, var(--highlight-color), transparent 30%),
     var(--background-color);
   background-attachment: fixed;
 }
@@ -110,8 +108,9 @@ body.new-style {
     background: radial-gradient(circle at 10% 30%, color-mix(in srgb, var(--highlight-color), transparent 70%), transparent 20%),
       radial-gradient(circle at 40% 70%, color-mix(in srgb, var(--highlight-color), transparent 60%), transparent 60%),
       radial-gradient(circle at 80% 35%, color-mix(in srgb, var(--highlight-color), transparent 40%), transparent 40%),
-      radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--highlight-color), transparent 85%), transparent 30%), 
+      radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--highlight-color), transparent 85%), transparent 30%),
       var(--background-color);
+    background-attachment: fixed;
   }
 }
 header {
@@ -135,6 +134,9 @@ div.header {
 div.header > div.left {
   flex: 1;
   font-size: 24px;
+}
+span.description {
+  color: var(--secondary-color);
 }
 div.header > div.left > span.description {
   font-size: 14px;
@@ -161,20 +163,17 @@ body.new-style main.loading {
 body.image-background header, body.image-background main {
   background: var(--background-color-translucent);
 }
-h2, p {
-  margin: 10px 0;
-}
 pre {
-  background: #333;
+  background: var(--background-color-three-quarters-transparent);
   border-radius: 10px;
-  color: #f66;
+  color: var(--broken-color);
   font-family: consolas, Menlo, monospace, 'PingFang SC', 'Microsoft YaHei';
   font-size: 16px;
   overflow: auto;
   padding: 10px;
 }
-div.image-background {
-  background: url(data:,) center/cover no-repeat;
+h2, p {
+  margin: 10px 0;
 }
 div.grid {
   display: grid;
@@ -187,67 +186,82 @@ div.grid.user-list {
   gap: 10px;
   padding: 0;
 }
-div.grid-item {
-  background: var(--background-color-quarter-transparent);
+div.grid-item, a.grid-item {
+  background: var(--background-color-three-quarters-transparent);
   border-radius: 10px;
   box-shadow: 10px 10px 5px #0007;
+  overflow: hidden;
   padding: 10px;
-  position: relative;
 }
-div.grid-item.image-background {
-  box-shadow: none;
-  padding: 0;
-}
-div.grid-item:hover {
-  background: var(--background-color-translucent);
-}
-div.grid-item:active {
-  background: var(--background-hover-color-quarter-transparent);
-}
-body.new-style div.grid-item {
+body.new-style div.grid-item, body.new-style a.grid-item {
   border-radius: 20px;
   padding: 20px;
 }
-div.grid-item strong.grid-title {
+div.grid-item > strong.grid-title, a.grid-item > strong.grid-title {
   font-size: 20px;
 }
-div.grid-item a.grid-link {
+div.grid-item.main-info-outer {
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+div.main-info-outer {
+  background: center/cover no-repeat;
+  border-radius: 10px;
+  margin: 0 0 5px;
+  overflow: hidden;
+}
+div.main-info-inner, a.main-info-inner {
+  align-items: center;
+  background: var(--background-color-three-quarters-transparent);
+  display: flex;
+  padding: 5px 10px;
+}
+div.main-info-inner {
+  position: relative;
+}
+div.main-info-inner.image, a.main-info-inner.image {
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  background: var(--background-color-translucent);
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+}
+a.grid-item:hover, div.main-info-inner:hover, a.main-info-inner:hover {
+  background: var(--background-color-translucent);
+}
+a.grid-item:active, div.main-info-inner:active, a.main-info-inner:active {
+  background: var(--background-active-color-three-quarters-transparent);
+}
+div.main-info-inner.image:hover, a.main-info-inner.image:hover {
+  background: var(--background-color-quarter-transparent);
+}
+div.main-info-inner.image:active, a.main-info-inner.image:active {
+  background: var(--background-active-color-translucent);
+}
+div.main-info-inner > div.left, a.main-info-inner > div.left, table * {
+  overflow-wrap: break-word;
+}
+div.main-info-inner > div.left, div.main-info-inner > div.image-wrap, a.main-info-inner > div.left, a.main-info-inner > div.image-wrap {
+  margin-right: 5px;
+}
+div.image-wrap {
+  position: relative;
+}
+div.main-info-inner > div.detail, a.main-info-inner > div.detail {
+  flex: 1;
+}
+div.main-info-inner > a.main-info-link {
   height: 100%;
   left: 0;
   position: absolute;
   top: 0;
   width: 100%;
 }
-div.image-background {
-  border-radius: 10px;
-}
-div.main-info {
-  align-items: center;
-  background: var(--background-color-quarter-transparent);
-  border-radius: 10px;
-  display: flex;
-  margin: 0 0 5px;
-  padding: 5px 10px;
-}
-div.main-info.image {
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  background: var(--background-color-translucent);
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
-}
-div.main-info > div.left, table * {
-  overflow-wrap: break-word;
-}
-div.main-info > div.left, div.main-info > div.image-wrap {
-  margin-right: 5px;
-}
-div.main-info > div.detail {
-  flex: 1;
-}
-div.image-wrap {
+div.main-info-inner a:not(.main-info-link) {
   position: relative;
+  z-index: 5;
 }
 img {
   vertical-align: middle;
@@ -290,11 +304,14 @@ a {
 a:hover {
   text-decoration-color: var(--anchor-decoration-hover-color);
 }
-div.header a, a.title, a.notice {
+div.header a, a.grid-item, a.main-info-inner, a.notice {
   text-decoration: none;
 }
-a.title {
-  font-weight: bold;
+a.grid-item, a.main-info-inner {
+  color: inherit;
+}
+a.grid-item {
+  display: block;
 }
 a.broken {
   color: var(--broken-color);
@@ -304,22 +321,22 @@ a.broken:hover {
 }
 img.sex {
   height: 30px;
-  vertical-align: bottom;
+  vertical-align: -9px;
 }
 img.level, img.official-icon {
   height: 25px;
-  vertical-align: sub;
+  vertical-align: -5px;
+}
+img.vpic, img.spic, img.ppic {
+  border-radius: 10px;
 }
 img.vpic {
-  border-radius: 10px;
   height: 100px;
 }
 img.spic {
-  border-radius: 10px;
   height: 160px;
 }
 img.ppic {
-  border-radius: 10px;
   height: 80px;
 }
 span.notice, a.notice {
@@ -336,7 +353,7 @@ span.notice.tribute, a.notice.tribute {
 img.notice-icon {
   content: url(/assets/warning.png);
   height: 24px;
-  vertical-align: sub;
+  vertical-align: -5px;
 }
 img.notice-icon.tribute {
   content: url(/assets/tribute.png);
@@ -344,41 +361,40 @@ img.notice-icon.tribute {
 img.notice-icon[src] {
   content: initial;
 }
-details {
-  background: var(--highlight-color-almost-transparent);
+details, table {
   border-radius: 10px;
-  margin: 20px 0;
-  padding: 10px 10px 0;
+  margin: 10px 0;
 }
-details summary {
-  border-bottom-color: var(--highlight-color);
+details {
+  overflow: hidden;
+}
+details > summary {
+  background: var(--background-color-translucent);
   cursor: pointer;
   font-weight: bold;
-  margin: -10px -10px 0;
   padding: 10px;
 }
-details[open] {
-  padding: 10px;
+details > summary:hover {
+  background: var(--background-color-quarter-transparent);
 }
-details[open] summary {
-  border-bottom: 1px solid var(--highlight-color);
-  margin-bottom: 10px;
+details > summary:active {
+  background: var(--background-active-color-translucent);
+}
+details > div.details {
+  background: var(--background-color-three-quarters-transparent);
+  padding: 10px;
 }
 table {
-  border: 2px solid var(--highlight-color);
   border-collapse: collapse;
-  border-radius: 10px;
   display: block;
-  margin: 10px 0;
   max-width: max-content;
   overflow: auto;
 }
 table tr th, table tr td {
+  border-left: 1px solid var(--background-color-quarter-transparent);
+  border-right: 1px solid var(--background-color-quarter-transparent);
   padding: 8px;
   text-align: center;
-}
-details, table tr th, table tr td, input {
-  border: 1px solid var(--highlight-color);
 }
 table tr:first-child th {
   border-top: none;
@@ -396,14 +412,15 @@ table tr th {
   background: var(--background-color-translucent);
 }
 table tr td {
-  background: var(--background-color-quarter-transparent);
+  background: var(--background-color-three-quarters-transparent);
 }
 form {
   font-size: 16px;
   margin: 10px 0 0;
 }
 input {
-  background: none;
+  background: var(--background-color-quarter-transparent);
+  border: none;
   border-radius: 5px;
   box-sizing: content-box;
   color: var(--text-color);
@@ -412,13 +429,10 @@ input {
   vertical-align: middle;
 }
 input:hover, input[type='text']:focus, input[type='number']:focus {
-  background: var(--background-color-quarter-transparent);
-}
-input:hover {
-  border-color: var(--highlight-hover-color);
+  background: var(--background-color-translucent);
 }
 input[type='submit']:active {
-  background: var(--background-hover-color-quarter-transparent);
+  background: var(--background-active-color-three-quarters-transparent);
 }
 input[type='checkbox'] {
   width: 15px;
@@ -430,33 +444,36 @@ footer {
   text-align: center;
 }
 
-@media (max-width: 1439px) {
+@media (max-width: 1440px) {
   div.header, main {
     width: 900px;
   }
 }
-@media (max-width: 959px) {
+@media (max-width: 960px) {
   div.header {
+    margin: 0 10px;
     width: auto;
-  }
-  div.header > div.left {
-    text-align: center;
-  }
-  div.header > div.left > span.description, div.header > div.right {
-    display: none;
   }
   main {
     margin: 10px;
     width: auto;
   }
 }
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   div.grid {
     grid-template-columns: 1fr;
   }
 }
+@media (max-width: 720px) {
+  div.header > div.left {
+    text-align: center;
+  }
+  div.header > div.left > span.description, div.header > div.right {
+    display: none;
+  }
+}
 
-@media (max-width: 359px) {
+@media (max-width: 360px) {
   * {
     animation: none !important;
     -webkit-backdrop-filter: none !important;
@@ -467,6 +484,9 @@ footer {
   }
   body, header {
     background: #000 !important;
+  }
+  div.header > div.left {
+    font-size: 20px;
   }
   main {
     background: none !important;
@@ -480,15 +500,13 @@ footer {
     margin-bottom: 0;
     padding: 0;
   }
-  div.grid-item {
+  div.grid-item, a.grid-item {
     box-shadow: none;
     padding: 0 !important;
   }
-  div.main-info {
-    display: block;
-  }
   img.sex {
     height: 25px;
+    vertical-align: -7.5px;
   }
   img.level, img.official-icon {
     height: 20px;
@@ -500,18 +518,22 @@ footer {
   img.notice-icon {
     height: 20px;
   }
+  footer {
+    font-size: 14px;
+  }
 }
 
-@media (max-width: 359px), (prefers-color-scheme: dark) {
+@media (max-width: 360px), (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
     --background-color: #222;
+    --background-color-quarter-transparent: #222c;
     --background-color-translucent: #2229;
-    --background-color-quarter-transparent: #2225;
-    --background-hover-color-quarter-transparent: #0005;
+    --background-color-three-quarters-transparent: #2225;
+    --background-active-color-translucent: #0009;
+    --background-active-color-three-quarters-transparent: #0005;
     --text-color: #ccc;
     --highlight-color: #08e;
-    --highlight-color-almost-transparent: #08e1;
     --highlight-hover-color: #3ae;
     --broken-color: #f22;
     --broken-hover-color: #f66;
@@ -521,7 +543,7 @@ footer {
     --notice-tribute-background-color: #666;
     --secondary-color: #999;
   }
-  
+
   img.icon-personal {
     content: url(/assets/personal_dark.svg);
   }
@@ -534,24 +556,22 @@ footer {
   img.icon-small-vip {
     content: url(/assets/small-vip_dark.svg);
   }
-  
+
   body.image-background {
-    -webkit-backdrop-filter: blur(20px) brightness(0.5);
-    backdrop-filter: blur(20px) brightness(0.5);
+    -webkit-backdrop-filter: blur(20px) brightness(0.6);
+    backdrop-filter: blur(20px) brightness(0.6);
   }
 }
 
 @media only print {
   * {
-    animation: none !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    transition: none;
   }
   html {
     height: initial;
   }
-  body, main, div.image-background {
+  body, main, div.main-info-outer {
     background: none !important;
   }
   body {

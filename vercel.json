@@ -1,20 +1,17 @@
 {
   "functions": {
-    "api/{404,index}.js": {
-      "memory": 128,
-      "includeFiles": "assets/utils.js"
+    "api/{404,index,modules}.ts": {
+      "includeFiles": "assets/utils.ts"
     },
-    "api/getuser.js": {
+    "api/getuser.ts": {
       "memory": 256,
-      "includeFiles": "assets/{{[1-5]-22,[1-6]-33,noface}.jpg,utils.js}"
+      "maxDuration": 16,
+      "includeFiles": "assets/{{[1-5]-22,[1-6]-33,noface}.jpg,utils.ts}"
     },
-    "api/getvideo.js": {
+    "api/getvideo.ts": {
       "memory": 256,
-      "includeFiles": "assets/{constants.js,error.mp4,nocover.png,utils.js}"
-    },
-    "api/modules.js": {
-      "memory": 192,
-      "includeFiles": "assets/{constants,utils}.js"
+      "maxDuration": 16,
+      "includeFiles": "assets/{constants.ts,error.mp4,nocover.png,utils.ts}"
     }
   },
   "headers": [
@@ -26,8 +23,11 @@
         { "key": "Access-Control-Allow-Methods", "value": "*" },
         { "key": "Access-Control-Allow-Headers", "value": "*" },
         { "key": "Access-Control-Max-Age", "value": "7200" },
+        { "key": "Content-Security-Policy", "value": "default-src 'none'; connect-src 'self' https:; font-src 'self'; img-src 'self' * data:; media-src 'self' *; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'" },
         { "key": "Referrer-Policy", "value": "same-origin" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     }
   ],
@@ -35,6 +35,6 @@
     { "source": "/", "destination": "/api/" }
   ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api/404.js" }
+    { "source": "/(.*)", "destination": "/api/404.ts" }
   ]
 }

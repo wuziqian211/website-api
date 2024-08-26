@@ -1,0 +1,30 @@
+{
+  "include": ["api/**/*", "middleware.ts"],
+  "compilerOptions": {
+    // Type checking
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "strict": true,
+
+    // Modules
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    // JavaScript support
+    "checkJs": true,
+
+    // Interop Constraints
+    "esModuleInterop": true,
+
+    // Language and Environment
+    "lib": ["ES2023"],
+    "target": "ES2022",
+
+    // Completeness
+    "skipLibCheck": true
+  }
+}

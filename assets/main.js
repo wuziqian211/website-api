@@ -1,63 +1,61 @@
 'use strict';
 
-// Adapted from pjax.js - https://github.com/MoOx/pjax - MIT License
-const isLoadAvailable = url => new URL(url, window.location).origin === window.location.origin;
+// AJAX 导航，改编自 pjax.js（https://github.com/MoOx/pjax，MIT License）
+
+/**
+ * 指定的 URL 是否与当前页面 URL 同源
+ * @param {string | URL} url
+ * @returns {boolean}
+ */
+const isLoadAvailable = url => new URL(url, window.location.href).origin === window.location.origin;
+
+/**
+ * 页面是否可被替换
+ * @param {Document} html
+ * @returns {boolean}
+ */
 const isValidPage = html => !html.querySelector('parsererror') && ['title', "link[rel='apple-touch-icon']", 'div.header > div.left > span.description', 'main', 'span.time-taken'].every(s => html.querySelector(s));
+
+/**
+ * 替换页面内容
+ * @param {Document} html
+ */
 const replacePage = html => {
-  ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => document.querySelector(s).innerHTML = html.querySelector(s).innerHTML);
-  document.querySelector("link[rel='apple-touch-icon']").href = html.querySelector("link[rel='apple-touch-icon']").href;
+  ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => /** @type HTMLElement */(document.querySelector(s)).innerHTML = /** @type HTMLElement */(html.querySelector(s)).innerHTML);
+  /** @type HTMLLinkElement */(document.querySelector("link[rel='apple-touch-icon']")).href = /** @type HTMLLinkElement */(html.querySelector("link[rel='apple-touch-icon']")).href;
   document.body.className = html.body.className;
   document.body.style.backgroundImage = html.body.style.backgroundImage;
 };
-const load = (url, event) => {
-  if (isLoadAvailable(url)) {
-    event.preventDefault();
-    loadPage(url);
-  }
-};
-const bindLoad = () => {
-  if (bindController) bindController.abort();
-  bindController = new AbortController();
-  document.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', event => load(a.href, event), { passive: false, signal: bindController.signal });
-    a.addEventListener('keyup', event => {
-      if (event.code === 'Enter') load(a.href, event);
-    }, { passive: false, signal: bindController.signal });
-  });
-  document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', event => {
-      const url = new URL(form.action, window.location);
-      const params = new URLSearchParams();
-      for (const e of form.elements) {
-        if (e.tagName === 'INPUT' && e.type.toUpperCase() !== 'SUBMIT' && (e.type.toUpperCase() !== 'CHECKBOX' || e.checked)) {
-          params.set(e.name, e.value);
-        }
-      }
-      url.search = params;
-      load(url, event);
-    }, { passive: false, signal: bindController.signal });
-  });
-};
+
+/**
+ * 加载页面
+ * @param {string | URL} url
+ * @returns {Promise<boolean>}
+ */
 const loadPage = async url => {
   if (loadController) loadController.abort();
   loadController = new AbortController();
+  const urlObj = new URL(url, window.location.href);
+  if (urlObj.origin === window.location.origin && (urlObj.pathname.startsWith('/api/') || urlObj.pathname === '/api') && !urlObj.searchParams.has('type')) {
+    urlObj.searchParams.set('type', 'html');
+  }
   if (isValidPage(document)) {
-    document.querySelector('main').classList.add('loading');
-    document.activeElement?.blur();
+    mainElement.classList.add('loading');
+    /** @type HTMLElement */(document.activeElement)?.blur();
     try {
-      const resp = await fetch(url, { headers: { accept: 'text/html' }, signal: loadController.signal });
-      if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') { 
+      const resp = await fetch(urlObj, { keepalive: true, signal: loadController.signal });
+      if (isLoadAvailable(resp.url) && resp.headers.get('Content-Type')?.split(';')[0].toUpperCase() === 'TEXT/HTML') {
         const text = await resp.text();
         const html = new DOMParser().parseFromString(text, 'text/html');
         if (isValidPage(html)) {
           history.pushState({ text }, '', resp.url);
           replacePage(html);
-          bindLoad();
-          document.querySelector('main').classList.remove('loading');
+          mainElement.classList.remove('loading');
           return true;
         }
       } else {
         window.location.href = resp.url;
+        mainElement.classList.remove('loading');
         return false;
       }
     } catch (e) {
@@ -65,27 +63,126 @@ const loadPage = async url => {
       if (e instanceof DOMException && e.name === 'AbortError') return false;
     }
   }
-  window.location.href = url;
+  window.location.href = urlObj.href;
+  mainElement.classList.remove('loading');
   return false;
 };
-let bindController, loadController;
+
+/**
+ * 给 `<a>` 元素绑定事件
+ * @param {HTMLAnchorElement} a
+ */
+const bindAnchorElement = a => {
+  a.addEventListener('click', event => {
+    if (isLoadAvailable(a.href)) {
+      event.preventDefault();
+      loadPage(a.href);
+    }
+  }, { passive: false });
+  a.addEventListener('keyup', event => {
+    if (event.code === 'Enter' && isLoadAvailable(a.href)) {
+      event.preventDefault();
+      loadPage(a.href);
+    }
+  }, { passive: false });
+};
+
+/**
+ * 给 `<form>` 元素绑定事件
+ * @param {HTMLFormElement} form
+ */
+const bindFormElement = form => {
+  form.addEventListener('submit', event => {
+    const url = new URL(form.action, window.location.href);
+    if (isLoadAvailable(url)) {
+      event.preventDefault();
+      const params = new URLSearchParams();
+      for (const e of form.elements) {
+        if (e.tagName === 'INPUT') {
+          const input = /** @type HTMLInputElement */(e);
+          if (input.type.toUpperCase() !== 'SUBMIT' && (input.type.toUpperCase() !== 'CHECKBOX' || input.checked)) {
+            params.set(input.name, input.value);
+          }
+        }
+      }
+      url.search = params.toString();
+      loadPage(url);
+    }
+  }, { passive: false });
+};
+
+/**
+ * 给 `<img>` 元素绑定事件，使图片在加载完毕前模糊
+ * @param {HTMLImageElement} img
+ */
+const bindImageElement = img => {
+  img.style.filter = 'blur(10px)';
+  img.addEventListener('load', () => img.style.filter = '');
+  img.addEventListener('error', () => {
+    switch (img.className) {
+      case 'face':
+        img.src = '/assets/noface.jpg';
+        break;
+      case 'vpic':
+      case 'spic':
+      case 'ppic':
+        img.src = '/assets/nocover.png';
+        break;
+    }
+  });
+  if (img.complete) img.style.filter = '';
+}
+
+let loadController;
 window.addEventListener('popstate', event => {
+  mainElement.classList.remove('loading');
   if (isValidPage(document)) {
-    document.activeElement?.blur();
+    /** @type HTMLElement */(document.activeElement)?.blur();
     const html = new DOMParser().parseFromString(event.state.text, 'text/html');
     replacePage(html);
-    bindLoad();
   } else {
     window.location.reload();
   }
 }, { passive: true });
 history.replaceState({ text: document.documentElement.outerHTML }, '');
-bindLoad();
 
-const runningTime = document.querySelector('span.running-time');
+document.querySelectorAll('a').forEach(bindAnchorElement);
+document.querySelectorAll('form').forEach(bindFormElement);
+document.querySelectorAll('img').forEach(bindImageElement);
+
+/** @param {Node} node */
+const bindElement = node => {
+  if (node instanceof HTMLElement) {
+    switch (node.tagName) {
+      case 'A':
+        bindAnchorElement(node);
+        break;
+      case 'FORM':
+        bindFormElement(node);
+        break;
+      case 'IMG':
+        bindImageElement(node);
+        break;
+    }
+    if (node.children.length) Array.from(node.children).forEach(bindElement);
+  }
+};
+
+/**
+ * 监视 DOM 树的变化
+ */
+const observer = new MutationObserver(mutations => {
+  for (const m of mutations) {
+    if (m.type === 'childList') m.addedNodes.forEach(bindElement);
+  }
+});
+observer.observe(document.body, { childList: true, subtree: true });
+
+const runningTimeElement = /** @type HTMLSpanElement */(document.querySelector('span.running-time')),
+      mainElement = /** @type HTMLElement */(document.querySelector('main'));
 const updateTime = () => {
   const ts = Date.now() / 1000 - 1636816579.737;
-  runningTime.innerText = `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
+  runningTimeElement.innerText = `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`;
 };
 updateTime();
 setInterval(updateTime, 1000);
