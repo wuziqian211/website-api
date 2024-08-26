@@ -1,7 +1,6 @@
 {
   "functions": {
     "api/{404,index,modules}.ts": {
-      "maxDuration": 16,
       "includeFiles": "assets/utils.ts"
     },
     "api/getuser.ts": {
