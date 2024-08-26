@@ -1,10 +1,9 @@
 'use strict';
 
-// 改编自 pjax.js（https://github.com/MoOx/pjax，MIT License）
+// AJAX 导航，改编自 pjax.js（https://github.com/MoOx/pjax，MIT License）
 
 /**
- * 指定的 URL 是否与页面 URL 同源
- * 
+ * 指定的 URL 是否与当前页面 URL 同源
  * @param {string | URL} url
  * @returns {boolean}
  */
@@ -12,16 +11,14 @@ const isLoadAvailable = url => new URL(url, window.location.href).origin === win
 
 /**
  * 页面是否可被替换
- * 
- * @param {Document} html 
+ * @param {Document} html
  * @returns {boolean}
  */
 const isValidPage = html => !html.querySelector('parsererror') && ['title', "link[rel='apple-touch-icon']", 'div.header > div.left > span.description', 'main', 'span.time-taken'].every(s => html.querySelector(s));
 
 /**
- * 替换页面
- * 
- * @param {Document} html 
+ * 替换页面内容
+ * @param {Document} html
  */
 const replacePage = html => {
   ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => /** @type HTMLElement */(document.querySelector(s)).innerHTML = /** @type HTMLElement */(html.querySelector(s)).innerHTML);
@@ -32,8 +29,7 @@ const replacePage = html => {
 
 /**
  * 加载页面
- * 
- * @param {string | URL} url 
+ * @param {string | URL} url
  * @returns {Promise<boolean>}
  */
 const loadPage = async url => {
@@ -72,7 +68,10 @@ const loadPage = async url => {
   return false;
 };
 
-/** @param {HTMLAnchorElement} a */
+/**
+ * 给 `<a>` 元素绑定事件
+ * @param {HTMLAnchorElement} a
+ */
 const bindAnchorElement = a => {
   a.addEventListener('click', event => {
     if (isLoadAvailable(a.href)) {
@@ -88,7 +87,10 @@ const bindAnchorElement = a => {
   }, { passive: false });
 };
 
-/** @param {HTMLFormElement} form */
+/**
+ * 给 `<form>` 元素绑定事件
+ * @param {HTMLFormElement} form
+ */
 const bindFormElement = form => {
   form.addEventListener('submit', event => {
     const url = new URL(form.action, window.location.href);
@@ -109,7 +111,10 @@ const bindFormElement = form => {
   }, { passive: false });
 };
 
-/** @param {HTMLImageElement} img */
+/**
+ * 给 `<img>` 元素绑定事件，使图片在加载完毕前模糊
+ * @param {HTMLImageElement} img
+ */
 const bindImageElement = img => {
   img.style.filter = 'blur(10px)';
   img.addEventListener('load', () => img.style.filter = '');
@@ -125,7 +130,7 @@ const bindImageElement = img => {
         break;
     }
   });
-  if (img.src && img.complete) img.style.filter = '';
+  if (img.complete) img.style.filter = '';
 }
 
 let loadController;
@@ -159,9 +164,7 @@ const bindElement = node => {
         bindImageElement(node);
         break;
     }
-    if (node.children.length) {
-      Array.from(node.children).forEach(bindElement);
-    }
+    if (node.children.length) Array.from(node.children).forEach(bindElement);
   }
 };
 
@@ -170,9 +173,7 @@ const bindElement = node => {
  */
 const observer = new MutationObserver(mutations => {
   for (const m of mutations) {
-    if (m.type === 'childList') {
-      m.addedNodes.forEach(bindElement);
-    }
+    if (m.type === 'childList') m.addedNodes.forEach(bindElement);
   }
 });
 observer.observe(document.body, { childList: true, subtree: true });

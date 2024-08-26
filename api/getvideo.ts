@@ -26,7 +26,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
     splitString.shift(); // 删除第一个元素
     responseAttributes.push(...splitString);
   }
-  
+
   try {
     const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; vid?: string | null }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', body: `
       ${data.content}
@@ -37,7 +37,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       </form>` })), // 发送 HTML 响应到客户端
           sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
           send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data)); // 发送其他数据到客户端
-    
+
     const requestVid = params.get('vid'), requestCookie = params.get('cookie')?.toUpperCase() === 'TRUE' ? true : params.get('cookie')?.toUpperCase() === 'FALSE' ? false : undefined, requestForce = params.has('force');
     let useCookie;
     if ((requestCookie === true || responseType === 3 || requestForce) && requestCookie !== false) { // 客户端指定强制使用 Cookie，或获取视频的数据（为了尽可能获取到更高清晰度的视频），或强制获取视频信息（通过历史记录获取，需要登录），并且没有指定不使用 Cookie
@@ -46,17 +46,17 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       if (!requestForce) {
         useCookie = false;
       } else { // 既指定强制获取视频信息（需要登录）又指定不使用 Cookie，这种情况无法获取到视频信息
-        sendHTML(400, { title: '无法强制获取视频信息', content: `
+        sendHTML(400, { title: '无法强制获取视频信息', newStyle: true, content: `
           在不使用 Cookie 的情况下，无法强制获取视频信息 qwq<br />
           如果您要强制获取视频信息，则必须使用 Cookie（把 “cookie=false” 参数去掉）awa`, vid: requestVid });
         return;
       }
     }
-    
+
     const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
     const headers = new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! });
     if (useCookie) headers.set('Cookie', `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`); // 如果指定了使用 Cookie，就添加账号登录信息
-    
+
     if (type === 1) { // 编号为 AV 号或 BV 号
       let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null>;
       if (requestForce) { // 强制获取视频信息
@@ -84,7 +84,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           json = <APIResponse<VideoInfoData>>await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json();
         }
       }
-      
+
       if (responseType === 3) { // 获取视频数据
         let cid;
         if (json.code === 0 && json.data!.pages) {
@@ -96,7 +96,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           } else {
             cid = data.cid; // 将变量“cid”设置为该视频第 1 P 的 cid
           }
-          
+
           if (cid) { // 客户端提供的分 P 参数有效
             const qualities: quality[] = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
             let url;
@@ -108,7 +108,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 break;
               }
             }
-            
+
             if (url) { // 视频地址获取成功
               const filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
               const resp = await fetch(url, { headers });
@@ -119,7 +119,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 send(200, resp.body);
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                  sendHTML(400, { title: '获取视频数据失败', content: '获取视频数据失败，请稍后重试 awa', vid: requestVid });
+                  sendHTML(400, { title: '获取视频数据失败', newStyle: true, content: '获取视频数据失败，请稍后重试 awa', vid: requestVid });
                 } else {
                   respHeaders.set('Content-Type', 'video/mp4');
                   send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
@@ -127,7 +127,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             } else { // 视频地址获取失败
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                sendHTML(500, { title: '无法获取视频数据', content: `
+                sendHTML(500, { title: '无法获取视频数据', newStyle: true, content: `
                   抱歉，由于您想要获取数据的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
                   如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
               } else {
@@ -137,7 +137,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           } else { // 客户端提供的分 P 参数无效
             if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-              sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您可能输入了错误的分 P 哟 qwq', vid: requestVid });
+              sendHTML(404, { title: '无法获取视频数据', newStyle: true, content: '获取视频数据失败，您可能输入了错误的分 P 哟 qwq', vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
               send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -145,7 +145,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           }
         } else { // 视频无效
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-            sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: requestVid });
+            sendHTML(404, { title: '无法获取视频数据', newStyle: true, content: '获取视频数据失败，您想获取的视频可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
             send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -171,21 +171,22 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                   }
                 }
               }
-              
+
               const content = `
                 <div class="main-info-outer">
                   <div class="main-info-inner">
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/"><img class="vpic" title="${utils.encodeHTML(data.title)}" src="${utils.toHTTPS(data.pic)}" /></a>
+                      <img class="vpic" title="${utils.encodeHTML(data.title)}" src="${utils.toHTTPS(data.pic)}" />
                     </div>
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/">${utils.encodeHTML(data.title)}</a><br />
+                      <strong>${utils.encodeHTML(data.title)}</strong><br />
                       <span class="description">av${data.aid}，${utils.encodeHTML(data.bvid)}</span><br />
                       ${data.state !== 0 ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${data.state && data.state in states ? states[data.state] : '该视频存在未知问题'}</span><br />` : ''}
                       ${data.forward ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> 本视频已与 <a href="?vid=${utils.toBV(data.forward)}">${utils.toBV(data.forward)}</a> 撞车</span><br />` : ''}
                       ${data.argue_info?.argue_msg ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${utils.encodeHTML(data.argue_info.argue_msg)}</span><br />` : ''}
                       ${data.videos}P ${utils.getTime(data.duration)} ${data.copyright === 1 ? '自制' : data.copyright === 2 ? '转载' : ''}${data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${data.rights?.is_cooperation ? ' 合作' : ''}${data.rights && 'is_stein_gate' in data.rights && data.rights.is_stein_gate ? ' 互动' : ''}${data.rights && 'is_360' in data.rights && data.rights.is_360 ? ' 全景' : ''}${'honor' in data.honor_reply && data.honor_reply.honor?.filter(h => h.type !== 3).length ? ` ${data.honor_reply.honor.filter(h => h.type !== 3).map(h => utils.encodeHTML(h.desc)).join(' ')}` : ''}${data.stat.evaluation ? ` ${utils.encodeHTML(data.stat.evaluation)}` : ''}${data.stat.now_rank ? ` 当前排名第 ${data.stat.now_rank} 名` : ''}${data.stat.his_rank ? ` 历史最高排名第 ${data.stat.his_rank} 名` : ''}
                     </div>
+                    <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/"></a>
                   </div>
                 </div>
                 <strong>分区：</strong>${zone}<br />
@@ -204,47 +205,41 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 <div class="grid user-list">
                   ${data.staff.map(u => `
                   <div class="grid-item main-info-outer" id="user-${u.mid}" style="background-image: url(${utils.toHTTPS(u.face)});">
-                    <div class="main-info-inner image">
+                    <a class="main-info-inner image" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
                       <div class="image-wrap">
-                        <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">
-                          <img class="face" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" />
-                          ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
-                        </a>
+                        <img class="face" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" />
+                        ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                       </div>
                       <div class="detail">
-                        <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}">${utils.encodeHTML(u.name)}</a> ${utils.encodeHTML(u.title)}<br />
+                        <strong>${utils.encodeHTML(u.name)}</strong> ${utils.encodeHTML(u.title)}<br />
                         ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${u.official.title ? '：' : ''}</strong>${utils.encodeHTML(u.official.title)}${u.official.desc ? `<span class="description">（${utils.encodeHTML(u.official.desc)}）</span>` : ''}<br />` : ''}
                         <strong>粉丝数：</strong>${utils.getNumber(u.follower)}
                       </div>
-                    </div>
+                    </a>
                   </div>`).join('')}
                 </div>` : data.owner.mid ? `
                 <div class="main-info-outer" id="user-${data.owner.mid}" style="background-image: url(${utils.toHTTPS(data.owner.face)});">
-                  <div class="main-info-inner image">
+                  <a class="main-info-inner image" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.owner.mid}">
                     <div class="left"><strong>UP 主：</strong></div>
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.owner.mid}">
-                        <img class="face" title="${utils.encodeHTML(data.owner.name)}" src="${utils.toHTTPS(data.owner.face)}" />
-                      </a>
+                      <img class="face" title="${utils.encodeHTML(data.owner.name)}" src="${utils.toHTTPS(data.owner.face)}" />
                     </div>
-                    <div class="detail"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.owner.mid}">${utils.encodeHTML(data.owner.name)}</a></div>
-                  </div>
+                    <div class="detail"><strong>${utils.encodeHTML(data.owner.name)}</strong></div>
+                  </a>
                 </div>` : ''}
                 ${data.pages ? data.pages.map(p => `
                 <div class="main-info-outer" id="part-${p.page}"${p.first_frame ? ` style="background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}>
-                  <div class="main-info-inner${p.first_frame ? ' image' : ''}">
-                    <div class="left"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}">P${p.page}</a></div>
+                  <a class="main-info-inner${p.first_frame ? ' image' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}">
+                    <div class="left"><strong>P${p.page}</strong></div>
                     ${p.first_frame ? `
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}">
-                        <img class="ppic" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
-                      </a>
+                      <img class="ppic" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
                     </div>` : ''}
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}">${utils.encodeHTML(p.part)}</a> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
+                      <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
                       <strong>cid：</strong>${p.cid || '未知'}
                     </div>
-                  </div>
+                  </a>
                 </div>`).join('') : ''}
                 ${data.dynamic ? `<strong>同步发布动态的文字内容：</strong>${utils.markText(data.dynamic)}<br />` : ''}
                 <strong>简介：</strong><br />
@@ -256,25 +251,25 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             case -412:
             case -799:
               respHeaders.set('Retry-After', '600');
-              sendHTML(429, { title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
+              sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
               break;
             case -404:
             case 62002:
-              sendHTML(404, { title: '视频不存在', content: '您想要获取信息的视频不存在！QAQ', vid: requestVid });
+              sendHTML(404, { title: '视频不存在', newStyle: true, content: '您想要获取信息的视频不存在！QAQ', vid: requestVid });
               break;
             case -403:
-              sendHTML(403, { title: '获取视频信息需登录', content: `
+              sendHTML(403, { title: '获取视频信息需登录', newStyle: true, content: `
                 这个视频需要登录才能获取信息！QwQ<br />
                 您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/">这个视频的信息</a>哟 awa`, vid: requestVid });
               break;
             case 62003:
-              sendHTML(404, { title: '视频待发布', content: '视频已审核通过，但还没有发布，请等一下再获取信息吧 awa', vid: requestVid });
+              sendHTML(404, { title: '视频待发布', newStyle: true, content: '视频已审核通过，但还没有发布，请等一下再获取信息吧 awa', vid: requestVid });
               break;
             case 62004:
-              sendHTML(404, { title: '视频审核中', content: '视频正在审核中，请等一下再获取信息吧 awa', vid: requestVid });
+              sendHTML(404, { title: '视频审核中', newStyle: true, content: '视频正在审核中，请等一下再获取信息吧 awa', vid: requestVid });
               break;
             default:
-              sendHTML(400, { title: '获取视频信息失败', content: '获取视频信息失败，请稍后重试 awa', vid: requestVid });
+              sendHTML(400, { title: '获取视频信息失败', newStyle: true, content: '获取视频信息失败，请稍后重试 awa', vid: requestVid });
           }
         } else if (responseType === 2) { // 回复封面数据
           if (json.code === 0) {
@@ -292,7 +287,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                   if (fetchDest === 1) {
-                    sendHTML(404, { title: `获取 ${data.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(data.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
+                    sendHTML(404, { title: `获取 ${data.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(data.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                   } else {
                     sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(data.pic), upstreamServerRespStatus: resp.status } });
                   }
@@ -305,7 +300,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           } else {
             if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
               if (fetchDest === 1) {
-                sendHTML(404, { title: `获取 ${vid} 的封面数据失败`, content: `获取 ${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: requestVid });
+                sendHTML(404, { title: `获取 ${vid} 的封面数据失败`, newStyle: true, content: `获取 ${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: requestVid });
               } else {
                 sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
               }
@@ -348,7 +343,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           resolve(utils.redirect(308, `?${params}`));
         } else { // 视频无效
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-            sendHTML(404, { title: '无法获取视频数据', content: '获取视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
+            sendHTML(404, { title: '无法获取视频数据', newStyle: true, content: '获取视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
             send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -360,16 +355,16 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             const result = json.result!;
             const content = `
               <div class="main-info-outer">
-                <div class="main-info-inner">
+                <a class="main-info-inner" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}">
                   <div class="image-wrap">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"><img class="spic" title="${utils.encodeHTML(result.media.title)}" src="${utils.toHTTPS(result.media.cover)}" /></a>
+                    <img class="spic" title="${utils.encodeHTML(result.media.title)}" src="${utils.toHTTPS(result.media.cover)}" />
                   </div>
                   <div class="detail">
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}">${utils.encodeHTML(result.media.title)}</a><br />
+                    <strong>${utils.encodeHTML(result.media.title)}</strong><br />
                     <span class="description">${result.media.season_id ? `ss${result.media.season_id}，` : ''}md${result.media.media_id}</span><br />
                     ${utils.encodeHTML(result.media.type_name)} ${utils.encodeHTML(result.media.new_ep?.index_show)} ${result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.media.rating ? `${result.media.rating.score ? `${result.media.rating.score.toFixed(1)} 分` : ''}（共 ${result.media.rating.count} 人评分）` : '暂无评分'}
                   </div>
-                </div>
+                </a>
               </div>
               ${result.media.new_ep?.id ? `<strong>最新一话：</strong><a href="?vid=ep${result.media.new_ep.id}">${utils.encodeHTML(result.media.new_ep.index)}</a><br />` : ''}
               ${result.media.season_id ? `<a href="?vid=ss${result.media.season_id}">点击此处查看更多信息</a>` : ''}`;
@@ -380,13 +375,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           case -412:
           case -799:
             respHeaders.set('Retry-After', '600');
-            sendHTML(429, { title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
+            sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
             break;
           case -404:
-            sendHTML(404, { title: '剧集不存在', content: '您想要获取信息的剧集不存在！QAQ', vid: requestVid });
+            sendHTML(404, { title: '剧集不存在', newStyle: true, content: '您想要获取信息的剧集不存在！QAQ', vid: requestVid });
             break;
           default:
-            sendHTML(400, { title: '获取剧集信息失败', content: '获取剧集信息失败，请稍后重试 awa', vid: requestVid });
+            sendHTML(400, { title: '获取剧集信息失败', newStyle: true, content: '获取剧集信息失败，请稍后重试 awa', vid: requestVid });
         }
       } else if (responseType === 2) { // 回复封面数据
         if (json.code === 0) {
@@ -404,7 +399,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                 if (fetchDest === 1) {
-                  sendHTML(404, { title: `获取 ${result.media.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
+                  sendHTML(404, { title: `获取 ${result.media.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                 } else {
                   sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(result.media.cover), upstreamServerRespStatus: resp.status } });
                 }
@@ -417,7 +412,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         } else { // 剧集信息获取失败，回复默认封面
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
             if (fetchDest === 1) {
-              sendHTML(404, { title: `获取 md${vid} 的封面数据失败`, content: `获取 md${vid} 的封面数据失败，这个剧集可能不存在哟 qwq`, vid: requestVid });
+              sendHTML(404, { title: `获取 md${vid} 的封面数据失败`, newStyle: true, content: `获取 md${vid} 的封面数据失败，这个剧集可能不存在哟 qwq`, vid: requestVid });
             } else {
               sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
             }
@@ -475,7 +470,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             }
           }
-          
+
           if (P) { // 客户端提供的集号参数有效
             const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
             let url;
@@ -487,7 +482,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 break;
               }
             }
-            
+
             if (url) { // 视频地址获取成功
               const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
               const resp = await fetch(url, { headers });
@@ -498,7 +493,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 send(200, resp.body);
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                  sendHTML(400, { title: '获取视频数据失败', content: '获取这一集的视频数据失败，请稍后重试 awa', vid: requestVid });
+                  sendHTML(400, { title: '获取视频数据失败', newStyle: true, content: '获取这一集的视频数据失败，请稍后重试 awa', vid: requestVid });
                 } else {
                   respHeaders.set('Content-Type', 'video/mp4');
                   send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
@@ -506,7 +501,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               }
             } else { // 视频地址获取失败
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                sendHTML(500, { title: '无法获取视频数据', content: `
+                sendHTML(500, { title: '无法获取视频数据', newStyle: true, content: `
                   抱歉，由于您想要获取的这一集的视频无法下载（原因可能是视频太大，或者版权、地区限制，等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
                   如果您想下载这一集，最好使用其他工具哟 awa`, vid: requestVid });
               } else {
@@ -516,7 +511,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             }
           } else { // 客户端提供的集号参数无效
             if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-              sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您可能输入了错误的集号哟 qwq', vid: requestVid });
+              sendHTML(404, { title: '无法获取视频数据', newStyle: true, content: '获取这一集的视频数据失败，您可能输入了错误的集号哟 qwq', vid: requestVid });
             } else {
               respHeaders.set('Content-Type', 'video/mp4');
               send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -524,7 +519,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           }
         } else { // 剧集无效
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-            sendHTML(404, { title: '无法获取视频数据', content: '获取这一集的视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
+            sendHTML(404, { title: '无法获取视频数据', newStyle: true, content: '获取这一集的视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
           } else {
             respHeaders.set('Content-Type', 'video/mp4');
             send(fetchDest === 3 ? 200 : 404, fs.createReadStream('./assets/error.mp4'));
@@ -537,17 +532,17 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               const result = json.result!, types = { 1: '番剧', 2: '电影', 3: '纪录片', 4: '国创', 5: '电视剧', 6: '漫画', 7: '综艺' };
               const content = `
                 <div class="main-info-outer">
-                  <div class="main-info-inner">
+                  <a class="main-info-inner" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${result.season_id}">
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${result.season_id}"><img class="spic" title="${utils.encodeHTML(result.title)}" src="${utils.toHTTPS(result.cover)}" /></a>
+                      <img class="spic" title="${utils.encodeHTML(result.title)}" src="${utils.toHTTPS(result.cover)}" />
                     </div>
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${result.season_id}">${utils.encodeHTML(result.title)}</a><br />
+                      <strong>${utils.encodeHTML(result.title)}</strong><br />
                       <span class="description">ss${result.season_id}，md${result.media_id}</span><br />
                       ${result.styles?.length ? `<span class="description">${result.styles.map(s => `<span class="icon-font icon-tag"></span> ${utils.encodeHTML(s)}`).join(' ')}</span><br />` : ''}
                       ${types[result.type] ?? ''}${result.rights.copyright === 'bilibili' ? ' 授权' : result.rights.copyright === 'dujia' ? ' 独家' : ''}${result.total === -1 ? '' : ` 已完结，共 ${result.total} 集`} ${result.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.rating?.score ? `${result.rating.score.toFixed(1)} 分（共 ${result.rating.count} 人评分）` : '暂无评分'}
                     </div>
-                  </div>
+                  </a>
                 </div>
                 <strong>发布时间：</strong>${utils.encodeHTML(result.publish.pub_time)}<br />
                 ${result.record ? `<strong>备案号：</strong>${utils.encodeHTML(result.record)}<br />` : ''}
@@ -569,36 +564,33 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 </table>
                 ${result.up_info ? `
                 <div class="main-info-outer" id="user-${result.up_info.mid}" style="background-image: url(${utils.toHTTPS(result.up_info.avatar)});">
-                  <div class="main-info-inner image">
+                  <a class="main-info-inner image" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${result.up_info.mid}">
                     <div class="left"><strong>UP 主：</strong></div>
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${result.up_info.mid}">
-                        <img class="face" title="${utils.encodeHTML(result.up_info.uname)}" src="${utils.toHTTPS(result.up_info.avatar)}" />
-                        ${[1, 2, 7, 8, 9].includes(result.up_info.verify_type) ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : [3, 4, 5, 6].includes(result.up_info.verify_type) ? '<img class="face-icon icon-business" alt title="机构认证" />' : result.up_info.vip_status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
-                      </a>
+                      <img class="face" title="${utils.encodeHTML(result.up_info.uname)}" src="${utils.toHTTPS(result.up_info.avatar)}" />
+                      ${[1, 2, 7, 8, 9].includes(result.up_info.verify_type) ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : [3, 4, 5, 6].includes(result.up_info.verify_type) ? '<img class="face-icon icon-business" alt title="机构认证" />' : result.up_info.vip_status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                     </div>
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${result.up_info.mid}">${utils.encodeHTML(result.up_info.uname)}</a><br />
+                      <strong>${utils.encodeHTML(result.up_info.uname)}</strong><br />
                       <strong>粉丝数：</strong>${utils.getNumber(result.up_info.follower)}
                     </div>
-                  </div>
+                  </a>
                 </div>` : ''}
                 <strong>正片：</strong>
                 ${result.episodes.map(p => `
                 <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
                   <div class="main-info-inner${p.cover ? ' image' : ''}">
-                    <div class="left"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.title)}</a></div>
+                    <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
                     ${p.cover ? `
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">
-                        <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
-                      </a>
+                      <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                     </div>` : ''}
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                      <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                       <strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />
                       <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${p.bvid}">${p.bvid}</a>
                     </div>
+                    <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
                   </div>
                 </div>`).join('')}
                 ${result.section ? result.section.map(s => `
@@ -608,31 +600,29 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                   <div class="main-info-inner${p.cover ? ' image' : ''}">
                     ${p.cover ? `
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">
-                        <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
-                      </a>
+                      <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
                     </div>` : ''}
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">${utils.encodeHTML(p.title)}</a>${p.badge ? ` ${p.badge}` : ''}<br />
+                      <strong>${utils.encodeHTML(p.title)}</strong>${p.badge ? ` ${p.badge}` : ''}<br />
                       ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
                       ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> ` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                     </div>
+                    <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">
                   </div>
                 </div>` : `
                 <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
                   <div class="main-info-inner${p.cover ? ' image' : ''}">
-                    <div class="left"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.title)}</a></div>
+                    <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
                     ${p.cover ? `
                     <div class="image-wrap">
-                      <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">
-                        <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
-                      </a>
+                      <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                     </div>` : ''}
                     <div class="detail">
-                      <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">${utils.encodeHTML(p.long_title)}</a> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                      <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                       ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
                       ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                     </div>
+                    <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
                   </div>
                 </div>`).join('')}`).join('') : ''}
                 <strong>简介：</strong><br />
@@ -644,13 +634,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             case -412:
             case -799:
               respHeaders.set('Retry-After', '600');
-              sendHTML(429, { title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
+              sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
               break;
             case -404:
-              sendHTML(404, { title: '番剧不存在', content: '您想要获取信息的番剧不存在！QAQ', vid: requestVid });
+              sendHTML(404, { title: '番剧不存在', newStyle: true, content: '您想要获取信息的番剧不存在！QAQ', vid: requestVid });
               break;
             default:
-              sendHTML(400, { title: '获取番剧信息失败', content: '获取番剧信息失败，请稍后重试 awa', vid: requestVid });
+              sendHTML(400, { title: '获取番剧信息失败', newStyle: true, content: '获取番剧信息失败，请稍后重试 awa', vid: requestVid });
           }
         } else if (responseType === 2) { // 回复封面数据
           if (json.code === 0) {
@@ -668,7 +658,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               } else {
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                   if (fetchDest === 1) {
-                    sendHTML(404, { title: `获取 ${result.title} 的封面数据失败`, content: `获取 ${utils.encodeHTML(result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
+                    sendHTML(404, { title: `获取 ${result.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                   } else {
                     sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(result.title), upstreamServerRespStatus: resp.status } });
                   }
@@ -681,7 +671,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           } else { // 番剧信息获取失败，回复默认封面
             if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
               if (fetchDest === 1) {
-                sendHTML(404, { title: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败`, content: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: requestVid });
+                sendHTML(404, { title: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败`, newStyle: true, content: `获取 ${type === 3 ? 'ss' : 'ep'}${vid} 的封面数据失败，这个视频可能不存在哟 qwq`, vid: requestVid });
               } else {
                 sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
               }
@@ -718,14 +708,14 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getvideo?vid=<span class="notice">您想获取信息的视频、剧集、番剧的编号</span><br />
             更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。` });
         } else { // 设置了“vid”参数但无效
-          sendHTML(400, { title: '编号无效', content: `
+          sendHTML(400, { title: '编号无效', newStyle: true, content: `
             您输入的编号无效！<br />
             请输入一个正确的编号吧 awa` });
         }
       } else if (responseType === 2) { // 回复封面数据
         if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
           if (fetchDest === 1) {
-            sendHTML(400, { title: '编号无效', content: `
+            sendHTML(400, { title: '编号无效', newStyle: true, content: `
               您输入的编号无效！<br />
               请输入一个正确的编号吧 awa` });
           } else {

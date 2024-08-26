@@ -20,7 +20,7 @@ interface WbiKeys {
 interface CachedWbiKeys extends WbiKeys {
   updatedTimestamp: millisecondLevelTimestamp;
 }
-type ResponseType = 0 | 1 | 2 | 3; // 0：JSON，1：HTML，2：图片，3：视频，下同
+type ResponseType = 0 /* JSON */ | 1 /* HTML */ | 2 /* 图片 */ | 3 /* 视频 */;
 type FetchDest = 0 | 1 | 2 | 3;
 type Accept = 0 | 1 | 2 | 3;
 
@@ -35,7 +35,7 @@ const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
   let acceptAll: boolean | undefined, responseType: ResponseType | undefined, fetchDest: FetchDest | undefined;
-  
+
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
       fetchDest = 0;
@@ -58,7 +58,7 @@ const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve
       if (requestedAccept.includes('VIDEO')) accepts.push(3);
     }
   }
-  
+
   // 回复数据类型判断优先级：“type”参数＞“Sec-Fetch-Dest”标头＞“Accept”标头
   if (requestedResponseType) { // 先取客户端指定的回复数据类型
     if (acceptedResponseTypes.includes(0) && requestedResponseType === 'JSON') {
@@ -71,16 +71,8 @@ const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve
       responseType = 3;
     }
   }
-  if (responseType == undefined && fetchDest != undefined) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
-    if (acceptedResponseTypes.includes(0) && fetchDest === 0) {
-      responseType = 0;
-    } else if (acceptedResponseTypes.includes(1) && fetchDest === 1) {
-      responseType = 1;
-    } else if (acceptedResponseTypes.includes(2) && fetchDest === 2) {
-      responseType = 2;
-    } else if (acceptedResponseTypes.includes(3) && fetchDest === 3) {
-      responseType = 3;
-    }
+  if (responseType == undefined && fetchDest != undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+    responseType = fetchDest;
   }
   if (responseType == undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
     if (acceptAll) { // 部分脚本在发送请求时会自动带上“Accept: */*”标头，此时应该回复 JSON
@@ -98,14 +90,14 @@ const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve
       }
     }
   }
-  
+
   if (resolve) { // API 超时处理
     timer = setTimeout(() => {
       timer = undefined;
       resolve(send504(responseType));
     }, 15000);
   }
-  
+
   return { params, respHeaders: new Headers(), fetchDest, responseType };
 };
 const getRunningTime = (ts: secondLevelTimestamp): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
@@ -116,6 +108,7 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
   }
   const execTime = performance.now() - startTime;
   headers.set('Content-Type', 'text/html; charset=utf-8');
+  headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   headers.set('X-Api-Exec-Time', execTime.toFixed(3));
   return new Response(`
     <!DOCTYPE html>
@@ -156,6 +149,7 @@ const sendJSON = (status: number, headers: Headers, data: InternalAPIResponse<un
   }
   const execTime = performance.now() - startTime;
   headers.set('Content-Type', 'application/json; charset=utf-8');
+  headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   headers.set('X-Api-Exec-Time', execTime.toFixed(3));
   headers.set('X-Api-Status-Code', data.code.toString());
   return Response.json({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }, { status, headers });
@@ -166,6 +160,7 @@ const send = (status: number, headers: Headers, data: BodyInit): Response => { /
     timer = undefined;
   }
   headers.set('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3));
+  headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   return new Response(data, { status, headers });
 };
 const send404 = (responseType: ResponseType, noCache?: boolean): Response => {
@@ -221,7 +216,7 @@ const markText = (str: string): string => { // 将纯文本中的特殊标记转
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
-          { pattern: /(https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: url): url => match },
+          { pattern: /(?:https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: url): url => match },
           { pattern: /(?:BV|bv|Bv|bV)1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/BV1${matches[0]}/` },
           { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/av${matches[0]}/` },
           { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.nicovideo.jp/watch/sm${matches[0]}` },

@@ -21,7 +21,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
     splitString.shift(); // 删除第一个元素
     responseAttributes.push(...splitString);
   }
-  
+
   try {
     const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; mid?: string }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
@@ -31,12 +31,12 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       </form>` })), // 发送 HTML 响应到客户端
           sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
           send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data)); // 发送其他数据到客户端
-    
+
     const requestMid = params.get('mid');
     if (requestMid && /^\d+$/.test(requestMid) && BigInt(requestMid) > 0) { // 判断 UID 是否是正整数
       const headers = new Headers({ Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://space.bilibili.com', Referer: `https://space.bilibili.com/${requestMid}`, 'User-Agent': process.env.userAgent! }),
             mid = BigInt(requestMid);
-      
+
       let json: InternalAPIResponse<InternalAPIGetUserInfoData | null>;
       const cjson = <{ ts?: secondLevelTimestamp; code: number; message: string; card?: UserCardData }>await (await fetch(`https://account.bilibili.com/api/member/getCardByMid?mid=${mid}`, { headers })).json();
       if (cjson.code === 0) {
@@ -56,7 +56,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       } else {
         json = { code: cjson.code, message: cjson.message, data: null };
       }
-      
+
       if (responseType === 1) { // 回复 HTML
         switch (json.code) {
           case 0:
@@ -66,15 +66,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               <div class="main-info-outer">
                 <div class="main-info-inner">
                   <div class="image-wrap${data.pendant?.image ? ' has-frame' : ''}">
-                    <a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">
-                      <img class="face" title="${utils.encodeHTML(data.name)}" src="${utils.toHTTPS(data.face)}" />
-                      ${data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(data.pendant.name)}" src="${utils.toHTTPS(data.pendant.image_enhance || data.pendant.image)}" />` : ''}
-                      ${data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(data.official.type) || data.vip?.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
-                      ${data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : data.vip?.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
-                    </a>
+                    <img class="face" title="${utils.encodeHTML(data.name)}" src="${utils.toHTTPS(data.face)}" />
+                    ${data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(data.pendant.name)}" src="${utils.toHTTPS(data.pendant.image_enhance || data.pendant.image)}" />` : ''}
+                    ${data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(data.official.type) || data.vip?.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
+                    ${data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : data.vip?.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                   </div>
                   <div class="detail">
-                    <a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}">${utils.encodeHTML(data.name)}</a>
+                    <strong>${utils.encodeHTML(data.name)}</strong>
                     ${data.sex === '男' ? '<img class="sex" alt="♂️" title="男" src="/assets/male.png" />' : data.sex === '女' ? '<img class="sex" alt="♀️" title="女" src="/assets/female.png" />' : ''}
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${data.is_senior_member ? '6⚡' : data.level}" title="${data.is_senior_member ? '6 级（硬核会员）' : `${data.level} 级`}" src="/assets/level_${data.is_senior_member ? '6%2B' : data.level}.svg" /></a>
                     <br />
@@ -83,6 +81,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                     ${data.silence ? '<span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span><br />' : ''}
                     ${data.sys_notice && 'content' in data.sys_notice && data.sys_notice.content ? `<${data.sys_notice.url ? `a class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${data.sys_notice.url}"` : `span class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${utils.encodeHTML(data.sys_notice.content)}</${data.sys_notice.url ? 'a' : 'span'}>` : ''}
                   </div>
+                  <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}"></a>
                 </div>
               </div>
               <strong>生日：</strong>${data.birthday ? utils.getDate(data.birthday).slice(0, 10) : '保密'}<br />
@@ -99,14 +98,14 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           case -412: // 请求被拦截
           case -799: // 请求过于频繁，请稍后再试（URL 非 wbi）
             respHeaders.set('Retry-After', '600');
-            sendHTML(429, { title: '请求被拦截', content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: requestMid });
+            sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: requestMid });
             break;
           case -404: // 啥都木有
           case -626: // 用户不存在
-            sendHTML(404, { title: '用户不存在', content: `UID${mid} 对应的用户不存在！QAQ`, mid: requestMid });
+            sendHTML(404, { title: '用户不存在', newStyle: true, content: `UID${mid} 对应的用户不存在！QAQ`, mid: requestMid });
             break;
           default:
-            sendHTML(400, { title: '获取用户信息失败', content: `获取 UID${mid} 的信息失败，请稍后重试 awa`, mid: requestMid });
+            sendHTML(400, { title: '获取用户信息失败', newStyle: true, content: `获取 UID${mid} 的信息失败，请稍后重试 awa`, mid: requestMid });
         }
       } else if (responseType === 2) { // 回复头像数据
         if (json.code === 0) {
@@ -124,7 +123,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             } else {
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
                 if (fetchDest === 1) {
-                  sendHTML(404, { title: `获取 ${data.name} 的头像数据失败`, content: `获取 ${utils.encodeHTML(data.name)} 的头像数据失败，请稍后重试 awa`, mid: requestMid });
+                  sendHTML(404, { title: `获取 ${data.name} 的头像数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(data.name)} 的头像数据失败，请稍后重试 awa`, mid: requestMid });
                 } else {
                   sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(data.face), upstreamServerRespStatus: resp.status } });
                 }
@@ -137,7 +136,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         } else { // 用户信息获取失败，回复默认头像
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
             if (fetchDest === 1) {
-              sendHTML(404, { title: `获取 UID${mid} 的头像数据失败`, content: `获取 UID${mid} 的头像数据失败，该用户可能不存在哟 qwq`, mid: requestMid });
+              sendHTML(404, { title: `获取 UID${mid} 的头像数据失败`, newStyle: true, content: `获取 UID${mid} 的头像数据失败，该用户可能不存在哟 qwq`, mid: requestMid });
             } else {
               sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
             }
@@ -175,7 +174,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
             更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。` });
         } else { // 设置了 UID 参数但无效
-          sendHTML(400, { title: 'UID 无效', content: `
+          sendHTML(400, { title: 'UID 无效', newStyle: true, content: `
             您输入的 UID 无效！<br />
             请输入一个正确的 UID 吧 awa` });
         }
@@ -187,7 +186,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         } else { // 设置了 UID 参数但无效，回复默认头像
           if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
             if (fetchDest === 1) {
-              sendHTML(400, { title: 'UID 无效', content: `
+              sendHTML(400, { title: 'UID 无效', newStyle: true, content: `
                 您输入的 UID 无效！<br />
                 请输入一个正确的 UID 吧 awa` });
             } else {

@@ -16,7 +16,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
   try {
     const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)),
           send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data));
-    
+
     if (responseType === 1) {
       switch (params.get('id')) {
         case 'friends': // 对直接访问 /api/modules?id=friends 的浏览器发送重定向的回应
@@ -29,7 +29,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
       switch (params.get('id')) {
         case 'friends': // 关系好的朋友们（不一定互关）
           const version = params.get('version'), info = (<FriendInfo[]>await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
-          
+
           respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (version === '3') { // 第 3 版：简化名称
             sendJSON(200, { code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } });
