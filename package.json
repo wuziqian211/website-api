@@ -8,8 +8,13 @@
     "md5": "latest"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@stylistic/eslint-plugin": "^2.6.4",
     "@types/md5": "latest",
     "@types/node": "latest",
-    "typescript": "latest"
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0",
+    "typescript": "latest",
+    "typescript-eslint": "^8.3.0"
   }
 }

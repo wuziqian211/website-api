@@ -27,8 +27,8 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
       }
     } else {
       switch (params.get('id')) {
-        case 'friends': // 关系好的朋友们（不一定互关）
-          const version = params.get('version'), info = (<FriendInfo[]>await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
+        case 'friends': { // 关系好的朋友们（不一定互关）
+          const version = params.get('version'), info = (<FriendInfo[]> await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
 
           respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
           if (version === '3') { // 第 3 版：简化名称
@@ -39,7 +39,8 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
             sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(u.face)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'kv' } });
           }
           break;
-        case 'blocked': // 可能被屏蔽的域名
+        }
+        case 'blocked': { // 可能被屏蔽的域名
           let blocked = '';
           if (req.headers.get('x-vercel-ip-country') === 'CN') { // 在中国内地（不含港澳台地区）
             blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
@@ -47,7 +48,8 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
           respHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
           sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { ipCountry: req.headers.get('x-vercel-ip-country') } });
           break;
-        case 'upload': // 上传图片
+        }
+        case 'upload': { // 上传图片
           if (req.method === 'POST' && req.headers.get('content-type')?.split(';')[0] === 'application/octet-stream') {
             const file = await req.blob();
             if (file.size) {
@@ -56,7 +58,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
               body.set('format', 'json');
               const resp = await fetch('https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body });
               if (resp.ok) {
-                const json = <SmmsUploadResponse>await resp.json();
+                const json = <SmmsUploadResponse> await resp.json();
                 if (json.success) {
                   sendJSON(200, { code: 0, message: '0', data: { filename: json.data!.filename, url: json.data!.url, size: json.data!.size, width: json.data!.width, height: json.data!.height } });
                 } else {
@@ -74,10 +76,11 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
             sendJSON(405, { code: -405, message: 'method not allowed', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
           }
           break;
-        case 'qmimg':
+        }
+        case 'qmimg': {
           const hash = params.get('h');
           if (hash && /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/.test(hash)) {
-            const hashes = <HashInfo[]>await kv.get('hashes');
+            const hashes = <HashInfo[]> await kv.get('hashes');
             const hashInfo = hashes.find(h => h.h === hash);
             if (hashInfo) {
               const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hashInfo.s}&spec=4`);
@@ -95,6 +98,7 @@ export default (req: Request): Promise<Response> => new Promise(async (resolve: 
             sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
           }
           break;
+        }
         default:
           sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
       }

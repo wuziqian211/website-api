@@ -21,7 +21,7 @@ const isValidPage = html => !html.querySelector('parsererror') && ['title', "lin
  * @param {Document} html
  */
 const replacePage = html => {
-  ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => /** @type HTMLElement */(document.querySelector(s)).innerHTML = /** @type HTMLElement */(html.querySelector(s)).innerHTML);
+  ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => { /** @type HTMLElement */(document.querySelector(s)).innerHTML = /** @type HTMLElement */(html.querySelector(s)).innerHTML; });
   /** @type HTMLLinkElement */(document.querySelector("link[rel='apple-touch-icon']")).href = /** @type HTMLLinkElement */(html.querySelector("link[rel='apple-touch-icon']")).href;
   document.body.className = html.body.className;
   document.body.style.backgroundImage = html.body.style.backgroundImage;
@@ -117,7 +117,9 @@ const bindFormElement = form => {
  */
 const bindImageElement = img => {
   img.style.filter = 'blur(10px)';
-  img.addEventListener('load', () => img.style.filter = '');
+  img.addEventListener('load', () => {
+    img.style.filter = '';
+  });
   img.addEventListener('error', () => {
     switch (img.className) {
       case 'face':
@@ -131,7 +133,7 @@ const bindImageElement = img => {
     }
   });
   if (img.complete) img.style.filter = '';
-}
+};
 
 let loadController;
 window.addEventListener('popstate', event => {
@@ -153,16 +155,12 @@ document.querySelectorAll('img').forEach(bindImageElement);
 /** @param {Node} node */
 const bindElement = node => {
   if (node instanceof HTMLElement) {
-    switch (node.tagName) {
-      case 'A':
-        bindAnchorElement(node);
-        break;
-      case 'FORM':
-        bindFormElement(node);
-        break;
-      case 'IMG':
-        bindImageElement(node);
-        break;
+    if (node instanceof HTMLAnchorElement) {
+      bindAnchorElement(node);
+    } else if (node instanceof HTMLFormElement) {
+      bindFormElement(node);
+    } else if (node instanceof HTMLImageElement) {
+      bindImageElement(node);
     }
     if (node.children.length) Array.from(node.children).forEach(bindElement);
   }

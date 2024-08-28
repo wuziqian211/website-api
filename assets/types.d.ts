@@ -1,3 +1,4 @@
+/* eslint-disable capitalized-comments */
 // 类型定义
 // 1. 通用类型
 export type resolveFn<Type> = (returnValue: Type) => void;
@@ -229,6 +230,7 @@ export interface InternalAPIGetUserInfoData {
 }
 
 // 3. 视频信息相关
+// eslint-disable-next-line @stylistic/semi-spacing
 export type quality = 6 /* 240P */ | 16 /* 360P */ | 32 /* 480P */ | 64 /* 720P */ | 74 /* 720P60 */ | 80 /* 1080P */ | 112 /* 1080P+ */ | 116 /* 1080P60 */ | 120 /* 4K */ | 125 /* HDR */ | 126 /* 杜比视界 */ | 127 /* 8K */;
 type copyright = 1 /* 自制 */ | 2 /* 转载 */;
 interface Dimension { // 视频分辨率信息
@@ -599,7 +601,7 @@ interface EpisodeInfo {
   share_url: url;
   short_link: url;
   showDrmLoginDialog: boolean;
-  skip?: { ed: { end: number; start: number }; op: { end: number; start: number } }
+  skip?: { ed: { end: number; start: number }; op: { end: number; start: number } };
   status: number;
   subtitle: string;
   title: string;

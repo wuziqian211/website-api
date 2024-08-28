@@ -71,10 +71,10 @@ const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve
       responseType = 3;
     }
   }
-  if (responseType == undefined && fetchDest != undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+  if (responseType === undefined && fetchDest !== undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
     responseType = fetchDest;
   }
-  if (responseType == undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
+  if (responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
     if (acceptAll) { // 部分脚本在发送请求时会自动带上“Accept: */*”标头，此时应该回复 JSON
       responseType = 0;
     } else {
@@ -194,9 +194,9 @@ const send504 = (responseType: ResponseType): Response => {
     return sendJSON(504, headers, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
   }
 };
-const redirect = (status: number, url: url, noCache?: boolean): Response => { // 发送重定向信息到客户端
-  const headers = new Headers({ Location: url });
-  if (status === 308) headers.set('Refresh', `0; url=${url}`);
+const redirect = (status: number, redirectUrl: url, noCache?: boolean): Response => { // 发送重定向信息到客户端
+  const headers = new Headers({ Location: redirectUrl });
+  if (status === 308) headers.set('Refresh', `0; url=${redirectUrl}`);
   if (!noCache) {
     switch (status) {
       case 308:
@@ -209,14 +209,14 @@ const redirect = (status: number, url: url, noCache?: boolean): Response => { //
         break;
     }
   }
-  return sendJSON(status, headers, { code: status, message: 'redirect', data: { url }, extInfo: { redirectUrl: url } });
+  return sendJSON(status, headers, { code: status, message: 'redirect', data: { url: redirectUrl }, extInfo: { redirectUrl } });
 };
 const encodeHTML = (str?: string): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
 const markText = (str: string): string => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
-          { pattern: /(?:https?):\/\/[\w\-]+(?:\.[\w\-]+)+(?:[\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?/i, replacer: (match: url): url => match },
+          { pattern: /(?:https?):\/\/[\w-]+(?:\.[\w-]+)+(?:[\w-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/i, replacer: (match: url): url => match },
           { pattern: /(?:BV|bv|Bv|bV)1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/BV1${matches[0]}/` },
           { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/av${matches[0]}/` },
           { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
@@ -233,7 +233,8 @@ const markText = (str: string): string => { // 将纯文本中的特殊标记转
         if (result) {
           const [match, ...capturedMatches] = result, { index } = result;
           components.splice(i++, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
-          components[i].content = match, components[i].url = p.replacer(match, capturedMatches); // 将该组成部分修改成已经转化的链接
+          components[i].content = match;
+          components[i].url = p.replacer(match, capturedMatches); // 将该组成部分修改成已经转化的链接
           components.splice(i + 1, 0, { content: content.slice(index + match.length) }); // 在该组成部分后插入一个内容为匹配文本之后的文本的组成部分
         }
       }
@@ -241,11 +242,11 @@ const markText = (str: string): string => { // 将纯文本中的特殊标记转
   }
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
-const toHTTPS = (url: url): url => { // 将网址协议改成 HTTPS
-  if (!url) return 'data:,';
-  const u = new URL(url);
-  u.protocol = 'https:';
-  return u.href;
+const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
+  if (!targetUrl) return 'data:,';
+  const urlObj = new URL(targetUrl);
+  urlObj.protocol = 'https:';
+  return urlObj.href;
 };
 const getDate = (ts: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
   if (typeof ts !== 'number' || ts === 0) return '未知';
@@ -276,7 +277,7 @@ const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https:/
   }
   return (t & maskCode) ^ xorCode;
 };
-const getVidType = (vid: string | null): { type: -1, vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
+const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
   if (typeof vid !== 'string' || !vid) return { type: -1, vid: undefined };
   if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
@@ -295,6 +296,7 @@ const getVidType = (vid: string | null): { type: -1, vid: undefined } | { type: 
   }
 };
 const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0], keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+  // eslint-disable-next-line no-param-reassign
   keys ??= await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
@@ -304,10 +306,10 @@ const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0
   return params;
 };
 const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
-  if (!noCache && !cachedWbiKeys) cachedWbiKeys = <CachedWbiKeys>await kv.get('wbiKeys');
+  if (!noCache && !cachedWbiKeys) cachedWbiKeys = <CachedWbiKeys> await kv.get('wbiKeys');
   if (noCache || !cachedWbiKeys || Math.floor(cachedWbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
-    const ujson = <APIResponse<NavData>>await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! } })).json();
-    const wbiKeys: WbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^\.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^\.]+)(?:\..*)?$/, '$1') };
+    const ujson = <APIResponse<NavData>> await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! } })).json();
+    const wbiKeys: WbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1') };
     cachedWbiKeys = { ...wbiKeys, updatedTimestamp: Date.now() };
     await kv.set('wbiKeys', cachedWbiKeys);
     return wbiKeys;

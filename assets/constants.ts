@@ -1,3 +1,4 @@
+/* eslint-disable capitalized-comments */
 // 常量定义
 import type { url } from './types.d.ts';
 
@@ -20,7 +21,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 221, name: '野生动物', desc: '内有“猛兽”出没', url: 'v/animal/wild_animal' },
       { tid: 220, name: '动物二创', desc: '解说、配音、剪辑、混剪', url: 'v/animal/second_edition' },
       { tid: 75, name: '动物综合', desc: '收录除上述子分区外，其余动物相关视频以及非动物主体或多个动物主体的动物相关延伸内容', url: 'v/animal/animal_composite' },
-    ]
+    ],
   },
   {
     tid: 13, name: '番剧', url: 'anime/', sub: [ // 本分区的各子分区的描述来自“API 文档”
@@ -28,7 +29,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 32, name: '完结动画', desc: '已完结TV/WEB动画及其独立系列，旧剧场版/OVA/SP/未放送', url: 'v/anime/finish' },
       { tid: 51, name: '资讯', desc: '以动画/轻小说/漫画/杂志为主的资讯内容，PV/CM/特报/冒头/映像/预告', url: 'v/anime/information/' },
       { tid: 152, name: '官方延伸', desc: '以动画番剧及声优为主的EVENT/生放送/DRAMA/RADIO/LIVE/特典/冒头等', url: 'v/anime/offical/' },
-    ]
+    ],
   },
   {
     tid: 223, name: '汽车', url: 'v/car', sub: [
@@ -43,7 +44,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 224, name: '汽车文化', desc: '车迷的精神圣地，包括汽车赛事、品牌历史、汽车改装、经典车型和汽车模型等', url: 'v/car/culture', expired: true },
       { tid: 225, name: '汽车极客', desc: '汽车硬核达人聚集地，包括DIY造车、专业评测和技术知识分享', url: 'v/car/geek', expired: true },
       { tid: 226, name: '智能出行', desc: '探索新能源汽车和未来智能出行的前沿阵地', url: 'v/car/smart', expired: true },
-    ]
+    ],
   },
   {
     tid: 181, name: '影视', url: 'v/cinephile', sub: [
@@ -52,7 +53,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 85, name: '小剧场', desc: '有场景、有剧情的演绎类内容', url: 'v/cinephile/shortplay' },
       { tid: 256, name: '短片', desc: '各种类型的短片', url: 'v/cinephile/shortfilm' },
       { tid: 184, name: '预告·资讯', desc: '影视类相关资讯，预告，花絮等视频', url: 'v/cinephile/trailer_info' },
-    ]
+    ],
   },
   {
     tid: 129, name: '舞蹈', url: 'v/dance/', sub: [
@@ -63,7 +64,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 255, name: '手势·网红舞', desc: '手势舞及网红流行舞蹈、短视频舞蹈等相关视频', url: 'v/dance/gestures/' },
       { tid: 154, name: '舞蹈综合', desc: '收录无法定义到其他舞蹈子分区的舞蹈视频', url: 'v/dance/three_d/' },
       { tid: 156, name: '舞蹈教程', desc: '镜面慢速，动作分解，基础教程等具有教学意义的舞蹈视频', url: 'v/dance/demo/' },
-    ]
+    ],
   },
   {
     tid: 177, name: '纪录片', url: 'documentary/', sub: [ // 本分区中的各子分区来自“API 文档”
@@ -71,7 +72,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 178, name: '科学·探索·自然', desc: '除演讲、网课、教程外的，科学探索自然纪录剧集或电影、预告、花絮、二创、5分钟以上纪录短片', url: 'v/documentary/science' },
       { tid: 179, name: '军事', desc: '除时政军事新闻外的，军事纪录剧集或电影、预告、花絮、二创、5分钟以上纪录短片', url: 'v/documentary/military' },
       { tid: 180, name: '社会·美食·旅行', desc: '除VLOG、风光摄影外的，社会美食旅行纪录剧集或电影、预告、花絮、二创、5分钟以上纪录短片', url: 'v/documentary/travel' },
-    ]
+    ],
   },
   {
     tid: 1, name: '动画', url: 'v/douga/', sub: [
@@ -83,7 +84,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 86, name: '特摄', desc: '特摄相关衍生视频', url: 'v/douga/tokusatsu/' },
       { tid: 253, name: '动漫杂谈', desc: '以谈话形式对ACGN文化圈进行的鉴赏、吐槽、评点、解说、推荐、科普等内容', url: 'v/douga/acgntalks/' },
       { tid: 27, name: '综合', desc: '以动画及动画相关内容为素材，包括但不仅限于音频替换、恶搞改编、排行榜等内容', url: 'v/douga/other/' },
-    ]
+    ],
   },
   {
     tid: 5, name: '娱乐', url: 'v/ent/', sub: [
@@ -92,7 +93,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 242, name: '粉丝创作', desc: '粉丝向创作视频', url: 'v/ent/fans' },
       { tid: 137, name: '明星综合', desc: '娱乐圈动态、明星资讯相关', url: 'v/ent/celebrity' },
       { tid: 131, name: 'Korea相关', desc: 'Korea相关音乐、舞蹈、综艺等视频', url: 'v/ent/korea', expired: true },
-    ]
+    ],
   },
   {
     tid: 155, name: '时尚', url: 'v/fashion', sub: [
@@ -101,7 +102,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 158, name: '穿搭', desc: '穿搭风格、穿搭技巧的展示分享，涵盖衣服、鞋靴、箱包配件、配饰（帽子、钟表、珠宝首饰）等', url: 'v/fashion/clothing' },
       { tid: 159, name: '时尚潮流', desc: '时尚街拍、时装周、时尚大片，时尚品牌、潮流等行业相关记录及知识科普', url: 'v/fashion/trend' },
       { tid: 192, name: '风尚标', desc: '时尚明星专访、街拍、时尚购物相关知识科普', url: 'v/fashion/trends', expired: true },
-    ]
+    ],
   },
   {
     tid: 211, name: '美食', url: 'v/food', sub: [
@@ -110,7 +111,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 213, name: '美食测评', desc: '吃货世界，品尝世间美味', url: 'v/food/measurement' },
       { tid: 214, name: '田园美食', desc: '品味乡野美食，寻找山与海的味道', url: 'v/food/rural' },
       { tid: 215, name: '美食记录', desc: '记录一日三餐，给生活添一点幸福感', url: 'v/food/record' },
-    ]
+    ],
   },
   {
     tid: 4, name: '游戏', url: 'v/game/', sub: [
@@ -122,7 +123,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 121, name: 'GMV', desc: '由游戏素材制作的MV视频。以游戏内容或CG为主制作的，具有一定创作程度的MV类型的视频', url: 'v/game/gmv' },
       { tid: 136, name: '音游', desc: '各个平台上，通过配合音乐与节奏而进行的音乐类游戏视频', url: 'v/game/music' },
       { tid: 19, name: 'Mugen', desc: '以Mugen引擎为平台制作、或与Mugen相关的游戏视频', url: 'v/game/mugen' },
-    ]
+    ],
   },
   {
     tid: 167, name: '国创', url: 'guochuang/', sub: [ // 本分区的各子分区的描述来自“API 文档”
@@ -131,7 +132,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 169, name: '布袋戏', desc: '布袋戏以及相关剪辑节目', url: 'v/guochuang/puppetry/' },
       { tid: 195, name: '动态漫·广播剧', desc: '国产动态漫画、有声漫画、广播剧', url: 'v/guochuang/motioncomic/' },
       { tid: 170, name: '资讯', desc: '原创国产动画、漫画的相关资讯、宣传节目等', url: 'v/guochuang/information/' },
-    ]
+    ],
   },
   {
     tid: 202, name: '资讯', url: 'v/information/', sub: [
@@ -139,12 +140,12 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 204, name: '环球', desc: '全球范围内发生的具有重大影响力的事件动态', url: 'v/information/global' },
       { tid: 205, name: '社会', desc: '日常生活的社会事件、社会问题、社会风貌的报道', url: 'v/information/social' },
       { tid: 206, name: '综合', desc: '除上述领域外其它垂直领域的综合资讯', url: 'v/information/multiple' },
-    ]
+    ],
   },
   {
     tid: 165, name: '广告', url: 'v/ad', expired: true, sub: [
       { tid: 166, name: '广告', url: 'v/ad/ad', expired: true },
-    ]
+    ],
   },
   {
     tid: 119, name: '鬼畜', url: 'v/kichiku/', sub: [
@@ -153,7 +154,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 126, name: '人力VOCALOID', desc: '将人物或者角色的无伴奏素材进行人工调音，使其就像VOCALOID一样歌唱的技术', url: 'v/kichiku/manual_vocaloid' },
       { tid: 216, name: '鬼畜剧场', desc: '使用素材进行人工剪辑编排的有剧情的作品', url: 'v/kichiku/theatre' },
       { tid: 127, name: '教程演示', desc: '鬼畜相关的教程演示', url: 'v/kichiku/course' },
-    ]
+    ],
   },
   {
     tid: 36, name: '知识', url: 'v/knowledge/', sub: [
@@ -168,7 +169,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 39, name: '演讲·公开课', desc: '涨知识的好地方，给爱学习的你', url: 'v/technology/speech_course', expired: true },
       { tid: 96, name: '星海', desc: '军事类内容的圣地', url: 'v/technology/military', expired: true },
       { tid: 98, name: '机械', desc: '机械设备展示或制作视频', url: 'v/technology/mechanical', expired: true },
-    ]
+    ],
   },
   {
     tid: 160, name: '生活', url: 'v/life', sub: [
@@ -182,7 +183,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 21, name: '日常', desc: '记录日常生活，分享生活故事', url: 'v/life/daily' },
       { tid: 163, name: '运动', desc: '运动相关的记录、教程、装备评测和精彩瞬间剪辑视频', url: 'v/life/sports', expired: true },
       { tid: 174, name: '其他', desc: '对于分区归属不明的视频进行归纳整合的特定分区', url: 'v/life/other', expired: true },
-    ]
+    ],
   },
   {
     tid: 23, name: '电影', url: 'movie/', sub: [ // 本分区中的各子分区来自“API 文档”
@@ -190,7 +191,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 145, name: '欧美电影', url: 'v/movie/west' },
       { tid: 146, name: '日本电影', url: 'v/movie/japan' },
       { tid: 83, name: '其他国家', url: 'v/movie/movie' },
-    ]
+    ],
   },
   {
     tid: 3, name: '音乐', url: 'v/music', sub: [
@@ -204,7 +205,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 244, name: '音乐教学', desc: '以音乐教学为目的的内容', url: 'v/music/tutorial' },
       { tid: 130, name: '音乐综合', desc: '所有无法被收纳到其他音乐二级分区的音乐类视频', url: 'v/music/other' },
       { tid: 194, name: '电音', desc: '以电子合成器、音乐软体等产生的电子声响制作的音乐', url: 'v/music/electronic', expired: true },
-    ]
+    ],
   },
   {
     tid: 234, name: '运动', url: 'v/sports', sub: [
@@ -214,7 +215,7 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 236, name: '竞技体育', desc: '与竞技体育相关的视频，包括但不限于乒乓、羽毛球、排球、赛车等竞技项目的赛事、评述、剪辑、剧情等相关内容', url: 'v/sports/athletic' },
       { tid: 237, name: '运动文化', desc: '与运动文化相关的视频，包括但不限于球鞋、球衣、球星卡等运动衍生品的分享、解读，体育产业的分析、科普等相关内容', url: 'v/sports/culture' },
       { tid: 238, name: '运动综合', desc: '与运动综合相关的视频，包括但不限于钓鱼、骑行、滑板等日常运动分享、教学、Vlog等相关内容', url: 'v/sports/comprehensive' },
-    ]
+    ],
   },
   {
     tid: 188, name: '科技', url: 'v/tech/', sub: [
@@ -226,13 +227,13 @@ const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bil
       { tid: 189, name: '电脑装机', desc: '电脑、笔记本、装机配件、外设和软件教程等相关视频', url: 'v/digital/pc', expired: true },
       { tid: 190, name: '摄影摄像', desc: '摄影摄像器材、拍摄剪辑技巧、拍摄作品分享等相关视频', url: 'v/digital/photography', expired: true },
       { tid: 191, name: '影音智能', desc: '影音设备、智能产品等相关视频', url: 'v/digital/intelligence_av', expired: true },
-    ]
+    ],
   },
   {
     tid: 11, name: '电视剧', url: 'tv/', sub: [ // 本分区中的各子分区来自“API 文档”
       { tid: 185, name: '国产剧', url: 'v/tv/mainland' },
       { tid: 187, name: '海外剧', url: 'v/tv/overseas' },
-    ]
+    ],
   },
 ];
 
