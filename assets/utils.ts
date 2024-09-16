@@ -118,7 +118,7 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
-        <title>${encodeHTML(data.title)} | wuziqian211's Blog API</title>
+        <title>${encodeHTML(data.title)} | YumeHaru's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/assets/apple-touch-icon.png'}" />
@@ -127,13 +127,13 @@ const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Respons
       <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${data.imageBackground});"` : ''}>
         <header>
           <div class="header">
-            <div class="left"><a href="/api/">wuziqian211's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
+            <div class="left"><a href="/api/">YumeHaru's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
             <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/#readme">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
           </div>
         </header>
         <main>${data.body}</main>
         <footer>
-          本 API 版权：© 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} wuziqian211<br />
+          本 API 版权：© 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春<br />
           执行本 API 耗时 <span class="time-taken">${(execTime / 1000).toFixed(3)}</span> s<br />
           本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
           部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
@@ -178,7 +178,7 @@ const send500 = (responseType: ResponseType, error: unknown): Response => {
   if (responseType === 1) {
     return sendHTML(500, headers, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
-      您可以将下面的错误信息告诉 wuziqian211 哟 awa
+      您可以将下面的错误信息告诉梦春酱哟 awa
       <pre>${encodeHTML(error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error))}</pre>` });
   } else {
     return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error) } });
@@ -189,7 +189,7 @@ const send504 = (responseType: ResponseType): Response => {
   if (responseType === 1) {
     return sendHTML(504, headers, { title: 'API 执行超时', newStyle: true, body: `
       抱歉，本 API 的执行已经超时了，请您再尝试调用一次本 API 吧 qwq<br />
-      如果您仍然看到本错误信息，请跟 wuziqian211 反馈哟 awa` });
+      如果您仍然看到本错误信息，请跟梦春酱反馈哟 awa` });
   } else {
     return sendJSON(504, headers, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
   }

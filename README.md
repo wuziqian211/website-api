@@ -1,4 +1,4 @@
-# wuziqian211's Blog API
+# YumeHaru's Blog API
 
 <https://api.yumeharu.top/api/>
 
@@ -14,7 +14,7 @@
 
 ## ✨介绍
 
-本项目的 API 主要为 [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能提供服务。
+本项目的 API 主要为[晨叶梦春的小屋](https://www.yumeharu.top/)的一些功能提供服务。
 
 对于大多数 API：
 
@@ -342,7 +342,7 @@
 | api/getuser.ts | “获取哔哩哔哩用户信息” API |
 | api/getvideo.ts | “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API |
 | api/index.ts | 用于渲染网站首页的 API |
-| api/modules.ts | [wuziqian211's Blog](https://www.yumeharu.top/) 的一些功能使用的 API |
+| api/modules.ts | [晨叶梦春的小屋](https://www.yumeharu.top/)的一些功能使用的 API |
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/\[1-5\]-22.jpg, assets/\[1-6\]-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/apple-touch-icon.png | 网站图标 |
