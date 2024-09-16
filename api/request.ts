@@ -11,7 +11,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
   try {
     const headers = new Headers(req.headers), urlParam = params.get('url'), respHeaders = new Headers();
     if (!urlParam) {
-      resolve(new Response(`<!DOCTYPE html><title>Request</title><form><label for=url>Request URL:</label> <input type=url name=url id=url placeholder="https://"> <input type=submit value=Request></form>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
+      resolve(new Response('<!DOCTYPE html><title>Request</title><form><label for=url>Request URL:</label> <input type=url name=url id=url placeholder="https://"> <input type=submit value=Request></form>', { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
       return;
     }
     [...headers.keys()].filter(name => ['connection', 'content-length', 'forwarded', 'host', 'if-none-match', 'access-control-max-age', 'content-security-policy', 'referrer-policy', 'strict-transport-security'].includes(name) || name.startsWith('x-') || name.startsWith('cf-') || name.startsWith('access-control-allow-')).forEach(name => headers.delete(name));
