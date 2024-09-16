@@ -2,7 +2,7 @@ export const config = { runtime: 'edge' };
 
 export default (req: Request): Response => {
   const requestPath = new URL(req.url).pathname,
-    host = req.headers.get('Host')!;
+        host = req.headers.get('Host')!;
   if (/^.+\.yumeharu.top$/.test(host)) {
     let expectedURL: string | undefined;
     if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(requestPath)) {
@@ -18,7 +18,7 @@ export default (req: Request): Response => {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
           <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
-          <title>页面不存在 | wuziqian211's Blog</title>
+          <title>页面不存在 | 晨叶梦春的小屋</title>
           <link rel="stylesheet" href="/assets/style.css" />
           <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
           <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
@@ -26,7 +26,7 @@ export default (req: Request): Response => {
         <body>
           <header>
             <div class="header">
-              <div class="left"><a href="https://www.yumeharu.top/">wuziqian211's Blog</a> <span class="description">一个简单的 Blog</span></div>
+              <div class="left"><a href="https://www.yumeharu.top/">晨叶梦春的小屋</a> <span class="description">温馨和谐的小屋</span></div>
               <div class="right"><a href="https://www.yumeharu.top/">返回主站</a></div>
             </div>
           </header>
@@ -35,7 +35,7 @@ export default (req: Request): Response => {
             ${expectedURL ? `您是否想要访问 <a href="${expectedURL}">${expectedURL}</a>？` : '<a href="https://www.yumeharu.top/">点击此处返回 Blog 首页</a>'}
           </main>
           <footer>
-            © 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} wuziqian211
+            © 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春
           </footer>
         </body>
       </html>`.replace(/[ \r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });

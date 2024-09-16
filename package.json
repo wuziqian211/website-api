@@ -3,7 +3,10 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@stylistic/eslint-plugin": "^2.8.0",
     "@types/node": "^22.0.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.5.0"
   }
 }
