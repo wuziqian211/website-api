@@ -23,11 +23,11 @@ export default (req: Request): Response => {
     return utils.sendHTML(300, new Headers(), { title: '欢迎来到 API 页面', newStyle: true, body: `
       <p>您提供的路径为纯数字，请选择您要获取信息的项目：</p>
       <div class="grid">
-        <a class="grid-item" href="/api/getuser?mid=${id}"><strong class="grid-title">获取用户信息</strong><p>获取用户 UID${id} 的信息</p></a>
-        <a class="grid-item" href="/api/getvideo?vid=av${id}"><strong class="grid-title">获取视频信息</strong><p>获取视频 av${id} 的信息</p></a>
-        <a class="grid-item" href="/api/getvideo?vid=md${id}"><strong class="grid-title">获取剧集信息</strong><p>获取剧集 md${id} 的信息</p></a>
-        <a class="grid-item" href="/api/getvideo?vid=ss${id}"><strong class="grid-title">获取番剧信息（ssid）</strong><p>获取番剧 ss${id} 的信息</p></a>
-        <a class="grid-item" href="/api/getvideo?vid=ep${id}"><strong class="grid-title">获取番剧信息（epid）</strong><p>获取番剧 ep${id} 的信息</p></a>
+        <div class="grid-item"><strong class="grid-title">获取用户信息</strong><p>获取用户 UID${id} 的信息</p><a class="grid-link" href="/api/getuser?mid=${id}"></a></div>
+        <div class="grid-item"><strong class="grid-title">获取视频信息</strong><p>获取视频 av${id} 的信息</p><a class="grid-link" href="/api/getvideo?vid=av${id}"></a></div>
+        <div class="grid-item"><strong class="grid-title">获取剧集信息</strong><p>获取剧集 md${id} 的信息</p><a class="grid-link" href="/api/getvideo?vid=md${id}"></a></div>
+        <div class="grid-item"><strong class="grid-title">获取番剧信息（ssid）</strong><p>获取番剧 ss${id} 的信息</p><a class="grid-link" href="/api/getvideo?vid=ss${id}"></a></div>
+        <div class="grid-item"><strong class="grid-title">获取番剧信息（epid）</strong><p>获取番剧 ep${id} 的信息</p><a class="grid-link" href="/api/getvideo?vid=ep${id}"></a></div>
       </div>` });
   }
 

@@ -186,18 +186,19 @@ div.grid.user-list {
   gap: 10px;
   padding: 0;
 }
-div.grid-item, a.grid-item {
+div.grid-item {
   background: var(--background-color-three-quarters-transparent);
   border-radius: 10px;
   box-shadow: 10px 10px 5px #0007;
   overflow: hidden;
   padding: 10px;
+  position: relative;
 }
-body.new-style div.grid-item, body.new-style a.grid-item {
+body.new-style div.grid-item {
   border-radius: 20px;
   padding: 20px;
 }
-div.grid-item > strong.grid-title, a.grid-item > strong.grid-title {
+div.grid-item > strong.grid-title {
   font-size: 20px;
 }
 div.grid-item.main-info-outer {
@@ -211,16 +212,14 @@ div.main-info-outer {
   margin: 0 0 5px;
   overflow: hidden;
 }
-div.main-info-inner, a.main-info-inner {
+div.main-info-inner {
   align-items: center;
   background: var(--background-color-three-quarters-transparent);
   display: flex;
   padding: 5px 10px;
-}
-div.main-info-inner {
   position: relative;
 }
-div.main-info-inner.image, a.main-info-inner.image {
+div.main-info-inner.image {
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   background: var(--background-color-translucent);
@@ -228,38 +227,38 @@ div.main-info-inner.image, a.main-info-inner.image {
   height: 100%;
   width: 100%;
 }
-a.grid-item:hover, div.main-info-inner:hover, a.main-info-inner:hover {
+div.grid-item:not(.main-info-outer):hover, div.main-info-inner:hover {
   background: var(--background-color-translucent);
 }
-a.grid-item:active, div.main-info-inner:active, a.main-info-inner:active {
+div.grid-item:not(.main-info-outer):active, div.main-info-inner:active {
   background: var(--background-active-color-three-quarters-transparent);
 }
-div.main-info-inner.image:hover, a.main-info-inner.image:hover {
+div.main-info-inner.image:hover {
   background: var(--background-color-quarter-transparent);
 }
-div.main-info-inner.image:active, a.main-info-inner.image:active {
+div.main-info-inner.image:active {
   background: var(--background-active-color-translucent);
 }
-div.main-info-inner > div.left, a.main-info-inner > div.left, table * {
+div.main-info-inner > div.left, table * {
   overflow-wrap: break-word;
 }
-div.main-info-inner > div.left, div.main-info-inner > div.image-wrap, a.main-info-inner > div.left, a.main-info-inner > div.image-wrap {
+div.main-info-inner > div.left, div.main-info-inner > div.image-wrap {
   margin-right: 5px;
 }
 div.image-wrap {
   position: relative;
 }
-div.main-info-inner > div.detail, a.main-info-inner > div.detail {
+div.main-info-inner > div.detail {
   flex: 1;
 }
-div.main-info-inner > a.main-info-link {
+div.main-info-inner > a.main-info-link, div.grid-item > a.grid-link {
   height: 100%;
   left: 0;
   position: absolute;
   top: 0;
   width: 100%;
 }
-div.main-info-inner a:not(.main-info-link) {
+div.main-info-inner a:not(div.main-info-inner > a.main-info-link), div.grid-item a:not(div.grid-item > a.grid-link) {
   position: relative;
   z-index: 5;
 }
@@ -304,14 +303,8 @@ a {
 a:hover {
   text-decoration-color: var(--anchor-decoration-hover-color);
 }
-div.header a, a.grid-item, a.main-info-inner, a.notice {
+div.header a, a.notice {
   text-decoration: none;
-}
-a.grid-item, a.main-info-inner {
-  color: inherit;
-}
-a.grid-item {
-  display: block;
 }
 a.broken {
   color: var(--broken-color);
@@ -500,7 +493,7 @@ footer {
     margin-bottom: 0;
     padding: 0;
   }
-  div.grid-item, a.grid-item {
+  div.grid-item {
     box-shadow: none;
     padding: 0 !important;
   }
