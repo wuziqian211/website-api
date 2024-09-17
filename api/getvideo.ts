@@ -271,6 +271,9 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             case 62004:
               sendHTML(404, { title: '视频审核中', newStyle: true, content: '视频正在审核中，请等一下再获取信息吧 awa', vid: requestVid });
               break;
+            case 62012:
+              sendHTML(403, { title: '视频仅 UP 主可见', newStyle: true, content: '这个视频只有 UP 主自己可以看到哟 qwq', vid: requestVid });
+              break;
             default:
               sendHTML(400, { title: '获取视频信息失败', newStyle: true, content: '获取视频信息失败，请稍后重试 awa', vid: requestVid });
           }
