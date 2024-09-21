@@ -20,7 +20,7 @@ export default (req: Request): Response => {
   const pureNumberRegExpResult = /^\/(\d+)(?:[?/#].*)?$/.exec(pathname);
   if (pureNumberRegExpResult) {
     const id = pureNumberRegExpResult[1];
-    return utils.sendHTML(300, new Headers(), { title: '欢迎来到 API 页面', newStyle: true, body: `
+    return utils.sendHTML(300, new Headers(), { title: '请选择要获取信息的项目', newStyle: true, body: `
       <p>您提供的路径为纯数字，请选择您要获取信息的项目：</p>
       <div class="grid">
         <div class="grid-item"><strong class="grid-title">获取用户信息</strong><p>获取用户 UID${id} 的信息</p><a class="grid-link" href="/api/getuser?mid=${id}"></a></div>
