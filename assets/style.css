@@ -258,7 +258,7 @@ div.main-info-inner > a.main-info-link, div.grid-item > a.grid-link {
   top: 0;
   width: 100%;
 }
-div.main-info-inner a:not(div.main-info-inner > a.main-info-link), div.grid-item a:not(div.grid-item > a.grid-link) {
+div.main-info-inner a:not(div.main-info-inner > a.main-info-link):not(div.grid-item > a.grid-link), div.grid-item a:not(div.main-info-inner > a.main-info-link):not(div.grid-item > a.grid-link) {
   position: relative;
   z-index: 5;
 }
