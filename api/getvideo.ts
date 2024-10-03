@@ -62,15 +62,15 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
     if (type === 1) { // 编号为 AV 号或 BV 号
       let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null>;
       if (requestForce) { // 强制获取视频信息
-        await fetch('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', headers, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1', csrf: process.env.bili_jct! }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
+        await utils.callAPI('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', withCookie: true, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1' }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
         await new Promise(r => { setTimeout(r, 500); }); // 等待 0.5 秒
-        const hjson1 = <APIResponse<HistoryData>> await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
+        const hjson1 = <APIResponse<HistoryData>> await utils.callAPI('https://api.bilibili.com/x/v2/history', { params: { pn: 1, ps: 30 }, withCookie: true }); // 获取历史记录
         let info = hjson1.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
         if (hjson1.code === 0 && info) {
           if (info.cid) {
-            await fetch('https://api.bilibili.com/x/v2/history/report', { method: 'POST', headers, body: new URLSearchParams({ aid: utils.toAV(vid).toString(), cid: info.cid.toString(), progress: '0', platform: 'web', csrf: process.env.bili_jct! }) }); // 在 B 站历史记录再次加入这个视频（带 cid，此时可以获取更多信息）
+            await utils.callAPI('https://api.bilibili.com/x/v2/history/report', { method: 'POST', withCookie: true, body: new URLSearchParams({ aid: utils.toAV(vid).toString(), cid: info.cid.toString(), progress: '0', platform: 'web' }) }); // 在 B 站历史记录再次加入这个视频（带 cid，此时可以获取更多信息）
             await new Promise(r => { setTimeout(r, 500); }); // 等待 0.5 秒
-            const hjson2 = <APIResponse<HistoryData>> await (await fetch('https://api.bilibili.com/x/v2/history?pn=1&ps=30', { headers })).json(); // 获取历史记录
+            const hjson2 = <APIResponse<HistoryData>> await utils.callAPI('https://api.bilibili.com/x/v2/history', { params: { pn: 1, ps: 30 }, withCookie: true }); // 获取历史记录
             const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
             if (info2) info = info2;
           }
@@ -80,10 +80,9 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           json = { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'notFoundInHistory' } };
         }
       } else {
-        json = <APIResponse<VideoInfoData>> await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json(); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
+        json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid }, wbiSign: true, withCookie: useCookie }); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
         if (json.code === -403 && useCookie === undefined) { // 这个视频需要登录才能获取其信息，如果没有设置不使用 Cookie，且不是已经使用了 Cookie 仍无法获取的，就带 Cookie 重新获取信息
-          headers.set('Cookie', `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`);
-          json = <APIResponse<VideoInfoData>> await (await fetch(`https://api.bilibili.com/x/web-interface/wbi/view?${await utils.encodeWbi({ bvid: vid })}`, { headers })).json();
+          json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid }, wbiSign: true, withCookie: true });
         }
       }
 
@@ -103,7 +102,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
             const qualities: quality[] = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
             let url;
             for (const qn of qualities) {
-              const vjson = <APIResponse<VideoPlayUrlData>> await (await fetch(`https://api.bilibili.com/x/player/wbi/playurl?${await utils.encodeWbi({ bvid: vid, cid: cid.toString(), qn: qn.toString(), fnval: '1', fnver: '0', fourk: '1', otype: 'json', type: '', platform: qn === 6 ? 'pc' : 'html5', high_quality: '1' })}`, { headers })).json();
+              const vjson = <APIResponse<VideoPlayUrlData>> await utils.callAPI('https://api.bilibili.com/x/player/wbi/playurl', { params: { bvid: vid, cid: cid.toString(), qn: qn.toString(), fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: '', platform: qn === 6 ? 'pc' : 'html5', high_quality: '1' }, wbiSign: true, withCookie: useCookie });
               if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
                 url = vjson.data.durl[0].url;
               } else {
@@ -345,7 +344,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         }
       }
     } else if (type === 2) { // 编号为 mdid
-      const json = <BangumiAPIResponse<BangumiMediaData>> await (await fetch(`https://api.bilibili.com/pgc/review/user?media_id=${vid}`, { headers })).json();
+      const json = <BangumiAPIResponse<BangumiMediaData>> await utils.callAPI('https://api.bilibili.com/pgc/review/user', { params: { media_id: vid }, withCookie: useCookie });
       if (responseType === 3) { // 获取视频数据
         if (json.code === 0 && json.result!.media.season_id) {
           params.set('vid', `ss${json.result!.media.season_id}`);
@@ -452,7 +451,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         }
       }
     } else if (type && [3, 4].includes(type)) { // 编号为 ssid 或 epid
-      const json = <BangumiAPIResponse<BangumiSeasonData>> await (await fetch(`https://api.bilibili.com/pgc/view/web/season?${type === 3 ? 'season' : 'ep'}_id=${vid}`, { headers })).json();
+      const json = <BangumiAPIResponse<BangumiSeasonData>> await utils.callAPI('https://api.bilibili.com/pgc/view/web/season', { params: { [`${type === 3 ? 'season' : 'ep'}_id`]: vid }, withCookie: useCookie });
       if (responseType === 3) { // 获取剧集中某一集的视频数据
         if (json.code === 0) {
           const result = json.result!;
@@ -485,8 +484,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           if (P) { // 客户端提供的集号参数有效
             const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
             let url;
-            for (const q of qualities) {
-              const vjson = <BangumiAPIResponse<BangumiPlayUrlData>> await (await fetch(`https://api.bilibili.com/pgc/player/web/playurl?bvid=${P.bvid}&ep_id=${P.id}&cid=${P.cid}&qn=${q}&fnval=${q === 6 ? 1 : 0}&fnver=0&fourk=1&from_client=BROWSER`, { headers })).json();
+            for (const qn of qualities) {
+              const vjson = <BangumiAPIResponse<BangumiPlayUrlData>> await utils.callAPI('https://api.bilibili.com/pgc/player/web/playurl', { params: { bvid: P.bvid, ep_id: P.id, cid: P.cid, qn, fnval: qn === 6 ? 1 : 0, fnver: 0, fourk: 1, from_client: 'BROWSER' }, withCookie: useCookie });
               if (vjson.code === 0 && vjson.result!.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
                 url = vjson.result!.durl[0].url;
               } else {

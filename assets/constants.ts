@@ -1,4 +1,3 @@
-/* eslint-disable capitalized-comments */
 // 常量定义
 import type { url } from './types.d.ts';
 

@@ -295,7 +295,50 @@ const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 
     return { type: -1, vid: undefined };
   }
 };
-const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0], keys?: WbiKeys): Promise<URLSearchParams> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: true; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
+  const urlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET', csrf = process.env.bili_jct!,
+        headers = new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! });
+
+  if (options.params) { // 请求参数
+    for (const [name, value] of Object.entries(options.params)) {
+      urlObj.searchParams.set(name, String(value));
+    }
+  }
+  if (options.headers) { // 请求标头
+    for (const [name, value] of Object.entries(options.headers)) {
+      headers.set(name, value);
+    }
+  }
+
+  if (options.includePlatformInfo) { // 包含平台标识信息
+    urlObj.searchParams.set('build', '0');
+    urlObj.searchParams.set('mobi_app', 'web');
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && (options.body instanceof URLSearchParams || options.body instanceof FormData)) {
+      options.body.set('build', '0');
+      options.body.set('mobi_app', 'web');
+    }
+  }
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && (options.body instanceof URLSearchParams || options.body instanceof FormData)) { // 请求使用的是修改方法，就添加 csrf
+    options.body.set('csrf_token', csrf);
+    options.body.set('csrf', csrf);
+  }
+  if (options.wbiSign) { // 使用 Wbi 签名
+    urlObj.searchParams.set('gaia_source', 'main_web');
+    urlObj.searchParams.set('platform', 'web');
+    urlObj.searchParams.set('x-bili-device-req-json', '{"platform":"web","device":"pc"}');
+    urlObj.search = await encodeWbi(urlObj.search);
+  }
+  if (options.withCookie) { // 使用 Cookie 请求
+    headers.set('Cookie', `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`);
+  }
+
+  const resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
+  if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
+
+  const json = await resp.json();
+  return json;
+};
+const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0], keys?: WbiKeys): Promise<string> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   // eslint-disable-next-line no-param-reassign
   keys ??= await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
@@ -303,7 +346,7 @@ const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0
   params.append('wts', Math.floor(Date.now() / 1000).toString()); // 添加 wts 字段
   params.sort(); // 按照键名排序参数
   params.append('w_rid', md5(params.toString() + mixinKey)); // 计算 w_rid
-  return params;
+  return params.toString();
 };
 const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   if (!noCache && !cachedWbiKeys) cachedWbiKeys = <CachedWbiKeys> await kv.get('wbiKeys');
@@ -318,4 +361,4 @@ const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最
   }
 };
 
-export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, encodeWbi, getWbiKeys };
+export default { initialize, sendHTML, sendJSON, send, send404, send500, send504, redirect, encodeHTML, markText, toHTTPS, getDate, getTime, getNumber, largeNumberHandler, toBV, toAV, getVidType, callAPI, encodeWbi, getWbiKeys };

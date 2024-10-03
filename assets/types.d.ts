@@ -1,4 +1,3 @@
-/* eslint-disable capitalized-comments */
 // 类型定义
 // 1. 通用类型
 export type resolveFn<Type> = (returnValue: Type) => void;

@@ -20,7 +20,6 @@ export default [
       'arrow-body-style': 'error',
       'block-scoped-var': 'error',
       camelcase: 'warn',
-      'capitalized-comments': 'error',
       'class-methods-use-this': 'error',
       'consistent-return': 'error',
       'consistent-this': 'error',
