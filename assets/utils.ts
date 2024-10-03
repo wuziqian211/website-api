@@ -351,7 +351,7 @@ const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0
 const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   if (!noCache && !cachedWbiKeys) cachedWbiKeys = <CachedWbiKeys> await kv.get('wbiKeys');
   if (noCache || !cachedWbiKeys || Math.floor(cachedWbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
-    const ujson = <APIResponse<NavData>> await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! } })).json();
+    const ujson = <APIResponse<NavData>> await callAPI('https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
     const wbiKeys: WbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1') };
     cachedWbiKeys = { ...wbiKeys, updatedTimestamp: Date.now() };
     await kv.set('wbiKeys', cachedWbiKeys);
