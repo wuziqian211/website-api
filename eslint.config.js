@@ -124,7 +124,7 @@ export default [
       yoda: 'error',
       '@typescript-eslint/no-empty-object-type': ['error', { allowObjectTypes: 'always' }],
       '@stylistic/arrow-parens': ['error', 'as-needed'],
-      '@stylistic/indent': ['error', 2, { SwitchCase: 1, VariableDeclarator: 'first' }],
+      '@stylistic/indent': ['error', 2, { flatTernaryExpressions: true, SwitchCase: 1, VariableDeclarator: 'first' }],
       '@stylistic/max-statements-per-line': ['error', { max: 2 }],
       '@stylistic/multiline-ternary': 'warn',
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],

@@ -16,6 +16,7 @@ interface Component {
 interface WbiKeys {
   imgKey: string;
   subKey: string;
+  webId: string;
 }
 interface CachedWbiKeys extends WbiKeys {
   updatedTimestamp: millisecondLevelTimestamp;
@@ -344,6 +345,7 @@ const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
   params.append('wts', Math.floor(Date.now() / 1000).toString()); // 添加 wts 字段
+  params.append('w_webid', keys.webId); // 添加 w_webid 字段
   params.sort(); // 按照键名排序参数
   params.append('w_rid', md5(params.toString() + mixinKey)); // 计算 w_rid
   return params.toString();
@@ -352,7 +354,15 @@ const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最
   if (!noCache && !cachedWbiKeys) cachedWbiKeys = <CachedWbiKeys> await kv.get('wbiKeys');
   if (noCache || !cachedWbiKeys || Math.floor(cachedWbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
     const ujson = <APIResponse<NavData>> await callAPI('https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
-    const wbiKeys: WbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1') };
+    const wbiKeys: WbiKeys = { imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'), subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'), webId: cachedWbiKeys?.webId };
+
+    const spaceHTMLText = await (await fetch(`https://space.bilibili.com/${ujson.data.mid}`, { headers: { Cookies: `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! } })).text();
+    const renderData = /<script id="__RENDER_DATA__"[^>]*>(.*)<\/script>/.exec(spaceHTMLText);
+    if (renderData && renderData[1]) {
+      const rjson = <{ access_id: string }> JSON.parse(decodeURIComponent(renderData[1]));
+      wbiKeys.webId = rjson.access_id;
+    }
+
     cachedWbiKeys = { ...wbiKeys, updatedTimestamp: Date.now() };
     await kv.set('wbiKeys', cachedWbiKeys);
     return wbiKeys;

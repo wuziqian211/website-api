@@ -863,5 +863,6 @@ export interface SmmsUploadResponse {
 // c. 导航栏数据（https://api.bilibili.com/x/web-interface/nav）
 export interface NavData { // 此处仅定义部分必要字段
   isLogin: boolean;
+  mid: number;
   wbi_img: { img_url: url; sub_url: url };
 }
