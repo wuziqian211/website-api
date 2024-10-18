@@ -1,7 +1,11 @@
 {
+  "name": "website-api",
   "license": "MIT",
   "type": "module",
   "private": true,
+  "scripts": {
+    "build": "node ./scripts/build.js"
+  },
   "dependencies": {
     "@vercel/edge": "latest",
     "@vercel/kv": "latest",

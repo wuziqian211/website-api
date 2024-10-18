@@ -56,8 +56,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
     }
 
     const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
-    const headers = new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': process.env.userAgent! });
-    if (useCookie) headers.set('Cookie', `SESSDATA=${process.env.SESSDATA}; bili_jct=${process.env.bili_jct}`); // 如果指定了使用 Cookie，就添加账号登录信息
+    const { loginHeaders, normalHeaders } = await utils.getRequestInfo();
+    const headers = useCookie ? loginHeaders : normalHeaders;
 
     if (type === 1) { // 编号为 AV 号或 BV 号
       let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null>;

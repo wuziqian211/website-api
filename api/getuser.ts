@@ -34,6 +34,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
 
     const requestMid = params.get('mid');
     if (requestMid && /^\d+$/.test(requestMid) && BigInt(requestMid) > 0) { // 判断 UID 是否是正整数
+      await utils.getRequestInfo();
       const mid = BigInt(requestMid);
 
       let json: InternalAPIResponse<InternalAPIGetUserInfoData | null>;
