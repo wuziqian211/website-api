@@ -346,7 +346,6 @@ const callAPI = async (requestUrl: url, options: { method?: string; params?: Rec
     urlObj.search = await encodeWbi(urlObj.search);
   }
 
-  console.log(urlObj.href, options.body, headers);
   const resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
   if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
 

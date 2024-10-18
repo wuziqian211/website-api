@@ -22,7 +22,7 @@ if (renderData && renderData[1]) {
 await kv.set('requestInfo', {
   userAgent,
   SESSDATA: process.env.SESSDATA,
-  csrf: process.env.csrf,
+  csrf: process.env.bili_jct,
   mid: ujson.data.mid,
   wbiKeys: {
     imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),
