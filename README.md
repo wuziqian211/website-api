@@ -111,7 +111,7 @@
 
 目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
 
-本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
+本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型规则
 

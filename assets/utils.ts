@@ -312,7 +312,7 @@ const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 
     return { type: -1, vid: undefined };
   }
 };
-const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: true; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
+const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: true; wbiSign?: true; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
   const urlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         { csrf } = requestInfo, headers = options.withCookie ? requestInfo.loginHeaders : requestInfo.normalHeaders;
 
@@ -346,6 +346,7 @@ const callAPI = async (requestUrl: url, options: { method?: string; params?: Rec
     urlObj.search = await encodeWbi(urlObj.search);
   }
 
+  console.log(urlObj.href, options.body, headers);
   const resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
   if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
 
