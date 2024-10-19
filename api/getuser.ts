@@ -60,30 +60,36 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       if (responseType === 1) { // 回复 HTML
         switch (json.code) {
           case 0: {
-            const data = json.data!;
+            const data = json.data!, ranks: Record<number, string> = { 5000: '未通过正式会员答题', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
             const content = `
               <img style="display: none;" alt src="${data.top_photo ? utils.toHTTPS(data.top_photo) : '/assets/top-photo.png'}" />
               <div class="main-info-outer">
                 <div class="main-info-inner">
-                  <div class="image-wrap${data.pendant?.image ? ' has-frame' : ''}">
+                  <div class="image-wrap${data.pendant.image ? ' has-frame' : ''}">
                     <img class="face" title="${utils.encodeHTML(data.name)}" src="${utils.toHTTPS(data.face)}" />
-                    ${data.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(data.pendant.name)}" src="${utils.toHTTPS(data.pendant.image_enhance || data.pendant.image)}" />` : ''}
-                    ${data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(data.official.type) || data.vip?.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
-                    ${data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : data.vip?.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
+                    ${data.pendant.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(data.pendant.name)}" src="${utils.toHTTPS(data.pendant.image_enhance || data.pendant.image)}" />` : ''}
+                    ${data.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(data.official.type) || data.vip.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
+                    ${data.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : data.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : data.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                   </div>
                   <div class="detail">
                     <strong>${utils.encodeHTML(data.name)}</strong>
                     ${data.sex === '男' ? '<img class="sex" alt="♂️" title="男" src="/assets/male.png" />' : data.sex === '女' ? '<img class="sex" alt="♀️" title="女" src="/assets/female.png" />' : ''}
                     <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${data.is_senior_member ? '6⚡' : data.level}" title="${data.is_senior_member ? '6 级（硬核会员）' : `${data.level} 级`}" src="/assets/level_${data.is_senior_member ? '6%2B' : data.level}.svg" /></a>
+                    ${data.vip.status ? data.vip.label.use_img_label && (data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(data.vip.label.text)}" title="${utils.encodeHTML(data.vip.label.text)}（过期时间：${utils.getDate(data.vip.due_date / 1000)}）" src="${utils.toHTTPS(data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${data.vip.label.bg_color ? `background: ${utils.encodeHTML(data.vip.label.bg_color)};` : ''}${data.vip.label.text_color ? `color: ${utils.encodeHTML(data.vip.label.text_color)};` : ''}">${utils.encodeHTML(data.vip.label.text)}</a>` : ''}
+                    ${data.nameplate.nid ? `<img class="pendant" alt="${utils.encodeHTML(data.nameplate.name)}" title="${utils.encodeHTML(data.nameplate.name)}（${utils.encodeHTML(data.nameplate.level)}，${utils.encodeHTML(data.nameplate.condition)}）" src="${utils.toHTTPS(data.nameplate.image)}" />` : ''}
+                    ${data.fans_medal.show && data.fans_medal.medal ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.fans_medal.medal.target_id}"><div class="fans-medal" style="background: #${data.fans_medal.medal.medal_color.toString(16).padStart(6, '0')};">${utils.encodeHTML(data.fans_medal.medal.medal_name)}<div class="fans-medal-level" style="color: #${data.fans_medal.medal.medal_color.toString(16).padStart(6, '0')};">${data.fans_medal.medal.level}</div></div></a>` : ''}
+                    ${data.fans_badge ? '<span class="description">有粉丝勋章</span>' : ''}
                     <br />
                     ${[0, 1].includes(data.official.type) ? `<img class="official-icon icon-${data.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${data.official.title ? '：' : ''}</strong>${utils.encodeHTML(data.official.title)}${data.official.desc ? `<span class="description">（${utils.encodeHTML(data.official.desc)}）</span>` : ''}<br />` : ''}
+                    ${data.profession.is_show ? `<img class="official-icon icon-profession" alt="Ⓥ" title="职业资质认证" /> 职业资质认证：${data.profession.title ? `${utils.encodeHTML(data.profession.title)} ` : ''}${utils.encodeHTML(data.profession.department || data.profession.name)}<br />` : ''}
                     ${data.tags?.length ? `<span class="description">${data.tags.map(t => `<span class="icon-font icon-tag"></span> ${utils.encodeHTML(t)}`).join(' ')}</span><br />` : ''}
                     ${data.silence ? '<span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span><br />' : ''}
-                    ${data.sys_notice && 'content' in data.sys_notice && data.sys_notice.content ? `<${data.sys_notice.url ? `a class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${data.sys_notice.url}"` : `span class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${utils.encodeHTML(data.sys_notice.content)}</${data.sys_notice.url ? 'a' : 'span'}>` : ''}
+                    ${data.sys_notice && 'content' in data.sys_notice && data.sys_notice.content ? `<${data.sys_notice.url ? `a class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" target="_blank" rel="noopener external nofollow noreferrer" href="${utils.toHTTPS(data.sys_notice.url)}"` : `span class="notice${data.sys_notice.notice_type === 2 ? ' tribute' : ''}"`}><img class="notice-icon${data.sys_notice.notice_type === 2 ? ' tribute' : ''}" alt="${data.sys_notice.notice_type === 2 ? '🕯️' : '⚠️'}" /> ${utils.encodeHTML(data.sys_notice.content)}</${data.sys_notice.url ? 'a' : 'span'}>` : ''}
                   </div>
                   <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}"></a>
                 </div>
               </div>
+              <strong>用户权限等级：</strong>${data.rank in ranks ? `${ranks[data.rank]}（${data.rank}）` : data.rank}<br />
               <strong>生日：</strong>${data.birthday ? utils.getDate(data.birthday).slice(0, 10) : '保密'}<br />
               ${data.school?.name ? `<strong>学校：</strong>${utils.encodeHTML(data.school.name)}<br />` : ''}
               <strong>关注数：</strong>${utils.getNumber(data.following)}<br />

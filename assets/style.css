@@ -40,7 +40,7 @@
 .icon-tag::before {
   content: '\e6ce';
 }
-img.icon-personal, img.icon-business, img.icon-big-vip, img.icon-small-vip, img.icon-face-nft, img.notice-icon {
+img.icon-personal, img.icon-business, img.icon-big-vip, img.icon-small-vip, img.icon-face-nft, img.icon-profession, img.notice-icon {
   display: inline-block;
 }
 img.icon-personal {
@@ -60,6 +60,9 @@ img.icon-face-nft {
   box-sizing: border-box;
   content: url(/assets/nft.gif);
 }
+img.icon-profession {
+  content: url(/assets/profession.png);
+}
 h2, a, strong, details summary, table th, label, input[type='submit'] {
   color: var(--highlight-color);
 }
@@ -68,7 +71,7 @@ a:hover, input[type='submit']:hover {
 }
 
 * {
-  font-family: -apple-system, BlinkMacSystemFont, Lato, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   overflow-wrap: anywhere;
   text-align: justify;
   transition: all 0.5s;
@@ -303,7 +306,7 @@ a {
 a:hover {
   text-decoration-color: var(--anchor-decoration-hover-color);
 }
-div.header a, a.notice {
+div.header a, a.vip, a.notice {
   text-decoration: none;
 }
 a.broken {
@@ -312,7 +315,7 @@ a.broken {
 a.broken:hover {
   color: var(--broken-hover-color);
 }
-img.sex {
+img.sex, img.vip, img.pendant {
   height: 30px;
   vertical-align: -9px;
 }
@@ -331,6 +334,28 @@ img.spic {
 }
 img.ppic {
   height: 80px;
+}
+a.vip {
+  background: #fb7299;
+  border-radius: 99999px;
+  color: #fff;
+  font-size: 16px;
+  padding: 5px 10px;
+}
+div.fans-medal {
+  color: #fff;
+  display: inline-block;
+  font-size: 15px;
+  padding: 1px 1px 1px 5px;
+  vertical-align: middle;
+}
+div.fans-medal-level {
+  background: #fff;
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px;
+  text-align: center;
+  width: 20px;
 }
 span.notice, a.notice {
   background: var(--notice-background-color);
