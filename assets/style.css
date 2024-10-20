@@ -343,14 +343,15 @@ a.vip {
   padding: 5px 10px;
 }
 div.fans-medal {
+  border-radius: 3px;
   color: #fff;
   display: inline-block;
   font-size: 15px;
-  padding: 1px 1px 1px 5px;
-  vertical-align: middle;
+  padding: 1px 2px 1px 5px;
 }
 div.fans-medal-level {
   background: #fff;
+  border-radius: 1px;
   display: inline-block;
   margin-left: 5px;
   padding: 1px;

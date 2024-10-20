@@ -189,7 +189,8 @@ const send500 = (responseType: ResponseType, error: unknown): Response => {
     return sendHTML(500, headers, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉梦春酱哟 awa
-      <pre>${encodeHTML(error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error))}</pre>` });
+      <pre>${encodeHTML(error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error))}</pre>
+      <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
     return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error) } });
   }
@@ -199,7 +200,8 @@ const send504 = (responseType: ResponseType): Response => {
   if (responseType === 1) {
     return sendHTML(504, headers, { title: 'API 执行超时', newStyle: true, body: `
       抱歉，本 API 的执行已经超时了，请您再尝试调用一次本 API 吧 qwq<br />
-      如果您仍然看到本错误信息，请跟梦春酱反馈哟 awa` });
+      如果您仍然看到本错误信息，请跟梦春酱反馈哟 awa
+      <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
     return sendJSON(504, headers, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
   }
@@ -313,6 +315,7 @@ const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 
   }
 };
 const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: true; wbiSign?: true; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
+  await getRequestInfo();
   const urlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         { csrf } = requestInfo, headers = options.withCookie ? requestInfo.loginHeaders : requestInfo.normalHeaders;
 

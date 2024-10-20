@@ -170,7 +170,73 @@ export interface UserInfoData {
   };
 }
 
-// c. “获取哔哩哔哩用户信息”接口回应数据（/api/getuser）
+// c. 多用户信息数据（https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards）
+interface UserCardsItem {
+  face: url;
+  face_nft: booleanNumber;
+  face_nft_new: booleanNumber;
+  mid: numericString;
+  name: string;
+  name_render: null | {
+    colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
+    render_scheme: 'Default' | 'Colorful';
+  };
+  nameplate: null | { condition: string; image: url; image_small: url; level: string; name: string; nid: number };
+  official: { desc: string; role: officialRole; title: string; type: officialType };
+  pendant: null | {
+    expire: '0';
+    image: url;
+    image_enhance: url;
+    image_enhance_frame: url;
+    n_pid: numericString;
+    name: string;
+    pid: number;
+  };
+  vip: {
+    avatar_icon: null | { icon_resource: null; icon_type: string };
+    avatar_subscript: 0 | 1 | 2;
+    avatar_subscript_url: url;
+    due_date: numericString;
+    label: {
+      bg_color: '' | hexColor;
+      bg_style: 0 | 1;
+      border_color: '' | hexColor;
+      img_label_uri_hans: url;
+      img_label_uri_hans_static: url;
+      img_label_uri_hant: url;
+      img_label_uri_hant_static: url;
+      label_theme: string;
+      path: '';
+      text: string;
+      text_color: '' | hexColor;
+      use_img_label: true;
+    };
+    nickname_color: '' | hexColor;
+    role: `${VIPRole}`;
+    status: booleanNumber;
+    theme_type: 0;
+    tv_due_date: numericString;
+    tv_vip_pay_type: 0 | 1;
+    tv_vip_status: booleanNumber;
+    type: VIPType;
+    vip_pay_type: 0 | 1;
+  };
+}
+export type UserCardsData = Record<number, UserCardsItem>;
+
+// d. 多用户信息数据（https://api.vc.bilibili.com/account/v1/user/cards?uids=5,6）
+interface UsersInfoItem {
+  mid: number;
+  name: string;
+  face: url;
+  sign: string;
+  rank: number;
+  level: level;
+  silence: booleanNumber;
+}
+export type UsersInfoData = UsersInfoItem[];
+
+// e. “获取哔哩哔哩用户信息”接口回应的单用户数据（/api/getuser）
 export interface InternalAPIGetUserInfoData {
   mid: number | numericString;
   name: string;
@@ -227,6 +293,15 @@ export interface InternalAPIGetUserInfoData {
   certificate_show: false;
   name_render: UserInfoData['name_render'];
 }
+
+// f. “获取哔哩哔哩用户信息”接口回应的多用户数据（/api/getuser）
+export interface InternalAPIUsersInfoItem extends UserCardsItem {
+  sign?: string;
+  rank?: number;
+  level?: level;
+  silence?: booleanNumber;
+}
+export type InternalAPIGetUsersInfoData = Record<number, InternalAPIUsersInfoItem>;
 
 // 3. 视频信息相关
 // eslint-disable-next-line @stylistic/semi-spacing
