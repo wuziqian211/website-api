@@ -4,15 +4,15 @@
  * 作者：晨叶梦春（https://www.yumeharu.top/）
  */
 
-import type { resolveFn, InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
+import type { InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
 import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
-import utils from '../assets/utils.js';
+import * as utils from '../assets/utils.js';
 import { zones, states } from '../assets/constants.js';
 
-export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
+export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
   const initData = utils.initialize(req, [0, 1, 2, 3], resolve); // 获取请求参数与回复数据类型
   const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
   let { responseType } = initData;
@@ -32,7 +32,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       ${data.content}
       <form>
         <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-        <div><input type="text" name="vid" id="vid" value="${utils.encodeHTML(data.vid ?? '')}" placeholder="av…/BV…/md…/ss…/ep…" pattern="^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$|^(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)[0-9]+$" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><input type="text" name="vid" id="vid" value="${utils.encodeHTML(data.vid ?? '')}" placeholder="av…/BV…/md…/ss…/ep…" pattern="(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}|(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)\\d+" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
         <div><input type="checkbox" name="force" id="force" value="true"${requestForce ? ' checked' : ''} autocomplete="off" /><label for="force">强制获取信息（仅适用于获取编号为 AV 号或 BV 号的视频的信息）</label></div>
       </form>` })), // 发送 HTML 响应到客户端
           sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
@@ -209,7 +209,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               case -509:
               case -799:
                 respHeaders.set('Retry-After', '600');
-                sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
+                sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', vid: requestVid });
                 break;
               case -404:
               case 62002:
@@ -299,7 +299,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 }
 
                 if (url) { // 视频地址获取成功
-                  const { loginHeaders, normalHeaders } = await utils.getRequestInfo();
+                  const { loginHeaders, normalHeaders } = utils.getRequestInfo();
                   const headers = useCookie ? loginHeaders : normalHeaders;
                   const filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
                   const resp = await fetch(url, { headers });
@@ -404,7 +404,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               case -509:
               case -799:
                 respHeaders.set('Retry-After', '600');
-                sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
+                sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', vid: requestVid });
                 break;
               case -404:
                 sendHTML(404, { title: '剧集不存在', newStyle: true, content: '您想要获取信息的剧集不存在！QAQ', vid: requestVid });
@@ -606,7 +606,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               case -509:
               case -799:
                 respHeaders.set('Retry-After', '600');
-                sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', vid: requestVid });
+                sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', vid: requestVid });
                 break;
               case -404:
                 sendHTML(404, { title: '番剧不存在', newStyle: true, content: '您想要获取信息的番剧不存在！QAQ', vid: requestVid });
@@ -698,7 +698,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                 }
 
                 if (url) { // 视频地址获取成功
-                  const { loginHeaders, normalHeaders } = await utils.getRequestInfo();
+                  const { loginHeaders, normalHeaders } = utils.getRequestInfo();
                   const headers = useCookie ? loginHeaders : normalHeaders;
                   const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
                   const resp = await fetch(url, { headers });

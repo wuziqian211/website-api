@@ -96,12 +96,16 @@ const bindFormElement = form => {
     const url = new URL(form.action, window.location.href);
     if (isLoadAvailable(url)) {
       event.preventDefault();
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(url.searchParams);
       for (const e of form.elements) {
         if (e.tagName === 'INPUT') {
           const input = /** @type HTMLInputElement */(e);
-          if (input.type.toUpperCase() !== 'SUBMIT' && (input.type.toUpperCase() !== 'CHECKBOX' || input.checked)) {
-            params.set(input.name, input.value);
+          if (input.type.toUpperCase() !== 'SUBMIT') {
+            if (input.type.toUpperCase() === 'CHECKBOX' && !input.checked) {
+              params.delete(input.name);
+            } else {
+              params.set(input.name, input.value);
+            }
           }
         }
       }

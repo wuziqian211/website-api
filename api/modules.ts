@@ -1,4 +1,4 @@
-import type { resolveFn, numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
+import type { numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 interface HashInfo {
@@ -9,9 +9,9 @@ interface HashInfo {
 export const config = { runtime: 'edge' };
 
 import { kv } from '@vercel/kv';
-import utils from '../assets/utils.js';
+import * as utils from '../assets/utils.js';
 
-export default (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
+export default (req: Request): Promise<Response> => new Promise(async resolve => {
   const { params, respHeaders, responseType } = utils.initialize(req, [0, 1], resolve);
   try {
     const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)),

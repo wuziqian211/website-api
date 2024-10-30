@@ -33,9 +33,9 @@
 }
 .icon-font {
   font-family: iconfont;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-style: normal;
 }
 .icon-tag::before {
   content: '\e6ce';
@@ -340,14 +340,14 @@ a.vip {
   border-radius: 99999px;
   color: #fff;
   font-size: 16px;
-  padding: 5px 10px;
+  padding: 3px 10px;
 }
 div.fans-medal {
   border-radius: 3px;
   color: #fff;
   display: inline-block;
   font-size: 15px;
-  padding: 1px 2px 1px 5px;
+  padding: 1px 1px 1px 5px;
 }
 div.fans-medal-level {
   background: #fff;
@@ -438,6 +438,7 @@ form {
   margin: 10px 0 0;
 }
 input {
+  appearance: none;
   background: var(--background-color-quarter-transparent);
   border: none;
   border-radius: 5px;
@@ -447,7 +448,7 @@ input {
   height: 22.5px;
   vertical-align: middle;
 }
-input:hover, input[type='text']:focus, input[type='number']:focus {
+input:hover, input[type='text']:focus {
   background: var(--background-color-translucent);
 }
 input[type='submit']:active {

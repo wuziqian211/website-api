@@ -4,14 +4,14 @@
  * 作者：晨叶梦春（https://www.yumeharu.top/）
  */
 
-import type { resolveFn, booleanNumber, secondLevelTimestamp, InternalAPIResponse, APIResponse, UserCardData, UserInfoData, UserCardsData, UsersInfoData, InternalAPIGetUserInfoData, InternalAPIGetUsersInfoData } from '../assets/types.d.ts';
+import type { booleanNumber, secondLevelTimestamp, InternalAPIResponse, APIResponse, UserCardData, UserInfoData, UserCardsData, UsersInfoData, InternalAPIGetUserInfoData, InternalAPIGetUsersInfoData } from '../assets/types.d.ts';
 import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
-import utils from '../assets/utils.js';
+import * as utils from '../assets/utils.js';
 
-export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
+export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
   const initData = utils.initialize(req, [0, 1, 2], resolve); // 获取请求参数与回复数据类型
   const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
   let { responseType } = initData;
@@ -27,7 +27,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       ${data.content}
       <form>
         <div><label for="mid">请输入您想要获取信息的用户的 UID（最多 50 个，以逗号分隔）：</label></div>
-        <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="^(?:(?!0+$)[0-9]+[ ,;/\\，、])*(?!0+$)[0-9]+$" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="[ ,;_\\/\\\\，、]*(?:(?!0+$)\\d+[ ,;_\\/\\\\，、]+)*(?!0+$)\\d+[ ,;_\\/\\\\，、]*" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
       </form>` })), // 发送 HTML 响应到客户端
           sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
           send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data)); // 发送其他数据到客户端
@@ -41,13 +41,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       if (cjson.code === 0) {
         const card = cjson.card!;
         json = { code: 0, message: '0', data: { mid: utils.largeNumberHandler(mid), name: '', approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: 0, coins: 0, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: false, fans_medal: { show: false, wear: false, medal: null }, official: { role: 0, title: '', desc: '', type: -1 }, official_verify: { type: -1, desc: '' }, vip: { type: 0, status: 0, due_date: 0, vip_pay_type: 0, theme_type: 0, label: { path: '', text: '', label_theme: '', text_color: '', bg_style: 0, bg_color: '', border_color: '', use_img_label: true, img_label_uri_hans: '', img_label_uri_hant: '', img_label_uri_hans_static: '', img_label_uri_hant_static: '' }, avatar_subscript: 0, nickname_color: '', role: 0, avatar_subscript_url: '', tv_vip_status: 0, tv_vip_pay_type: 0, tv_due_date: 0, avatar_icon: { icon_resource: {} } }, pendant: { pid: 0, name: '', image: '', expire: 0, image_enhance: '', image_enhance_frame: '', n_pid: 0 }, nameplate: { nid: 0, name: '', image: '', image_small: '', level: '', condition: '' }, user_honour_info: { mid: 0, colour: null, tags: [], is_latest_100honour: 0 }, is_followed: false, top_photo: '', theme: {}, sys_notice: {}, live_room: null, birthday: 0, school: { name: '' }, profession: { name: '', department: '', title: '', is_show: 0 }, tags: null, series: { user_upgrade_status: 3, show_upgrade_window: false }, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: { show: false, state: -1, title: '', icon: '', jump_url: '' } }, contract: { is_display: false, is_follow_display: false }, certificate_show: false, name_render: null }, extInfo: { dataSource: ['getCardByMid'] } };
-        json.data = { ...json.data!, ...card, mid: utils.largeNumberHandler(card.mid), rank: +card.rank, level: card.level_info.current_level, silence: <booleanNumber>+(card.spacesta === -2), following: card.attention, follower: card.fans, official: { role: 0, title: card.official_verify.desc, desc: '', type: card.official_verify.type }, pendant: { pid: card.pendant.pid, name: card.pendant.name, image: card.pendant.image, expire: card.pendant.expire, image_enhance: '', image_enhance_frame: '', n_pid: card.pendant.pid }, birthday: Math.floor(Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000) };
+        json.data = { ...json.data!, ...card, mid: utils.largeNumberHandler(card.mid), rank: +card.rank, level: card.level_info.current_level, silence: <booleanNumber> +(card.spacesta === -2), following: card.attention, follower: card.fans, official: { role: 0, title: card.official_verify.desc, desc: '', type: card.official_verify.type }, pendant: { pid: card.pendant.pid, name: card.pendant.name, image: card.pendant.image, expire: card.pendant.expire, image_enhance: '', image_enhance_frame: '', n_pid: card.pendant.pid }, birthday: Math.floor(Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000) };
         if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 而无需调用下面的 API 即可获取头像地址
           const ujson = <APIResponse<UserInfoData>> await utils.callAPI('https://api.bilibili.com/x/space/wbi/acc/info', { params: { mid, token: '', web_location: 1550101 }, wbiSign: true, withCookie: true });
           if (ujson.code === 0) {
             json.message = ujson.message;
             json.data = { ...json.data, ...ujson.data, is_followed: false, birthday: Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000 };
-            (<string[]>json.extInfo!.dataSource).push('spaceAccInfo');
+            (<string[]> json.extInfo!.dataSource).push('spaceAccInfo');
           } else {
             json.extInfo = { ...json.extInfo, spaceAccInfoCode: ujson.code, spaceAccInfoMessage: ujson.message };
           }
@@ -60,7 +60,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
         case 1: { // 回复 HTML
           switch (json.code) {
             case 0: {
-              const data = json.data!, ranks: Record<number, string> = { 5000: '未通过正式会员答题', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
+              const data = json.data!, ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
               const content = `
                 <img style="display: none;" alt src="${data.top_photo ? utils.toHTTPS(data.top_photo) : '/assets/top-photo.png'}" />
                 <div class="main-info-outer">
@@ -77,7 +77,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
                       <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${data.is_senior_member ? '6⚡' : data.level}" title="${data.is_senior_member ? '6 级（硬核会员）' : `${data.level} 级`}" src="/assets/level_${data.is_senior_member ? '6%2B' : data.level}.svg" /></a>
                       ${data.vip.status ? data.vip.label.use_img_label && (data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(data.vip.label.text)}" title="${utils.encodeHTML(data.vip.label.text)}（过期时间：${utils.getDate(data.vip.due_date / 1000)}）" src="${utils.toHTTPS(data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${data.vip.label.bg_color ? `background: ${utils.encodeHTML(data.vip.label.bg_color)};` : ''}${data.vip.label.text_color ? `color: ${utils.encodeHTML(data.vip.label.text_color)};` : ''}">${utils.encodeHTML(data.vip.label.text)}</a>` : ''}
                       ${data.nameplate.nid ? `<img class="pendant" alt="${utils.encodeHTML(data.nameplate.name)}" title="${utils.encodeHTML(data.nameplate.name)}（${utils.encodeHTML(data.nameplate.level)}，${utils.encodeHTML(data.nameplate.condition)}）" src="${utils.toHTTPS(data.nameplate.image)}" />` : ''}
-                      ${data.fans_medal.show && data.fans_medal.medal ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.fans_medal.medal.target_id}"><div class="fans-medal" style="background: #${data.fans_medal.medal.medal_color.toString(16).padStart(6, '0')};">${utils.encodeHTML(data.fans_medal.medal.medal_name)}<div class="fans-medal-level" style="color: #${data.fans_medal.medal.medal_color.toString(16).padStart(6, '0')};">${data.fans_medal.medal.level}</div></div></a>` : ''}
+                      ${data.fans_medal.show && data.fans_medal.medal ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.fans_medal.medal.target_id}"><div class="fans-medal" style="background: linear-gradient(90deg, #${data.fans_medal.medal.medal_color_start.toString(16).padStart(6, '0')}, #${data.fans_medal.medal.medal_color_end.toString(16).padStart(6, '0')});">${utils.encodeHTML(data.fans_medal.medal.medal_name)}<div class="fans-medal-level" style="color: #${data.fans_medal.medal.medal_color.toString(16).padStart(6, '0')};">${data.fans_medal.medal.level}</div></div></a>` : ''}
                       <br />
                       <span class="description">UID：${mid}</span>${data.fans_badge ? ' <span class="description">粉丝勋章</span>' : ''}${data.silence ? ' <span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span>' : ''}
                       <br />
@@ -100,13 +100,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               break;
             }
             case -352: // 风控校验失败（请求标头或参数不合法）
-            case -401: // 非法访问
-            case -403: // 访问权限不足（wbi 参数错误）
-            case -412: // 请求被拦截
-            case -509: // 请求过于频繁，请稍后再试（URL 非 wbi）
-            case -799: // 请求过于频繁，请稍后再试（URL 非 wbi）
+            case -401: // 非法访问（被识别为爬虫）
+            case -403: // 访问权限不足（Wbi 参数错误）
+            case -412: // 请求被拦截（请求太频繁或被识别为爬虫）
+            case -509: // 请求过于频繁，请稍后再试（URL 非 Wbi，旧）
+            case -799: // 请求过于频繁，请稍后再试（URL 非 Wbi）
               respHeaders.set('Retry-After', '600');
-              sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: requestMid });
+              sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', mid: requestMid });
               break;
             case -404: // 啥都木有
             case -626: // 用户不存在
@@ -179,13 +179,13 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
               sendJSON(400, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
           }
       }
-    } else if (requestMid && requestMid.split(/[ ,;/\\，、\r\n]/).filter(m => m).every(m => /^\d+$/.test(m) && BigInt(m) > 0)) { // 客户端提供的 UID 为多个且均有效
-      const mids = [...new Set(requestMid.split(/[ ,;/\\，、\r\n]/).filter(m => m).map(m => BigInt(m)))];
+    } else if (requestMid && requestMid.split(/[ ,;_/\\，、\r\n]/).filter(m => m).length && requestMid.split(/[ ,;_/\\，、\r\n]/).filter(m => m).every(m => /^\d+$/.test(m) && BigInt(m) > 0)) { // 客户端提供的 UID 为多个且均有效
+      const mids = [...new Set(requestMid.split(/[ ,;_/\\，、\r\n]/).filter(m => m).map(m => BigInt(m)))];
       if (mids.length > 50) {
         if (responseType === 1) { // 回复 HTML
           sendHTML(400, { title: '用户数量过多', newStyle: true, content: '您提供的要获取信息的用户的 UID 太多了！请您提供不超过 50 个 UID 哟 qwq', mid: requestMid });
         } else { // 回复 JSON
-          sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
+          sendJSON(400, { code: 40143, message: '批量大小超过限制', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
         }
         return;
       }
@@ -199,7 +199,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
       if (responseType === 1) { // 回复 HTML
         switch (cjson.code) {
           case 0: {
-            const ranks: Record<number, string> = { 5000: '未通过正式会员答题', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
+            const ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
             const content = `
               <div class="grid user-list">
                 ${Object.values(data).map(u => `
@@ -236,7 +236,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async (resol
           case -509:
           case -799:
             respHeaders.set('Retry-After', '600');
-            sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后重试 awa', mid: requestMid });
+            sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', mid: requestMid });
             break;
           default:
             sendHTML(400, { title: '获取用户信息失败', newStyle: true, content: '获取用户信息失败，请稍后重试 awa', mid: requestMid });

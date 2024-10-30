@@ -1,6 +1,5 @@
 // 类型定义
 // 1. 通用类型
-export type resolveFn<Type> = (returnValue: Type) => void;
 export type booleanNumber = 0 | 1; // 用数字表示的逻辑值
 export type numericString = `${number}`; // 仅含有纯数字的字符串
 export type url = string;
@@ -25,7 +24,7 @@ export interface APIResponse<dataType> { // B 站 API 返回的 JSON 数据结�
 type sex = '男' | '女' | '保密';
 type officialType = -1 /* 无认证 */ | 0 /* UP 主认证 */ | 1 /* 机构认证 */;
 type officialRole = 0 /* 无 */ | 1 /* 知名 UP 主 */ | 2 /* 身份认证（大 V 达人） */ | 3 /* 企业 */ | 4 /* 组织 */ | 5 /* 媒体 */ | 6 /* 政府 */ | 7 /* 专业（领域）认证 */ | 8 /* 职业资质信息认证 */ | 9 /* 社会知名人士 */;
-type VIPType = 0 /* 无大会员 */ | 1 /* 月度大会员 */ | 2 /* 年度及以上大会员 */;
+type VIPType = 0 /* 无大会员 */ | 1 /* 年度以下大会员 */ | 2 /* 年度及以上大会员 */;
 type VIPRole = 0 /* 无 */ | 1 /* 月度 */ | 3 /* 年度 */ | 7 /* 十年 */ | 15 /* 百年 */;
 type level = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 type levelNextExp = 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
@@ -224,7 +223,7 @@ interface UserCardsItem {
 }
 export type UserCardsData = Record<number, UserCardsItem>;
 
-// d. 多用户信息数据（https://api.vc.bilibili.com/account/v1/user/cards?uids=5,6）
+// d. 多用户信息数据（https://api.vc.bilibili.com/account/v1/user/cards）
 interface UsersInfoItem {
   mid: number;
   name: string;
@@ -295,7 +294,7 @@ export interface InternalAPIGetUserInfoData {
 }
 
 // f. “获取哔哩哔哩用户信息”接口回应的多用户数据（/api/getuser）
-export interface InternalAPIUsersInfoItem extends UserCardsItem {
+interface InternalAPIUsersInfoItem extends UserCardsItem {
   sign?: string;
   rank?: number;
   level?: level;

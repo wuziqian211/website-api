@@ -24,16 +24,16 @@
 - **💬回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
 - **🔢HTTP 状态代码**：
 
-| 状态代码 | 说明 |
-| :------: | ---- |
-| [`200`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/200) | 请求成功 |
-| [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（如：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
-| [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
-| [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
-| [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
-| [`429`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/429)（**不是** [`412`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/412)） | 请求太频繁 |
-| [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) 或 [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用异常或超时（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频太大，API 无法回复视频数据） |
-| [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效（或其他原因）而请求失败 |
+  | 状态代码 | 说明 |
+  | :------: | ---- |
+  | [`200`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/200) | 请求成功 |
+  | [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（如：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
+  | [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
+  | [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
+  | [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
+  | [`429`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/429)（**不是** [`412`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/412)） | 请求太频繁 |
+  | [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) 或 [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用异常或超时（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频太大，API 无法回复视频数据） |
+  | [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效（或其他原因）而请求失败 |
 
 同时，<https://api.yumeharu.top/api/> 中的 API 强制使用 [HTTPS 协议](https://developer.mozilla.org/zh-CN/docs/Glossary/HTTPS)。这是 [Vercel](https://vercel.com/) 的行为，您在其他地方部署 API 不一定会强制使用 HTTPS 协议。
 
@@ -361,14 +361,12 @@
 | assets/types.d.ts | 类型定义文件 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
-| scripts/ | 本文件夹包括构建本项目所需文件 |
-| scripts/build.js | 构建本项目时使用的脚本文件 |
 | eslint.config.js | [ESLint](https://eslint.org/)（JavaScript 代码检查器）的配置文件 |
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |
 | middleware.ts | [Vercel 边缘中间件](https://vercel.com/docs/functions/edge-middleware)文件 |
 | package.json, package-lock.json | 本项目使用的库列表 |
-| README.md | 对本项目的说明文件，即本文件 |
+| README.md | 本项目的说明文件，即本文件 |
 | robots.txt | 搜索引擎爬虫配置文件 |
 | tsconfig.json | TypeScript 配置文件 |
 | vercel.json | [Vercel](https://vercel.com/)（API 服务提供者）的配置文件 |

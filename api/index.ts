@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import utils from '../assets/utils.js';
+import * as utils from '../assets/utils.js';
 
 export default (req: Request): Response => {
   const { respHeaders, responseType } = utils.initialize(req, [0, 1]);
