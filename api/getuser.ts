@@ -4,7 +4,7 @@
  * 作者：晨叶梦春（https://www.yumeharu.top/）
  */
 
-import type { booleanNumber, secondLevelTimestamp, InternalAPIResponse, APIResponse, UserCardData, UserInfoData, UserCardsData, UsersInfoData, InternalAPIGetUserInfoData, InternalAPIGetUsersInfoData } from '../assets/types.d.ts';
+import type { booleanNumber, secondLevelTimestamp, InternalAPIResponse, APIResponse, UserCardData, UserInfoData, UserCardsData, UsersInfoItem, UsersInfoData, InternalAPIGetUserInfoData, InternalAPIGetUsersInfoData } from '../assets/types.d.ts';
 import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
@@ -26,8 +26,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
     const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; mid?: string }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩用户信息', body: `
       ${data.content}
       <form>
-        <div><label for="mid">请输入您想要获取信息的用户的 UID（最多 50 个，以逗号分隔）：</label></div>
-        <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="[ ,;_\\/\\\\，、]*(?:(?!0+$)\\d+[ ,;_\\/\\\\，、]+)*(?!0+$)\\d+[ ,;_\\/\\\\，、]*" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+        <div><label for="mid">请输入您想要获取信息的用户的 UID（最多 200 个，以逗号分隔）：</label></div>
+        <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="[ ,;_\\/\\\\，、]*(?:(?!0+[ ,;_\\/\\\\，、])\\d+[ ,;_\\/\\\\，、]+)*(?!0+(?:[ ,;_\\/\\\\，、]|$))\\d+[ ,;_\\/\\\\，、]*" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
       </form>` })), // 发送 HTML 响应到客户端
           sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
           send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data)); // 发送其他数据到客户端
@@ -181,25 +181,32 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
       }
     } else if (requestMid && requestMid.split(/[ ,;_/\\，、\r\n]/).filter(m => m).length && requestMid.split(/[ ,;_/\\，、\r\n]/).filter(m => m).every(m => /^\d+$/.test(m) && BigInt(m) > 0)) { // 客户端提供的 UID 为多个且均有效
       const mids = [...new Set(requestMid.split(/[ ,;_/\\，、\r\n]/).filter(m => m).map(m => BigInt(m)))];
-      if (mids.length > 50) {
+      if (mids.length > 200) {
         if (responseType === 1) { // 回复 HTML
-          sendHTML(400, { title: '用户数量过多', newStyle: true, content: '您提供的要获取信息的用户的 UID 太多了！请您提供不超过 50 个 UID 哟 qwq', mid: requestMid });
+          sendHTML(400, { title: '用户数量过多', newStyle: true, content: '您提供的要获取信息的用户的 UID 太多了！请您提供不超过 200 个 UID 哟 qwq', mid: requestMid });
         } else { // 回复 JSON
           sendJSON(400, { code: 40143, message: '批量大小超过限制', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
         }
         return;
       }
-      const [cjson, ujson] = await Promise.all([
-        <Promise<APIResponse<UserCardsData>>> utils.callAPI('https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: mids.join(',') }, withCookie: true }),
-        <Promise<APIResponse<UsersInfoData>>> utils.callAPI('https://api.vc.bilibili.com/account/v1/user/cards', { params: { uids: mids.join(',') }, withCookie: true }),
-      ]);
-      const { data }: { data: InternalAPIGetUsersInfoData } = cjson;
-      ujson.data.forEach(i => i.mid in data && Object.assign(data[i.mid], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
+
+      const cjson = <APIResponse<UserCardsData>> await utils.callAPI('https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: mids.join(',') }, withCookie: true });
+      if (cjson.code === 0) {
+        const restUsers = [...mids], jsonList: Promise<APIResponse<UsersInfoData>>[] = [], usersInfo: UsersInfoItem[] = [];
+        while (restUsers.length) {
+          jsonList.push(<Promise<APIResponse<UsersInfoData>>> utils.callAPI('https://api.vc.bilibili.com/account/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
+          restUsers.splice(0, 50);
+        }
+        for await (const ujson of jsonList) {
+          if (ujson.code === 0) usersInfo.push(...ujson.data);
+        }
+        usersInfo.forEach(i => i.mid in cjson.data && Object.assign(cjson.data[i.mid], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
+      }
 
       if (responseType === 1) { // 回复 HTML
         switch (cjson.code) {
           case 0: {
-            const ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
+            const data = <InternalAPIGetUsersInfoData> cjson.data, ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
             const content = `
               <div class="grid user-list">
                 ${Object.values(data).map(u => `
@@ -244,7 +251,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
       } else { // 回复 JSON（目前暂时无法回复图片数据）
         switch (cjson.code) {
           case 0:
-            sendJSON(200, { code: 0, message: cjson.message, data, extInfo: { dataSource: ['userCards'] } });
+            sendJSON(200, { code: 0, message: cjson.message, data: <InternalAPIGetUsersInfoData> cjson.data, extInfo: { dataSource: ['userCards'] } });
             break;
           case -352:
           case -401:

@@ -73,7 +73,7 @@
 
 | 请求参数 | 说明 |
 | :------: | ---- |
-| `mid` | 您想获取用户信息的用户的 UID，只能是正整数，最多 50 个，以逗号分隔。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2)、[`2,425503913`](https://api.yumeharu.top/api/getuser?mid=2,425503913) |
+| `mid` | 您想获取用户信息的用户的 UID，只能是正整数，最多 200 个，以逗号分隔每个 UID。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2)、[`2,425503913`](https://api.yumeharu.top/api/getuser?mid=2,425503913) |
 | `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 
 如果没有填写 `mid` 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。

@@ -224,7 +224,7 @@ interface UserCardsItem {
 export type UserCardsData = Record<number, UserCardsItem>;
 
 // d. 多用户信息数据（https://api.vc.bilibili.com/account/v1/user/cards）
-interface UsersInfoItem {
+export interface UsersInfoItem {
   mid: number;
   name: string;
   face: url;
