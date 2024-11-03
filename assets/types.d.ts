@@ -1,6 +1,5 @@
 // 类型定义
 // 1. 通用类型
-export type resolveFn<Type> = (returnValue: Type) => void;
 export type booleanNumber = 0 | 1; // 用数字表示的逻辑值
 export type numericString = `${number}`; // 仅含有纯数字的字符串
 export type url = string;
@@ -25,7 +24,7 @@ export interface APIResponse<dataType> { // B 站 API 返回的 JSON 数据结�
 type sex = '男' | '女' | '保密';
 type officialType = -1 /* 无认证 */ | 0 /* UP 主认证 */ | 1 /* 机构认证 */;
 type officialRole = 0 /* 无 */ | 1 /* 知名 UP 主 */ | 2 /* 身份认证（大 V 达人） */ | 3 /* 企业 */ | 4 /* 组织 */ | 5 /* 媒体 */ | 6 /* 政府 */ | 7 /* 专业（领域）认证 */ | 8 /* 职业资质信息认证 */ | 9 /* 社会知名人士 */;
-type VIPType = 0 /* 无大会员 */ | 1 /* 月度大会员 */ | 2 /* 年度及以上大会员 */;
+type VIPType = 0 /* 无大会员 */ | 1 /* 年度以下大会员 */ | 2 /* 年度及以上大会员 */;
 type VIPRole = 0 /* 无 */ | 1 /* 月度 */ | 3 /* 年度 */ | 7 /* 十年 */ | 15 /* 百年 */;
 type level = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 type levelNextExp = 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
@@ -170,7 +169,73 @@ export interface UserInfoData {
   };
 }
 
-// c. “获取哔哩哔哩用户信息”接口回应数据（/api/getuser）
+// c. 多用户信息数据（https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards）
+interface UserCardsItem {
+  face: url;
+  face_nft: booleanNumber;
+  face_nft_new: booleanNumber;
+  mid: numericString;
+  name: string;
+  name_render: null | {
+    colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
+    render_scheme: 'Default' | 'Colorful';
+  };
+  nameplate: null | { condition: string; image: url; image_small: url; level: string; name: string; nid: number };
+  official: { desc: string; role: officialRole; title: string; type: officialType };
+  pendant: null | {
+    expire: '0';
+    image: url;
+    image_enhance: url;
+    image_enhance_frame: url;
+    n_pid: numericString;
+    name: string;
+    pid: number;
+  };
+  vip: {
+    avatar_icon: null | { icon_resource: null; icon_type: string };
+    avatar_subscript: 0 | 1 | 2;
+    avatar_subscript_url: url;
+    due_date: numericString;
+    label: {
+      bg_color: '' | hexColor;
+      bg_style: 0 | 1;
+      border_color: '' | hexColor;
+      img_label_uri_hans: url;
+      img_label_uri_hans_static: url;
+      img_label_uri_hant: url;
+      img_label_uri_hant_static: url;
+      label_theme: string;
+      path: '';
+      text: string;
+      text_color: '' | hexColor;
+      use_img_label: true;
+    };
+    nickname_color: '' | hexColor;
+    role: `${VIPRole}`;
+    status: booleanNumber;
+    theme_type: 0;
+    tv_due_date: numericString;
+    tv_vip_pay_type: 0 | 1;
+    tv_vip_status: booleanNumber;
+    type: VIPType;
+    vip_pay_type: 0 | 1;
+  };
+}
+export type UserCardsData = Record<number, UserCardsItem>;
+
+// d. 多用户信息数据（https://api.vc.bilibili.com/account/v1/user/cards）
+export interface UsersInfoItem {
+  mid: number;
+  name: string;
+  face: url;
+  sign: string;
+  rank: number;
+  level: level;
+  silence: booleanNumber;
+}
+export type UsersInfoData = UsersInfoItem[];
+
+// e. “获取哔哩哔哩用户信息”接口回应的单用户数据（/api/getuser）
 export interface InternalAPIGetUserInfoData {
   mid: number | numericString;
   name: string;
@@ -227,6 +292,15 @@ export interface InternalAPIGetUserInfoData {
   certificate_show: false;
   name_render: UserInfoData['name_render'];
 }
+
+// f. “获取哔哩哔哩用户信息”接口回应的多用户数据（/api/getuser）
+interface InternalAPIUsersInfoItem extends UserCardsItem {
+  sign?: string;
+  rank?: number;
+  level?: level;
+  silence?: booleanNumber;
+}
+export type InternalAPIGetUsersInfoData = Record<number, InternalAPIUsersInfoItem>;
 
 // 3. 视频信息相关
 // eslint-disable-next-line @stylistic/semi-spacing

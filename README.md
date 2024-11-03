@@ -21,19 +21,19 @@
 - **🚩API 类型**：[RESTful API](https://www.restapitutorial.com/)
 - **✏请求方式**：一般为 [GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)（理论上可以使用任何请求方式）
 - **🔖请求参数**：[URL 查询字符串](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#%E5%8F%82%E6%95%B0)（如 `?mid=425503913&type=html`），**参数名区分大小写**
-- **💬回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开本 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
+- **💬回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
 - **🔢HTTP 状态代码**：
 
-| 状态代码 | 说明 |
-| :------: | ---- |
-| [`200`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/200) | 请求成功 |
-| [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（如：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
-| [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
-| [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
-| [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
-| [`429`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/429)（**不是** [`412`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/412)） | 请求太频繁 |
-| [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) 或 [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用异常或超时（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频太大，API 无法回复视频数据） |
-| [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效（或其他原因）而请求失败 |
+  | 状态代码 | 说明 |
+  | :------: | ---- |
+  | [`200`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/200) | 请求成功 |
+  | [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（如：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
+  | [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
+  | [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
+  | [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
+  | [`429`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/429)（**不是** [`412`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/412)） | 请求太频繁 |
+  | [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) 或 [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用异常或超时（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频太大，API 无法回复视频数据） |
+  | [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效（或其他原因）而请求失败 |
 
 同时，<https://api.yumeharu.top/api/> 中的 API 强制使用 [HTTPS 协议](https://developer.mozilla.org/zh-CN/docs/Glossary/HTTPS)。这是 [Vercel](https://vercel.com/) 的行为，您在其他地方部署 API 不一定会强制使用 HTTPS 协议。
 
@@ -53,8 +53,8 @@
 
 > [!NOTE]
 >
-> - 这些 API 的服务器不在中国大陆。如果您可以正常调用 B 站的 API，最好直接使用 B 站的 API，可以更快回复您所需要的信息。
-> - 由于本 API 可以返回多种类型的数据，因此**建议您始终带 `type` 参数调用 API**，详见[回复数据类型规则](#通过-type-参数判断)。
+> - 本站的服务器不在中国大陆。如果您可以正常调用 B 站的 API，最好直接使用 B 站的 API，可以更快回复您所需要的信息。
+> - 由于本项目的大多数 API 可以返回多种类型的数据，因此**建议您始终带 `type` 参数调用 API**，详见[回复数据类型规则](#通过-type-参数判断)。
 
 > [!CAUTION]
 >
@@ -73,7 +73,7 @@
 
 | 请求参数 | 说明 |
 | :------: | ---- |
-| `mid` | 您想获取用户信息的用户的 UID，只能是正整数。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2) |
+| `mid` | 您想获取用户信息的用户的 UID，只能是正整数，最多 200 个，以逗号分隔每个 UID。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2)、[`2,425503913`](https://api.yumeharu.top/api/getuser?mid=2,425503913) |
 | `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 
 如果没有填写 `mid` 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
@@ -111,7 +111,7 @@
 
 目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
 
-本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请将环境变量 `userAgent` 设置为浏览器的用户代理，并设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
+本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型规则
 
@@ -166,7 +166,7 @@
 
 | 字段 | 类型 | 说明 |
 | :--: | :--: | ---- |
-| `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（如：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（如：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（如：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本 API 服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用 |
+| `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（如：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（如：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（如：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本站服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用 |
 | `upstreamServerUrl` | string | 上游服务器 URL，仅当 `errType` 值为 `upstreamServerRespError` 时出现。 |
 | `upstreamServerRespStatus` | number | 上游服务器的响应状态代码，仅当 `errType` 值为 `upstreamServerRespError` 时出现。 |
 | `spaceAccInfoCode` | number | B 站 API `x/space/wbi/acc/info` 的返回值，仅在 “获取哔哩哔哩用户信息” API 中调用该 API 失败时出现。 |
@@ -203,11 +203,11 @@
     "coins": 0,
     "article": 0,
     "attentions": [], // 因涉及隐私，此处隐藏具体数据
-    "fans": 1155509,
-    "friend": 344,
-    "attention": 344,
-    "following": 344,
-    "follower": 1155509,
+    "fans": 1169060,
+    "friend": 355,
+    "attention": 355,
+    "following": 355,
+    "follower": 1169060,
     "level_info": {
       "next_exp": -1,
       "current_level": 6,
@@ -220,17 +220,17 @@
       "wear": true,
       "medal": {
         "uid": 2,
-        "target_id": 6189069,
-        "medal_id": 282173,
-        "level": 16,
-        "medal_name": "别嘴硬",
-        "medal_color": 12478086,
+        "target_id": 548076,
+        "medal_id": 32525,
+        "level": 28,
+        "medal_name": "桜樱怪",
+        "medal_color": 398668,
         "intimacy": 0, // 因涉及隐私，此处隐藏具体数据
-        "next_intimacy": 50000,
-        "day_limit": 25000,
-        "medal_color_start": 12478086,
-        "medal_color_end": 12478086,
-        "medal_color_border": 12478086,
+        "next_intimacy": 160000,
+        "day_limit": 250000,
+        "medal_color_start": 398668,
+        "medal_color_end": 6850801,
+        "medal_color_border": 398668,
         "is_lighted": 1,
         "light_status": 1,
         "wearing_status": 1,
@@ -242,7 +242,7 @@
     "vip": {
       "type": 2,
       "status": 1,
-      "due_date": 3974198400000,
+      "due_date": 3979555200000,
       "vip_pay_type": 0,
       "theme_type": 0,
       "label": {
@@ -301,9 +301,9 @@
       "broadcast_type": 0,
       "watched_show": {
         "switch": true,
-        "num": 6,
-        "text_small": "6",
-        "text_large": "6人看过",
+        "num": 3,
+        "text_small": "3",
+        "text_large": "3人看过",
         "icon": "https://i0.hdslb.com/bfs/live/a725a9e61242ef44d764ac911691a7ce07f36c1d.png",
         "icon_location": "",
         "icon_web": "https://i0.hdslb.com/bfs/live/8d9d0f33ef8bf6f308742752d13dd0df731df19c.png"
@@ -346,28 +346,30 @@
 | assets/ | 本文件夹包含静态文件，在网站上访问里面的文件会显示文件内容 |
 | assets/\[1-5\]-22.jpg, assets/\[1-6\]-33.jpg | 哔哩哔哩的一些随机头像 |
 | assets/apple-touch-icon.png | 网站图标 |
-| assets/big-vip.svg, assets/business.svg, assets/nft.gif, assets/nft-label.gif, assets/nft-label-oversea.gif, assets/personal.svg, assets/small-vip.svg | 哔哩哔哩大会员、机构认证、数字藏品头像（无白色边框）、数字藏品头像、海外版数字藏品头像、UP 主认证与愚人节限定的 “小会员” 图标 |
+| assets/big-vip.svg, assets/business.svg, assets/nft.gif, assets/nft-label.gif, assets/nft-label-oversea.gif, assets/personal.svg, assets/profession.png, assets/small-vip.svg | 哔哩哔哩大会员、机构认证、数字藏品头像（无白色边框）、数字藏品头像、海外版数字藏品头像、UP 主认证、职业资质认证与愚人节限定的 “小会员” 图标 |
 | assets/big-vip_dark.svg, assets/business_dark.svg, assets/personal_dark.svg, assets/small-vip_dark.svg | 深色模式下的哔哩哔哩大会员、机构认证、UP 主认证与愚人节限定的 “小会员” 图标 |
 | assets/constants.ts | 常量定义文件，如视频的分区、状态，朋友列表 |
 | assets/error.mp4 | 获取视频数据时，如果视频不可用，就回复本文件数据 |
 | assets/female.png, assets/male.png | 表示性别的图片 |
 | assets/iconfont.woff2 | 图标字体文件 |
 | assets/level_\[0-6\].svg, assets/level_6+.svg | 哔哩哔哩用户的等级图片 |
-| assets/main.js | 页面使用的 JS |
+| assets/main.js | 网站页面使用的 JS |
 | assets/nocover.png | 获取视频封面时，如果视频不存在，就回复本文件数据 |
 | assets/noface.jpg | 获取用户头像时，如果用户不存在，就回复本文件数据 |
-| assets/style.css | 页面使用的 CSS |
+| assets/style.css | 网站页面使用的 CSS |
 | assets/top-photo.png | 哔哩哔哩个人空间默认头图 |
 | assets/types.d.ts | 类型定义文件 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
+| eslint.config.js | [ESLint](https://eslint.org/)（JavaScript 代码检查器）的配置文件 |
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |
-| package.json, package-lock.json | 本 API 使用的库列表 |
-| README.md | 对本 API 的说明文件，即本文件 |
+| middleware.ts | [Vercel 边缘中间件](https://vercel.com/docs/functions/edge-middleware)文件 |
+| package.json, package-lock.json | 本项目使用的库列表 |
+| README.md | 本项目的说明文件，即本文件 |
 | robots.txt | 搜索引擎爬虫配置文件 |
 | tsconfig.json | TypeScript 配置文件 |
-| vercel.json | Vercel（API 服务提供者）的配置文件 |
+| vercel.json | [Vercel](https://vercel.com/)（API 服务提供者）的配置文件 |
 
 ## 📄许可证
 

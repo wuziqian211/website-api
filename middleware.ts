@@ -3,18 +3,18 @@ export const config = {
 };
 
 import { next } from '@vercel/edge';
-import utils from './assets/utils.js';
+import * as utils from './assets/utils.js';
 
 export default (req: Request): Response => {
   utils.initialize(req, [1]);
   const { pathname } = new URL(req.url);
 
   const userRegExpResult = /^\/(?:uid|mid|space)(\d+)(?:[?/#].*)?$/.exec(pathname);
-  if (userRegExpResult) return Response.redirect(new URL('/api/getuser?mid=' + userRegExpResult[1], req.url), 308);
+  if (userRegExpResult) return Response.redirect(new URL(`/api/getuser?mid=${userRegExpResult[1]}`, req.url), 308);
 
   for (const r of [/^\/video\/(av\d+)(?:[?/#].*)?$/, /^\/video\/(BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/, /^\/bangumi\/media\/(md\d+)(?:[?/#].*)?$/, /^\/bangumi\/play\/((?:ss|ep)\d+)(?:[?/#].*)?$/, /^\/((?:av|md|ss|ep)\d+)(?:[?/#].*)?$/, /^\/(BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/]) {
     const videoRegExpResult = r.exec(pathname);
-    if (videoRegExpResult) return Response.redirect(new URL('/api/getvideo?vid=' + videoRegExpResult[1], req.url), 308);
+    if (videoRegExpResult) return Response.redirect(new URL(`/api/getvideo?vid=${videoRegExpResult[1]}`, req.url), 308);
   }
 
   const pureNumberRegExpResult = /^\/(\d+)(?:[?/#].*)?$/.exec(pathname);

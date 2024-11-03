@@ -1,17 +1,14 @@
 {
   "functions": {
-    "api/{404,index,modules}.ts": {
-      "includeFiles": "assets/utils.ts"
-    },
     "api/getuser.ts": {
       "memory": 256,
       "maxDuration": 16,
-      "includeFiles": "assets/{{[1-5]-22,[1-6]-33,noface}.jpg,utils.ts}"
+      "includeFiles": "assets/{{[1-5]-22,[1-6]-33,noface}.jpg}"
     },
     "api/getvideo.ts": {
       "memory": 256,
       "maxDuration": 16,
-      "includeFiles": "assets/{constants.ts,error.mp4,nocover.png,utils.ts}"
+      "includeFiles": "assets/{error.mp4,nocover.png}"
     }
   },
   "headers": [
