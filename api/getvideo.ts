@@ -182,21 +182,24 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                       <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${data.owner.mid}"></a>
                     </div>
                   </div>` : ''}
-                  ${data.pages ? data.pages.map(p => `
-                  <div class="main-info-outer" id="part-${p.page}"${p.first_frame ? ` style="background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}>
-                    <div class="main-info-inner${p.first_frame ? ' image' : ''}">
-                      <div class="left"><strong>P${p.page}</strong></div>
-                      ${p.first_frame ? `
-                      <div class="image-wrap">
-                        <img class="ppic" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
-                      </div>` : ''}
-                      <div class="detail">
-                        <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
-                        <strong>cid：</strong>${p.cid || '未知'}
+                  ${data.pages ? `
+                  <div class="grid part-list">
+                    ${data.pages.map(p => `
+                    <div class="grid-item main-info-outer" id="part-${p.page}"${p.first_frame ? ` style="background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}>
+                      <div class="main-info-inner${p.first_frame ? ' image' : ''}">
+                        <div class="left"><strong>P${p.page}</strong></div>
+                        ${p.first_frame ? `
+                        <div class="image-wrap">
+                          <img class="ppic" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
+                        </div>` : ''}
+                        <div class="detail">
+                          <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
+                          <strong>cid：</strong>${p.cid || '未知'}
+                        </div>
+                        <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}"></a>
                       </div>
-                      <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}"></a>
-                    </div>
-                  </div>`).join('') : ''}
+                    </div>`).join('')}
+                  </div>` : ''}
                   ${data.dynamic ? `<strong>同步发布动态的文字内容：</strong>${utils.markText(data.dynamic)}<br />` : ''}
                   <strong>简介：</strong><br />
                   ${data.desc_v2 ? data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)} </a>` : utils.markText(d.raw_text)).join('') : utils.markText(data.desc)}`;
@@ -521,7 +524,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     <div class="details">
                       ${result.actors ? `<strong>角色配音：</strong><br />${utils.encodeHTML(result.actors)}<br />` : ''}
                       ${result.staff ? `<strong>制作人员：</strong><br />${utils.encodeHTML(result.staff)}` : ''}
-                    </details>
+                    </div>
                   </details>` : ''}
                   <table>
                     <thead>
@@ -547,54 +550,58 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     </div>
                   </div>` : ''}
                   <strong>正片：</strong>
-                  ${result.episodes.map(p => `
-                  <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
-                    <div class="main-info-inner${p.cover ? ' image' : ''}">
-                      <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
-                      ${p.cover ? `
-                      <div class="image-wrap">
-                        <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
-                      </div>` : ''}
-                      <div class="detail">
-                        <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
-                        <strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />
-                        <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${p.bvid}">${p.bvid}</a>
+                  <div class="grid part-list">
+                    ${result.episodes.map(p => `
+                    <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
+                      <div class="main-info-inner${p.cover ? ' image' : ''}">
+                        <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
+                        ${p.cover ? `
+                        <div class="image-wrap">
+                          <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
+                        </div>` : ''}
+                        <div class="detail">
+                          <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                          <strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />
+                          <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${p.bvid}">${p.bvid}</a>
+                        </div>
+                        <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
                       </div>
-                      <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
-                    </div>
-                  </div>`).join('')}
+                    </div>`).join('')}
+                  </div>
                   ${result.section ? result.section.map(s => `
                   <strong>${utils.encodeHTML(s.title)}：</strong>
-                  ${s.episodes.map(p => s.type === 5 ? `
-                  <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
-                    <div class="main-info-inner${p.cover ? ' image' : ''}">
-                      ${p.cover ? `
-                      <div class="image-wrap">
-                        <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
-                      </div>` : ''}
-                      <div class="detail">
-                        <strong>${utils.encodeHTML(p.title)}</strong>${p.badge ? ` ${p.badge}` : ''}<br />
-                        ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
-                        ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> ` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
+                  <div class="grid part-list">
+                    ${s.episodes.map(p => s.type === 5 ? `
+                    <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
+                      <div class="main-info-inner${p.cover ? ' image' : ''}">
+                        ${p.cover ? `
+                        <div class="image-wrap">
+                          <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
+                        </div>` : ''}
+                        <div class="detail">
+                          <strong>${utils.encodeHTML(p.title)}</strong>${p.badge ? ` ${p.badge}` : ''}<br />
+                          ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
+                          ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> ` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
+                        </div>
+                        <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">
                       </div>
-                      <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">
-                    </div>
-                  </div>` : `
-                  <div class="main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
-                    <div class="main-info-inner${p.cover ? ' image' : ''}">
-                      <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
-                      ${p.cover ? `
-                      <div class="image-wrap">
-                        <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
-                      </div>` : ''}
-                      <div class="detail">
-                        <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
-                        ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
-                        ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
+                    </div>` : `
+                    <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
+                      <div class="main-info-inner${p.cover ? ' image' : ''}">
+                        <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
+                        ${p.cover ? `
+                        <div class="image-wrap">
+                          <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
+                        </div>` : ''}
+                        <div class="detail">
+                          <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                          ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
+                          ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
+                        </div>
+                        <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
                       </div>
-                      <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
-                    </div>
-                  </div>`).join('')}`).join('') : ''}
+                    </div>`).join('')}
+                  </div>`).join('') : ''}
                   <strong>简介：</strong><br />
                   ${utils.markText(result.evaluate)}`;
                 sendHTML(200, { title: `${result.title} 的信息`, imageBackground: utils.toHTTPS(result.bkg_cover || result.cover), content, vid: requestVid });
