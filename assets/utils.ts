@@ -131,6 +131,7 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         <link rel="preload" href="/assets/iconfont.woff2" as="font" type="font/woff2" crossorigin />
       </head>
       <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${data.imageBackground});"` : ''}>
+        ${data.imageBackground ? `<img style="display: none;" alt src="${toHTTPS(data.imageBackground)}" />` : ''}
         <header>
           <div class="header">
             <div class="left"><a href="/api/">YumeHaru's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
@@ -252,10 +253,30 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
 };
 export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
   if (!targetUrl) return 'data:,';
-  const urlObj = new URL(targetUrl);
-  urlObj.protocol = 'https:';
-  return urlObj.href;
+  /* Node.js v22.1.0 起可用
+  const urlObj = URL.parse(targetUrl);
+  if (urlObj) {
+    urlObj.protocol = 'https:';
+    return urlObj.href;
+  } else {
+    return targetUrl;
+  }
+  */
+  if (URL.canParse(targetUrl)) {
+    const urlObj = new URL(targetUrl);
+    urlObj.protocol = 'https:';
+    return urlObj.href;
+  } else {
+    return targetUrl;
+  }
 };
+/* Node.js v21.0.0 起可用，JSON.rawJSON() 目前仍在测试中
+export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或过小的数字将会被转换成 BigInt 或文本）
+  if (typeof text !== 'string') return text;
+  return JSON.parse(text, (key, value, { source }) => typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
+};
+export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value) : value); // 序列化 JSON（BigInt 将会被转换成数字）
+*/
 export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
   if (typeof ts !== 'number' || ts === 0) return '未知';
   const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
@@ -287,8 +308,8 @@ export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 
 };
 export const getRequestInfo = (): RequestInfo => {
   if (!cachedRequestInfo) {
-    const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
-    const { SESSDATA, bili_jct: csrf } = process.env;
+    const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+          { SESSDATA, bili_jct: csrf } = process.env;
     cachedRequestInfo = { userAgent, SESSDATA: SESSDATA!, csrf: csrf!, loginHeaders: new Headers({ Cookie: `SESSDATA=${SESSDATA}; bili_jct=${csrf}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }), normalHeaders: new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }) };
   }
   return cachedRequestInfo;
@@ -340,7 +361,7 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
   }
   if (options.wbiSign) { // 使用 Wbi 签名
     urlObj.searchParams.set('gaia_source', 'main_web');
-    urlObj.searchParams.set('platform', 'web');
+    if (!urlObj.searchParams.has('platform')) urlObj.searchParams.set('platform', 'web');
     urlObj.searchParams.set('x-bili-device-req-json', '{"platform":"web","device":"pc"}');
     urlObj.search = await encodeWbi(urlObj.search);
   }
@@ -371,7 +392,7 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
     requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${ujson.data.mid}`);
 
     const spaceHTMLText = await (await fetch(`https://space.bilibili.com/${ujson.data.mid}`, { headers: requestInfo.loginHeaders })).text();
-    const renderData = /<script id="__RENDER_DATA__"[^>]*>(.*)<\/script>/.exec(spaceHTMLText);
+    const renderData = /<script id="__RENDER_DATA__".*>(.*)<\/script>/.exec(spaceHTMLText);
     if (renderData && renderData[1]) {
       const rjson = <{ access_id: string }> JSON.parse(decodeURIComponent(renderData[1]));
       wbiKeys.webId = rjson.access_id;
