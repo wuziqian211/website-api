@@ -222,17 +222,17 @@ div.main-info-outer {
 div.main-info-inner {
   align-items: center;
   background: var(--background-color-three-quarters-transparent);
+  box-sizing: border-box;
   display: flex;
+  height: 100%;
   padding: 5px 10px;
   position: relative;
+  width: 100%;
 }
 div.main-info-inner.image {
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   background: var(--background-color-translucent);
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
 }
 div.grid-item:not(.main-info-outer):hover, div.main-info-inner:hover {
   background: var(--background-color-translucent);

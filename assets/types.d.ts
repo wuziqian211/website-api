@@ -11,7 +11,14 @@ export interface InternalAPIResponse<dataType> { // 内部 API 返回的 JSON �
   code: number;
   message: string;
   data: dataType;
-  extInfo?: Record<string, unknown>;
+  extInfo?: {
+    errType?: string;
+    upstreamServerResponseInfo?: (
+      { url: url; type: 'json'; code: number; message: string } | { url: url; type: string; status: number }
+    )[];
+    apiExecTime?: number;
+    [key: string]: unknown;
+  };
 }
 export interface APIResponse<dataType> { // B 站 API 返回的 JSON 数据结构
   code: number;

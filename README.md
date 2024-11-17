@@ -111,7 +111,7 @@
 
 目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
 
-本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
+本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 最新的 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**，~~并关联一个 [Vercel KV 数据库](https://vercel.com/docs/storage/vercel-kv)到部署中~~（目前该数据库已无法创建，建议使用 [Upstash](https://vercel.com/marketplace/upstash)，并修改本项目代码）。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型规则
 
@@ -149,7 +149,7 @@
 
 #### ❓默认回复 JSON
 
-若上述过程无法判断回复数据类型，则回复 JSON。
+若上述过程无法判断回复数据类型，则回复 **JSON**。
 
 ### 🔗回复的 JSON 对象数据结构
 
@@ -159,23 +159,31 @@
 | :--: | :--: | ---- |
 | `code` | number | 返回值。常见的返回值有：<br />`0`：成功<br />`-400`：请求错误（如：参数不合法）<br />`-403`：访问权限不足（如：未使用 Cookie 获取信息）<br />`-404`：啥都木有<br />`-412`：请求被拦截 |
 | `message` | string | 错误信息，若请求成功则一般为 `0` 或 `success`。 |
-| `data` | 有效时：object<br />无效时：null | 回复数据本体。对于 “获取哔哩哔哩用户信息” 与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 的数据本体，请自行查找对应的 B 站 API 的说明，此处不再进行说明。 |
-| `extInfo` | object | API 返回的扩展信息，包括调用所耗时间、数据来源、错误类型等。 |
+| `data` | 有效时：object 或 array<br />无效时：null | 回复数据本体。对于 “获取哔哩哔哩用户信息” 与 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 的数据本体，请自行查找对应的 B 站 API 的说明，此处不再进行说明。 |
+| `extInfo` | object | API 返回的扩展信息，包括调用所耗时间、错误类型等。<br />**请勿在正式环境中使用此属性！此属性的值仅供调试使用，并且可能会随时改变数据结构。** |
 
 `extInfo` 对象：
 
 | 字段 | 类型 | 说明 |
 | :--: | :--: | ---- |
-| `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（如：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（如：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（如：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本站服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用 |
-| `upstreamServerUrl` | string | 上游服务器 URL，仅当 `errType` 值为 `upstreamServerRespError` 时出现。 |
-| `upstreamServerRespStatus` | number | 上游服务器的响应状态代码，仅当 `errType` 值为 `upstreamServerRespError` 时出现。 |
-| `spaceAccInfoCode` | number | B 站 API `x/space/wbi/acc/info` 的返回值，仅在 “获取哔哩哔哩用户信息” API 中调用该 API 失败时出现。 |
-| `spaceAccInfoMessage` | string | B 站 API `x/space/wbi/acc/info` 的错误信息，仅在 “获取哔哩哔哩用户信息” API 中调用该 API 失败时出现。 |
-| `dataSource` | string\[\] 或 string | 回复数据的来源。 |
+| `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（如：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（如：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（如：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本站服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用<br />`internalServerError`：内部服务器错误 |
+| `upstreamServerResponseInfo` | object[] | 该 API 请求的上游服务器返回的信息，仅在请求了上游服务器时出现。 |
 | `apiExecTime` | number | 调用 API 所耗时间（单位：毫秒）。 |
+
+`extInfo` 对象中的 `upstreamServerResponseInfo` 数组中的对象：
+
+| 字段 | 类型 | 说明 |
+| :--: | :--: | ---- |
+| `url` | string | 请求的上游服务器 URL。 |
+| `type` | string | 请求类型，值可以是 `json`、`image` 等。 |
+| `code` | number | 上游服务器的返回值，仅当 `type` 的值为 `json` 时出现。 |
+| `message` | string | 上游服务器回复的错误信息，仅当 `type` 的值为 `json` 时出现。 |
+| `status` | number | 上游服务器回复的 HTTP 状态代码，仅当 `type` 的值不为 `json` 时出现。 |
 
 <details>
 <summary>查看响应示例</summary>
+
+<https://api.yumeharu.top/api/getuser?mid=2&type=json>
 
 ```jsonc
 {
@@ -365,10 +373,10 @@
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |
 | middleware.ts | [Vercel 边缘中间件](https://vercel.com/docs/functions/edge-middleware)文件 |
-| package.json, package-lock.json | 本项目使用的库列表 |
+| package.json, package-lock.json | 本项目使用的依赖项列表 |
 | README.md | 本项目的说明文件，即本文件 |
 | robots.txt | 搜索引擎爬虫配置文件 |
-| tsconfig.json | TypeScript 配置文件 |
+| tsconfig.json | [TypeScript](https://typescriptlang.org/) 配置文件 |
 | vercel.json | [Vercel](https://vercel.com/)（API 服务提供者）的配置文件 |
 
 ## 📄许可证

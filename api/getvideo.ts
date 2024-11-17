@@ -92,15 +92,15 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
               if (info2) info = info2;
             }
-            json = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, tid: null, tname: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0 } };
+            json = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, tid: null, tname: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0 }, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/x/v2/history', type: 'json', code: 0, message: '0' }] } };
             json.data = { ...json.data!, ...info, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vt: 0, vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid ?? 0, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined }; // 加入缺失的信息，移除“不该出现”的信息
           } else {
             json = { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'notFoundInHistory' } };
           }
         } else {
-          json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid }, wbiSign: true, withCookie: useCookie }); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
+          json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid, web_location: 1446382 }, wbiSign: true, withCookie: useCookie }); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
           if (json.code === -403 && useCookie === undefined) { // 这个视频需要登录才能获取其信息，如果没有设置不使用 Cookie，且不是已经使用了 Cookie 仍无法获取的，就带 Cookie 重新获取信息
-            json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid }, wbiSign: true, withCookie: true });
+            json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid, web_location: 1446382 }, wbiSign: true, withCookie: true });
           }
         }
 
@@ -255,7 +255,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     if (fetchDest === 1) {
                       sendHTML(404, { title: `获取 ${data.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(data.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                     } else {
-                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(data.pic), upstreamServerRespStatus: resp.status } });
+                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(data.pic), type: 'image', status: resp.status }] } });
                     }
                   } else {
                     respHeaders.set('Content-Type', 'image/png');
@@ -293,7 +293,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 const qualities: quality[] = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
                 let url;
                 for (const qn of qualities) {
-                  const vjson = <APIResponse<VideoPlayUrlData>> await utils.callAPI('https://api.bilibili.com/x/player/wbi/playurl', { params: { bvid: vid, cid: cid.toString(), qn: qn.toString(), fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: '', platform: qn === 6 ? 'pc' : 'html5', high_quality: '1' }, wbiSign: true, withCookie: useCookie });
+                  const vjson = <APIResponse<VideoPlayUrlData>> await utils.callAPI('https://api.bilibili.com/x/player/wbi/playurl', { params: { bvid: vid, cid, qn, fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: 'mp4', platform: qn === 6 ? 'pc' : 'html5', high_quality: 1, web_location: 1315877 }, wbiSign: true, withCookie: useCookie });
                   if (vjson.code === 0 && vjson.data.durl[0].size <= 4500000) { // 视频地址获取成功，且视频大小不超过 4.5 MB（1 MB = 1000 KB；Vercel 限制 API 回复的内容不能超过 4.5 MB）
                     url = vjson.data.durl[0].url;
                   } else {
@@ -350,7 +350,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           default: // 回复 JSON
             switch (json.code) {
               case 0:
-                sendJSON(200, { code: 0, message: json.message, data: json.data! });
+                sendJSON(200, { code: 0, message: json.message, data: json.data, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/x/web-interface/wbi/view', type: 'json', code: 0, message: json.message }] } });
                 break;
               case -352:
               case -401:
@@ -367,6 +367,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 sendJSON(404, { code: json.code, message: json.message, data: null, extInfo: { errType: json.extInfo?.errType ?? 'upstreamServerNoData' } });
                 break;
               case -403:
+              case 62012:
                 sendJSON(403, { code: -403, message: json.message, data: null, extInfo: { errType: 'upstreamServerForbidden' } });
                 break;
               default:
@@ -435,7 +436,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     if (fetchDest === 1) {
                       sendHTML(404, { title: `获取 ${result.media.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                     } else {
-                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(result.media.cover), upstreamServerRespStatus: resp.status } });
+                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(result.media.cover), type: 'image', status: resp.status }] } });
                     }
                   } else {
                     respHeaders.set('Content-Type', 'image/png');
@@ -474,7 +475,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           default: // 回复 JSON
             switch (json.code) {
               case 0:
-                sendJSON(200, { code: 0, message: json.message, data: json.result! });
+                sendJSON(200, { code: 0, message: json.message, data: json.result, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/pgc/review/user', type: 'json', code: 0, message: json.message }] } });
                 break;
               case -352:
               case -401:
@@ -583,7 +584,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                           ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDate(p.pub_time)}<br />` : ''}
                           ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> ` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                         </div>
-                        <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/">
+                        <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/"></a>
                       </div>
                     </div>` : `
                     <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
@@ -641,7 +642,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     if (fetchDest === 1) {
                       sendHTML(404, { title: `获取 ${result.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                     } else {
-                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerUrl: utils.toHTTPS(result.title), upstreamServerRespStatus: resp.status } });
+                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(result.title), type: 'image', status: resp.status }] } });
                     }
                   } else {
                     respHeaders.set('Content-Type', 'image/png');
@@ -753,7 +754,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           default: // 回复 JSON
             switch (json.code) {
               case 0:
-                sendJSON(200, { code: 0, message: json.message, data: json.result! });
+                sendJSON(200, { code: 0, message: json.message, data: json.result, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/pgc/view/web/season', type: 'json', code: 0, message: json.message }] } });
                 break;
               case -352:
               case -401:
