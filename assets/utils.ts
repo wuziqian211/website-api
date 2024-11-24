@@ -134,14 +134,16 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         <link rel="preload" href="/assets/iconfont.woff2" as="font" type="font/woff2" crossorigin />
       </head>
       <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${toHTTPS(data.imageBackground)});"` : ''}>
-        ${data.imageBackground ? `<img style="display: none;" alt src="${toHTTPS(data.imageBackground)}" />` : ''}
         <header>
           <div class="header">
             <div class="left"><a href="/api/">YumeHaru's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
             <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/#readme">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
           </div>
         </header>
-        <main>${data.body}</main>
+        <main>
+          ${data.imageBackground ? `<img alt src="${toHTTPS(data.imageBackground)}" style="display: none;" />` : ''}
+          ${data.body}
+        </main>
         <footer>
           本 API 版权：© 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春<br />
           执行本 API 耗时 <span class="time-taken">${(execTime / 1000).toFixed(3)}</span> s<br />
