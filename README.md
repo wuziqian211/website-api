@@ -111,7 +111,7 @@
 
 目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
 
-本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 最新的 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**，~~并关联一个 [Vercel KV 数据库](https://vercel.com/docs/storage/vercel-kv)到部署中~~（目前该数据库已无法创建，建议使用 [Upstash](https://vercel.com/marketplace/upstash)，并修改本项目代码）。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
+本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 的最新 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**，~~并关联一个 [Vercel KV 数据库](https://vercel.com/docs/storage/vercel-kv)到部署中~~（目前该数据库已无法创建，建议使用 [Upstash](https://vercel.com/marketplace/upstash)，并修改本项目代码）。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型规则
 
@@ -333,7 +333,10 @@
     "name_render": null
   },
   "extInfo": { // 扩展信息
-    "dataSource": ["getCardByMid", "spaceAccInfo"], // 数据来源
+    "upstreamServerResponseInfo": [ // 上游服务器返回的信息
+      { "url": "https://account.bilibili.com/api/member/getCardByMid", "type": "json", "code": 0, "message": "0" },
+      { "url": "https://api.bilibili.com/x/space/wbi/acc/info", "type": "json", "code": 0, "message": "0" }
+    ],
     "apiExecTime": 745.896267 // 调用 API 耗时（单位：毫秒）
   }
 }
@@ -369,6 +372,8 @@
 | assets/types.d.ts | 类型定义文件 |
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
+| scripts/ | 本文件夹包括构建本项目所需文件 |
+| scripts/prepare.js | 构建本项目时使用的脚本文件 |
 | eslint.config.js | [ESLint](https://eslint.org/)（JavaScript 代码检查器）的配置文件 |
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |

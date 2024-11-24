@@ -37,7 +37,6 @@ export default [
       'id-length': 'warn',
       'id-match': 'error',
       'logical-assignment-operators': 'error',
-      'new-cap': 'error',
       'no-alert': 'error',
       'no-array-constructor': 'error',
       'no-async-promise-executor': 'warn',

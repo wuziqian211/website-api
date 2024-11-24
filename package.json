@@ -3,6 +3,12 @@
   "license": "MIT",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "prepare": "node ./scripts/prepare.js"
+  },
   "dependencies": {
     "@vercel/edge": "latest",
     "@vercel/kv": "latest",

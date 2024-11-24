@@ -27,6 +27,15 @@ export interface APIResponse<dataType> { // B 站 API 返回的 JSON 数据结�
   data: dataType;
 }
 
+// JSON Stage 3 接口定义
+type rawJSON = { rawJSON: string };
+export interface JSON_ extends JSON {
+  isRawJSON(value: rawJSON): true;
+  isRawJSON(value: unknown): false;
+  parse(text: string, reviver?: (key: string, value: unknown, context: { source: string }) => unknown): unknown; // 此处 source 属性应为可选
+  rawJSON(string: string): rawJSON;
+}
+
 // 2. 用户信息相关
 type sex = '男' | '女' | '保密';
 type officialType = -1 /* 无认证 */ | 0 /* UP 主认证 */ | 1 /* 机构认证 */;

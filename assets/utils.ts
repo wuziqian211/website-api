@@ -1,5 +1,7 @@
-import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, APIResponse, InternalAPIResponse, NavData } from './types.d.ts';
+import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, APIResponse, InternalAPIResponse, JSON_, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
+
+declare const JSON: JSON_; // 含有 Stage 3 接口定义
 
 export interface SendHTMLData {
   title: string; // 页面标题
@@ -159,7 +161,7 @@ export const sendJSON = (status: number, headers: Headers, data: InternalAPIResp
   headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   headers.set('X-Api-Exec-Time', execTime.toFixed(3));
   headers.set('X-Api-Status-Code', data.code.toString());
-  return Response.json({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }, { status, headers });
+  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }), { status, headers });
 };
 export const send = (status: number, headers: Headers, data: BodyInit): Response => { // 发送其他数据到客户端
   if (timer) {
@@ -253,7 +255,6 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
 };
 export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
   if (!targetUrl) return 'data:,';
-  /* Node.js v22.1.0 起可用
   const urlObj = URL.parse(targetUrl);
   if (urlObj) {
     urlObj.protocol = 'https:';
@@ -261,22 +262,12 @@ export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
   } else {
     return targetUrl;
   }
-  */
-  if (URL.canParse(targetUrl)) {
-    const urlObj = new URL(targetUrl);
-    urlObj.protocol = 'https:';
-    return urlObj.href;
-  } else {
-    return targetUrl;
-  }
 };
-/* Node.js v21.0.0 起可用，JSON.rawJSON() 目前仍在测试中
 export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或过小的数字将会被转换成 BigInt 或文本）
   if (typeof text !== 'string') return text;
   return JSON.parse(text, (key, value, { source }) => typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
 };
-export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value) : value); // 序列化 JSON（BigInt 将会被转换成数字）
-*/
+export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
 export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
   if (typeof ts !== 'number' || ts === 0) return '未知';
   const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
@@ -369,7 +360,7 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
   const resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
   if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
 
-  const json = await resp.json();
+  const json = JSONParse(await resp.text());
   return json;
 };
 export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
@@ -394,7 +385,7 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
     const spaceHTMLText = await (await fetch(`https://space.bilibili.com/${ujson.data.mid}`, { headers: requestInfo.loginHeaders })).text();
     const renderData = /<script id="__RENDER_DATA__".*>(.*)<\/script>/.exec(spaceHTMLText);
     if (renderData && renderData[1]) {
-      const rjson = <{ access_id: string }> JSON.parse(decodeURIComponent(renderData[1]));
+      const rjson = <{ access_id: string }> JSONParse(decodeURIComponent(renderData[1]));
       wbiKeys.webId = rjson.access_id;
     }
 
