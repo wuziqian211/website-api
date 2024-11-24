@@ -93,7 +93,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 <strong>粉丝数：</strong>${utils.getNumber(data.follower)}<br />
                 <strong>个性签名：</strong><br />
                 ${utils.markText(data.sign)}`;
-              sendHTML(200, { title: `${data.name} 的信息`, appleTouchIcon: utils.toHTTPS(data.face), imageBackground: data.top_photo ? utils.toHTTPS(data.top_photo) : '/assets/top-photo.png', content, mid: requestMid });
+              sendHTML(200, { title: `${data.name} 的信息`, appleTouchIcon: utils.toHTTPS(data.face), imageBackground: data.top_photo || '/assets/top-photo.png', content, mid: requestMid });
               break;
             }
             case -352: // 风控校验失败（请求标头或参数不合法）

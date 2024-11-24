@@ -33,6 +33,7 @@ if (renderData && renderData[1]) {
 }
 
 await kv.set('wbiKeys', {
+  mid,
   imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),
   subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),
   webId,

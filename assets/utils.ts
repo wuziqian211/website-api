@@ -16,6 +16,7 @@ interface Component {
   url?: url; // 链接
 }
 interface WbiKeys {
+  mid: number;
   imgKey: string;
   subKey: string;
   webId: string;
@@ -129,10 +130,10 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         <title>${encodeHTML(data.title)} | YumeHaru's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="${data.appleTouchIcon ?? '/assets/apple-touch-icon.png'}" />
+        <link rel="apple-touch-icon" href="${data.appleTouchIcon ? toHTTPS(data.appleTouchIcon) : '/assets/apple-touch-icon.png'}" />
         <link rel="preload" href="/assets/iconfont.woff2" as="font" type="font/woff2" crossorigin />
       </head>
-      <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${data.imageBackground});"` : ''}>
+      <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${toHTTPS(data.imageBackground)});"` : ''}>
         ${data.imageBackground ? `<img style="display: none;" alt src="${toHTTPS(data.imageBackground)}" />` : ''}
         <header>
           <div class="header">
@@ -374,13 +375,15 @@ export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchPa
   return params.toString();
 };
 export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+  const requestInfo = getRequestInfo();
+
   if (!noCache && !wbiKeys) wbiKeys = <WbiKeys> await kv.get('wbiKeys');
   if (noCache || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
-    const requestInfo = getRequestInfo(),
-          ujson = <APIResponse<NavData>> await callAPI('https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
+    const ujson = <APIResponse<NavData>> await callAPI('https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
+    wbiKeys.mid = ujson.data.mid;
     wbiKeys.imgKey = ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
     wbiKeys.subKey = ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
-    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${ujson.data.mid}`);
+    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`);
 
     const spaceHTMLText = await (await fetch(`https://space.bilibili.com/${ujson.data.mid}`, { headers: requestInfo.loginHeaders })).text();
     const renderData = /<script id="__RENDER_DATA__".*>(.*)<\/script>/.exec(spaceHTMLText);
@@ -391,6 +394,9 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
 
     wbiKeys.updatedTimestamp = Date.now();
     await kv.set('wbiKeys', wbiKeys);
+  } else {
+    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`);
   }
+
   return wbiKeys;
 };

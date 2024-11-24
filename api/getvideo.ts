@@ -203,7 +203,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   ${data.dynamic ? `<strong>同步发布动态的文字内容：</strong>${utils.markText(data.dynamic)}<br />` : ''}
                   <strong>简介：</strong><br />
                   ${data.desc_v2 ? data.desc_v2.map(d => d.type === 2 ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${d.biz_id}">@${utils.encodeHTML(d.raw_text)} </a>` : utils.markText(d.raw_text)).join('') : utils.markText(data.desc)}`;
-                sendHTML(200, { title: `${data.title} 的信息`, imageBackground: utils.toHTTPS(data.pic), content, vid: requestVid });
+                sendHTML(200, { title: `${data.title} 的信息`, imageBackground: data.pic, content, vid: requestVid });
                 break;
               }
               case -352:
@@ -399,7 +399,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   </div>
                   ${result.media.new_ep?.id ? `<strong>最新一话：</strong><a href="?vid=ep${result.media.new_ep.id}">${utils.encodeHTML(result.media.new_ep.index)}</a><br />` : ''}
                   ${result.media.season_id ? `<a href="?vid=ss${result.media.season_id}">点击此处查看更多信息</a>` : ''}`;
-                sendHTML(200, { title: `${result.media.title} 的信息`, imageBackground: utils.toHTTPS(result.media.horizontal_picture || result.media.cover), content, vid: requestVid });
+                sendHTML(200, { title: `${result.media.title} 的信息`, imageBackground: result.media.horizontal_picture || result.media.cover, content, vid: requestVid });
                 break;
               }
               case -352:
@@ -605,7 +605,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   </div>`).join('') : ''}
                   <strong>简介：</strong><br />
                   ${utils.markText(result.evaluate)}`;
-                sendHTML(200, { title: `${result.title} 的信息`, imageBackground: utils.toHTTPS(result.bkg_cover || result.cover), content, vid: requestVid });
+                sendHTML(200, { title: `${result.title} 的信息`, imageBackground: result.bkg_cover || result.cover, content, vid: requestVid });
                 break;
               }
               case -352:
