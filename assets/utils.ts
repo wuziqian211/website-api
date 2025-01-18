@@ -38,12 +38,13 @@ import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
 let cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, timer: NodeJS.Timeout | undefined, startTime: millisecondLevelTimestamp;
-export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType } => { // 初始化 API
+export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType; isResponseTypeSpecified: boolean } => { // 初始化 API
   startTime = performance.now();
   const params = new URL(req.url).searchParams, accepts: Accept[] = [],
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
-  let acceptAll: boolean | undefined, responseType: ResponseType | undefined, fetchDest: FetchDest | undefined;
+  let fetchDest: FetchDest | undefined, acceptAll = false,
+      responseType: ResponseType | undefined, isResponseTypeSpecified = false;
 
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
@@ -72,12 +73,16 @@ export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], 
   if (requestedResponseType) { // 先取客户端指定的回复数据类型
     if (acceptedResponseTypes.includes(0) && requestedResponseType === 'JSON') {
       responseType = 0;
+      isResponseTypeSpecified = true;
     } else if (acceptedResponseTypes.includes(1) && ['HTML', 'PAGE'].includes(requestedResponseType)) {
       responseType = 1;
+      isResponseTypeSpecified = true;
     } else if (acceptedResponseTypes.includes(2) && ['IMAGE', 'IMG', 'PICTURE', 'PIC'].includes(requestedResponseType)) {
       responseType = 2;
+      isResponseTypeSpecified = true;
     } else if (acceptedResponseTypes.includes(3) && requestedResponseType === 'VIDEO') {
       responseType = 3;
+      isResponseTypeSpecified = true;
     }
   }
   if (responseType === undefined && fetchDest !== undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
@@ -107,7 +112,7 @@ export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], 
     }, 15000);
   }
 
-  return { params, respHeaders: new Headers(), fetchDest, responseType };
+  return { params, respHeaders: new Headers(), fetchDest, responseType, isResponseTypeSpecified };
 };
 export const getRunningTime = (ts: secondLevelTimestamp): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
@@ -129,9 +134,8 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
         <title>${encodeHTML(data.title)} | YumeHaru's Blog API</title>
         <link rel="stylesheet" href="/assets/style.css" />
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="${data.appleTouchIcon ? toHTTPS(data.appleTouchIcon) : '/assets/apple-touch-icon.png'}" />
-        <link rel="preload" href="/assets/iconfont.woff2" as="font" type="font/woff2" crossorigin />
       </head>
       <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${toHTTPS(data.imageBackground)});"` : ''}>
         <header>
@@ -178,7 +182,7 @@ export const send = (status: number, headers: Headers, data: BodyInit): Response
 export const send404 = (responseType: ResponseType, noCache?: boolean): Response => {
   const headers = new Headers();
   if (responseType === 1) {
-    if (!noCache) headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+    if (!noCache) headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
     return sendHTML(404, headers, { title: 'API 不存在', newStyle: true, body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
   } else {
     return sendJSON(404, headers, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
@@ -215,7 +219,7 @@ export const redirect = (status: number, redirectUrl: url, noCache?: boolean): R
     switch (status) {
       case 308:
       case 301:
-        headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+        headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
         break;
       case 307:
       case 302:
@@ -326,7 +330,7 @@ export const getVidType = (vid: string | null): { type: -1; vid: undefined } | {
     return { type: -1, vid: undefined };
   }
 };
-export const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: true; wbiSign?: true; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
+export const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
   const urlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders;
 

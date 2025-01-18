@@ -14,10 +14,11 @@ import * as utils from '../assets/utils.js';
 export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
   const initData = utils.initialize(req, [0, 1, 2], resolve); // 获取请求参数与回复数据类型
   const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
-  let { responseType } = initData;
+  let { responseType, isResponseTypeSpecified } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'FACE', 'AVATAR'].includes(splitString[0])) {
     responseType = 2;
+    isResponseTypeSpecified = true;
     splitString.shift(); // 删除第一个元素
     responseAttributes.push(...splitString);
   }
@@ -123,7 +124,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               const filename = encodeURIComponent(`${data.name} 的头像.${new URL(data.face).pathname.split('.').at(-1)}`); // 设置头像的文件名
               const resp = await fetch(utils.toHTTPS(data.face)); // 获取 B 站服务器存储的头像
               if (resp.ok) {
-                respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                 respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                 send(200, resp.body);
@@ -269,6 +270,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
     } else { // UID 无效
       if (responseType === 1) { // 回复 HTML
         if (!requestMid) { // 没有设置 UID 参数
+          respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
           sendHTML(200, { title: '获取哔哩哔哩用户信息', newStyle: true, content: `
             本 API 可以获取指定 B 站用户的信息。<br />
             基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />

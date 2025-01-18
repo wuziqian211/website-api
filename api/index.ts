@@ -9,7 +9,7 @@ export default (req: Request): Response => {
       return utils.send(204, respHeaders, null);
     }
     if (responseType === 1) {
-      respHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+      respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
       return utils.sendHTML(200, respHeaders, { title: '欢迎来到 API 页面', newStyle: true, body: `
         <h2>欢迎您来到<a target="_blank" href="https://www.yumeharu.top/">晨叶梦春</a>的 API 页面！</h2>
         <p>本站提供以下公开的 API：</p>

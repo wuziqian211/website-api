@@ -1,5 +1,5 @@
 export const config = {
-  matcher: ['/((?:video/)?BV1[1-9A-HJ-NP-Za-km-z]{9}(?:[?/#].*)?)', '/((?:video/av|bangumi/media/md|bangumi/play/ss|bangumi/play/ep|av|md|ss|ep|uid|mid|space)?\\d+(?:[?/#].*)?)'],
+  matcher: ['/((?:video/)?BV1[1-9A-HJ-NP-Za-km-z]{9}(?:[?/#].*)?)', '/((?:video/av|bangumi/media/md|bangumi/play/ss|bangumi/play/ep|space/|user/|av|md|ss|ep|uid|mid)?\\d+(?:[?/#].*)?)'],
 };
 
 import { next } from '@vercel/edge';
@@ -9,7 +9,7 @@ export default (req: Request): Response => {
   utils.initialize(req, [1]);
   const { pathname } = new URL(req.url);
 
-  const userRegExpResult = /^\/(?:uid|mid|space)(\d+)(?:[?/#].*)?$/.exec(pathname);
+  const userRegExpResult = /^\/(?:space\/|user\/|uid|mid)(\d+)(?:[?/#].*)?$/.exec(pathname);
   if (userRegExpResult) return Response.redirect(new URL(`/api/getuser?mid=${userRegExpResult[1]}`, req.url), 308);
 
   for (const r of [/^\/video\/(av\d+)(?:[?/#].*)?$/, /^\/video\/(BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/, /^\/bangumi\/media\/(md\d+)(?:[?/#].*)?$/, /^\/bangumi\/play\/((?:ss|ep)\d+)(?:[?/#].*)?$/, /^\/((?:av|md|ss|ep)\d+)(?:[?/#].*)?$/, /^\/(BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/]) {

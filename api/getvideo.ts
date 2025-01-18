@@ -15,14 +15,16 @@ import { zones, states } from '../assets/constants.js';
 export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
   const initData = utils.initialize(req, [0, 1, 2, 3], resolve); // 获取请求参数与回复数据类型
   const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
-  let { responseType } = initData;
+  let { responseType, isResponseTypeSpecified } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'COVER', 'PIC'].includes(splitString[0])) {
     responseType = 2;
+    isResponseTypeSpecified = true;
     splitString.shift(); // 删除第一个元素
     responseAttributes.push(...splitString);
   } else if (splitString?.[0] && ['VIDEO', 'DATA'].includes(splitString[0])) {
     responseType = 3;
+    isResponseTypeSpecified = true;
     splitString.shift(); // 删除第一个元素
     responseAttributes.push(...splitString);
   }
@@ -245,8 +247,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               } else {
                 const filename = encodeURIComponent(`${data.title} 的封面.${new URL(data.pic).pathname.split('.').at(-1)}`); // 设置封面的文件名
                 const resp = await fetch(utils.toHTTPS(data.pic)); // 获取 B 站服务器存储的封面
-                if (resp.status === 200) {
-                  respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                if (resp.ok) {
+                  if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                   respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                   respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                   send(200, resp.body);
@@ -307,7 +309,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   const filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
                   const resp = await fetch(url, { headers });
                   if (resp.ok) {
-                    respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                    if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                     respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                     respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                     send(200, resp.body);
@@ -426,8 +428,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               } else {
                 const filename = encodeURIComponent(`${result.media.title} 的封面.${new URL(result.media.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
                 const resp = await fetch(utils.toHTTPS(result.media.cover)); // 获取 B 站服务器存储的封面
-                if (resp.status === 200) {
-                  respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                if (resp.ok) {
+                  if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                   respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                   respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                   send(200, resp.body);
@@ -461,7 +463,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           case 3: { // 获取视频数据
             if (json.code === 0 && json.result!.media.season_id) {
               params.set('vid', `ss${json.result!.media.season_id}`);
-              resolve(utils.redirect(308, `?${params}`));
+              resolve(utils.redirect(isResponseTypeSpecified ? 308 : 307, `?${params}`, !isResponseTypeSpecified));
             } else { // 视频无效
               if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
                 sendHTML(404, { title: '无法获取视频数据', newStyle: true, content: '获取视频数据失败，您想获取的剧集可能不存在哟 qwq', vid: requestVid });
@@ -632,8 +634,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               } else {
                 const filename = encodeURIComponent(`${result.title} 的封面.${new URL(result.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
                 const resp = await fetch(utils.toHTTPS(result.cover)); // 获取 B 站服务器存储的封面
-                if (resp.status === 200) {
-                  respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                if (resp.ok) {
+                  if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                   respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                   respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                   send(200, resp.body);
@@ -711,7 +713,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
                   const resp = await fetch(url, { headers });
                   if (resp.ok) {
-                    respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                    if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                     respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                     respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                     send(200, resp.body);
@@ -777,6 +779,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
         switch (responseType) {
           case 1: // 回复 HTML
             if (!requestVid) { // 没有设置参数“vid”
+              respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
               sendHTML(200, { title: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', newStyle: true, content: `
                 本 API 可以获取指定 B 站视频、剧集、番剧的信息及数据。<br />
                 基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getvideo?vid=<span class="notice">您想获取信息的视频、剧集、番剧的编号</span><br />

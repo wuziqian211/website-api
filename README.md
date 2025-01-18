@@ -7,7 +7,7 @@
   - [👤获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)
   - [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)
 - [🗒附录](#附录)
-  - [💬回复数据类型规则](#回复数据类型规则)
+  - [💬回复数据类型判断规则](#回复数据类型判断规则)
   - [🔗回复的 JSON 对象数据结构](#回复的-json-对象数据结构)
   - [🗂目录结构](#目录结构)
 - [📄许可证](#许可证)
@@ -21,7 +21,7 @@
 - **🚩API 类型**：[RESTful API](https://www.restapitutorial.com/)
 - **✏请求方式**：一般为 [GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)（理论上可以使用任何请求方式）
 - **🔖请求参数**：[URL 查询字符串](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/Web_mechanics/What_is_a_URL#%E5%8F%82%E6%95%B0)（如 `?mid=425503913&type=html`），**参数名区分大小写**
-- **💬回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型规则](#回复数据类型规则)
+- **💬回复数据类型**：默认情况下回复 [JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)，但存在特殊情况，比如当您直接使用浏览器打开 API 的页面时可能会回复 [HTML](https://developer.mozilla.org/zh-CN/docs/Web/HTML)，详见[回复数据类型判断规则](#回复数据类型判断规则)
 - **🔢HTTP 状态代码**：
 
   | 状态代码 | 说明 |
@@ -54,7 +54,7 @@
 > [!NOTE]
 >
 > - 本站的服务器不在中国大陆。如果您可以正常调用 B 站的 API，最好直接使用 B 站的 API，可以更快回复您所需要的信息。
-> - 由于本项目的大多数 API 可以返回多种类型的数据，因此**建议您始终带 `type` 参数调用 API**，详见[回复数据类型规则](#通过-type-参数判断)。
+> - 由于本项目的大多数 API 可以返回多种类型的数据，因此**建议您始终带 `type` 参数调用 API**，详见[回复数据类型判断规则](#通过-type-参数判断)。
 
 > [!CAUTION]
 >
@@ -74,7 +74,7 @@
 | 请求参数 | 说明 |
 | :------: | ---- |
 | `mid` | 您想获取用户信息的用户的 UID，只能是正整数，最多 200 个，以逗号分隔每个 UID。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2)、[`2,425503913`](https://api.yumeharu.top/api/getuser?mid=2,425503913) |
-| `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
+| `type` | 本 API 回复的数据类型，详见[回复数据类型判断规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 
 如果没有填写 `mid` 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
 
@@ -94,7 +94,7 @@
 | `vid` | 您想获取信息或数据的视频、剧集、番剧的编号。可以是前缀为 `av` 或没有前缀的 AV 号，前缀为 `BV` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧等的编号，编号的前缀不区分大小写。<br />**示例**：[`10429`](https://api.yumeharu.top/api/getvideo?vid=10429)、[`av106`](https://api.yumeharu.top/api/getvideo?vid=av106)、[`BV17x411w7KC`](https://api.yumeharu.top/api/getvideo?vid=BV17x411w7KC)、[`ss29325`](https://api.yumeharu.top/api/getvideo?vid=ss29325) |
 | `cid` | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid，只能是正整数。**仅在获取视频数据时使用本参数。** |
 | `p` | 该视频的第几个分 P，或者该剧集中的第几集，只能是正整数。**仅在获取视频数据时使用本参数。** |
-| `type` | 本 API 回复的数据类型，详见[回复数据类型规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（如 `404`、`400`、`500` 等；这样做的目的是让播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应表示错误的状态代码而不加载视频）。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。</li></ul></li><li>如果本参数的值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取封面失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
+| `type` | 本 API 回复的数据类型，详见[回复数据类型判断规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（如 `404`、`400`、`500` 等；这样做的目的是让播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应表示错误的状态代码而不加载视频）。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。</li></ul></li><li>如果本参数的值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取封面失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 | `cookie` | 获取信息时是否带 Cookie。<ul><li>如果本参数的值为 `true`，则强制带 Cookie 获取信息；</li><li>如果本参数的值为 `false`，则强制不带 Cookie 获取信息；</li><li>否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。</li></ul>本参数的值不区分大小写。<br />**示例**：获取仅对登录用户可见的视频信息：[BV16s411f7<span>x<!-- 防止 “x” 被自动转换成 “×” --></span>2](https://api.yumeharu.top/api/getvideo?vid=BV16s411f7x2&cookie=true) |
 | `force` | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。<br />**示例**：获取被退回或锁定的视频信息：[av10388](https://api.yumeharu.top/api/getvideo?vid=10388&force=true)、[av10492](https://api.yumeharu.top/api/getvideo?vid=10492&force=true) |
 
@@ -113,7 +113,7 @@
 
 本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 的最新 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**，~~并关联一个 [Vercel KV 数据库](https://vercel.com/docs/storage/vercel-kv)到部署中~~（目前该数据库已无法创建，建议使用 [Upstash](https://vercel.com/marketplace/upstash)，并修改本项目代码）。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
-### 💬回复数据类型规则
+### 💬回复数据类型判断规则
 
 与大部分其他网站的 API 不同，本项目的 API 在调用后，既可以回复 HTML，也可以回复 JSON，有些 API 可以回复图片与视频数据。
 
@@ -127,6 +127,8 @@
 | `html` 或 `page` | HTML 页面 |
 | `image`、`img`、`picture` 或 `pic` | 图片 |
 | `video` | 视频 |
+
+**建议您始终带 `type` 参数调用 API**，以确保 API 能够回复您指定的类型的数据。
 
 #### 🖇通过 `Sec-Fetch-Dest` 标头判断
 
