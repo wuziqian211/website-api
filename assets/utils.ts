@@ -169,7 +169,7 @@ export const sendJSON = (status: number, headers: Headers, data: InternalAPIResp
   headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   headers.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
   headers.set('X-Api-Status-Code', data.code.toString());
-  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo, apiExecTime } }), { status, headers });
+  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo: upstreamServerResponseInfo.length ? upstreamServerResponseInfo : undefined, apiExecTime } }), { status, headers });
 };
 export const send = (status: number, headers: Headers, data: BodyInit): Response => { // 发送其他数据到客户端
   if (timer) {
