@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin';
 
 export default [
-  { files: ['**/*.{js,mjs,cjs,ts}'] },
+  { files: ['**/*.{js,mjs,cjs,ts}'], languageOptions: { globals: globals.node } },
   { files: ['assets/main.js'], languageOptions: { globals: globals.browser, sourceType: 'script' } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -20,7 +20,6 @@ export default [
       'arrow-body-style': 'error',
       'block-scoped-var': 'error',
       camelcase: 'warn',
-      'capitalized-comments': 'error',
       'class-methods-use-this': 'error',
       'consistent-return': 'error',
       'consistent-this': 'error',
@@ -38,7 +37,6 @@ export default [
       'id-length': 'warn',
       'id-match': 'error',
       'logical-assignment-operators': 'error',
-      'new-cap': 'error',
       'no-alert': 'error',
       'no-array-constructor': 'error',
       'no-async-promise-executor': 'warn',
@@ -125,7 +123,7 @@ export default [
       yoda: 'error',
       '@typescript-eslint/no-empty-object-type': ['error', { allowObjectTypes: 'always' }],
       '@stylistic/arrow-parens': ['error', 'as-needed'],
-      '@stylistic/indent': ['error', 2, { SwitchCase: 1, VariableDeclarator: 'first' }],
+      '@stylistic/indent': ['error', 2, { flatTernaryExpressions: true, SwitchCase: 1, VariableDeclarator: 'first' }],
       '@stylistic/max-statements-per-line': ['error', { max: 2 }],
       '@stylistic/multiline-ternary': 'warn',
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],

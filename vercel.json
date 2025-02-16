@@ -2,7 +2,7 @@
   "functions": {
     "api/request.ts": {
       "memory": 256,
-      "maxDuration": 30
+      "maxDuration": 16
     }
   },
   "headers": [
@@ -21,6 +21,7 @@
       ]
     }
   ],
+  "installCommand": "npm install --only=production",
   "redirects": [
     { "source": "/", "destination": "https://www.yumeharu.top/" }
   ]

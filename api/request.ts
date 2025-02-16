@@ -1,12 +1,10 @@
 import type { BodyInit } from 'undici-types';
 
-type resolveFn<Type> = (returnValue: Type) => void;
-
 import util from 'node:util';
 
 const encodeHTML = (str: string | null): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
 
-export const GET = (req: Request): Promise<Response> => new Promise(async (resolve: resolveFn<Response>): Promise<void> => {
+export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
   const params = new URL(req.url).searchParams;
   try {
     const headers = new Headers(req.headers), urlParam = params.get('url'), respHeaders = new Headers();
