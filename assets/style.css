@@ -9,9 +9,6 @@
   --secondary-color: #777;
 }
 
-span.description {
-  color: var(--secondary-color);
-}
 a {
   color: var(--highlight-color);
 }
@@ -20,7 +17,7 @@ a:hover {
 }
 
 * {
-  font-family: Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Lato, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   max-width: 100%;
   overflow-wrap: anywhere;
   text-align: justify;
@@ -73,6 +70,9 @@ div.header > div.left {
   flex: 1;
   font-size: 24px;
 }
+span.description {
+  color: var(--secondary-color);
+}
 div.header > div.left > span.description {
   font-size: 14px;
 }
@@ -86,6 +86,7 @@ main {
 }
 main.loading {
   animation-name: fadeOut;
+  transform-origin: initial;
 }
 a {
   text-decoration: underline dotted var(--anchor-decoration-color);
@@ -104,24 +105,27 @@ footer {
   text-align: center;
 }
 
-@media (max-width: 1439px) {
+@media (max-width: 1440px) {
   div.header, main {
     width: 900px;
   }
 }
-@media (max-width: 959px) {
+@media (max-width: 960px) {
   div.header {
+    margin: 0 10px;
     width: auto;
   }
+  main {
+    margin: 10px;
+    width: auto;
+  }
+}
+@media (max-width: 720px) {
   div.header > div.left {
     text-align: center;
   }
   div.header > div.left > span.description, div.header > div.right {
     display: none;
-  }
-  main {
-    margin: 10px;
-    width: auto;
   }
 }
 

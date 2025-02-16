@@ -20,7 +20,7 @@ export default (req: Request): Response => {
           <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
           <title>页面不存在 | 晨叶梦春的小屋</title>
           <link rel="stylesheet" href="/assets/style.css" />
-          <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+          <link rel="shortcut icon" href="/favicon.ico" />
           <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
         </head>
         <body>
@@ -38,7 +38,7 @@ export default (req: Request): Response => {
             © 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春
           </footer>
         </body>
-      </html>`.replace(/[ \r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
+      </html>`.replace(/[ \r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
   } else if (host === 'yumeharu.top') {
     const url = `https://www.yumeharu.top${requestPath}`;
     return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });

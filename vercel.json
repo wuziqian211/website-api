@@ -6,10 +6,12 @@
         { "key": "Content-Security-Policy", "value": "default-src 'none'; img-src 'self'; media-src 'self'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'" },
         { "key": "Referrer-Policy", "value": "same-origin" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     }
   ],
+  "installCommand": "npm install --only=production",
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/redirect.ts" }
   ]
