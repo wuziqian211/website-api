@@ -1,4 +1,4 @@
-import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, APIResponse, InternalAPIResponse, JSON_, NavData } from './types.d.ts';
+import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, upstreamServerResponseInfo, InternalAPIResponse, APIResponse, JSON_, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 declare const JSON: JSON_; // 含有 Stage 3 接口定义
@@ -37,6 +37,7 @@ import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
+const upstreamServerResponseInfo: upstreamServerResponseInfo[] = []; // 上游服务器返回的信息
 let cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, timer: NodeJS.Timeout | undefined, startTime: millisecondLevelTimestamp;
 export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType; isResponseTypeSpecified: boolean } => { // 初始化 API
   startTime = performance.now();
@@ -120,10 +121,10 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
     clearTimeout(timer);
     timer = undefined;
   }
-  const execTime = performance.now() - startTime;
+  const apiExecTime = performance.now() - startTime;
   headers.set('Content-Type', 'text/html; charset=utf-8');
   headers.set('Vary', 'Accept, Sec-Fetch-Dest');
-  headers.set('X-Api-Exec-Time', execTime.toFixed(3));
+  headers.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
   return new Response(`
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -150,7 +151,7 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         </main>
         <footer>
           本 API 版权：© 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春<br />
-          执行本 API 耗时 <span class="time-taken">${(execTime / 1000).toFixed(3)}</span> s<br />
+          执行本 API 耗时 <span class="time-taken">${(apiExecTime / 1000).toFixed(3)}</span> s<br />
           本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
           部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
         </footer>
@@ -163,12 +164,12 @@ export const sendJSON = (status: number, headers: Headers, data: InternalAPIResp
     clearTimeout(timer);
     timer = undefined;
   }
-  const execTime = performance.now() - startTime;
+  const apiExecTime = performance.now() - startTime;
   headers.set('Content-Type', 'application/json; charset=utf-8');
   headers.set('Vary', 'Accept, Sec-Fetch-Dest');
-  headers.set('X-Api-Exec-Time', execTime.toFixed(3));
+  headers.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
   headers.set('X-Api-Status-Code', data.code.toString());
-  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, apiExecTime: execTime } }), { status, headers });
+  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo, apiExecTime } }), { status, headers });
 };
 export const send = (status: number, headers: Headers, data: BodyInit): Response => { // 发送其他数据到客户端
   if (timer) {
@@ -364,10 +365,13 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
     urlObj.search = await encodeWbi(urlObj.search);
   }
 
+  const respStartTime = Date.now();
   const resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
+  const respEndTime = Date.now();
   if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
 
-  const json = JSONParse(await resp.text());
+  const json = <{ code: number; message: string; [key: string]: unknown }>JSONParse(await resp.text());
+  upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
   return json;
 };
 export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md

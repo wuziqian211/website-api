@@ -41,18 +41,17 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
       const cjson = <{ ts?: secondLevelTimestamp; code: number; message: string; card?: UserCardData }> await utils.callAPI('https://account.bilibili.com/api/member/getCardByMid', { params: { mid }, withCookie: true });
       if (cjson.code === 0) {
         const card = cjson.card!;
-        json = { code: 0, message: '0', data: { mid: utils.largeNumberHandler(mid), name: '', approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: 0, coins: 0, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: false, fans_medal: { show: false, wear: false, medal: null }, official: { role: 0, title: '', desc: '', type: -1 }, official_verify: { type: -1, desc: '' }, vip: { type: 0, status: 0, due_date: 0, vip_pay_type: 0, theme_type: 0, label: { path: '', text: '', label_theme: '', text_color: '', bg_style: 0, bg_color: '', border_color: '', use_img_label: true, img_label_uri_hans: '', img_label_uri_hant: '', img_label_uri_hans_static: '', img_label_uri_hant_static: '' }, avatar_subscript: 0, nickname_color: '', role: 0, avatar_subscript_url: '', tv_vip_status: 0, tv_vip_pay_type: 0, tv_due_date: 0, avatar_icon: { icon_resource: {} } }, pendant: { pid: 0, name: '', image: '', expire: 0, image_enhance: '', image_enhance_frame: '', n_pid: 0 }, nameplate: { nid: 0, name: '', image: '', image_small: '', level: '', condition: '' }, user_honour_info: { mid: 0, colour: null, tags: [], is_latest_100honour: 0 }, is_followed: false, top_photo: '', theme: {}, sys_notice: {}, live_room: null, birthday: 0, school: { name: '' }, profession: { name: '', department: '', title: '', is_show: 0 }, tags: null, series: { user_upgrade_status: 3, show_upgrade_window: false }, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: { show: false, state: -1, title: '', icon: '', jump_url: '' } }, contract: { is_display: false, is_follow_display: false }, certificate_show: false, name_render: null }, extInfo: { upstreamServerResponseInfo: [{ url: 'https://account.bilibili.com/api/member/getCardByMid', type: 'json', code: 0, message: '0' }] } };
-        json.data = { ...json.data!, ...card, mid: utils.largeNumberHandler(card.mid), rank: +card.rank, level: card.level_info.current_level, silence: <booleanNumber> +(card.spacesta === -2), following: card.attention, follower: card.fans, official: { role: 0, title: card.official_verify.desc, desc: '', type: card.official_verify.type }, pendant: { pid: card.pendant.pid, name: card.pendant.name, image: card.pendant.image, expire: card.pendant.expire, image_enhance: '', image_enhance_frame: '', n_pid: card.pendant.pid }, birthday: Math.floor(Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000) };
+        json = { code: 0, message: '0', data: { mid: utils.largeNumberHandler(mid), name: '', approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: 0, coins: 0, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: null, current_level: null, current_min: null, current_exp: null }, fans_badge: false, fans_medal: { show: false, wear: false, medal: null }, official: { role: 0, title: '', desc: '', type: -1 }, official_verify: { type: -1, desc: '' }, vip: { type: 0, status: 0, due_date: 0, vip_pay_type: 0, theme_type: 0, label: { path: '', text: '', label_theme: '', text_color: '', bg_style: 0, bg_color: '', border_color: '', use_img_label: true, img_label_uri_hans: '', img_label_uri_hant: '', img_label_uri_hans_static: '', img_label_uri_hant_static: '' }, avatar_subscript: 0, nickname_color: '', role: 0, avatar_subscript_url: '', tv_vip_status: 0, tv_vip_pay_type: 0, tv_due_date: 0, avatar_icon: { icon_resource: {} } }, pendant: { pid: 0, name: '', image: '', expire: 0, image_enhance: '', image_enhance_frame: '', n_pid: 0 }, nameplate: { nid: 0, name: '', image: '', image_small: '', level: '', condition: '' }, user_honour_info: { mid: 0, colour: null, tags: [], is_latest_100honour: 0 }, is_followed: false, top_photo: '', sys_notice: {}, live_room: null, birthday: 0, school: { name: '' }, profession: { name: '', department: '', title: '', is_show: 0 }, tags: null, series: { user_upgrade_status: 3, show_upgrade_window: false }, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: { show: false, state: -1, title: '', icon: '', jump_url: '' } }, contract: { is_display: false, is_follow_display: false }, certificate_show: false, name_render: null, top_photo_v2: { sid: 0, l_img: '', l_200h_img: '' }, theme: null, attestation: { type: 0, common_info: { title: '', prefix: '', prefix_title: '' }, splice_info: { title: '' }, icon: '', desc: '' } } };
+        json.data = { ...json.data!, ...card, mid: utils.largeNumberHandler(card.mid), rank: +card.rank, level: card.level_info.current_level, silence: <booleanNumber> +(card.spacesta === -2), following: card.attention, follower: card.fans, official: { role: 0, title: card.official_verify.desc, desc: '', type: card.official_verify.type }, pendant: { pid: card.pendant.pid, name: card.pendant.name, image: card.pendant.image, expire: card.pendant.expire, image_enhance: '', image_enhance_frame: '', n_pid: card.pendant.pid }, birthday: Math.floor(Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000), attestation: { type: card.official_verify.type === 0 ? 2 : card.official_verify.type === 1 ? 3 : 0, common_info: { title: card.official_verify.desc, prefix: card.official_verify.type === 0 ? 'bilibili UP主认证' : card.official_verify.type === 1 ? 'bilibili机构认证' : '', prefix_title: card.official_verify.type === 0 ? `bilibili UP主认证：${card.official_verify.desc}` : card.official_verify.type === 1 ? `bilibili机构认证：${card.official_verify.desc}` : '' }, splice_info: { title: card.official_verify.desc }, icon: card.official_verify.type === 0 ? 'https://i0.hdslb.com/bfs/activity-plat/static/20230828/e3b8ebec8e86f060b930a2c0536bb88b/72wejSxl9Z.png' : card.official_verify.type === 1 ? 'https://i0.hdslb.com/bfs/activity-plat/static/20230828/e3b8ebec8e86f060b930a2c0536bb88b/QFMyNuatvi.png' : '', desc: '' } };
         if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 而无需调用下面的 API 即可获取头像地址
           const ujson = <APIResponse<UserInfoData>> await utils.callAPI('https://api.bilibili.com/x/space/wbi/acc/info', { params: { mid, token: '', web_location: 1550101 }, wbiSign: true, withCookie: true });
           if (ujson.code === 0) {
             json.message = ujson.message;
             json.data = { ...json.data, ...ujson.data, is_followed: false, birthday: Date.parse(`${card.birthday}T00:00:00+08:00`) / 1000 };
           }
-          json.extInfo!.upstreamServerResponseInfo!.push({ url: 'https://api.bilibili.com/x/space/wbi/acc/info', type: 'json', code: ujson.code, message: ujson.message });
         }
       } else {
-        json = { code: cjson.code, message: cjson.message, data: null, extInfo: { upstreamServerResponseInfo: [{ url: 'https://account.bilibili.com/api/member/getCardByMid', type: 'json', code: cjson.code, message: cjson.message }] } };
+        json = { code: cjson.code, message: cjson.message, data: null };
       }
 
       switch (responseType) {
@@ -133,7 +132,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   if (fetchDest === 1) {
                     sendHTML(404, { title: `获取 ${data.name} 的头像数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(data.name)} 的头像数据失败，请稍后重试 awa`, mid: requestMid });
                   } else {
-                    sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(data.face), type: 'image', status: resp.status }] } });
+                    sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
                   }
                 } else {
                   respHeaders.set('Content-Type', 'image/jpeg');
@@ -188,83 +187,58 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
         return;
       }
 
-      const cjson = <APIResponse<UserCardsData>> await utils.callAPI('https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: mids.join(',') }, withCookie: true });
-      if (cjson.code === 0) {
-        const restUsers = [...mids], jsonList: Promise<APIResponse<UsersInfoData>>[] = [], usersInfo: UsersInfoItem[] = [];
-        while (restUsers.length) {
-          jsonList.push(<Promise<APIResponse<UsersInfoData>>> utils.callAPI('https://api.vc.bilibili.com/account/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
-          restUsers.splice(0, 50);
-        }
-        for await (const ujson of jsonList) {
-          if (ujson.code === 0) usersInfo.push(...ujson.data);
-        }
-        usersInfo.forEach(i => i.mid in cjson.data && Object.assign(cjson.data[i.mid], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
+      const restUsers = [...mids], data: InternalAPIGetUsersInfoData = {},
+            cjsonList: Promise<APIResponse<UserCardsData>>[] = [], ujsonList: Promise<APIResponse<UsersInfoData>>[] = [],
+            usersInfo: UsersInfoItem[] = [];
+      while (restUsers.length) {
+        cjsonList.push(<Promise<APIResponse<UserCardsData>>> utils.callAPI('https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
+        ujsonList.push(<Promise<APIResponse<UsersInfoData>>> utils.callAPI('https://api.vc.bilibili.com/account/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
+        restUsers.splice(0, 50);
       }
+      for await (const cjson of cjsonList) {
+        if (cjson.code === 0) Object.assign(data, cjson.data);
+      }
+      for await (const ujson of ujsonList) {
+        if (ujson.code === 0) usersInfo.push(...ujson.data);
+      }
+      usersInfo.forEach(i => i.mid in data && Object.assign(data[i.mid], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
 
       if (responseType === 1) { // 回复 HTML
-        switch (cjson.code) {
-          case 0: {
-            const data = <InternalAPIGetUsersInfoData> cjson.data, ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
-            const content = `
-              <div class="grid user-list">
-                ${Object.values(data).map(u => `
-                <div class="grid-item main-info-outer" id="user-${u.mid}" style="background-image: url(${utils.toHTTPS(u.face)});">
-                  <div class="main-info-inner image">
-                    <div class="image-wrap${u.pendant?.pid ? ' has-frame' : ''}">
-                      <img class="face" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" />
-                      ${u.pendant?.pid ? `<img class="face-frame" alt title="${utils.encodeHTML(u.pendant.name)}" src="${utils.toHTTPS(u.pendant.image_enhance || u.pendant.image)}" />` : ''}
-                      ${u.face_nft ? `<img class="face-icon icon-face-nft${[0, 1].includes(u.official.type) || u.vip.status ? ' second' : ''}" alt title="数字藏品" />` : ''}
-                      ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
-                    </div>
-                    <div class="detail">
-                      <strong>${utils.encodeHTML(u.name)}</strong>
-                      ${'level' in u ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${u.level}" title="${u.level} 级" src="/assets/level_${u.level}.svg" /></a>` : ''}
-                      ${u.vip.status ? u.vip.label.use_img_label && (u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(u.vip.label.text)}" title="${utils.encodeHTML(u.vip.label.text)}（过期时间：${utils.getDate(+u.vip.due_date / 1000)}）" src="${utils.toHTTPS(u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${u.vip.label.bg_color ? `background: ${utils.encodeHTML(u.vip.label.bg_color)};` : ''}${u.vip.label.text_color ? `color: ${utils.encodeHTML(u.vip.label.text_color)};` : ''}">${utils.encodeHTML(u.vip.label.text)}</a>` : ''}
-                      <br />
-                      <span class="description">UID：${u.mid}</span>${u.silence ? ' <span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span>' : ''}
-                      <br />
-                      ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${u.official.title ? '：' : ''}</strong>${utils.encodeHTML(u.official.title)}${u.official.desc ? `<span class="description">（${utils.encodeHTML(u.official.desc)}）</span>` : ''}<br />` : ''}
-                      ${'rank' in u ? `<strong>用户权限等级：</strong>${u.rank in ranks ? `${ranks[u.rank]}（${u.rank}）` : u.rank}<br />` : ''}
-                      ${'sign' in u ? `<span class="description">${utils.markText(u.sign)}</span>` : ''}
-                    </div>
-                    <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
+        if (Object.keys(data).length) {
+          const ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
+          const content = `
+            <div class="grid user-list">
+              ${Object.values(data).map(u => `
+              <div class="grid-item main-info-outer" id="user-${u.mid}" style="background-image: url(${utils.toHTTPS(u.face)});">
+                <div class="main-info-inner image">
+                  <div class="image-wrap">
+                    <img class="face" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" />
+                    ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
                   </div>
-                </div>`).join('')}
-              </div>`;
-            sendHTML(200, { title: `${mids.length <= 3 ? `${Object.values(data).map(u => u.name).join('、')} ` : `${mids.length} 个用户`}的信息`, imageBackground: '/assets/top-photo.png', content, mid: requestMid });
-            break;
-          }
-          case -352:
-          case -401:
-          case -403:
-          case -412:
-          case -509:
-          case -799:
-            respHeaders.set('Retry-After', '600');
-            sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', mid: requestMid });
-            break;
-          default:
-            sendHTML(400, { title: '获取用户信息失败', newStyle: true, content: '获取用户信息失败，请稍后重试 awa', mid: requestMid });
+                  <div class="detail">
+                    <strong>${utils.encodeHTML(u.name)}</strong>
+                    ${'level' in u ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${u.level}" title="${u.level} 级" src="/assets/level_${u.level}.svg" /></a>` : ''}
+                    ${u.vip.status ? u.vip.label.use_img_label && (u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(u.vip.label.text)}" title="${utils.encodeHTML(u.vip.label.text)}（过期时间：${utils.getDate(+u.vip.due_date / 1000)}）" src="${utils.toHTTPS(u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${u.vip.label.bg_color ? `background: ${utils.encodeHTML(u.vip.label.bg_color)};` : ''}${u.vip.label.text_color ? `color: ${utils.encodeHTML(u.vip.label.text_color)};` : ''}">${utils.encodeHTML(u.vip.label.text)}</a>` : ''}
+                    <br />
+                    <span class="description">UID：${u.mid}</span>${u.silence ? ' <span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span>' : ''}
+                    <br />
+                    ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${u.official.title ? '：' : ''}</strong>${utils.encodeHTML(u.official.title)}${u.official.desc ? `<span class="description">（${utils.encodeHTML(u.official.desc)}）</span>` : ''}<br />` : ''}
+                    ${'rank' in u ? `<strong>用户权限等级：</strong>${u.rank in ranks ? `${ranks[u.rank]}（${u.rank}）` : u.rank}<br />` : ''}
+                    ${'sign' in u ? `<span class="description">${utils.markText(u.sign)}</span>` : ''}
+                  </div>
+                  <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>
+                </div>
+              </div>`).join('')}
+            </div>`;
+          sendHTML(200, { title: `${mids.length <= 3 ? `${Object.values(data).map(u => u.name).join('、')} ` : `${mids.length} 个用户`}的信息`, imageBackground: '/assets/top-photo.png', content, mid: requestMid });
+        } else {
+          sendHTML(400, { title: '获取用户信息失败', newStyle: true, content: '获取用户信息失败，请稍后重试 awa', mid: requestMid });
         }
       } else { // 回复 JSON（目前暂时无法回复图片数据）
-        switch (cjson.code) {
-          case 0:
-            sendJSON(200, { code: 0, message: cjson.message, data: <InternalAPIGetUsersInfoData> cjson.data, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', type: 'json', code: 0, message: cjson.message }] } });
-            break;
-          case -352:
-          case -401:
-          case -403:
-          case -412:
-          case -509:
-          case -799:
-            respHeaders.set('Retry-After', '600');
-            sendJSON(429, { code: cjson.code, message: cjson.message, data: null, extInfo: { errType: 'upstreamServerRequestBanned' } });
-            break;
-          case -404:
-            sendJSON(404, { code: -404, message: cjson.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
-            break;
-          default:
-            sendJSON(400, { code: cjson.code, message: cjson.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
+        if (Object.keys(data).length) {
+          sendJSON(200, { code: 0, message: '0', data });
+        } else {
+          sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'upstreamServerNoData' } });
         }
       }
     } else { // UID 无效

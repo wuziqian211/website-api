@@ -65,7 +65,7 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
                   sendJSON(400, { code: -400, message: `${json.code}: ${json.message}`, data: null, extInfo: { errType: 'upstreamServerInvalidRequest' } });
                 }
               } else {
-                sendJSON(500, { code: -500, message: 'upload image failed', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: 'https://smms.app/api/v2/upload', type: 'upload', status: resp.status }] } });
+                sendJSON(500, { code: -500, message: 'upload image failed', data: null, extInfo: { errType: 'upstreamServerRespError' } });
               }
             } else {
               sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
@@ -89,7 +89,7 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                 send(200, resp.body);
               } else {
-                sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: 'https://q1.qlogo.cn/headimg_dl', type: 'image', status: resp.status }] } });
+                sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
               }
             } else {
               sendJSON(404, { code: -404, message: 'hash not found', data: null, extInfo: { errType: 'internalServerNoData' } });

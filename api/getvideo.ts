@@ -94,7 +94,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
               if (info2) info = info2;
             }
-            json = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, tid: null, tname: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0 }, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/x/v2/history', type: 'json', code: 0, message: '0' }] } };
+            json = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, tid: null, tname: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0 } };
             json.data = { ...json.data!, ...info, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vt: 0, vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid ?? 0, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined }; // 加入缺失的信息，移除“不该出现”的信息
           } else {
             json = { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'notFoundInHistory' } };
@@ -257,7 +257,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     if (fetchDest === 1) {
                       sendHTML(404, { title: `获取 ${data.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(data.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                     } else {
-                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(data.pic), type: 'image', status: resp.status }] } });
+                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
                     }
                   } else {
                     respHeaders.set('Content-Type', 'image/png');
@@ -352,7 +352,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           default: // 回复 JSON
             switch (json.code) {
               case 0:
-                sendJSON(200, { code: 0, message: json.message, data: json.data, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/x/web-interface/wbi/view', type: 'json', code: 0, message: json.message }] } });
+                sendJSON(200, { code: 0, message: json.message, data: json.data });
                 break;
               case -352:
               case -401:
@@ -438,7 +438,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     if (fetchDest === 1) {
                       sendHTML(404, { title: `获取 ${result.media.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(result.media.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                     } else {
-                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(result.media.cover), type: 'image', status: resp.status }] } });
+                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
                     }
                   } else {
                     respHeaders.set('Content-Type', 'image/png');
@@ -477,7 +477,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           default: // 回复 JSON
             switch (json.code) {
               case 0:
-                sendJSON(200, { code: 0, message: json.message, data: json.result, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/pgc/review/user', type: 'json', code: 0, message: json.message }] } });
+                sendJSON(200, { code: 0, message: json.message, data: json.result });
                 break;
               case -352:
               case -401:
@@ -644,7 +644,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     if (fetchDest === 1) {
                       sendHTML(404, { title: `获取 ${result.title} 的封面数据失败`, newStyle: true, content: `获取 ${utils.encodeHTML(result.title)} 的封面数据失败，请稍后重试 awa`, vid: requestVid });
                     } else {
-                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError', upstreamServerResponseInfo: [{ url: utils.toHTTPS(result.title), type: 'image', status: resp.status }] } });
+                      sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
                     }
                   } else {
                     respHeaders.set('Content-Type', 'image/png');
@@ -756,7 +756,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           default: // 回复 JSON
             switch (json.code) {
               case 0:
-                sendJSON(200, { code: 0, message: json.message, data: json.result, extInfo: { upstreamServerResponseInfo: [{ url: 'https://api.bilibili.com/pgc/view/web/season', type: 'json', code: 0, message: json.message }] } });
+                sendJSON(200, { code: 0, message: json.message, data: json.result });
                 break;
               case -352:
               case -401:

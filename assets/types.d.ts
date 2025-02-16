@@ -7,15 +7,30 @@ export type secondLevelTimestamp = number; // 秒级时间戳
 export type millisecondLevelTimestamp = number; // 毫秒级时间戳
 export type microsecondLevelTimestamp = number; // 微秒级时间戳
 export type hexColor = `#${string}`; // 十六进制颜色代码
+export type upstreamServerResponseInfo = { // 上游服务器返回的信息
+  url: url;
+  method: string;
+  type: 'json';
+  startTime: millisecondLevelTimestamp;
+  endTime: millisecondLevelTimestamp;
+  status: number;
+  code: number;
+  message: string;
+} | {
+  url: url;
+  method: string;
+  type: string;
+  startTime: millisecondLevelTimestamp;
+  endTime: millisecondLevelTimestamp;
+  status: number;
+};
 export interface InternalAPIResponse<dataType> { // 内部 API 返回的 JSON 数据结构
   code: number;
   message: string;
   data: dataType;
   extInfo?: {
     errType?: string;
-    upstreamServerResponseInfo?: (
-      { url: url; type: 'json'; code: number; message: string } | { url: url; type: string; status: number }
-    )[];
+    upstreamServerResponseInfo?: upstreamServerResponseInfo[];
     apiExecTime?: number;
     [key: string]: unknown;
   };
@@ -92,7 +107,7 @@ export interface UserCardData {
   coins: 0;
   DisplayRank: numericString;
   regtime: 0;
-  spacesta: -10 /* 注销（不一定，已经发现一些未注销的账号的此属性为 -10） */ | -2 /* 被封禁 */ | 0 /* 正常 */ | 2 /* （？） */;
+  spacesta: -10 /* 未绑定手机（？） */ | -2 /* 被封禁 */ | 0 /* 正常 */ | 2 /* （？） */;
   place: '';
   birthday: `${number}-${number}-${number}`;
   sign: string;
@@ -151,9 +166,8 @@ export interface UserInfoData {
   pendant: { pid: number; name: string; image: url; expire: 0; image_enhance: url; image_enhance_frame: url; n_pid: number };
   nameplate: { nid: number; name: string; image: url; image_small: url; level: string; condition: string };
   user_honour_info: { mid: 0; colour: null; tags: []; is_latest_100honour: 0 };
-  is_followed: false;
+  is_followed: boolean;
   top_photo: url;
-  theme: {};
   sys_notice: {} | { id: number; content: string; url: url; notice_type: 1 | 2; icon: url; text_color: '' | hexColor; bg_color: '' | hexColor };
   live_room: null | {
     roomStatus: booleanNumber;
@@ -183,35 +197,36 @@ export interface UserInfoData {
     colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
     render_scheme: 'Default' | 'Colorful';
   };
+  top_photo_v2: {
+    sid: number;
+    l_img: url;
+    l_200h_img: url;
+  };
+  theme: null;
+  attestation: {
+    type: 0 /* 无认证 */ | 1 /* 专业认证 */ | 2 /* UP 主认证 */ | 3 /* 机构认证 */;
+    common_info: { title: string; prefix: string; prefix_title: string };
+    splice_info: { title: string };
+    icon: url;
+    desc: string;
+  };
 }
 
 // c. 多用户信息数据（https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards）
 interface UserCardsItem {
-  face: url;
-  face_nft: booleanNumber;
-  face_nft_new: booleanNumber;
   mid: numericString;
+  face: url;
   name: string;
-  name_render: null | {
-    colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
-    render_scheme: 'Default' | 'Colorful';
-  };
-  nameplate: null | { condition: string; image: url; image_small: url; level: string; name: string; nid: number };
   official: { desc: string; role: officialRole; title: string; type: officialType };
-  pendant: null | {
-    expire: '0';
-    image: url;
-    image_enhance: url;
-    image_enhance_frame: url;
-    n_pid: numericString;
-    name: string;
-    pid: number;
-  };
   vip: {
-    avatar_icon: null | { icon_resource: null; icon_type: string };
     avatar_subscript: 0 | 1 | 2;
     avatar_subscript_url: url;
     due_date: numericString;
+    nickname_color: '' | hexColor;
+    role: `${VIPRole}`;
+    status: booleanNumber;
+    theme_type: 0;
+    type: VIPType;
     label: {
       bg_color: '' | hexColor;
       bg_style: 0 | 1;
@@ -226,15 +241,6 @@ interface UserCardsItem {
       text_color: '' | hexColor;
       use_img_label: true;
     };
-    nickname_color: '' | hexColor;
-    role: `${VIPRole}`;
-    status: booleanNumber;
-    theme_type: 0;
-    tv_due_date: numericString;
-    tv_vip_pay_type: 0 | 1;
-    tv_vip_status: booleanNumber;
-    type: VIPType;
-    vip_pay_type: 0 | 1;
   };
 }
 export type UserCardsData = Record<number, UserCardsItem>;
@@ -290,7 +296,6 @@ export interface InternalAPIGetUserInfoData {
   user_honour_info: UserInfoData['user_honour_info'];
   is_followed: false;
   top_photo: url;
-  theme: UserInfoData['theme'];
   sys_notice: UserInfoData['sys_notice'];
   live_room: UserInfoData['live_room'];
   birthday: secondLevelTimestamp;
@@ -307,6 +312,9 @@ export interface InternalAPIGetUserInfoData {
   contract: UserInfoData['contract'];
   certificate_show: false;
   name_render: UserInfoData['name_render'];
+  top_photo_v2: UserInfoData['top_photo_v2'];
+  theme: null;
+  attestation: UserInfoData['attestation'];
 }
 
 // f. “获取哔哩哔哩用户信息”接口回应的多用户数据（/api/getuser）
@@ -327,7 +335,7 @@ interface Dimension { // 视频分辨率信息
   height: number;
   rotate: booleanNumber;
 }
-type PageInfo = ({
+type PageInfo = {
   cid: number;
   page: number;
   from: 'vupload';
@@ -347,7 +355,7 @@ type PageInfo = ({
   weblink: url;
   dimension: Dimension;
   first_frame?: url;
-});
+};
 
 // a. 历史记录数据（https://api.bilibili.com/x/v2/history）
 interface HistoryItem { // 此处仅定义视频信息数据结构

@@ -177,10 +177,13 @@
 | 字段 | 类型 | 说明 |
 | :--: | :--: | ---- |
 | `url` | string | 请求的上游服务器 URL。 |
+| `method` | string | 请求方法，如 `GET`、`POST` 等。 |
 | `type` | string | 请求类型，值可以是 `json`、`image` 等。 |
+| `startTime` | number | 请求开始的时间戳（毫秒级）。 |
+| `endTime` | number | 请求结束的时间（毫秒级）。 |
+| `status` | number | 上游服务器回复的 HTTP 状态代码。 |
 | `code` | number | 上游服务器的返回值，仅当 `type` 的值为 `json` 时出现。 |
 | `message` | string | 上游服务器回复的错误信息，仅当 `type` 的值为 `json` 时出现。 |
-| `status` | number | 上游服务器回复的 HTTP 状态代码，仅当 `type` 的值不为 `json` 时出现。 |
 
 <details>
 <summary>查看响应示例</summary>
@@ -213,11 +216,11 @@
     "coins": 0,
     "article": 0,
     "attentions": [], // 因涉及隐私，此处隐藏具体数据
-    "fans": 1169060,
-    "friend": 355,
-    "attention": 355,
-    "following": 355,
-    "follower": 1169060,
+    "fans": 1186752,
+    "friend": 368,
+    "attention": 368,
+    "following": 368,
+    "follower": 1186752,
     "level_info": {
       "next_exp": -1,
       "current_level": 6,
@@ -252,7 +255,7 @@
     "vip": {
       "type": 2,
       "status": 1,
-      "due_date": 3979555200000,
+      "due_date": 3990268800000,
       "vip_pay_type": 0,
       "theme_type": 0,
       "label": {
@@ -290,30 +293,29 @@
     "nameplate": {
       "nid": 10,
       "name": "见习偶像",
-      "image": "https://i1.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
-      "image_small": "https://i0.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
+      "image": "https://i2.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
+      "image_small": "https://i2.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
       "level": "普通勋章",
       "condition": "所有自制视频总播放数>=10万"
     },
     "user_honour_info": { "mid": 0, "colour": null, "tags": [], "is_latest_100honour": 0 },
     "is_followed": false,
-    "top_photo": "http://i2.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
-    "theme": {},
+    "top_photo": "http://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
     "sys_notice": {},
     "live_room": {
       "roomStatus": 1,
       "liveStatus": 0,
       "url": "https://live.bilibili.com/1024?broadcast_type=0&is_room_feed=0",
       "title": "试图恰鸡",
-      "cover": "http://i0.hdslb.com/bfs/live/new_room_cover/96ee5bfd0279a0f18b190340334f43f473038288.jpg",
+      "cover": "https://i0.hdslb.com/bfs/live/new_room_cover/96ee5bfd0279a0f18b190340334f43f473038288.jpg",
       "roomid": 1024,
       "roundStatus": 0,
       "broadcast_type": 0,
       "watched_show": {
         "switch": true,
-        "num": 3,
-        "text_small": "3",
-        "text_large": "3人看过",
+        "num": 5,
+        "text_small": "5",
+        "text_large": "5人看过",
         "icon": "https://i0.hdslb.com/bfs/live/a725a9e61242ef44d764ac911691a7ce07f36c1d.png",
         "icon_location": "",
         "icon_web": "https://i0.hdslb.com/bfs/live/8d9d0f33ef8bf6f308742752d13dd0df731df19c.png"
@@ -332,13 +334,44 @@
     "elec": { "show_info": { "show": true, "state": 1, "title": "", "icon": "", "jump_url": "?oid=2" } },
     "contract": { "is_display": false, "is_follow_display": false },
     "certificate_show": false,
-    "name_render": null
+    "name_render": null,
+    "top_photo_v2": {
+      "sid": 1,
+      "l_img": "https://i1.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+      "l_200h_img": "https://i2.hdslb.com/bfs/activity-plat/static/0977767b2e79d8ad0a36a731068a83d7/1sz3p8w2Sk.png"
+    },
+    "theme": null,
+    "attestation": {
+      "type": 2,
+      "common_info": {
+        "title": "bilibili创始人（站长）",
+        "prefix": "bilibili UP主认证",
+        "prefix_title": "bilibili UP主认证：bilibili创始人（站长）"
+      },
+      "splice_info": { "title": "bilibili创始人（站长）" },
+      "icon": "https://i0.hdslb.com/bfs/activity-plat/static/20230828/e3b8ebec8e86f060b930a2c0536bb88b/72wejSxl9Z.png",
+      "desc": ""
+    }
   },
   "extInfo": { // 扩展信息
-    "upstreamServerResponseInfo": [ // 上游服务器返回的信息
-      { "url": "https://account.bilibili.com/api/member/getCardByMid", "type": "json", "code": 0, "message": "0" },
-      { "url": "https://api.bilibili.com/x/space/wbi/acc/info", "type": "json", "code": 0, "message": "0" }
-    ],
+    "upstreamServerResponseInfo": [{ // 上游服务器返回的信息
+      "url": "https://account.bilibili.com/api/member/getCardByMid?mid=2",
+      "method": "GET",
+      "type": "json",
+      "startTime": 1739717704318,
+      "endTime": 1739717705836,
+      "status": 200,
+      "code": 0
+    }, {
+      "url": "https://api.bilibili.com/x/space/wbi/acc/info?gaia_source=main_web&mid=2&platform=web&token=&w_webid=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzcG1faWQiOiIzMzMuOTk5IiwiYnV2aWQiOiJBMTlDRThDMS00OTJCLTVBRTgtRTk1Mi1GNjY5OTg4NTc1RjIwNzQxNmluZm9jIiwidXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChYMTE7IExpbnV4IHg4Nl82NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzEyMy4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiY3JlYXRlZF9hdCI6MTczOTcxNzcwNywidHRsIjo4NjQwMCwidXJsIjoiLzIwOTU0OTgyMTgiLCJyZXN1bHQiOjAsIm4iOjksIm0iOjEsImlzcyI6ImdhaWEiLCJpYXQiOjE3Mzk3MTc3MDd9.hrXcse32qjr-Jq_I3Uv6_kb4m8PjndH_G0rHfaeXPbjv-3fy3aTp7gt3jlTMWxBuvK7iLGA7omUPhIj5i2pw0BVym6coOpm82wQi762n1iE_7_fjcrOUyo8hSEx6oW3GSzbUepYwF09yWeoZ0lcYMVzGHxYHI2yTwa64joVcwv5Rdb6k-suO_xoU0_r1UsY4bnovSu-eTBnz8-j7PD1lH1E-Nw_lcIZ0rk2ZewI12cx_DZUmNOfSPTIN6zEdOgsjvkU14EcalC-3YHSqYSMazZtFXqmzbqJHForj-N1E442n1WcgW5-69NKVUlvlIEn3TPcmRfYV3Nr7C29WqgKA9w&web_location=1550101&wts=1739717708&x-bili-device-req-json=%7B%22platform%22%3A%22web%22%2C%22device%22%3A%22pc%22%7D&w_rid=fb7aab19b80846807df519c1ef8bcc77",
+      "method": "GET",
+      "type": "json",
+      "startTime": 1739717708277,
+      "endTime": 1739717708383,
+      "status": 200,
+      "code": 0,
+      "message": "0"
+    }],
     "apiExecTime": 745.896267 // 调用 API 耗时（单位：毫秒）
   }
 }
