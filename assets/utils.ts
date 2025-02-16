@@ -39,6 +39,7 @@ import md5 from 'md5';
 
 let startTime: millisecondLevelTimestamp, timer: NodeJS.Timeout | undefined,
     cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, upstreamServerResponseInfo: upstreamServerResponseInfo[] = [];
+
 export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType; isResponseTypeSpecified: boolean } => { // 初始化 API
   startTime = performance.now();
   upstreamServerResponseInfo = [];
@@ -231,7 +232,32 @@ export const redirect = (status: number, redirectUrl: url, noCache?: boolean): R
   }
   return sendJSON(status, headers, { code: status, message: 'redirect', data: { url: redirectUrl }, extInfo: { redirectUrl } });
 };
+
+export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
+  if (typeof ts !== 'number' || ts === 0) return '未知';
+  const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
+  return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+};
+export const getTime = (s: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
+export const getNumber = (n: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
+export const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString>s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
 export const encodeHTML = (str?: string): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
+export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
+  if (!targetUrl) return 'data:,';
+  const urlObj = URL.parse(targetUrl);
+  if (urlObj) {
+    urlObj.protocol = 'https:';
+    return urlObj.href;
+  } else {
+    return targetUrl;
+  }
+};
+export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或过小的数字将会被转换成 BigInt 或文本）
+  if (typeof text !== 'string') return text;
+  return JSON.parse(text, (key, value, { source }) => typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
+};
+export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
+
 export const markText = (str: string): string => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
@@ -262,29 +288,6 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   }
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
-export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
-  if (!targetUrl) return 'data:,';
-  const urlObj = URL.parse(targetUrl);
-  if (urlObj) {
-    urlObj.protocol = 'https:';
-    return urlObj.href;
-  } else {
-    return targetUrl;
-  }
-};
-export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或过小的数字将会被转换成 BigInt 或文本）
-  if (typeof text !== 'string') return text;
-  return JSON.parse(text, (key, value, { source }) => typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
-};
-export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
-export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
-  if (typeof ts !== 'number' || ts === 0) return '未知';
-  const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
-  return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
-};
-export const getTime = (s: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
-export const getNumber = (n: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-export const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString>s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
 export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
   const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
   const base = BigInt(alphabet.length);
@@ -313,24 +316,6 @@ export const getRequestInfo = (): RequestInfo => {
     cachedRequestInfo = { userAgent, SESSDATA: SESSDATA!, csrf: csrf!, loginHeaders: new Headers({ Cookie: `SESSDATA=${SESSDATA}; bili_jct=${csrf}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }), normalHeaders: new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }) };
   }
   return cachedRequestInfo;
-};
-export const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
-  if (typeof vid !== 'string' || !vid) return { type: -1, vid: undefined };
-  if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
-    return { type: 1, vid: toBV(vid.slice(2)) };
-  } else if (/^\d+$/.test(vid) && BigInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
-    return { type: 1, vid: toBV(vid) };
-  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
-    return { type: 1, vid: `BV${vid.slice(2)}` };
-  } else if (/^md\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
-    return { type: 2, vid: BigInt(vid.slice(2)) };
-  } else if (/^ss\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 ssid
-    return { type: 3, vid: BigInt(vid.slice(2)) };
-  } else if (/^ep\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 epid
-    return { type: 4, vid: BigInt(vid.slice(2)) };
-  } else { // 编号无效
-    return { type: -1, vid: undefined };
-  }
 };
 export const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
   const urlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
@@ -366,14 +351,32 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
     urlObj.search = await encodeWbi(urlObj.search);
   }
 
-  const respStartTime = Date.now();
-  const resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
+  const respStartTime = Date.now(),
+        resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
   const respEndTime = Date.now();
   if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
 
-  const json = <{ code: number; message: string; [key: string]: unknown }>JSONParse(await resp.text());
+  const json = <{ code?: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
   upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
   return json;
+};
+export const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
+  if (typeof vid !== 'string' || !vid) return { type: -1, vid: undefined };
+  if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
+    return { type: 1, vid: toBV(vid.slice(2)) };
+  } else if (/^\d+$/.test(vid) && BigInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
+    return { type: 1, vid: toBV(vid) };
+  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
+    return { type: 1, vid: `BV${vid.slice(2)}` };
+  } else if (/^md\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
+    return { type: 2, vid: BigInt(vid.slice(2)) };
+  } else if (/^ss\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 ssid
+    return { type: 3, vid: BigInt(vid.slice(2)) };
+  } else if (/^ep\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 epid
+    return { type: 4, vid: BigInt(vid.slice(2)) };
+  } else { // 编号无效
+    return { type: -1, vid: undefined };
+  }
 };
 export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
   const keys = await getWbiKeys();

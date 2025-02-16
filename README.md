@@ -180,7 +180,7 @@
 | `method` | string | 请求方法，如 `GET`、`POST` 等。 |
 | `type` | string | 请求类型，值可以是 `json`、`image` 等。 |
 | `startTime` | number | 请求开始的时间戳（毫秒级）。 |
-| `endTime` | number | 请求结束的时间（毫秒级）。 |
+| `endTime` | number | 请求结束的时间戳（毫秒级）。 |
 | `status` | number | 上游服务器回复的 HTTP 状态代码。 |
 | `code` | number | 上游服务器的返回值，仅当 `type` 的值为 `json` 时出现。 |
 | `message` | string | 上游服务器回复的错误信息，仅当 `type` 的值为 `json` 时出现。 |
