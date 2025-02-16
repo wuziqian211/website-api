@@ -37,10 +37,11 @@ import util from 'node:util';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
-const upstreamServerResponseInfo: upstreamServerResponseInfo[] = []; // 上游服务器返回的信息
-let cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, timer: NodeJS.Timeout | undefined, startTime: millisecondLevelTimestamp;
+let startTime: millisecondLevelTimestamp, timer: NodeJS.Timeout | undefined,
+    cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, upstreamServerResponseInfo: upstreamServerResponseInfo[] = [];
 export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType; isResponseTypeSpecified: boolean } => { // 初始化 API
   startTime = performance.now();
+  upstreamServerResponseInfo = [];
   const params = new URL(req.url).searchParams, accepts: Accept[] = [],
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
