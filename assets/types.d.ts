@@ -14,8 +14,8 @@ export type upstreamServerResponseInfo = { // 上游服务器返回的信息
   startTime: millisecondLevelTimestamp;
   endTime: millisecondLevelTimestamp;
   status: number;
-  code: number;
-  message: string;
+  code: number | null;
+  message: string | null;
 } | {
   url: url;
   method: string;

@@ -317,13 +317,14 @@ export const getRequestInfo = (): RequestInfo => {
   }
   return cachedRequestInfo;
 };
-export const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit } = {}): Promise<unknown> => { // 调用 API
-  const urlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
-        { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders;
+export const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean } = {}): Promise<unknown> => { // 调用 API
+  const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
+        { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders,
+        retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1); // 重试次数
 
   if (options.params) { // 请求参数
     for (const [name, value] of Object.entries(options.params)) {
-      urlObj.searchParams.set(name, String(value));
+      initialUrlObj.searchParams.set(name, String(value));
     }
   }
   if (options.headers) { // 请求标头
@@ -333,8 +334,8 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
   }
 
   if (options.includePlatformInfo) { // 包含平台标识信息
-    urlObj.searchParams.set('build', '0');
-    urlObj.searchParams.set('mobi_app', 'web');
+    initialUrlObj.searchParams.set('build', '0');
+    initialUrlObj.searchParams.set('mobi_app', 'web');
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && (options.body instanceof URLSearchParams || options.body instanceof FormData)) {
       options.body.set('build', '0');
       options.body.set('mobi_app', 'web');
@@ -344,21 +345,40 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
     options.body.set('csrf_token', csrf);
     options.body.set('csrf', csrf);
   }
-  if (options.wbiSign) { // 使用 Wbi 签名
-    urlObj.searchParams.set('gaia_source', 'main_web');
-    if (!urlObj.searchParams.has('platform')) urlObj.searchParams.set('platform', 'web');
-    urlObj.searchParams.set('x-bili-device-req-json', '{"platform":"web","device":"pc"}');
-    urlObj.search = await encodeWbi(urlObj.search);
+
+  for (let i = 1; i <= retries; i++) { // 多次尝试请求，若请求失败，则再次请求
+    const urlObj = new URL(initialUrlObj);
+
+    if (options.wbiSign) { // 使用 Wbi 签名
+      urlObj.searchParams.set('gaia_source', 'main_web');
+      if (!urlObj.searchParams.has('platform')) urlObj.searchParams.set('platform', 'web');
+      urlObj.searchParams.set('x-bili-device-req-json', '{"platform":"web","device":"pc"}');
+      urlObj.search = await encodeWbi(urlObj.search);
+    }
+
+    try {
+      const respStartTime = Date.now(),
+            resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true, signal: AbortSignal.timeout(10000) });
+      const respEndTime = Date.now();
+      if (!resp.ok) { // 服务器返回了表示错误的 HTTP 状态码
+        upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: null, message: null });
+        throw new TypeError(`HTTP status: ${resp.status}`);
+      }
+
+      const json = <{ code: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
+      upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
+      if ([-352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
+
+      return json;
+    } catch (e) {
+      if (i < retries) { // 请求次数小于尝试次数，就在 1 秒后再次尝试请求
+        await new Promise(r => { setTimeout(r, 1000); });
+      } else { // 请求次数已经达到了尝试次数，就结束请求
+        throw e;
+      }
+    }
   }
-
-  const respStartTime = Date.now(),
-        resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true });
-  const respEndTime = Date.now();
-  if (!resp.ok) throw new TypeError(`HTTP status: ${resp.status}`);
-
-  const json = <{ code?: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
-  upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
-  return json;
+  throw new TypeError('fetch failed'); // 理论上，如果 retries 参数有效，就永远无法执行这行代码
 };
 export const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
   if (typeof vid !== 'string' || !vid) return { type: -1, vid: undefined };
