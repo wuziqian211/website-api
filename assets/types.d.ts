@@ -19,15 +19,15 @@ export type upstreamServerResponseInfo = { // 上游服务器返回的信息
 } | {
   url: url;
   method: string;
-  type: string;
+  type: string | null;
   startTime: millisecondLevelTimestamp;
   endTime: millisecondLevelTimestamp;
   status: number;
 };
-export interface InternalAPIResponse<dataType> { // 内部 API 返回的 JSON 数据结构
+export interface InternalAPIResponse<T> { // 内部 API 返回的 JSON 数据结构
   code: number;
   message: string;
-  data: dataType;
+  data: T;
   extInfo?: {
     errType?: string;
     upstreamServerResponseInfo?: upstreamServerResponseInfo[];
@@ -35,11 +35,11 @@ export interface InternalAPIResponse<dataType> { // 内部 API 返回的 JSON �
     [key: string]: unknown;
   };
 }
-export interface APIResponse<dataType> { // B 站 API 返回的 JSON 数据结构
+export interface APIResponse<T> { // B 站 API 返回的 JSON 数据结构
   code: number;
   message: string;
   ttl: number;
-  data: dataType;
+  data: T;
 }
 
 // JSON Stage 3 接口定义
@@ -241,6 +241,10 @@ interface UserCardsItem {
       text_color: '' | hexColor;
       use_img_label: true;
     };
+  };
+  name_render: null | {
+    colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
+    render_scheme: 'Default' | 'Colorful';
   };
 }
 export type UserCardsData = Record<number, UserCardsItem>;
@@ -660,10 +664,10 @@ export interface InternalAPIGetVideoInfoData {
 // 4. 番剧信息相关
 type mediaType = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 type mediaTypeName = '番剧' | '电影' | '纪录片' | '国创' | '电视剧' | '漫画' | '综艺';
-export interface BangumiAPIResponse<dataType> { // B 站番剧 API 返回的 JSON 数据结构
+export interface BangumiAPIResponse<T> { // B 站番剧 API 返回的 JSON 数据结构
   code: number;
   message: string;
-  result?: dataType;
+  result?: T;
 }
 interface AreaInfo {
   id: number;

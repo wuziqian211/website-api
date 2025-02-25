@@ -9,12 +9,13 @@ import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
+import { getEnv } from '@vercel/functions';
 import * as utils from '../assets/utils.js';
 import { zones, states } from '../assets/constants.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
-  const initData = utils.initialize(req, [0, 1, 2, 3], resolve); // 获取请求参数与回复数据类型
-  const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
+  const initData = utils.initialize(req, [0, 1, 2, 3], resolve), // 获取请求参数与回复数据类型
+        { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
   let { responseType, isResponseTypeSpecified } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'COVER', 'PIC'].includes(splitString[0])) {
@@ -245,8 +246,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的封面地址
                 resolve(utils.redirect(307, utils.toHTTPS(data.pic)));
               } else {
-                const filename = encodeURIComponent(`${data.title} 的封面.${new URL(data.pic).pathname.split('.').at(-1)}`); // 设置封面的文件名
-                const resp = await fetch(utils.toHTTPS(data.pic)); // 获取 B 站服务器存储的封面
+                const filename = encodeURIComponent(`${data.title} 的封面.${new URL(data.pic).pathname.split('.').at(-1)}`), // 设置封面的文件名
+                      resp = await utils.request(utils.toHTTPS(data.pic)); // 获取 B 站服务器存储的封面
                 if (resp.ok) {
                   if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                   respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -304,10 +305,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 }
 
                 if (url) { // 视频地址获取成功
-                  const { loginHeaders, normalHeaders } = utils.getRequestInfo();
-                  const headers = useCookie ? loginHeaders : normalHeaders;
-                  const filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
-                  const resp = await fetch(url, { headers });
+                  const filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`), // 设置视频的文件名
+                        resp = await utils.request(url, { withCookie: useCookie, responseType: 'video' });
                   if (resp.ok) {
                     if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                     respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -426,8 +425,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的封面地址
                 resolve(utils.redirect(307, utils.toHTTPS(result.media.cover)));
               } else {
-                const filename = encodeURIComponent(`${result.media.title} 的封面.${new URL(result.media.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
-                const resp = await fetch(utils.toHTTPS(result.media.cover)); // 获取 B 站服务器存储的封面
+                const filename = encodeURIComponent(`${result.media.title} 的封面.${new URL(result.media.cover).pathname.split('.').at(-1)}`), // 设置封面的文件名
+                      resp = await utils.request(utils.toHTTPS(result.media.cover), 'image'); // 获取 B 站服务器存储的封面
                 if (resp.ok) {
                   if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                   respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -632,8 +631,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的封面地址
                 resolve(utils.redirect(307, utils.toHTTPS(result.cover)));
               } else {
-                const filename = encodeURIComponent(`${result.title} 的封面.${new URL(result.cover).pathname.split('.').at(-1)}`); // 设置封面的文件名
-                const resp = await fetch(utils.toHTTPS(result.cover)); // 获取 B 站服务器存储的封面
+                const filename = encodeURIComponent(`${result.title} 的封面.${new URL(result.cover).pathname.split('.').at(-1)}`), // 设置封面的文件名
+                      resp = await utils.request(utils.toHTTPS(result.cover), 'image'); // 获取 B 站服务器存储的封面
                 if (resp.ok) {
                   if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                   respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -708,10 +707,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 }
 
                 if (url) { // 视频地址获取成功
-                  const { loginHeaders, normalHeaders } = utils.getRequestInfo();
-                  const headers = useCookie ? loginHeaders : normalHeaders;
-                  const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`); // 设置视频的文件名
-                  const resp = await fetch(url, { headers });
+                  const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`), // 设置视频的文件名
+                        resp = await utils.request(url, { withCookie: useCookie, responseType: 'video' });
                   if (resp.ok) {
                     if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                     respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -779,11 +776,12 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
         switch (responseType) {
           case 1: // 回复 HTML
             if (!requestVid) { // 没有设置参数“vid”
+              const systemEnv = getEnv();
               respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
               sendHTML(200, { title: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', newStyle: true, content: `
                 本 API 可以获取指定 B 站视频、剧集、番剧的信息及数据。<br />
                 基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getvideo?vid=<span class="notice">您想获取信息的视频、剧集、番剧的编号</span><br />
-                更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。` });
+                更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${systemEnv.VERCEL_GIT_REPO_OWNER}/${systemEnv.VERCEL_GIT_REPO_SLUG}/blob/${systemEnv.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。` });
             } else { // 设置了“vid”参数但无效
               sendHTML(400, { title: '编号无效', newStyle: true, content: `
                 您输入的编号无效！<br />

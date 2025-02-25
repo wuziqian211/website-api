@@ -8,6 +8,7 @@ interface HashInfo {
 
 export const config = { runtime: 'edge' };
 
+import { geolocation } from '@vercel/functions';
 import { kv } from '@vercel/kv';
 import * as utils from '../assets/utils.js';
 
@@ -41,12 +42,13 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
           break;
         }
         case 'blocked': { // 可能被屏蔽的域名
+          const { country } = geolocation(req);
           let blocked = '';
-          if (req.headers.get('x-vercel-ip-country') === 'CN') { // 在中国内地（不含港澳台地区）
+          if (country === 'CN') { // 在中国内地（不含港澳台地区）
             blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
           }
           respHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
-          sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { ipCountry: req.headers.get('x-vercel-ip-country') } });
+          sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { country } });
           break;
         }
         case 'upload': { // 上传图片
@@ -56,7 +58,7 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
               const body = new FormData();
               body.set('smfile', file);
               body.set('format', 'json');
-              const resp = await fetch('https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body });
+              const resp = await utils.request('https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body, responseType: 'json' });
               if (resp.ok) {
                 const json = <SmmsUploadResponse> await resp.json();
                 if (json.success) {

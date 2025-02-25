@@ -9,11 +9,12 @@ import type { SendHTMLData } from '../assets/utils.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
+import { getEnv } from '@vercel/functions';
 import * as utils from '../assets/utils.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
-  const initData = utils.initialize(req, [0, 1, 2], resolve); // 获取请求参数与回复数据类型
-  const { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
+  const initData = utils.initialize(req, [0, 1, 2], resolve), // 获取请求参数与回复数据类型
+        { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
   let { responseType, isResponseTypeSpecified } = initData;
   const splitString = params.get('type')?.toUpperCase().split('_');
   if (splitString?.[0] && ['IMAGE', 'FACE', 'AVATAR'].includes(splitString[0])) {
@@ -120,8 +121,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
             if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的头像地址
               resolve(utils.redirect(307, utils.toHTTPS(data.face)));
             } else {
-              const filename = encodeURIComponent(`${data.name} 的头像.${new URL(data.face).pathname.split('.').at(-1)}`); // 设置头像的文件名
-              const resp = await fetch(utils.toHTTPS(data.face)); // 获取 B 站服务器存储的头像
+              const filename = encodeURIComponent(`${data.name} 的头像.${new URL(data.face).pathname.split('.').at(-1)}`), // 设置头像的文件名
+                    resp = await utils.request(utils.toHTTPS(data.face), 'image'); // 获取 B 站服务器存储的头像
               if (resp.ok) {
                 if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
@@ -242,39 +243,43 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
         }
       }
     } else { // UID 无效
-      if (responseType === 1) { // 回复 HTML
-        if (!requestMid) { // 没有设置 UID 参数
-          respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
-          sendHTML(200, { title: '获取哔哩哔哩用户信息', newStyle: true, content: `
-            本 API 可以获取指定 B 站用户的信息。<br />
-            基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
-            更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/blob/${process.env.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。` });
-        } else { // 设置了 UID 参数但无效
-          sendHTML(400, { title: 'UID 无效', newStyle: true, content: `
-            您输入的 UID 无效！<br />
-            请输入一个正确的 UID 吧 awa` });
-        }
-      } else if (responseType === 2) { // 回复头像数据
-        if (!requestMid) { // 没有设置 UID 参数，回复随机头像
-          const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-          respHeaders.set('Content-Type', 'image/jpeg');
-          send(200, fs.createReadStream(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
-        } else { // 设置了 UID 参数但无效，回复默认头像
-          if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
-            if (fetchDest === 1) {
-              sendHTML(400, { title: 'UID 无效', newStyle: true, content: `
-                您输入的 UID 无效！<br />
-                请输入一个正确的 UID 吧 awa` });
-            } else {
-              sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
-            }
-          } else {
-            respHeaders.set('Content-Type', 'image/jpeg');
-            send(400, fs.createReadStream('./assets/noface.jpg'));
+      switch (responseType) {
+        case 1: // 回复 HTML
+          if (!requestMid) { // 没有设置 UID 参数
+            const systemEnv = getEnv();
+            respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
+            sendHTML(200, { title: '获取哔哩哔哩用户信息', newStyle: true, content: `
+              本 API 可以获取指定 B 站用户的信息。<br />
+              基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
+              更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${systemEnv.VERCEL_GIT_REPO_OWNER}/${systemEnv.VERCEL_GIT_REPO_SLUG}/blob/${systemEnv.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF">本站的使用说明</a>。` });
+          } else { // 设置了 UID 参数但无效
+            sendHTML(400, { title: 'UID 无效', newStyle: true, content: `
+              您输入的 UID 无效！<br />
+              请输入一个正确的 UID 吧 awa` });
           }
-        }
-      } else { // 回复 JSON
-        sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
+          break;
+        case 2: // 回复头像数据
+          if (!requestMid) { // 没有设置 UID 参数，回复随机头像
+            const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
+            respHeaders.set('Content-Type', 'image/jpeg');
+            send(200, fs.createReadStream(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
+          } else { // 设置了 UID 参数但无效，回复默认头像
+            if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
+              if (fetchDest === 1) {
+                sendHTML(400, { title: 'UID 无效', newStyle: true, content: `
+                  您输入的 UID 无效！<br />
+                  请输入一个正确的 UID 吧 awa` });
+              } else {
+                sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
+              }
+            } else {
+              respHeaders.set('Content-Type', 'image/jpeg');
+              send(400, fs.createReadStream('./assets/noface.jpg'));
+            }
+          }
+          break;
+        default: // 回复 JSON
+          sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
       }
     }
   } catch (e) {

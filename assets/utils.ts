@@ -34,6 +34,7 @@ type FetchDest = 0 | 1 | 2 | 3;
 type Accept = 0 | 1 | 2 | 3;
 
 import util from 'node:util';
+import { waitUntil, getEnv } from '@vercel/functions';
 import { kv } from '@vercel/kv';
 import md5 from 'md5';
 
@@ -117,13 +118,13 @@ export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], 
 
   return { params, respHeaders: new Headers(), fetchDest, responseType, isResponseTypeSpecified };
 };
-export const getRunningTime = (ts: secondLevelTimestamp): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
+const getRunningTime = (ts: secondLevelTimestamp): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
 export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
   if (timer) {
     clearTimeout(timer);
     timer = undefined;
   }
-  const apiExecTime = performance.now() - startTime;
+  const systemEnv = getEnv(), apiExecTime = performance.now() - startTime;
   headers.set('Content-Type', 'text/html; charset=utf-8');
   headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   headers.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
@@ -144,7 +145,7 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         <header>
           <div class="header">
             <div class="left"><a href="/api/">YumeHaru's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
-            <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}/tree/${process.env.VERCEL_GIT_COMMIT_REF}/#readme">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
+            <div class="right"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${systemEnv.VERCEL_GIT_REPO_OWNER}/${systemEnv.VERCEL_GIT_REPO_SLUG}/tree/${systemEnv.VERCEL_GIT_COMMIT_REF}/#readme">查看使用说明</a> <a href="https://www.yumeharu.top/">返回主站</a></div>
           </div>
         </header>
         <main>
@@ -274,8 +275,7 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
       if (!components[i].url) { // 该组成部分没有转化成链接
-        const { content } = components[i];
-        const result = p.pattern.exec(content);
+        const { content } = components[i], result = p.pattern.exec(content);
         if (result) {
           const [match, ...capturedMatches] = result, { index } = result;
           components.splice(i++, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
@@ -289,8 +289,8 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
 export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
-  const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [];
-  const base = BigInt(alphabet.length);
+  const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
+        encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [], base = BigInt(alphabet.length);
   let t = (maxAid | BigInt(aid)) ^ xorCode;
   for (const n of encodeMap) {
     bvid[n] = alphabet[Number(t % base)];
@@ -300,8 +300,8 @@ export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV
 };
 export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
   if (!/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new TypeError('Invalid BV number');
-  const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf', decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8];
-  const base = BigInt(alphabet.length);
+  const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
+        decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8], base = BigInt(alphabet.length);
   let t = 0n;
   for (const n of decodeMap) {
     const index = BigInt(alphabet.indexOf(bvid[n + 3]));
@@ -309,7 +309,7 @@ export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 
   }
   return (t & maskCode) ^ xorCode;
 };
-export const getRequestInfo = (): RequestInfo => {
+const getRequestInfo = (): RequestInfo => {
   if (!cachedRequestInfo) {
     const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
           { SESSDATA, bili_jct: csrf } = process.env;
@@ -317,7 +317,7 @@ export const getRequestInfo = (): RequestInfo => {
   }
   return cachedRequestInfo;
 };
-export const callAPI = async (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean } = {}): Promise<unknown> => { // 调用 API
+const makeRequest = async <T>(requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发出请求到服务器
   const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders,
         retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1); // 重试次数
@@ -360,16 +360,13 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
       const respStartTime = Date.now(),
             resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true, signal: AbortSignal.timeout(10000) });
       const respEndTime = Date.now();
-      if (!resp.ok) { // 服务器返回了表示错误的 HTTP 状态码
-        upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: null, message: null });
-        throw new TypeError(`HTTP status: ${resp.status}`);
+
+      if (typeof options.afterRequestCallback === 'function') {
+        const result = options.afterRequestCallback({ method, url: urlObj.href, resp, respStartTime, respEndTime });
+        if (result) return result;
       }
 
-      const json = <{ code: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
-      upstreamServerResponseInfo.push({ url: urlObj.href, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
-      if ([-352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
-
-      return json;
+      return resp;
     } catch (e) {
       if (i < retries) { // 请求次数小于尝试次数，就在 1 秒后再次尝试请求
         await new Promise(r => { setTimeout(r, 1000); });
@@ -379,6 +376,30 @@ export const callAPI = async (requestUrl: url, options: { method?: string; param
     }
   }
   throw new TypeError('fetch failed'); // 理论上，如果 retries 参数有效，就永远无法执行这行代码
+};
+export const callAPI = (requestUrl: url, options?: Parameters<typeof makeRequest>[1]): Promise<unknown> => makeRequest(requestUrl, { // 调用 API
+  ...options,
+  afterRequestCallback: async ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
+    if (!resp.ok) { // 服务器返回了表示错误的 HTTP 状态码
+      upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: null, message: null });
+      throw new TypeError(`HTTP status: ${resp.status}`);
+    }
+
+    const json = <{ code: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
+    upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
+    if ([-352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
+
+    return json;
+  },
+});
+export const request = (requestUrl: url, options?: string | (Parameters<typeof makeRequest>[1] & { responseType?: string })): Promise<Response> => { // 请求其他类型数据
+  const optionsArg = typeof options === 'string' ? { responseType: options } : options ?? {};
+  return <Promise<Response>> makeRequest(requestUrl, {
+    ...optionsArg,
+    afterRequestCallback: ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
+      upstreamServerResponseInfo.push({ url: requestedUrl, method, type: optionsArg.responseType || null, startTime: respStartTime, endTime: respEndTime, status: resp.status });
+    },
+  });
 };
 export const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
   if (typeof vid !== 'string' || !vid) return { type: -1, vid: undefined };
@@ -417,9 +438,9 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
     wbiKeys.mid = ujson.data.mid;
     wbiKeys.imgKey = ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
     wbiKeys.subKey = ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
-    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`);
+    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
 
-    const spaceHTMLText = await (await fetch(`https://space.bilibili.com/${ujson.data.mid}`, { headers: requestInfo.loginHeaders })).text();
+    const spaceHTMLText = await (await request(`https://space.bilibili.com/${ujson.data.mid}`, { withCookie: true, responseType: 'html' })).text();
     const renderData = /<script id="__RENDER_DATA__".*>(.*)<\/script>/.exec(spaceHTMLText);
     if (renderData && renderData[1]) {
       const rjson = <{ access_id: string }> JSONParse(decodeURIComponent(renderData[1]));
@@ -427,7 +448,7 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
     }
 
     wbiKeys.updatedTimestamp = Date.now();
-    await kv.set('wbiKeys', wbiKeys);
+    waitUntil(kv.set('wbiKeys', wbiKeys));
   } else {
     requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`);
   }
