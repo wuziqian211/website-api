@@ -1,5 +1,10 @@
-import type { InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
+import type { numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
+
+interface HashInfo {
+  h: string;
+  s: numericString;
+}
 
 export const config = { runtime: 'edge' };
 
@@ -79,9 +84,10 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
         case 'qmimg': {
           const hash = params.get('h');
           if (hash && /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/.test(hash)) {
-            const redis = Redis.fromEnv(), source = await redis.hget('qmHashes', hash);
-            if (source) {
-              const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${source}&spec=4`);
+            const redis = Redis.fromEnv(), hashes = <HashInfo[]> await redis.get('hashes');
+            const hashInfo = hashes.find(h => h.h === hash);
+            if (hashInfo) {
+              const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hashInfo.s}&spec=4`);
               if (resp.ok) {
                 respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
