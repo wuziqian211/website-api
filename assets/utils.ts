@@ -35,7 +35,7 @@ type Accept = 0 | 1 | 2 | 3;
 
 import util from 'node:util';
 import { waitUntil, getEnv } from '@vercel/functions';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import md5 from 'md5';
 
 let startTime: millisecondLevelTimestamp, timer: NodeJS.Timeout | undefined,
@@ -430,9 +430,9 @@ export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchPa
   return params.toString();
 };
 export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
-  const requestInfo = getRequestInfo();
+  const requestInfo = getRequestInfo(), redis = Redis.fromEnv();
 
-  if (!noCache && !wbiKeys) wbiKeys = <WbiKeys> await kv.get('wbiKeys');
+  if (!noCache && !wbiKeys) wbiKeys = <WbiKeys> await redis.get('wbiKeys');
   if (noCache || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
     const ujson = <APIResponse<NavData>> await callAPI('https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
     wbiKeys.mid = ujson.data.mid;
@@ -448,7 +448,7 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
     }
 
     wbiKeys.updatedTimestamp = Date.now();
-    waitUntil(kv.set('wbiKeys', wbiKeys));
+    waitUntil(redis.set('wbiKeys', wbiKeys));
   } else {
     requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`);
   }

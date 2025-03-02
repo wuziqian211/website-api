@@ -7,7 +7,7 @@
  * @typedef {import('../assets/types').NavData} NavData
  */
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 
 if (process.env.VERCEL_URL?.startsWith('localhost')) process.exit(0);
 
@@ -32,7 +32,8 @@ if (renderData && renderData[1]) {
   webId = rjson.access_id;
 }
 
-await kv.set('wbiKeys', {
+const redis = Redis.fromEnv();
+await redis.set('wbiKeys', {
   mid,
   imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),
   subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),

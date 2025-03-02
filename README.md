@@ -111,7 +111,7 @@
 
 目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
 
-本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 的最新 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie**，~~并关联一个 [Vercel KV 数据库](https://vercel.com/docs/storage/vercel-kv)到部署中~~（目前该数据库已无法创建，建议使用 [Upstash](https://vercel.com/marketplace/upstash)，并修改本项目代码）。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
+本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 的最新 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie，并关联一个 [Upstash 数据库](https://vercel.com/marketplace/upstash)到部署中**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型判断规则
 

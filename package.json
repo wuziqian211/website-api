@@ -10,9 +10,9 @@
     "prepare": "node ./scripts/prepare.js"
   },
   "dependencies": {
+    "@upstash/redis": "latest",
     "@vercel/edge": "latest",
     "@vercel/functions": "latest",
-    "@vercel/kv": "latest",
     "md5": "latest"
   },
   "devDependencies": {

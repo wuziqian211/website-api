@@ -1,15 +1,10 @@
-import type { numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
+import type { InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
-
-interface HashInfo {
-  s: numericString;
-  h: string;
-}
 
 export const config = { runtime: 'edge' };
 
 import { geolocation } from '@vercel/functions';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import * as utils from '../assets/utils.js';
 
 export default (req: Request): Promise<Response> => new Promise(async resolve => {
@@ -29,15 +24,17 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
     } else {
       switch (params.get('id')) {
         case 'friends': { // 关系好的朋友们（不一定互关）
-          const version = params.get('version'), info = (<FriendInfo[]> await kv.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
+          const version = params.get('version'), redis = Redis.fromEnv(),
+                info = (<FriendInfo[]> await redis.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
+          const { normalFriends, deletedFriends } = Object.groupBy(info, u => u.is_deleted ? 'deletedFriends' : 'normalFriends');
 
           respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate');
           if (version === '3') { // 第 3 版：简化名称
-            sendJSON(200, { code: 0, message: '0', data: { n: info.filter(u => !u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: info.filter(u => u.is_deleted).map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'kv' } });
+            sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(u.face), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'redis' } });
           } else if (version === '2') { // 第 2 版
-            sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => ({ image: utils.toHTTPS(u.face), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'kv' } });
+            sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => ({ image: utils.toHTTPS(u.face), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'redis' } });
           } else {
-            sendJSON(200, { code: 0, message: '0', data: info.filter(u => !u.is_deleted).map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(u.face)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'kv' } });
+            sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(u.face)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'redis' } });
           }
           break;
         }
@@ -82,10 +79,9 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
         case 'qmimg': {
           const hash = params.get('h');
           if (hash && /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/.test(hash)) {
-            const hashes = <HashInfo[]> await kv.get('hashes');
-            const hashInfo = hashes.find(h => h.h === hash);
-            if (hashInfo) {
-              const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hashInfo.s}&spec=4`);
+            const redis = Redis.fromEnv(), source = await redis.hget('qmHashes', hash);
+            if (source) {
+              const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${source}&spec=4`);
               if (resp.ok) {
                 respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
                 respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
