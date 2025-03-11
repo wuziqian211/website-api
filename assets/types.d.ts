@@ -7,7 +7,15 @@ export type secondLevelTimestamp = number; // 秒级时间戳
 export type millisecondLevelTimestamp = number; // 毫秒级时间戳
 export type microsecondLevelTimestamp = number; // 微秒级时间戳
 export type hexColor = `#${string}`; // 十六进制颜色代码
-export type upstreamServerResponseInfo = { // 上游服务器返回的信息
+export interface SendHTMLData {
+  title: string; // 页面标题
+  appleTouchIcon?: url; // 页面图标链接
+  newStyle?: boolean; // 是否使用新样式
+  imageBackground?: url; // 图片背景链接
+  desc?: string; // 页面描述
+  body: string; // 页面主体内容
+}
+export type ResponseInfo = { // 上游服务器返回的信息
   url: url;
   method: string;
   type: 'json';
@@ -53,10 +61,10 @@ export interface JSON_ extends JSON {
 
 // 2. 用户信息相关
 type sex = '男' | '女' | '保密';
-type officialType = -1 /* 无认证 */ | 0 /* UP 主认证 */ | 1 /* 机构认证 */;
-type officialRole = 0 /* 无 */ | 1 /* 知名 UP 主 */ | 2 /* 身份认证（大 V 达人） */ | 3 /* 企业 */ | 4 /* 组织 */ | 5 /* 媒体 */ | 6 /* 政府 */ | 7 /* 专业（领域）认证 */ | 8 /* 职业资质信息认证 */ | 9 /* 社会知名人士 */;
-type VIPType = 0 /* 无大会员 */ | 1 /* 年度以下大会员 */ | 2 /* 年度及以上大会员 */;
-type VIPRole = 0 /* 无 */ | 1 /* 月度 */ | 3 /* 年度 */ | 7 /* 十年 */ | 15 /* 百年 */;
+type officialType = -1/* 无认证 */ | 0/* UP 主认证 */ | 1/* 机构认证 */;
+type officialRole = 0/* 无 */ | 1/* 知名 UP 主 */ | 2/* 身份认证（大 V 达人） */ | 3/* 企业 */ | 4/* 组织 */ | 5/* 媒体 */ | 6/* 政府 */ | 7/* 专业（领域）认证 */ | 8/* 职业资质信息认证 */ | 9/* 社会知名人士 */;
+type VIPType = 0/* 无大会员 */ | 1/* 年度以下大会员 */ | 2/* 年度及以上大会员 */;
+type VIPRole = 0/* 无 */ | 1/* 月度 */ | 3/* 年度 */ | 7/* 十年 */ | 15/* 百年 */;
 type level = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 type levelNextExp = 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
 type levelCurrentMin = 0 | 1 | 200 | 1500 | 4500 | 10800 | 28800;
@@ -107,7 +115,7 @@ export interface UserCardData {
   coins: 0;
   DisplayRank: numericString;
   regtime: 0;
-  spacesta: -10 /* 未绑定手机（？） */ | -2 /* 被封禁 */ | 0 /* 正常 */ | 2 /* （？） */;
+  spacesta: -10/* 未绑定手机（？） */ | -2/* 被封禁 */ | 0/* 正常 */ | 2/* （？） */;
   place: '';
   birthday: `${number}-${number}-${number}`;
   sign: string;
@@ -190,7 +198,7 @@ export interface UserInfoData {
   gaia_res_type: 0;
   gaia_data: null;
   is_risk: false;
-  elec: { show_info: { show: boolean; state: -1 /* 未开通充电功能 */ | 1 /* 已开通自定义充电 */ | 2 /* 已开通包月、自定义充电 */ | 3 /* 已开通高档、自定义充电 */; title: '' | '充电' | '充电中'; icon: url; jump_url: url } };
+  elec: { show_info: { show: boolean; state: -1/* 未开通充电功能 */ | 1/* 已开通自定义充电 */ | 2/* 已开通包月、自定义充电 */ | 3/* 已开通高档、自定义充电 */; title: '' | '充电' | '充电中'; icon: url; jump_url: url } };
   contract: { is_display: false; is_follow_display: false };
   certificate_show: false;
   name_render: null | {
@@ -204,7 +212,7 @@ export interface UserInfoData {
   };
   theme: null;
   attestation: {
-    type: 0 /* 无认证 */ | 1 /* 专业认证 */ | 2 /* UP 主认证 */ | 3 /* 机构认证 */;
+    type: 0/* 无认证 */ | 1/* 专业认证 */ | 2/* UP 主认证 */ | 3/* 机构认证 */;
     common_info: { title: string; prefix: string; prefix_title: string };
     splice_info: { title: string };
     icon: url;
@@ -331,9 +339,8 @@ interface InternalAPIUsersInfoItem extends UserCardsItem {
 export type InternalAPIGetUsersInfoData = Record<number, InternalAPIUsersInfoItem>;
 
 // 3. 视频信息相关
-// eslint-disable-next-line @stylistic/semi-spacing
-export type quality = 6 /* 240P */ | 16 /* 360P */ | 32 /* 480P */ | 64 /* 720P */ | 74 /* 720P60 */ | 80 /* 1080P */ | 112 /* 1080P+ */ | 116 /* 1080P60 */ | 120 /* 4K */ | 125 /* HDR */ | 126 /* 杜比视界 */ | 127 /* 8K */;
-type copyright = 1 /* 自制 */ | 2 /* 转载 */;
+export type quality = 6/* 240P */ | 16/* 360P */ | 32/* 480P */ | 64/* 720P */ | 74/* 720P60 */ | 80/* 1080P */ | 112/* 1080P+ */ | 116/* 1080P60 */ | 120/* 4K */ | 125/* HDR */ | 126/* 杜比视界 */ | 127/* 8K */;
+type copyright = 1/* 自制 */ | 2/* 转载 */;
 interface Dimension { // 视频分辨率信息
   width: number;
   height: number;
@@ -412,12 +419,16 @@ interface HistoryItem { // 此处仅定义视频信息数据结构
   cid?: number;
   dimension: Dimension;
   short_link_v2: url;
-  first_frame?: url;
   up_from_v2?: number;
+  first_frame?: url;
   pub_location?: string;
   cover43: '';
-  favorite: false;
-  type: 3 /* 视频 */;
+  tidv2: number;
+  tnamev2: string;
+  pid_v2: number;
+  pid_name_v2: string;
+  favorite: boolean;
+  type: 3/* 视频 */;
   sub_type: 0;
   device: number;
   page?: PageInfo;
@@ -437,7 +448,9 @@ export interface VideoInfoData {
   aid: number;
   videos: number;
   tid: number;
+  tid_v2: number;
   tname: string;
+  tname_v2: string;
   copyright: copyright;
   pic: url;
   title: string;
@@ -523,19 +536,19 @@ export interface VideoInfoData {
     vip: VIPInfo;
     official: OfficialVerifyInfo;
     follower: number;
-    label_style: 0 /* 普通 */ | 1 /* 赞助商 */;
+    label_style: 0/* 普通 */ | 1/* 赞助商 */;
   }[];
   is_season_display: boolean;
   user_garb: { url_image_ani_cut: url };
   honor_reply: {} | {
     honor: ({
       aid: number;
-      type: 1 /* 入站必刷收录 */ | 3 /* 全站排行榜最高第?名 */ | 4 /* 热门 */;
+      type: 1/* 入站必刷收录 */ | 3/* 全站排行榜最高第?名 */ | 4/* 热门 */;
       desc: string;
       weekly_recommend_num: 0;
     } | {
       aid: number;
-      type: 2 /* 第?期每周必看 */;
+      type: 2/* 第?期每周必看 */;
       desc: string;
       weekly_recommend_num: number;
     })[];
@@ -558,7 +571,7 @@ export interface VideoPlayUrlData {
   accept_format: string;
   accept_description: string[];
   accept_quality: quality[];
-  video_codecid: 7 /* AVC */ | 12 /* HEVC */ | 13 /* AV1 */;
+  video_codecid: 7/* AVC */ | 12/* HEVC */ | 13/* AV1 */;
   seek_param: 'start';
   seek_type: 'second';
   durl: {
@@ -577,13 +590,19 @@ export interface VideoPlayUrlData {
   view_info: null;
 }
 
-// d. “获取哔哩哔哩用户信息”接口回应数据（/api/getuser）
+// d. “获取哔哩哔哩视频 / 剧集 / 番剧信息”接口回应数据（/api/getvideo）
 export interface InternalAPIGetVideoInfoData {
   bvid: string;
   aid: number | numericString;
   videos: null | number;
-  tid: null | number;
+  pid: number;
+  pid_v2: number;
+  pid_name: string;
+  pid_name_v2: string;
+  tid: number;
+  tid_v2: number;
   tname: string;
+  tname_v2: string;
   copyright: null | copyright;
   pic: url;
   title: string;
@@ -647,7 +666,10 @@ export interface InternalAPIGetVideoInfoData {
   need_jump_bv: boolean;
   disable_show_up_info: boolean;
   is_story_play: booleanNumber;
+  is_view_self: boolean;
   cover43?: undefined;
+  tidv2?: undefined;
+  tnamev2?: undefined;
   favorite?: undefined;
   type?: undefined;
   sub_type?: undefined;
@@ -889,7 +911,7 @@ export interface BangumiPlayUrlData {
   seek_type: 'second';
   vip_type: VIPType;
   from: 'local';
-  video_codecid: 7 /* AVC */ | 12 /* HEVC */ | 13 /* AV1 */;
+  video_codecid: 7/* AVC */ | 12/* HEVC */ | 13/* AV1 */;
   record_info: { record_icon: ''; record: string };
   durl: {
     size: number; // 单位为字节

@@ -1,16 +1,8 @@
-import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, upstreamServerResponseInfo, InternalAPIResponse, APIResponse, JSON_, NavData } from './types.d.ts';
+import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, SendHTMLData, ResponseInfo, InternalAPIResponse, APIResponse, JSON_, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 declare const JSON: JSON_; // 含有 Stage 3 接口定义
 
-export interface SendHTMLData {
-  title: string; // 页面标题
-  appleTouchIcon?: url; // 页面图标链接
-  newStyle?: boolean; // 是否使用新样式
-  imageBackground?: url; // 图片背景链接
-  desc?: string; // 页面描述
-  body: string; // 页面主体内容
-}
 interface Component {
   content: string; // 文本内容
   url?: url; // 链接
@@ -29,7 +21,7 @@ interface RequestInfo {
   loginHeaders: Headers;
   normalHeaders: Headers;
 }
-type ResponseType = 0 /* JSON */ | 1 /* HTML */ | 2 /* 图片 */ | 3 /* 视频 */;
+type ResponseType = 0/* JSON */ | 1/* HTML */ | 2/* 图片 */ | 3/* 视频 */;
 type FetchDest = 0 | 1 | 2 | 3;
 type Accept = 0 | 1 | 2 | 3;
 
@@ -39,7 +31,7 @@ import { Redis } from '@upstash/redis';
 import md5 from 'md5';
 
 let startTime: millisecondLevelTimestamp, timer: NodeJS.Timeout | undefined,
-    cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, upstreamServerResponseInfo: upstreamServerResponseInfo[] = [];
+    cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, upstreamServerResponseInfo: ResponseInfo[] = [];
 
 export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType; isResponseTypeSpecified: boolean } => { // 初始化 API
   startTime = performance.now();

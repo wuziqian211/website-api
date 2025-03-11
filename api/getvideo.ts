@@ -4,14 +4,13 @@
  * 作者：晨叶梦春（https://www.yumeharu.top/）
  */
 
-import type { InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
-import type { SendHTMLData } from '../assets/utils.ts';
+import type { SendHTMLData, InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
 import { getEnv } from '@vercel/functions';
 import * as utils from '../assets/utils.js';
-import { zones, states } from '../assets/constants.js';
+import { zones, zonesV2, states } from '../assets/constants.js';
 
 export const GET = (req: Request): Promise<Response> => new Promise(async resolve => {
   const initData = utils.initialize(req, [0, 1, 2, 3], resolve), // 获取请求参数与回复数据类型
@@ -81,7 +80,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
     const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
     switch (type) {
       case 1: { // 编号为 AV 号或 BV 号
-        let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null>;
+        let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
+
         if (requestForce) { // 强制获取视频信息
           await utils.callAPI('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', withCookie: true, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1' }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
           await new Promise(r => { setTimeout(r, 500); }); // 等待 0.5 秒
@@ -95,15 +95,21 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
               if (info2) info = info2;
             }
-            json = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, tid: null, tname: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0 } };
-            json.data = { ...json.data!, ...info, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vt: 0, vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid ?? 0, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined }; // 加入缺失的信息，移除“不该出现”的信息
+
+            json.data = { ...json.data!, ...info, tid_v2: info.tidv2, tname_v2: info.tnamev2, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vt: 0, vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid ?? 0, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, tidv2: undefined, tnamev2: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined }; // 加入缺失的信息，移除“不该出现”的信息
           } else {
             json = { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'notFoundInHistory' } };
           }
         } else {
-          json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid, web_location: 1446382 }, wbiSign: true, withCookie: useCookie }); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
-          if (json.code === -403 && useCookie === undefined) { // 这个视频需要登录才能获取其信息，如果没有设置不使用 Cookie，且不是已经使用了 Cookie 仍无法获取的，就带 Cookie 重新获取信息
-            json = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid, web_location: 1446382 }, wbiSign: true, withCookie: true });
+          let vjson = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid, web_location: 1446382 }, wbiSign: true, withCookie: useCookie }); // （备用）获取更详细的信息：https://api.bilibili.com/x/web-interface/wbi/view/detail?bvid=(...)
+          if (vjson.code === -403 && useCookie === undefined) { // 这个视频需要登录才能获取其信息，如果没有设置不使用 Cookie，且不是已经使用了 Cookie 仍无法获取的，就带 Cookie 重新获取信息
+            vjson = <APIResponse<VideoInfoData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/wbi/view', { params: { bvid: vid, web_location: 1446382 }, wbiSign: true, withCookie: true });
+          }
+
+          if (vjson.code === 0) {
+            json.data = { ...json.data!, ...vjson.data };
+          } else {
+            json = { code: vjson.code, message: vjson.message, data: null };
           }
         }
 
@@ -112,6 +118,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
             switch (json.code) {
               case 0: {
                 const data = json.data!;
+
                 let zone = data.tname ? utils.encodeHTML(data.tname) : '未知';
                 const mainZone = zones.find(m => m.tid === data.tid);
                 if (mainZone) {
@@ -122,6 +129,22 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                       const subZone = m.sub.find(s => s.tid === data.tid);
                       if (subZone) {
                         zone = `<a ${m.expired ? 'class="broken" ' : ''}target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/${m.url}">${m.name}</a>${m.expired ? '<span class="description">（已下线）</span>' : ''} &gt; <a ${subZone.expired ? 'class="broken" ' : ''}target="_blank" rel="noopener external nofollow noreferrer" title="${subZone.desc ?? ''}" href="https://www.bilibili.com/${subZone.url}">${subZone.name}</a>${subZone.expired ? '<span class="description">（已下线）</span>' : ''}`;
+                        break;
+                      }
+                    }
+                  }
+                }
+
+                let zoneV2 = data.tname_v2 ? utils.encodeHTML(data.tname_v2) : '未知';
+                const parentZone = zonesV2.find(p => p.tid === data.tid_v2);
+                if (parentZone) {
+                  zoneV2 = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/c/${parentZone.route}/">${parentZone.name}</a>`;
+                } else {
+                  for (const p of zonesV2) {
+                    if (p.sub) {
+                      const subZone = p.sub.find(s => s.tid === data.tid_v2);
+                      if (subZone) {
+                        zoneV2 = `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/c/${p.route}/">${p.name}</a> &gt; ${subZone.name}`;
                         break;
                       }
                     }
@@ -145,7 +168,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                       <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/"></a>
                     </div>
                   </div>
-                  <strong>分区：</strong>${zone}<br />
+                  <strong>分区（旧）：</strong>${zone}<br />
+                  <strong>分区（新）：</strong>${zoneV2}<br />
                   <strong>${data.state === -40 ? '审核通过' : '投稿/审核通过'}时间：</strong>${utils.getDate(data.ctime)}<span class="description">（可能不准确）</span><br />
                   <strong>${data.state === -40 ? '投稿' : '发布'}时间：</strong>${utils.getDate(data.pubdate)}
                   <table>
@@ -350,9 +374,47 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           }
           default: // 回复 JSON
             switch (json.code) {
-              case 0:
+              case 0: {
+                const data = json.data!;
+
+                // 添加父分区信息
+                let mainZone = zones.find(m => m.tid === data.tid);
+                if (!mainZone) {
+                  for (const m of zones) {
+                    if (m.sub) {
+                      const subZone = m.sub.find(s => s.tid === data.tid);
+                      if (subZone) {
+                        mainZone = m;
+                        break;
+                      }
+                    }
+                  }
+                }
+                if (mainZone) {
+                  data.pid = mainZone.tid;
+                  data.pid_name = mainZone.name;
+                }
+
+                let parentZone = zonesV2.find(p => p.tid === data.tid_v2);
+                if (!parentZone) {
+                  for (const p of zonesV2) {
+                    if (p.sub) {
+                      const subZone = p.sub.find(s => s.tid === data.tid_v2);
+                      if (subZone) {
+                        parentZone = p;
+                        break;
+                      }
+                    }
+                  }
+                }
+                if (parentZone) {
+                  data.pid_v2 = parentZone.tid;
+                  data.pid_name_v2 = parentZone.name;
+                }
+
                 sendJSON(200, { code: 0, message: json.message, data: json.data });
                 break;
+              }
               case -352:
               case -401:
               case -412:
