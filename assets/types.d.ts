@@ -68,6 +68,23 @@ type VIPRole = 0/* 无 */ | 1/* 月度 */ | 3/* 年度 */ | 7/* 十年 */ | 15/*
 type level = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 type levelNextExp = 1 | 200 | 1500 | 4500 | 10800 | 28800 | -1;
 type levelCurrentMin = 0 | 1 | 200 | 1500 | 4500 | 10800 | 28800;
+interface PendantInfo {
+  pid: number;
+  name: string;
+  image: url;
+  expire: 0;
+  image_enhance: url;
+  image_enhance_frame: url;
+  n_pid: number;
+}
+interface NameplateInfo {
+  nid: number;
+  name: string;
+  image: url;
+  image_small: url;
+  level: string;
+  condition: string;
+}
 interface OfficialVerifyInfo {
   role: officialRole;
   title: string;
@@ -103,32 +120,52 @@ interface VIPInfo {
   tv_due_date: secondLevelTimestamp;
   avatar_icon: { icon_type?: number; icon_resource: {} };
 }
+interface NameRenderInfo {
+  colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
+  render_scheme: 'Default' | 'Colorful';
+}
 
-// a. 用户卡片数据（https://account.bilibili.com/api/member/getCardByMid）
+// a. 用户名片数据（https://api.bilibili.com/x/web-interface/card）
 export interface UserCardData {
-  mid: numericString;
-  name: string;
-  approve: false;
-  sex: sex;
-  rank: numericString;
-  face: url;
-  coins: 0;
-  DisplayRank: numericString;
-  regtime: 0;
-  spacesta: -10/* 未绑定手机（？） */ | -2/* 被封禁 */ | 0/* 正常 */ | 2/* （？） */;
-  place: '';
-  birthday: `${number}-${number}-${number}`;
-  sign: string;
-  description: '';
-  article: 0;
-  attentions: number[] | []; // 隐藏关注列表时为空数组
-  fans: number;
-  friend: number; // 同 attention
-  attention: number;
-  level_info: { next_exp: levelNextExp; current_level: level; current_min: levelCurrentMin; current_exp: number };
-  pendant: { pid: number; name: string; image: url; expire: 0 };
-  official_verify: { type: officialType; desc: string };
-  nameplate?: { nid: number; name: string; image: url; image_small: url; level: string; condition: string };
+  card: {
+    mid: numericString;
+    name: string;
+    approve: false;
+    sex: sex;
+    rank: numericString;
+    face: url;
+    face_nft: booleanNumber;
+    face_nft_type: number;
+    DisplayRank: numericString;
+    regtime: 0;
+    spacesta: -2/* 被封禁 */ | 0/* 正常 */;
+    birthday: '';
+    place: '';
+    description: '';
+    article: 0;
+    attentions: [];
+    fans: number;
+    friend: number; // 同 attention
+    attention: number;
+    sign: string;
+    level_info: { current_level: level; current_min: 0; current_exp: 0; next_exp: 0 };
+    pendant: PendantInfo;
+    nameplate: NameplateInfo;
+    Official: OfficialVerifyInfo;
+    official_verify: { type: officialType; desc: string };
+    vip: VIPInfo & { vipType: VIPType; vipStatus: booleanNumber };
+    is_senior_member: booleanNumber;
+    name_render: null | NameRenderInfo;
+  };
+  space: { // 仅当“photo”参数为“true”时出现
+    s_img: url;
+    l_img: url;
+  };
+  following: boolean;
+  archive_count: number;
+  article_count: 0;
+  follower: number;
+  like_num: number;
 }
 
 // b. 用户信息数据（https://api.bilibili.com/x/space/wbi/acc/info）
@@ -171,8 +208,8 @@ export interface UserInfoData {
   };
   official: OfficialVerifyInfo;
   vip: VIPInfo;
-  pendant: { pid: number; name: string; image: url; expire: 0; image_enhance: url; image_enhance_frame: url; n_pid: number };
-  nameplate: { nid: number; name: string; image: url; image_small: url; level: string; condition: string };
+  pendant: PendantInfo;
+  nameplate: NameplateInfo;
   user_honour_info: { mid: 0; colour: null; tags: []; is_latest_100honour: 0 };
   is_followed: boolean;
   top_photo: url;
@@ -201,10 +238,7 @@ export interface UserInfoData {
   elec: { show_info: { show: boolean; state: -1/* 未开通充电功能 */ | 1/* 已开通自定义充电 */ | 2/* 已开通包月、自定义充电 */ | 3/* 已开通高档、自定义充电 */; title: '' | '充电' | '充电中'; icon: url; jump_url: url } };
   contract: { is_display: false; is_follow_display: false };
   certificate_show: false;
-  name_render: null | {
-    colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
-    render_scheme: 'Default' | 'Colorful';
-  };
+  name_render: null | NameRenderInfo;
   top_photo_v2: {
     sid: number;
     l_img: url;
@@ -250,10 +284,7 @@ interface UserCardsItem {
       use_img_label: true;
     };
   };
-  name_render: null | {
-    colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
-    render_scheme: 'Default' | 'Colorful';
-  };
+  name_render: null | NameRenderInfo;
 }
 export type UserCardsData = Record<number, UserCardsItem>;
 
@@ -297,7 +328,7 @@ export interface InternalAPIGetUserInfoData {
   attention: null | number;
   following: null | number;
   follower: null | number;
-  level_info: { next_exp: null | levelNextExp; current_level: null | level; current_min: null | levelCurrentMin; current_exp: null | number };
+  level_info: UserCardData['level_info'];
   fans_badge: boolean;
   fans_medal: UserInfoData['fans_medal'];
   official: UserInfoData['official'];
@@ -310,7 +341,7 @@ export interface InternalAPIGetUserInfoData {
   top_photo: url;
   sys_notice: UserInfoData['sys_notice'];
   live_room: UserInfoData['live_room'];
-  birthday: secondLevelTimestamp;
+  birthday: string;
   school: UserInfoData['school'];
   profession: UserInfoData['profession'];
   tags: UserInfoData['tags'];
@@ -327,6 +358,7 @@ export interface InternalAPIGetUserInfoData {
   top_photo_v2: UserInfoData['top_photo_v2'];
   theme: null;
   attestation: UserInfoData['attestation'];
+  Official?: undefined;
 }
 
 // f. “获取哔哩哔哩用户信息”接口回应的多用户数据（/api/getuser）
