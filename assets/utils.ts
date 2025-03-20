@@ -379,7 +379,7 @@ export const callAPI = (requestUrl: url, options?: Parameters<typeof makeRequest
 
     const json = <{ code: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
     upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
-    if ([-352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
+    if ([-351, -352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
 
     return json;
   },

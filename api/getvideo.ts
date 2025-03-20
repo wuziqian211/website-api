@@ -233,6 +233,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 sendHTML(200, { title: `${data.title} 的信息`, imageBackground: data.pic, content, vid: requestVid });
                 break;
               }
+              case -351:
               case -352:
               case -401:
               case -412:
@@ -415,6 +416,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 sendJSON(200, { code: 0, message: json.message, data: json.data });
                 break;
               }
+              case -351:
               case -352:
               case -401:
               case -412:
@@ -465,6 +467,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 sendHTML(200, { title: `${result.media.title} 的信息`, imageBackground: result.media.horizontal_picture || result.media.cover, content, vid: requestVid });
                 break;
               }
+              case -351:
               case -352:
               case -401:
               case -412:
@@ -540,6 +543,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               case 0:
                 sendJSON(200, { code: 0, message: json.message, data: json.result });
                 break;
+              case -351:
               case -352:
               case -401:
               case -412:
@@ -671,6 +675,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                 sendHTML(200, { title: `${result.title} 的信息`, imageBackground: result.bkg_cover || result.cover, content, vid: requestVid });
                 break;
               }
+              case -351:
               case -352:
               case -401:
               case -412:
@@ -817,6 +822,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               case 0:
                 sendJSON(200, { code: 0, message: json.message, data: json.result });
                 break;
+              case -351:
               case -352:
               case -401:
               case -412:

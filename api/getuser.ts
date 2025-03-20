@@ -97,6 +97,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               sendHTML(200, { title: `${data.name} 的信息`, appleTouchIcon: utils.toHTTPS(data.face), imageBackground: data.top_photo || '/assets/top-photo.png', content, mid: requestMid });
               break;
             }
+            case -351: // 请求太频繁
             case -352: // 风控校验失败（请求标头或参数不合法）
             case -401: // 非法访问（被识别为爬虫）
             case -403: // 访问权限不足（Wbi 参数错误）
@@ -160,6 +161,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
             case 0:
               sendJSON(200, { code: 0, message: json.message, data: json.data, extInfo: json.extInfo! });
               break;
+            case -351:
             case -352:
             case -401:
             case -403:
