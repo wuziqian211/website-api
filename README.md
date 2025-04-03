@@ -215,17 +215,17 @@
     "silence": 0,
     "coins": 0,
     "article": 0,
-    "attentions": [], // 因涉及隐私，此处隐藏具体数据
+    "attentions": [],
     "fans": 1186752,
     "friend": 368,
     "attention": 368,
     "following": 368,
     "follower": 1186752,
     "level_info": {
-      "next_exp": -1,
+      "next_exp": 0,
       "current_level": 6,
-      "current_min": 28800,
-      "current_exp": 0 // 因涉及隐私，此处隐藏具体数据
+      "current_min": 0,
+      "current_exp": 0
     },
     "fans_badge": true,
     "fans_medal": {
@@ -321,7 +321,7 @@
         "icon_web": "https://i0.hdslb.com/bfs/live/8d9d0f33ef8bf6f308742752d13dd0df731df19c.png"
       }
     },
-    "birthday": 622137600,
+    "birthday": "09-19",
     "school": { "name": "" },
     "profession": { "name": "", "department": "", "title": "", "is_show": 0 },
     "tags": null,
@@ -355,13 +355,14 @@
   },
   "extInfo": { // 扩展信息
     "upstreamServerResponseInfo": [{ // 上游服务器返回的信息
-      "url": "https://account.bilibili.com/api/member/getCardByMid?mid=2",
+      "url": "https://api.bilibili.com/x/web-interface/card?mid=2&photo=true",
       "method": "GET",
       "type": "json",
       "startTime": 1739717704318,
       "endTime": 1739717705836,
       "status": 200,
-      "code": 0
+      "code": 0,
+      "message": "0"
     }, {
       "url": "https://api.bilibili.com/x/space/wbi/acc/info?gaia_source=main_web&mid=2&platform=web&token=&w_webid=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzcG1faWQiOiIzMzMuOTk5IiwiYnV2aWQiOiJBMTlDRThDMS00OTJCLTVBRTgtRTk1Mi1GNjY5OTg4NTc1RjIwNzQxNmluZm9jIiwidXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChYMTE7IExpbnV4IHg4Nl82NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzEyMy4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiY3JlYXRlZF9hdCI6MTczOTcxNzcwNywidHRsIjo4NjQwMCwidXJsIjoiLzIwOTU0OTgyMTgiLCJyZXN1bHQiOjAsIm4iOjksIm0iOjEsImlzcyI6ImdhaWEiLCJpYXQiOjE3Mzk3MTc3MDd9.hrXcse32qjr-Jq_I3Uv6_kb4m8PjndH_G0rHfaeXPbjv-3fy3aTp7gt3jlTMWxBuvK7iLGA7omUPhIj5i2pw0BVym6coOpm82wQi762n1iE_7_fjcrOUyo8hSEx6oW3GSzbUepYwF09yWeoZ0lcYMVzGHxYHI2yTwa64joVcwv5Rdb6k-suO_xoU0_r1UsY4bnovSu-eTBnz8-j7PD1lH1E-Nw_lcIZ0rk2ZewI12cx_DZUmNOfSPTIN6zEdOgsjvkU14EcalC-3YHSqYSMazZtFXqmzbqJHForj-N1E442n1WcgW5-69NKVUlvlIEn3TPcmRfYV3Nr7C29WqgKA9w&web_location=1550101&wts=1739717708&x-bili-device-req-json=%7B%22platform%22%3A%22web%22%2C%22device%22%3A%22pc%22%7D&w_rid=fb7aab19b80846807df519c1ef8bcc77",
       "method": "GET",
