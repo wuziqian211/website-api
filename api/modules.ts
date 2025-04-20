@@ -31,7 +31,8 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
         case 'friends': { // 关系好的朋友们（不一定互关）
           const version = params.get('version'), redis = Redis.fromEnv(),
                 info = (<FriendInfo[]> await redis.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
-          const { normalFriends, deletedFriends } = Object.groupBy(info, u => u.is_deleted ? 'deletedFriends' : 'normalFriends');
+          const normalFriends = info.filter(u => !u.is_deleted),
+                deletedFriends = info.filter(u => u.is_deleted);
 
           respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate');
           if (version === '3') { // 第 3 版：简化名称
