@@ -30,7 +30,7 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
       switch (params.get('id')) {
         case 'friends': { // 关系好的朋友们（不一定互关）
           const version = params.get('version'), redis = Redis.fromEnv(),
-                info = (<FriendInfo[]> await redis.get('friendsInfo')).toSorted(() => 0.5 - Math.random());
+                info = utils.shuffleArray(<FriendInfo[]> await redis.get('friendsInfo'));
           const normalFriends = info.filter(u => !u.is_deleted),
                 deletedFriends = info.filter(u => u.is_deleted);
 

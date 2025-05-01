@@ -1,7 +1,21 @@
 // 常量定义
-import type { url } from './types.d.ts';
+import type { url, officialType, officialRole } from './types.d.ts';
 
-// 1. 视频分区列表
+// 1. 用户认证信息
+export const officialVerifyInfo: { type: officialType; role: officialRole; title: string }[] = [
+  { type: -1, role: 0, title: '' },
+  { type: 0, role: 1, title: '知名UP主' },
+  { type: 0, role: 2, title: '身份认证' },
+  { type: 1, role: 3, title: '企业' },
+  { type: 1, role: 4, title: '组织' },
+  { type: 1, role: 5, title: '媒体' },
+  { type: 1, role: 6, title: '政府' },
+  { type: 0, role: 7, title: '专业认证' }, // 专业认证的信息并不会出现在“official”对象中，而会出现在“attestation”对象中
+  { type: 0, role: 8, title: '职业资质认证' }, // 职业资质认证的信息并不会出现在“official”对象中，而会出现在“profession”对象中
+  { type: 0, role: 9, title: '社会名人' },
+];
+
+// 2. 视频分区列表
 interface Zone {
   tid: number;
   name: string;
@@ -573,7 +587,7 @@ export const zonesV2: ZoneV2[] = [
   },
 ];
 
-// 2. 视频状态
+// 3. 视频状态
 export const states: Record<number, string> = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/attribute_data.md
   0: '该视频已开放浏览', // 开放浏览
   1: '该视频通过审核，但可能会受到限制', // 橙色通过
@@ -600,7 +614,7 @@ export const states: Record<number, string> = { // 来自 https://github.com/Soc
   '-100': '该视频已被删除', // 用户删除
 };
 
-// 3. 朋友列表
+// 4. 朋友列表
 export const friends = [ // 共 311（正常用户）＋14（已注销）＝325 位用户
   // 正常用户（每个 UID 后面的注释为最近一次更新此数据时 UID 对应用户的昵称）
   12767, // 艹

@@ -23,20 +23,10 @@ if (ujson.code !== 0) {
 const { mid } = ujson.data;
 console.log(`当前登录 B 站账号 UID：${mid}`);
 
-let webId = '';
-const spaceHTMLText = await (await fetch(`https://space.bilibili.com/${mid}`, { headers: { Cookie: `SESSDATA=${SESSDATA}; bili_jct=${csrf}; DedeUserID=${mid}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent } })).text();
-const renderData = /<script id="__RENDER_DATA__".*>(.*)<\/script>/.exec(spaceHTMLText);
-if (renderData && renderData[1]) {
-  /** @type {{ access_id: string }} */
-  const rjson = JSON.parse(decodeURIComponent(renderData[1]));
-  webId = rjson.access_id;
-}
-
 const redis = Redis.fromEnv();
 await redis.set('wbiKeys', {
   mid,
   imgKey: ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),
   subKey: ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1'),
-  webId,
   updatedTimestamp: Date.now(),
 });

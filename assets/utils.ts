@@ -11,7 +11,6 @@ interface WbiKeys {
   mid: number;
   imgKey: string;
   subKey: string;
-  webId: string;
   updatedTimestamp: millisecondLevelTimestamp;
 }
 interface RequestInfo {
@@ -234,6 +233,13 @@ export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间�
 export const getTime = (s: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 export const getNumber = (n: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
 export const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString>s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
+export const shuffleArray = <T>(array: T[]): T[] => { // 使用 Fisher-Yates 洗牌算法对数组进行排序
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
 export const encodeHTML = (str?: string): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
 export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
   if (!targetUrl) return 'data:,';
@@ -309,7 +315,7 @@ const getRequestInfo = (): RequestInfo => {
   }
   return cachedRequestInfo;
 };
-const makeRequest = async <T>(requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发出请求到服务器
+const makeRequest = async <T>(requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
   const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders,
         retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1); // 重试次数
@@ -415,7 +421,6 @@ export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchPa
   const keys = await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
-  params.append('w_webid', keys.webId); // 添加 w_webid 字段
   params.append('wts', Math.floor(Date.now() / 1000).toString()); // 添加 wts 字段
   params.sort(); // 按照键名排序参数
   params.append('w_rid', md5(params.toString() + mixinKey)); // 计算 w_rid
@@ -431,14 +436,6 @@ export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // �
     wbiKeys.imgKey = ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
     wbiKeys.subKey = ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
     requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
-
-    const spaceHTMLText = await (await request(`https://space.bilibili.com/${ujson.data.mid}`, { withCookie: true, responseType: 'html' })).text();
-    const renderData = /<script id="__RENDER_DATA__".*>(.*)<\/script>/.exec(spaceHTMLText);
-    if (renderData && renderData[1]) {
-      const rjson = <{ access_id: string }> JSONParse(decodeURIComponent(renderData[1]));
-      wbiKeys.webId = rjson.access_id;
-    }
-
     wbiKeys.updatedTimestamp = Date.now();
     waitUntil(redis.set('wbiKeys', wbiKeys));
   } else {
