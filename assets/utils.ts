@@ -20,9 +20,7 @@ interface RequestInfo {
   loginHeaders: Headers;
   normalHeaders: Headers;
 }
-type ResponseType = 0/* JSON */ | 1/* HTML */ | 2/* 图片 */ | 3/* 视频 */;
-type FetchDest = 0 | 1 | 2 | 3;
-type Accept = 0 | 1 | 2 | 3;
+type ContentType = 0/* JSON */ | 1/* HTML */ | 2/* 图片 */ | 3/* 视频 */;
 
 import util from 'node:util';
 import { waitUntil, getEnv } from '@vercel/functions';
@@ -32,14 +30,14 @@ import md5 from 'md5';
 let startTime: millisecondLevelTimestamp, timer: NodeJS.Timeout | undefined,
     cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, upstreamServerResponseInfo: ResponseInfo[] = [];
 
-export const initialize = (req: Request, acceptedResponseTypes: ResponseType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: FetchDest | undefined; responseType: ResponseType; isResponseTypeSpecified: boolean } => { // 初始化 API
+export const initialize = (req: Request, acceptedResponseTypes: ContentType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: ContentType | undefined; responseType: ContentType; isResponseTypeSpecified: boolean } => { // 初始化 API
   startTime = performance.now();
   upstreamServerResponseInfo = [];
-  const params = new URL(req.url).searchParams, accepts: Accept[] = [],
+  const params = new URL(req.url).searchParams, accepts: ContentType[] = [],
         requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
-  let fetchDest: FetchDest | undefined, acceptAll = false,
-      responseType: ResponseType | undefined, isResponseTypeSpecified = false;
+  let fetchDest: ContentType | undefined, acceptAll = false,
+      responseType: ContentType | undefined, isResponseTypeSpecified = false;
 
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
@@ -174,7 +172,7 @@ export const send = (status: number, headers: Headers, data: BodyInit): Response
   headers.set('Vary', 'Accept, Sec-Fetch-Dest');
   return new Response(data, { status, headers });
 };
-export const send404 = (responseType: ResponseType, noCache?: boolean): Response => {
+export const send404 = (responseType: ContentType, noCache?: boolean): Response => {
   const headers = new Headers();
   if (responseType === 1) {
     if (!noCache) headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
@@ -183,7 +181,7 @@ export const send404 = (responseType: ResponseType, noCache?: boolean): Response
     return sendJSON(404, headers, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
   }
 };
-export const send500 = (responseType: ResponseType, error: unknown): Response => {
+export const send500 = (responseType: ContentType, error: unknown): Response => {
   console.error(error);
   const headers = new Headers();
   if (responseType === 1) {
@@ -196,7 +194,7 @@ export const send500 = (responseType: ResponseType, error: unknown): Response =>
     return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error) } });
   }
 };
-export const send504 = (responseType: ResponseType): Response => {
+export const send504 = (responseType: ContentType): Response => {
   const headers = new Headers();
   if (responseType === 1) {
     return sendHTML(504, headers, { title: 'API 执行超时', newStyle: true, body: `
@@ -232,8 +230,8 @@ export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间�
 };
 export const getTime = (s: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 export const getNumber = (n: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-export const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString>s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
-export const shuffleArray = <T>(array: T[]): T[] => { // 使用 Fisher-Yates 洗牌算法对数组进行排序
+export const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString> s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
+export const shuffleArray = <T> (array: T[]): T[] => { // 使用 Fisher-Yates 洗牌算法对数组进行排序
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -315,7 +313,7 @@ const getRequestInfo = (): RequestInfo => {
   }
   return cachedRequestInfo;
 };
-const makeRequest = async <T>(requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
+const makeRequest = async <T> (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
   const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders,
         retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1); // 重试次数
@@ -339,9 +337,13 @@ const makeRequest = async <T>(requestUrl: url, options: { method?: string; param
       options.body.set('mobi_app', 'web');
     }
   }
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && (options.body instanceof URLSearchParams || options.body instanceof FormData)) { // 请求使用的是修改方法，就添加 csrf
-    options.body.set('csrf_token', csrf);
-    options.body.set('csrf', csrf);
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) { // 请求使用的是修改方法，就添加 csrf
+    initialUrlObj.searchParams.set('csrf_token', csrf);
+    initialUrlObj.searchParams.set('csrf', csrf);
+    if (options.body instanceof URLSearchParams || options.body instanceof FormData) {
+      options.body.set('csrf_token', csrf);
+      options.body.set('csrf', csrf);
+    }
   }
 
   for (let i = 1; i <= retries; i++) { // 多次尝试请求，若请求失败，则再次请求
@@ -350,7 +352,6 @@ const makeRequest = async <T>(requestUrl: url, options: { method?: string; param
     if (options.wbiSign) { // 使用 Wbi 签名
       urlObj.searchParams.set('gaia_source', 'main_web');
       if (!urlObj.searchParams.has('platform')) urlObj.searchParams.set('platform', 'web');
-      urlObj.searchParams.set('x-bili-device-req-json', '{"platform":"web","device":"pc"}');
       urlObj.search = await encodeWbi(urlObj.search);
     }
 
@@ -383,7 +384,7 @@ export const callAPI = (requestUrl: url, options?: Parameters<typeof makeRequest
       throw new TypeError(`HTTP status: ${resp.status}`);
     }
 
-    const json = <{ code: number; message?: string; [key: string]: unknown }>JSONParse(await resp.text());
+    const json = <{ code: number; message?: string; [key: string]: unknown }> JSONParse(await resp.text());
     upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
     if ([-351, -352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
 

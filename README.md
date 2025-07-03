@@ -216,16 +216,16 @@
     "coins": 0,
     "article": 0,
     "attentions": [],
-    "fans": 1186752,
-    "friend": 368,
-    "attention": 368,
-    "following": 368,
-    "follower": 1186752,
+    "fans": 1213576,
+    "friend": 372,
+    "attention": 372,
+    "following": 372,
+    "follower": 1213576,
     "level_info": {
-      "next_exp": 0,
       "current_level": 6,
       "current_min": 0,
-      "current_exp": 0
+      "current_exp": 0,
+      "next_exp": 0
     },
     "fans_badge": true,
     "fans_medal": {
@@ -238,16 +238,17 @@
         "level": 28,
         "medal_name": "桜樱怪",
         "medal_color": 398668,
-        "intimacy": 0, // 因涉及隐私，此处隐藏具体数据
+        "intimacy": 45966,
         "next_intimacy": 160000,
         "day_limit": 250000,
         "medal_color_start": 398668,
         "medal_color_end": 6850801,
-        "medal_color_border": 398668,
+        "medal_color_border": 6809855,
         "is_lighted": 1,
+        "guard_level": 3,
         "light_status": 1,
         "wearing_status": 1,
-        "score": 0 // 因涉及隐私，此处隐藏具体数据
+        "score": 50205966
       }
     },
     "official": { "role": 2, "title": "bilibili创始人（站长）", "desc": "", "type": 0 },
@@ -255,11 +256,11 @@
     "vip": {
       "type": 2,
       "status": 1,
-      "due_date": 3990268800000,
+      "due_date": 4003660800000,
       "vip_pay_type": 0,
       "theme_type": 0,
       "label": {
-        "path": "",
+        "path": "http://i0.hdslb.com/bfs/vip/label_annual.png",
         "text": "十年大会员",
         "label_theme": "ten_annual_vip",
         "text_color": "#FFFFFF",
@@ -270,7 +271,12 @@
         "img_label_uri_hans": "https://i0.hdslb.com/bfs/activity-plat/static/20220608/e369244d0b14644f5e1a06431e22a4d5/wltavwHAkL.gif",
         "img_label_uri_hant": "",
         "img_label_uri_hans_static": "https://i0.hdslb.com/bfs/vip/802418ff03911645648b63aa193ba67997b5a0bc.png",
-        "img_label_uri_hant_static": "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/8u7iRTPE7N.png"
+        "img_label_uri_hant_static": "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/8u7iRTPE7N.png",
+        "label_id": -22,
+        "label_goto": {
+          "mobile": "https://big.bilibili.com/mobile/index?navhide=1&from_spmid=vipicon",
+          "pc_web": "https://account.bilibili.com/big?from_spmid=vipicon"
+        }
       },
       "avatar_subscript": 1,
       "nickname_color": "#FB7299",
@@ -282,25 +288,25 @@
       "avatar_icon": { "icon_type": 1, "icon_resource": {} }
     },
     "pendant": {
-      "pid": 32257,
-      "name": "EveOneCat2",
-      "image": "https://i2.hdslb.com/bfs/garb/item/488870931b1bba66da36d22848f0720480d3d79a.png",
+      "pid": -338454175,
+      "name": "箱庭少女之梦头像",
+      "image": "https://i2.hdslb.com/bfs/garb/open/efe5e579cbb95a404c2ba289f37c5965dee7a3a2.png",
       "expire": 0,
-      "image_enhance": "https://i2.hdslb.com/bfs/garb/item/5974f17f9d96a88bafba2f6d18d647a486e88312.webp",
-      "image_enhance_frame": "https://i2.hdslb.com/bfs/garb/item/4316a3910bb0bd6f2f1c267a3e9187f0b9fe5bd0.png",
-      "n_pid": 32257
+      "image_enhance": "https://i2.hdslb.com/bfs/garb/open/efe5e579cbb95a404c2ba289f37c5965dee7a3a2.png",
+      "image_enhance_frame": "",
+      "n_pid": 1743418268001
     },
     "nameplate": {
       "nid": 10,
       "name": "见习偶像",
-      "image": "https://i2.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
+      "image": "https://i0.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
       "image_small": "https://i2.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
       "level": "普通勋章",
       "condition": "所有自制视频总播放数>=10万"
     },
     "user_honour_info": { "mid": 0, "colour": null, "tags": [], "is_latest_100honour": 0 },
     "is_followed": false,
-    "top_photo": "http://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+    "top_photo": "bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
     "sys_notice": {},
     "live_room": {
       "roomStatus": 1,
@@ -313,9 +319,9 @@
       "broadcast_type": 0,
       "watched_show": {
         "switch": true,
-        "num": 5,
-        "text_small": "5",
-        "text_large": "5人看过",
+        "num": 9,
+        "text_small": "9",
+        "text_large": "9人看过",
         "icon": "https://i0.hdslb.com/bfs/live/a725a9e61242ef44d764ac911691a7ce07f36c1d.png",
         "icon_location": "",
         "icon_web": "https://i0.hdslb.com/bfs/live/8d9d0f33ef8bf6f308742752d13dd0df731df19c.png"
@@ -331,13 +337,28 @@
     "gaia_res_type": 0,
     "gaia_data": null,
     "is_risk": false,
-    "elec": { "show_info": { "show": true, "state": 1, "title": "", "icon": "", "jump_url": "?oid=2" } },
+    "elec": {
+      "show_info": {
+        "show": true,
+        "state": 1,
+        "title": "",
+        "icon": "",
+        "jump_url": "?oid=2",
+        "total": 2085,
+        "list": [{
+          "pay_mid": 1702542779,
+          "rank": 1,
+          "avatar": "https://i2.hdslb.com/bfs/face/d46a3cb87d0d93da0ec1a700290cc4352ba59f5b.webp",
+          "uname": "没名字的米忽悠"
+        }]
+      }
+    },
     "contract": { "is_display": false, "is_follow_display": false },
     "certificate_show": false,
     "name_render": null,
     "top_photo_v2": {
       "sid": 1,
-      "l_img": "https://i1.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+      "l_img": "https://i2.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
       "l_200h_img": "https://i2.hdslb.com/bfs/activity-plat/static/0977767b2e79d8ad0a36a731068a83d7/1sz3p8w2Sk.png"
     },
     "theme": null,
@@ -358,22 +379,31 @@
       "url": "https://api.bilibili.com/x/web-interface/card?mid=2&photo=true",
       "method": "GET",
       "type": "json",
-      "startTime": 1739717704318,
-      "endTime": 1739717705836,
+      "startTime": 1751543611481,
+      "endTime": 1751543611891,
       "status": 200,
       "code": 0,
       "message": "0"
     }, {
-      "url": "https://api.bilibili.com/x/space/wbi/acc/info?gaia_source=main_web&mid=2&platform=web&token=&web_location=1550101&wts=1746105810&x-bili-device-req-json=%7B%22platform%22%3A%22web%22%2C%22device%22%3A%22pc%22%7D&w_rid=5b0ea4a683f726e557151cb655ecbd2b",
+      "url": "https://api.bilibili.com/x/web-interface/nav",
       "method": "GET",
       "type": "json",
-      "startTime": 1739717708277,
-      "endTime": 1739717708383,
+      "startTime": 1751543612142,
+      "endTime": 1751543612271,
+      "status": 200,
+      "code": 0,
+      "message": "0"
+    }, {
+      "url": "https://api.bilibili.com/x/space/wbi/acc/info?gaia_source=main_web&mid=2&platform=web&token=&web_location=1550101&wts=1751543612&x-bili-device-req-json=%7B%22platform%22%3A%22web%22%2C%22device%22%3A%22pc%22%7D&w_rid=f698de07d94b47b9dc3d2bba6c8c1ddf",
+      "method": "GET",
+      "type": "json",
+      "startTime": 1751543612274,
+      "endTime": 1751543612398,
       "status": 200,
       "code": 0,
       "message": "0"
     }],
-    "apiExecTime": 745.896267 // 调用 API 耗时（单位：毫秒）
+    "apiExecTime": 918.851605 // 调用 API 耗时（单位：毫秒）
   }
 }
 ```

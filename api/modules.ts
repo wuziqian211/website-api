@@ -1,4 +1,4 @@
-import type { numericString, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
+import type { numericString, millisecondLevelTimestamp, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 interface HashInfo {
@@ -30,17 +30,18 @@ export default (req: Request): Promise<Response> => new Promise(async resolve =>
       switch (params.get('id')) {
         case 'friends': { // 关系好的朋友们（不一定互关）
           const version = params.get('version'), redis = Redis.fromEnv(),
-                info = utils.shuffleArray(<FriendInfo[]> await redis.get('friendsInfo'));
-          const normalFriends = info.filter(u => !u.is_deleted),
+                data = <{ list: FriendInfo[]; mtime: millisecondLevelTimestamp }> await redis.get('friendsInfo');
+          const info = utils.shuffleArray(data.list), { mtime } = data,
+                normalFriends = info.filter(u => !u.is_deleted),
                 deletedFriends = info.filter(u => u.is_deleted);
 
           respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate');
           if (version === '3') { // 第 3 版：简化名称
-            sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })) }, extInfo: { dataLength: info.length, dataSource: 'redis' } });
+            sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign, l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
           } else if (version === '2') { // 第 2 版
-            sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => ({ image: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'redis' } });
+            sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => ({ image: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign, link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
           } else {
-            sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'redis' } });
+            sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign)}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
           }
           break;
         }

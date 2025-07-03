@@ -98,7 +98,7 @@ interface VIPInfo {
   vip_pay_type: 0 | 1;
   theme_type: 0;
   label: {
-    path: '';
+    path: url;
     text: string;
     label_theme: string;
     text_color: '' | hexColor;
@@ -110,6 +110,8 @@ interface VIPInfo {
     img_label_uri_hant: url;
     img_label_uri_hans_static: url;
     img_label_uri_hant_static: url;
+    label_id: number;
+    label_goto: null | { mobile: url; pc_web: url };
   };
   avatar_subscript: 0 | 1 | 2;
   nickname_color: '' | hexColor;
@@ -201,6 +203,7 @@ export interface UserInfoData {
       medal_color_end: number;
       medal_color_border: number;
       is_lighted: booleanNumber;
+      guard_level?: number;
       light_status: booleanNumber;
       wearing_status: booleanNumber;
       score: number;
@@ -235,15 +238,21 @@ export interface UserInfoData {
   gaia_res_type: 0;
   gaia_data: null;
   is_risk: false;
-  elec: { show_info: { show: boolean; state: -1/* 未开通充电功能 */ | 1/* 已开通自定义充电 */ | 2/* 已开通包月、自定义充电 */ | 3/* 已开通高档、自定义充电 */; title: '' | '充电' | '充电中'; icon: url; jump_url: url } };
+  elec: {
+    show_info: {
+      show: boolean;
+      state: -1/* 未开通充电功能 */ | 1/* 已开通自定义充电 */ | 2/* 已开通包月、自定义充电 */ | 3/* 已开通高档、自定义充电 */;
+      title: '' | '充电' | '充电中';
+      icon: url;
+      jump_url: url;
+      total: number;
+      list: null | { pay_mid: number; rank: number; avatar: url; uname: string }[];
+    };
+  };
   contract: { is_display: false; is_follow_display: false };
   certificate_show: false;
   name_render: null | NameRenderInfo;
-  top_photo_v2: {
-    sid: number;
-    l_img: url;
-    l_200h_img: url;
-  };
+  top_photo_v2: { sid: number; l_img: url; l_200h_img: url };
   theme: null;
   attestation: {
     type: 0/* 无认证 */ | 1/* 专业认证 */ | 2/* UP 主认证 */ | 3/* 机构认证 */;

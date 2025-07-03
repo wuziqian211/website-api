@@ -83,14 +83,11 @@ a:hover, input[type='submit']:hover {
   background: #333;
   color: #ccc;
 }
-html {
-  height: 100%;
-}
 body {
   background: var(--background-color);
   color: var(--text-color);
   margin: 0;
-  min-height: 100%;
+  min-height: 100vh;
 }
 body.image-background {
   -webkit-backdrop-filter: blur(20px);
