@@ -92,7 +92,7 @@ body {
 body.image-background {
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  background: center/cover no-repeat fixed var(--background-color);
+  background: var(--background-image) center/cover no-repeat fixed, var(--background-color);
   transition: background 0.5s 0.5s;
 }
 body.new-style {
@@ -211,10 +211,17 @@ div.grid-item.main-info-outer {
   padding: 0;
 }
 div.main-info-outer {
-  background: center/cover no-repeat;
   border-radius: 10px;
   margin: 0 0 5px;
   overflow: hidden;
+}
+div.main-info-outer.image-background::before {
+  background: var(--background-image) right/150px no-repeat;
+  content: '';
+  inset: 0;
+  mask: linear-gradient(90deg, transparent calc(100% - 150px), black);
+  position: absolute;
+  z-index: -1;
 }
 div.main-info-inner {
   align-items: center;
@@ -226,22 +233,11 @@ div.main-info-inner {
   position: relative;
   width: 100%;
 }
-div.main-info-inner.image {
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
-  background: var(--background-color-translucent);
-}
 div.grid-item:not(.main-info-outer):hover, div.main-info-inner:hover {
   background: var(--background-color-translucent);
 }
 div.grid-item:not(.main-info-outer):active, div.main-info-inner:active {
   background: var(--background-active-color-three-quarters-transparent);
-}
-div.main-info-inner.image:hover {
-  background: var(--background-color-quarter-transparent);
-}
-div.main-info-inner.image:active {
-  background: var(--background-active-color-translucent);
 }
 div.main-info-inner > div.left, table * {
   overflow-wrap: break-word;
@@ -256,11 +252,8 @@ div.main-info-inner > div.detail {
   flex: 1;
 }
 div.main-info-inner > a.main-info-link, div.grid-item > a.grid-link {
-  height: 100%;
-  left: 0;
+  inset: 0;
   position: absolute;
-  top: 0;
-  width: 100%;
 }
 div.main-info-inner a:not(div.main-info-inner > a.main-info-link):not(div.grid-item > a.grid-link), div.grid-item a:not(div.main-info-inner > a.main-info-link):not(div.grid-item > a.grid-link) {
   position: relative;

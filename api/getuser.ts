@@ -218,8 +218,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
           const content = `
             <div class="grid user-list">
               ${Object.values(data).map(u => `
-              <div class="grid-item main-info-outer" id="user-${u.mid}" style="background-image: url(${utils.toHTTPS(u.face)});">
-                <div class="main-info-inner image">
+              <div class="grid-item main-info-outer image-background" id="user-${u.mid}" style="--background-image: url(${utils.toHTTPS(u.face)});">
+                <div class="main-info-inner">
                   <div class="image-wrap">
                     <img class="face" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" />
                     ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}

@@ -163,7 +163,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                         ${data.state !== 0 ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${data.state && data.state in states ? states[data.state] : '该视频存在未知问题'}</span><br />` : ''}
                         ${data.forward ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> 本视频已与 <a href="?vid=${utils.toBV(data.forward)}">${utils.toBV(data.forward)}</a> 撞车</span><br />` : ''}
                         ${data.argue_info.argue_msg ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${utils.encodeHTML(data.argue_info.argue_msg)}</span><br />` : ''}
-                        ${data.videos}P ${utils.getTime(data.duration)} ${data.copyright === 1 ? '自制' : data.copyright === 2 ? '转载' : ''}${data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${data.rights?.is_cooperation ? ' 合作' : ''}${data.rights && 'is_stein_gate' in data.rights && data.rights.is_stein_gate ? ' 互动' : ''}${data.rights && 'is_360' in data.rights && data.rights.is_360 ? ' 全景' : ''}${'honor' in data.honor_reply && data.honor_reply.honor?.find(h => h.type !== 3) ? ` ${data.honor_reply.honor.filter(h => h.type !== 3).map(h => utils.encodeHTML(h.desc)).join(' ')}` : ''}${data.stat.evaluation ? ` ${utils.encodeHTML(data.stat.evaluation)}` : ''}${data.stat.now_rank ? ` 当前排名第 ${data.stat.now_rank} 名` : ''}${data.stat.his_rank ? ` 历史最高排名第 ${data.stat.his_rank} 名` : ''}
+                        ${data.videos}P ${utils.getTime(data.duration)} ${data.copyright === 1 ? '自制' : data.copyright === 2 ? '转载' : ''}${data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${data.rights?.is_cooperation ? ' 合作' : ''}${data.rights && 'is_stein_gate' in data.rights && data.rights.is_stein_gate ? ' 互动' : ''}${data.rights && 'is_360' in data.rights && data.rights.is_360 ? ' 全景' : ''}${'honor' in data.honor_reply && data.honor_reply.honor?.some(h => h.type !== 3) ? ` ${data.honor_reply.honor.filter(h => h.type !== 3).map(h => utils.encodeHTML(h.desc)).join(' ')}` : ''}${data.stat.evaluation ? ` ${utils.encodeHTML(data.stat.evaluation)}` : ''}${data.stat.now_rank ? ` 当前排名第 ${data.stat.now_rank} 名` : ''}${data.stat.his_rank ? ` 历史最高排名第 ${data.stat.his_rank} 名` : ''}
                       </div>
                       <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/"></a>
                     </div>
@@ -184,8 +184,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   <strong>合作成员：</strong>
                   <div class="grid user-list">
                     ${data.staff.map(u => `
-                    <div class="grid-item main-info-outer" id="user-${u.mid}" style="background-image: url(${utils.toHTTPS(u.face)});">
-                      <div class="main-info-inner image">
+                    <div class="grid-item main-info-outer image-background" id="user-${u.mid}" style="--background-image: url(${utils.toHTTPS(u.face)});">
+                      <div class="main-info-inner">
                         <div class="image-wrap">
                           <img class="face" title="${utils.encodeHTML(u.name)}" src="${utils.toHTTPS(u.face)}" />
                           ${u.official.type === 0 ? '<img class="face-icon icon-personal" alt title="UP 主认证" />' : u.official.type === 1 ? '<img class="face-icon icon-business" alt title="机构认证" />' : u.vip.status ? '<img class="face-icon icon-big-vip" alt title="大会员" />' : ''}
@@ -199,8 +199,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                       </div>
                     </div>`).join('')}
                   </div>` : data.owner.mid ? `
-                  <div class="main-info-outer" id="user-${data.owner.mid}" style="background-image: url(${utils.toHTTPS(data.owner.face)});">
-                    <div class="main-info-inner image">
+                  <div class="main-info-outer image-background" id="user-${data.owner.mid}" style="--background-image: url(${utils.toHTTPS(data.owner.face)});">
+                    <div class="main-info-inner">
                       <div class="left"><strong>UP 主：</strong></div>
                       <div class="image-wrap">
                         <img class="face" title="${utils.encodeHTML(data.owner.name)}" src="${utils.toHTTPS(data.owner.face)}" />
@@ -212,8 +212,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   ${data.pages ? `
                   <div class="grid part-list">
                     ${data.pages.map(p => `
-                    <div class="grid-item main-info-outer" id="part-${p.page}"${p.first_frame ? ` style="background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}>
-                      <div class="main-info-inner${p.first_frame ? ' image' : ''}">
+                    <div class="grid-item main-info-outer${p.first_frame ? ' image-background' : ''}" id="part-${p.page}"${p.first_frame ? ` style="--background-image: url(${utils.toHTTPS(p.first_frame)});"` : ''}>
+                      <div class="main-info-inner">
                         <div class="left"><strong>P${p.page}</strong></div>
                         ${p.first_frame ? `
                         <div class="image-wrap">
@@ -603,8 +603,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                     </tbody>
                   </table>
                   ${result.up_info ? `
-                  <div class="main-info-outer" id="user-${result.up_info.mid}" style="background-image: url(${utils.toHTTPS(result.up_info.avatar)});">
-                    <div class="main-info-inner image">
+                  <div class="main-info-outer image-background" id="user-${result.up_info.mid}" style="--background-image: url(${utils.toHTTPS(result.up_info.avatar)});">
+                    <div class="main-info-inner">
                       <div class="left"><strong>UP 主：</strong></div>
                       <div class="image-wrap">
                         <img class="face" title="${utils.encodeHTML(result.up_info.uname)}" src="${utils.toHTTPS(result.up_info.avatar)}" />
@@ -620,8 +620,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   <strong>正片：</strong>
                   <div class="grid part-list">
                     ${result.episodes.map(p => `
-                    <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
-                      <div class="main-info-inner${p.cover ? ' image' : ''}">
+                    <div class="grid-item main-info-outer${p.cover ? ' image-background' : ''}"${p.cover ? ` style="--background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
+                      <div class="main-info-inner">
                         <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
                         ${p.cover ? `
                         <div class="image-wrap">
@@ -640,8 +640,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                   <strong>${utils.encodeHTML(s.title)}：</strong>
                   <div class="grid part-list">
                     ${s.episodes.map(p => s.type === 5 ? `
-                    <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
-                      <div class="main-info-inner${p.cover ? ' image' : ''}">
+                    <div class="grid-item main-info-outer${p.cover ? ' image-background' : ''}"${p.cover ? ` style="--background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
+                      <div class="main-info-inner">
                         ${p.cover ? `
                         <div class="image-wrap">
                           <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
@@ -654,8 +654,8 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                         <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${utils.toBV(p.aid)}/"></a>
                       </div>
                     </div>` : `
-                    <div class="grid-item main-info-outer"${p.cover ? ` style="background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
-                      <div class="main-info-inner${p.cover ? ' image' : ''}">
+                    <div class="grid-item main-info-outer${p.cover ? ' image-background' : ''}"${p.cover ? ` style="--background-image: url(${utils.toHTTPS(p.cover)});"` : ''}>
+                      <div class="main-info-inner">
                         <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
                         ${p.cover ? `
                         <div class="image-wrap">

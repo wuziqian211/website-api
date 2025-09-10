@@ -130,7 +130,7 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="${data.appleTouchIcon ? toHTTPS(data.appleTouchIcon) : '/assets/apple-touch-icon.png'}" />
       </head>
-      <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="background-image: url(${toHTTPS(data.imageBackground)});"` : ''}>
+      <body${data.newStyle ? ' class="new-style"' : ''}${data.imageBackground ? ` class="image-background" style="--background-image: url(${toHTTPS(data.imageBackground)});"` : ''}>
         <header>
           <div class="header">
             <div class="left"><a href="/api/">YumeHaru's Blog API</a> <span class="description">${data.desc ?? '一个简单的 API 页面'}</span></div>
