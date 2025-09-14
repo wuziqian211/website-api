@@ -118,7 +118,7 @@ header {
   box-shadow: 0 0 5px #777;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 25;
 }
 body.new-style header {
   background: var(--background-color-translucent);
@@ -205,59 +205,57 @@ body.new-style div.grid-item {
 div.grid-item > strong.grid-title {
   font-size: 20px;
 }
-div.grid-item.main-info-outer {
+div.grid-item.main-info {
   box-shadow: none;
   margin: 0;
-  padding: 0;
 }
-div.main-info-outer {
+div.main-info {
+  align-items: center;
+  background: var(--background-color-three-quarters-transparent);
   border-radius: 10px;
+  display: flex;
   margin: 0 0 5px;
   overflow: hidden;
+  padding: 5px 10px;
+  position: relative;
 }
-div.main-info-outer.image-background::before {
+div.main-info.image-background::before {
   background: var(--background-image) right/150px no-repeat;
   content: '';
   inset: 0;
-  mask: linear-gradient(90deg, transparent calc(100% - 150px), black);
+  mask: linear-gradient(90deg, transparent calc(100% - 150px), #000);
   position: absolute;
-  z-index: -1;
+  z-index: 5;
 }
-div.main-info-inner {
-  align-items: center;
-  background: var(--background-color-three-quarters-transparent);
-  box-sizing: border-box;
-  display: flex;
-  height: 100%;
-  padding: 5px 10px;
-  position: relative;
-  width: 100%;
+div.main-info.image-background > * {
+  z-index: 10;
 }
-div.grid-item:not(.main-info-outer):hover, div.main-info-inner:hover {
+div.grid-item:hover, div.main-info:hover {
   background: var(--background-color-translucent);
 }
-div.grid-item:not(.main-info-outer):active, div.main-info-inner:active {
+div.grid-item:active, div.main-info:active {
   background: var(--background-active-color-three-quarters-transparent);
 }
-div.main-info-inner > div.left, table * {
+div.main-info > div.left, table * {
   overflow-wrap: break-word;
 }
-div.main-info-inner > div.left, div.main-info-inner > div.image-wrap {
+div.main-info > div.left, div.main-info > div.image-wrap {
   margin-right: 5px;
 }
 div.image-wrap {
   position: relative;
 }
-div.main-info-inner > div.detail {
+div.main-info > div.detail {
   flex: 1;
 }
-div.main-info-inner > a.main-info-link, div.grid-item > a.grid-link {
+div.main-info > a.main-info-link, div.grid-item > a.grid-link {
   inset: 0;
   position: absolute;
+  z-index: 15;
 }
-div.main-info-inner a:not(div.main-info-inner > a.main-info-link):not(div.grid-item > a.grid-link), div.grid-item a:not(div.main-info-inner > a.main-info-link):not(div.grid-item > a.grid-link) {
+div.main-info a, div.grid-item a {
   position: relative;
-  z-index: 5;
+  z-index: 20;
 }
 img {
   vertical-align: middle;
@@ -584,7 +582,7 @@ footer {
   html {
     height: initial;
   }
-  body, main, div.main-info-outer {
+  body, main, div.main-info {
     background: none !important;
   }
   body {
