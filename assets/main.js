@@ -24,7 +24,7 @@ const replacePage = html => {
   ['title', 'div.header > div.left > span.description', 'main', 'span.time-taken'].forEach(s => { /** @type HTMLElement */(document.querySelector(s)).innerHTML = /** @type HTMLElement */(html.querySelector(s)).innerHTML; });
   /** @type HTMLLinkElement */(document.querySelector("link[rel='apple-touch-icon']")).href = /** @type HTMLLinkElement */(html.querySelector("link[rel='apple-touch-icon']")).href;
   document.body.className = html.body.className;
-  document.body.style.backgroundImage = html.body.style.backgroundImage;
+  document.body.style.setProperty('--background-image', html.body.style.getPropertyValue('--background-image'));
 };
 
 /**
@@ -139,7 +139,7 @@ const bindImageElement = img => {
   if (img.complete) img.style.filter = '';
 };
 
-let loadController;
+let /** @type AbortController */loadController;
 window.addEventListener('popstate', event => {
   mainElement.classList.remove('loading');
   if (isValidPage(document)) {

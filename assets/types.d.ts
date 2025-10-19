@@ -121,6 +121,8 @@ interface VIPInfo {
   tv_vip_pay_type: 0 | 1;
   tv_due_date: secondLevelTimestamp;
   avatar_icon: { icon_type?: number; icon_resource: {} };
+  ott_info: { vip_type: number; pay_type: number; pay_channel_id: string; status: number; overdue_time: secondLevelTimestamp };
+  super_vip: { is_super_vip: boolean };
 }
 interface NameRenderInfo {
   colors_info: { color: { color_day: '' | hexColor; color_night: '' | hexColor }[]; color_ids: numericString[] };
@@ -190,23 +192,28 @@ export interface UserInfoData {
     show: boolean;
     wear: boolean;
     medal: null | {
-      uid: number;
-      target_id: number;
-      medal_id: number;
       level: number;
-      medal_name: string;
+      guard_level: number;
       medal_color: number;
-      intimacy: number;
-      next_intimacy: number;
-      day_limit: number;
+      medal_name: string;
+      medal_color_border: number;
       medal_color_start: number;
       medal_color_end: number;
-      medal_color_border: number;
-      is_lighted: booleanNumber;
-      guard_level?: number;
-      light_status: booleanNumber;
-      wearing_status: booleanNumber;
-      score: number;
+    };
+    detail: null | {
+      uid: number;
+      medal_color_end: hexColor;
+      level: number;
+      guard_level: number;
+      first_icon: url;
+      second_icon: url;
+      medal_color_level: hexColor;
+      medal_color_name: hexColor;
+      medal_level_bg_color: 0;
+      medal_name: string;
+      medal_id: number;
+      medal_color: hexColor;
+      medal_color_border: hexColor;
     };
   };
   official: OfficialVerifyInfo;

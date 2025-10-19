@@ -335,20 +335,24 @@ a.vip {
   padding: 3px 10px;
 }
 div.fans-medal {
-  border-radius: 3px;
-  color: #fff;
-  display: inline-block;
-  font-size: 15px;
-  padding: 1px 1px 1px 5px;
+  align-items: center;
+  border-radius: 99999px;
+  display: inline-flex;
+  height: 20px;
+  padding: 0 5px;
+  vertical-align: middle;
 }
-div.fans-medal-level {
-  background: #fff;
-  border-radius: 2px;
-  display: inline-block;
+img.fans-medal-first-icon {
+  height: 30px;
+  margin-left: -10px;
+}
+span.fans-medal-name {
+  font-size: 14px;
+}
+span.fans-medal-level {
+  font-size: 16px;
+  font-weight: bold;
   margin-left: 5px;
-  padding: 1px;
-  text-align: center;
-  width: 20px;
 }
 span.notice, a.notice {
   background: var(--notice-background-color);
