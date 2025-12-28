@@ -2,13 +2,9 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/getuser.ts": {
-      "memory": 256,
-      "maxDuration": 16,
       "includeFiles": "assets/{1-22,1-33,2-22,2-33,3-22,3-33,4-22,4-33,5-22,5-33,6-33,noface}.jpg"
     },
     "api/getvideo.ts": {
-      "memory": 256,
-      "maxDuration": 16,
       "includeFiles": "assets/{error.mp4,nocover.png}"
     }
   },

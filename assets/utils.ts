@@ -102,7 +102,7 @@ export const initialize = (req: Request, acceptedResponseTypes: ContentType[], r
     timer = setTimeout(() => {
       timer = undefined;
       resolve(send504(responseType));
-    }, 15000);
+    }, 30000);
   }
 
   return { params, respHeaders: new Headers(), fetchDest, responseType, isResponseTypeSpecified };
