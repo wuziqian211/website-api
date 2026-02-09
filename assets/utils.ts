@@ -284,7 +284,7 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   }
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
-export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
+export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
   const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
         encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [], base = BigInt(alphabet.length);
   let t = (maxAid | BigInt(aid)) ^ xorCode;
@@ -294,7 +294,7 @@ export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV
   }
   return `BV1${bvid.join('')}`;
 };
-export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784、https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/bvid_desc.md
+export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
   if (!/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new TypeError('Invalid BV number');
   const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
         decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8], base = BigInt(alphabet.length);
@@ -418,7 +418,7 @@ export const getVidType = (vid: string | null): { type: -1; vid: undefined } | {
     return { type: -1, vid: undefined };
   }
 };
-export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名
   const keys = await getWbiKeys();
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
@@ -427,7 +427,7 @@ export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchPa
   params.append('w_rid', md5(params.toString() + mixinKey)); // 计算 w_rid
   return params.toString();
 };
-export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key，改编自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/misc/sign/wbi.md
+export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key
   const requestInfo = getRequestInfo(), redis = Redis.fromEnv();
 
   if (!noCache && !wbiKeys) wbiKeys = <WbiKeys> await redis.get('wbiKeys');

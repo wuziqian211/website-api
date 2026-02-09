@@ -31,7 +31,7 @@ interface ZoneV2 {
   sub?: ZoneV2[];
 }
 
-export const zones: Zone[] = [ // 来自 B 站与 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/video_zone.md（以下简称“API 文档”）；分区有“expired: true”属性的表示该分区已下线，已下线分区的信息均来自“API 文档”
+export const zones: Zone[] = [ // 分区有“expired: true”属性的表示该分区已下线
   {
     tid: 217, name: '动物圈', url: 'v/animal', sub: [
       { tid: 218, name: '喵星人', desc: '喵喵喵喵喵', url: 'v/animal/cat' },
@@ -588,7 +588,7 @@ export const zonesV2: ZoneV2[] = [
 ];
 
 // 3. 视频状态
-export const states: Record<number, string> = { // 来自 https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/video/attribute_data.md
+export const states: Record<number, string> = {
   0: '该视频已开放浏览', // 开放浏览
   1: '该视频通过审核，但可能会受到限制', // 橙色通过
   '-1': '该视频正在审核', // 待审
