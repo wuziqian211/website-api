@@ -50,7 +50,7 @@ export interface APIResponse<T> { // B 站 API 返回的 JSON 数据结构
   data: T;
 }
 
-// JSON Stage 3 接口定义
+// JSON Stage 3 接口定义（microsoft/TypeScript#61330）
 type rawJSON = { rawJSON: string };
 export interface JSON_ extends JSON {
   isRawJSON(value: rawJSON): true;
