@@ -161,7 +161,7 @@ export interface UserCardData {
     is_senior_member: booleanNumber;
     name_render: null | NameRenderInfo;
   };
-  space: { // 仅当“photo”参数为“true”时出现
+  space: { // 仅当 “photo” 参数为 “true” 时出现
     s_img: url;
     l_img: url;
   };
@@ -186,6 +186,7 @@ export interface UserInfoData {
   jointime: 0;
   moral: 0;
   silence: booleanNumber;
+  control: booleanNumber;
   coins: 0;
   fans_badge: boolean;
   fans_medal: {
@@ -254,6 +255,9 @@ export interface UserInfoData {
       jump_url: url;
       total: number;
       list: null | { pay_mid: number; rank: number; avatar: url; uname: string }[];
+      upower_count_show: boolean;
+      long_title: string;
+      jump_url_web: url;
     };
   };
   contract: { is_display: false; is_follow_display: false };
@@ -294,7 +298,7 @@ interface UserCardsItem {
       img_label_uri_hant: url;
       img_label_uri_hant_static: url;
       label_theme: string;
-      path: '';
+      path: url;
       text: string;
       text_color: '' | hexColor;
       use_img_label: true;
@@ -316,7 +320,7 @@ export interface UsersInfoItem {
 }
 export type UsersInfoData = UsersInfoItem[];
 
-// e. “获取哔哩哔哩用户信息”接口回应的单用户数据（/api/getuser）
+// e. “获取哔哩哔哩用户信息” 接口回应的单用户数据（/api/getuser）
 export interface InternalAPIGetUserInfoData {
   mid: number | numericString;
   name: string;
@@ -336,6 +340,7 @@ export interface InternalAPIGetUserInfoData {
   place: '';
   moral: 0;
   silence: booleanNumber;
+  control: booleanNumber;
   coins: 0;
   article: 0;
   attentions: UserCardData['attentions'];
@@ -377,7 +382,7 @@ export interface InternalAPIGetUserInfoData {
   Official?: undefined;
 }
 
-// f. “获取哔哩哔哩用户信息”接口回应的多用户数据（/api/getuser）
+// f. “获取哔哩哔哩用户信息” 接口回应的多用户数据（/api/getuser）
 interface InternalAPIUsersInfoItem extends UserCardsItem {
   sign?: string;
   rank?: number;
@@ -387,8 +392,8 @@ interface InternalAPIUsersInfoItem extends UserCardsItem {
 export type InternalAPIGetUsersInfoData = Record<number, InternalAPIUsersInfoItem>;
 
 // 3. 视频信息相关
-export type quality = 6/* 240P */ | 16/* 360P */ | 32/* 480P */ | 64/* 720P */ | 74/* 720P60 */ | 80/* 1080P */ | 112/* 1080P+ */ | 116/* 1080P60 */ | 120/* 4K */ | 125/* HDR */ | 126/* 杜比视界 */ | 127/* 8K */;
-type copyright = 1/* 自制 */ | 2/* 转载 */;
+export type quality = 6/* 240P */ | 16/* 360P */ | 32/* 480P */ | 64/* 720P */ | 74/* 720P60 */ | 80/* 1080P */ | 100/* 智能修复 */ | 112/* 1080P+ */ | 116/* 1080P60 */ | 120/* 4K */ | 125/* HDR */ | 126/* 杜比视界 */ | 127/* 8K */ | 129/* HDR Vivid */;
+type copyright = 1/* 自制 */ | 2/* 转载 */ | 3/* 未选择视频类型或违规投自制 */;
 interface Dimension { // 视频分辨率信息
   width: number;
   height: number;
@@ -462,6 +467,8 @@ interface HistoryItem { // 此处仅定义视频信息数据结构
     dislike: 0;
     vt: -1;
     vv: number; // 同 view
+    fav_g: 0;
+    like_g: 0;
   };
   dynamic: string;
   cid?: number;
@@ -559,6 +566,7 @@ export interface VideoInfoData {
   is_upower_preview: boolean;
   enable_vt: 0;
   vt_display: '';
+  is_upower_exclusive_with_qa: boolean;
   no_cache: boolean;
   pages: PageInfo[];
   subtitle: {
@@ -614,7 +622,7 @@ export interface VideoPlayUrlData {
   result: 'suee';
   message: '';
   quality: quality;
-  format: 'mp4' | 'flv';
+  format: 'mp4';
   timelength: number;
   accept_format: string;
   accept_description: string[];
@@ -631,14 +639,28 @@ export interface VideoPlayUrlData {
     url: url;
     backup_url: url[];
   }[];
-  support_formats: { quality: quality; format: 'mp4' | 'flv'; new_description: string; display_desc: string; superscript: ''; codecs: null | string[] }[];
+  support_formats: {
+    quality: quality;
+    format: 'mp4' | 'flv';
+    new_description: string;
+    display_desc: string;
+    superscript: '';
+    codecs: null | string[];
+    can_watch_qn_reason: booleanNumber;
+    limit_watch_reason: booleanNumber;
+    report: {};
+  }[];
   high_format: null;
-  last_play_time: 0;
-  last_play_cid: 0;
+  last_play_time: number;
+  last_play_cid: number;
   view_info: null;
+  play_conf: { is_new_description: boolean };
+  cur_language: string;
+  cur_production_type: number;
+  auto_qn_resp: { dyeid: string };
 }
 
-// d. “获取哔哩哔哩视频 / 剧集 / 番剧信息”接口回应数据（/api/getvideo）
+// d. “获取哔哩哔哩视频 / 剧集 / 番剧信息” 接口回应数据（/api/getvideo）
 export interface InternalAPIGetVideoInfoData {
   bvid: string;
   aid: number | numericString;
@@ -693,6 +715,7 @@ export interface InternalAPIGetVideoInfoData {
   is_upower_preview: boolean;
   enable_vt: 0;
   vt_display: '';
+  is_upower_exclusive_with_qa: boolean;
   no_cache: boolean;
   pages: {
     cid: number;

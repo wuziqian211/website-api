@@ -80,7 +80,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
     const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
     switch (type) {
       case 1: { // 编号为 AV 号或 BV 号
-        let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
+        let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, no_cache: false, pages: [], subtitle: null, staff: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
 
         if (requestForce) { // 强制获取视频信息
           await utils.callAPI('https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', withCookie: true, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1' }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
@@ -96,7 +96,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
               if (info2) info = info2;
             }
 
-            json.data = { ...json.data!, ...info, tid_v2: info.tidv2, tname_v2: info.tnamev2, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vt: 0, vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid ?? 0, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, tidv2: undefined, tnamev2: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined }; // 加入缺失的信息，移除“不该出现”的信息
+            json.data = { ...json.data!, ...info, tid_v2: info.tidv2, tname_v2: info.tnamev2, desc_v2: [{ raw_text: info.desc, type: 1, biz_id: 0 }], stat: { ...info.stat, evaluation: '', vt: 0, vv: undefined }, pages: [{ cid: info.page?.cid ?? info.cid ?? 0, page: info.page?.page ?? 1, from: info.page?.from ?? 'vupload', part: info.page?.part ?? '', duration: info.page?.duration ?? null, vid: info.page?.vid ?? '', weblink: info.page?.weblink ?? '', dimension: info.page?.dimension ?? info.dimension, first_frame: info.page?.first_frame ?? info.first_frame }], cover43: undefined, tidv2: undefined, tnamev2: undefined, favorite: undefined, type: undefined, sub_type: undefined, device: undefined, page: undefined, count: undefined, progress: undefined, view_at: undefined, kid: undefined, business: undefined, redirect_link: undefined }; // 加入缺失的信息，移除 “不该出现” 的信息
           } else {
             json = { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'notFoundInHistory' } };
           }
@@ -302,11 +302,11 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
             if (json.code === 0 && json.data!.pages) {
               const data = json.data!, requestCid = params.get('cid'), requestPage = params.get('p');
               if (requestCid && /^\d+$/.test(requestCid) && BigInt(requestCid) > 0 && data.pages.some(p => BigInt(p.cid) === BigInt(requestCid))) { // 客户端提供的 cid 有效，且 API 回复的 pages 中包含客户端提供的 cid
-                cid = BigInt(requestCid); // 将变量“cid”设置为客户端提供的 cid
-              } else if (requestPage && /^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数“p”有效
-                cid = data.pages[+requestPage - 1]?.cid; // 将变量“cid”设置为该 P 的 cid
+                cid = BigInt(requestCid); // 将变量 “cid” 设置为客户端提供的 cid
+              } else if (requestPage && /^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数 “p” 有效
+                cid = data.pages[+requestPage - 1]?.cid; // 将变量 “cid” 设置为该 P 的 cid
               } else {
-                cid = data.cid; // 将变量“cid”设置为该视频第 1 P 的 cid
+                cid = data.cid; // 将变量 “cid” 设置为该视频第 1 P 的 cid
               }
 
               if (cid) { // 客户端提供的分 P 参数有效
@@ -726,7 +726,7 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
                       if (P) break;
                     }
                   }
-                } else if (requestPage && /^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数“p”有效
+                } else if (requestPage && /^\d+$/.test(requestPage) && +requestPage > 0) { // 客户端提供的参数 “p” 有效
                   P = result.episodes[+requestPage - 1];
                 } else {
                   P = result.episodes[0]; // 第 1 集
@@ -823,14 +823,14 @@ export const GET = (req: Request): Promise<Response> => new Promise(async resolv
       default: // 编号无效
         switch (responseType) {
           case 1: // 回复 HTML
-            if (!requestVid) { // 没有设置参数“vid”
+            if (!requestVid) { // 没有设置参数 “vid”
               const systemEnv = getEnv();
               respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
               sendHTML(200, { title: '获取哔哩哔哩视频 / 剧集 / 番剧信息及数据', newStyle: true, content: `
                 本 API 可以获取指定 B 站视频、剧集、番剧的信息及数据。<br />
                 基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getvideo?vid=<span class="notice">您想获取信息的视频、剧集、番剧的编号</span><br />
                 更多用法见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${systemEnv.VERCEL_GIT_REPO_OWNER}/${systemEnv.VERCEL_GIT_REPO_SLUG}/blob/${systemEnv.VERCEL_GIT_COMMIT_REF}/README.md#%E8%8E%B7%E5%8F%96%E5%93%94%E5%93%A9%E5%93%94%E5%93%A9%E8%A7%86%E9%A2%91--%E5%89%A7%E9%9B%86--%E7%95%AA%E5%89%A7%E4%BF%A1%E6%81%AF%E5%8F%8A%E6%95%B0%E6%8D%AE">本站的使用说明</a>。` });
-            } else { // 设置了“vid”参数但无效
+            } else { // 设置了 “vid” 参数但无效
               sendHTML(400, { title: '编号无效', newStyle: true, content: `
                 您输入的编号无效！<br />
                 请输入一个正确的编号吧 awa` });

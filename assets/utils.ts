@@ -62,7 +62,7 @@ export const initialize = (req: Request, acceptedResponseTypes: ContentType[], r
     }
   }
 
-  // 回复数据类型判断优先级：“type”参数＞“Sec-Fetch-Dest”标头＞“Accept”标头
+  // 回复数据类型判断优先级：“type” 参数＞“Sec-Fetch-Dest” 标头＞“Accept” 标头
   if (requestedResponseType) { // 先取客户端指定的回复数据类型
     if (acceptedResponseTypes.includes(0) && requestedResponseType === 'JSON') {
       responseType = 0;
@@ -82,7 +82,7 @@ export const initialize = (req: Request, acceptedResponseTypes: ContentType[], r
     responseType = fetchDest;
   }
   if (responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
-    if (acceptAll) { // 部分脚本在发送请求时会自动带上“Accept: */*”标头，此时应该回复 JSON
+    if (acceptAll) { // 部分脚本在发送请求时会自动带上 “Accept: */*” 标头，此时应该回复 JSON
       responseType = 0;
     } else {
       const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
@@ -402,7 +402,7 @@ export const request = (requestUrl: url, options?: string | (Parameters<typeof m
 };
 export const getVidType = (vid: string | null): { type: -1; vid: undefined } | { type: 1; vid: string } | { type: 2 | 3 | 4; vid: bigint } => { // 判断编号类型
   if (typeof vid !== 'string' || !vid) return { type: -1, vid: undefined };
-  if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为“av”的 AV 号
+  if (/^av\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为前缀为 “av” 的 AV 号
     return { type: 1, vid: toBV(vid.slice(2)) };
   } else if (/^\d+$/.test(vid) && BigInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };

@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin';
 
 export default [
-  { files: ['**/*.{js,mjs,cjs,ts}'], languageOptions: { globals: globals.node } },
+  { files: ['**/*.{js,mjs,cjs,ts}'], languageOptions: { globals: globals.nodeBuiltin } },
   { files: ['assets/main.js'], languageOptions: { globals: globals.browser, sourceType: 'script' } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -57,7 +57,7 @@ export default [
       'no-invalid-this': 'error',
       'no-irregular-whitespace': ['error', { skipStrings: true, skipTemplates: true }],
       'no-label-var': 'error',
-      'no-labels': 'error',
+      'no-labels': ['error', { allowLoop: true, allowSwitch: true }],
       'no-lone-blocks': 'error',
       'no-loop-func': 'error',
       'no-multi-assign': 'error',
@@ -80,6 +80,7 @@ export default [
       'no-self-compare': 'error',
       'no-sequences': 'error',
       'no-shadow': 'error',
+      'no-sparse-arrays': 'off',
       'no-template-curly-in-string': 'error',
       'no-throw-literal': 'error',
       'no-undef-init': 'error',
