@@ -99,7 +99,6 @@ export default [
       'no-useless-return': 'error',
       'no-var': 'error',
       'no-void': 'error',
-      'no-warning-comments': 'error',
       'object-shorthand': 'error',
       'operator-assignment': 'error',
       'prefer-arrow-callback': 'error',
