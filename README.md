@@ -109,8 +109,6 @@
 
 本项目的所有 API 文件均为 [ECMAScript modules](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules) 文件，使用 TypeScript 编写，不使用任何框架。
 
-目前，有些 API 是 [Serverless Functions](https://vercel.com/docs/functions/runtimes#node.js)，有些是 [Edge Functions](https://vercel.com/docs/functions/runtimes#edge)。
-
 本项目使用 [Vercel](https://vercel.com/) 部署。**如果您想从本项目部署 API，请使用 Node.js 的最新 LTS 版本，设置环境变量 `SESSDATA` 与 `bili_jct` 为一个可用的 B 站账号的 Cookie，并关联一个 [Upstash 数据库](https://vercel.com/marketplace/upstash)到部署中**。若您想在除 Vercel 以外的平台部署本项目的 API，您可能需要改动一些文件。
 
 ### 💬回复数据类型判断规则
@@ -439,7 +437,7 @@
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | scripts/ | 本文件夹包括构建本项目所需文件 |
-| scripts/prepare.js | 构建本项目时使用的脚本文件 |
+| scripts/build.js | 构建本项目时使用的脚本文件 |
 | eslint.config.js | [ESLint](https://eslint.org/)（JavaScript 代码检查器）的配置文件 |
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |

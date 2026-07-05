@@ -7,7 +7,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "prepare": "node ./scripts/prepare.js"
+    "vercel-build": "node ./scripts/build.js"
   },
   "dependencies": {
     "@upstash/redis": "latest",

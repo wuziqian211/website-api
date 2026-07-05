@@ -34,13 +34,14 @@ export const initialize = (req: Request, acceptedResponseTypes: ContentType[], r
   startTime = performance.now();
   upstreamServerResponseInfo = [];
   const params = new URL(req.url).searchParams, accepts: ContentType[] = [],
-        requestedAccept = req.headers.get('accept')?.toUpperCase(), requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(),
+        requestedAccept = req.headers.get('accept')?.toUpperCase(),
+        requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(), // 详见 https://fetch.spec.whatwg.org/#destination-table
         requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
   let fetchDest: ContentType | undefined, acceptAll = false,
       responseType: ContentType | undefined, isResponseTypeSpecified = false;
 
   if (requestedSecFetchDest) {
-    if (requestedSecFetchDest === 'JSON') { // 在 https://fetch.spec.whatwg.org/#destination-table 中提及，但在 MDN 中未提及
+    if (requestedSecFetchDest === 'JSON') {
       fetchDest = 0;
     } else if (['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
       fetchDest = 1;
@@ -51,7 +52,7 @@ export const initialize = (req: Request, acceptedResponseTypes: ContentType[], r
     }
   }
   if (requestedAccept) {
-    if (requestedAccept === '*/*') { // 客户端接受所有类型的数据
+    if (requestedAccept === '*/*') { // 客户端接受所有类型的数据，“Accept” 标头必须与 “*/*” 相等，不能是包含关系
       acceptAll = true;
       accepts.push(0, 1, 2, 3);
     } else {
@@ -188,10 +189,10 @@ export const send500 = (responseType: ContentType, error: unknown): Response => 
     return sendHTML(500, headers, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉梦春酱哟 awa
-      <pre>${encodeHTML(error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error))}</pre>
+      <pre>${encodeHTML(error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error))}</pre>
       <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
-    return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? typeof util.inspect === 'function' ? util.inspect(error, { depth: Infinity }) : error.stack : String(error) } });
+    return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error) } });
   }
 };
 export const send504 = (responseType: ContentType): Response => {
