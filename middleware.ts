@@ -2,12 +2,12 @@ export const config = {
   matcher: ['/((?:video/)?BV1[1-9A-HJ-NP-Za-km-z]{9}(?:[?/#].*)?)', '/((?:video/av|bangumi/media/md|bangumi/play/ss|bangumi/play/ep|space/|user/|av|md|ss|ep|uid|mid)?\\d+(?:[?/#].*)?)'],
 };
 
-import { next } from '@vercel/edge';
+import { next } from '@vercel/functions';
 import * as utils from './assets/utils.js';
 
 export default (req: Request): Response => {
-  utils.initialize(req, [1]);
-  const { pathname } = new URL(req.url);
+  const session = utils.initialize(req, { acceptedResponseTypes: [1] }),
+        { pathname } = new URL(req.url);
 
   const userRegExpResult = /^\/(?:space\/|user\/|uid|mid)(\d+)(?:[?/#].*)?$/.exec(pathname);
   if (userRegExpResult) return Response.redirect(new URL(`/api/getuser?mid=${userRegExpResult[1]}`, req.url), 308);
@@ -20,7 +20,7 @@ export default (req: Request): Response => {
   const pureNumberRegExpResult = /^\/(\d+)(?:[?/#].*)?$/.exec(pathname);
   if (pureNumberRegExpResult) {
     const id = pureNumberRegExpResult[1];
-    return utils.sendHTML(300, new Headers(), { title: '请选择要获取信息的项目', newStyle: true, body: `
+    return utils.sendHTML(session, 300, { title: '请选择要获取信息的项目', newStyle: true, body: `
       <p>您提供的路径为纯数字，请选择您要获取信息的项目：</p>
       <div class="grid">
         <div class="grid-item"><strong class="grid-title">获取用户信息</strong><p>获取用户 UID${id} 的信息</p><a class="grid-link" href="/api/getuser?mid=${id}"></a></div>

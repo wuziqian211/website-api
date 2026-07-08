@@ -2,11 +2,12 @@ import * as utils from '../assets/utils.js';
 
 export default {
   fetch(req: Request): Response {
-    const { responseType } = utils.initialize(req, [0, 1]);
+    const session = utils.initialize(req, { acceptedResponseTypes: [0, 1] });
+
     try {
-      return utils.send404(responseType);
+      return utils.send404(session);
     } catch (e) {
-      return utils.send500(responseType, e);
+      return utils.send500(session, e);
     }
   },
 };

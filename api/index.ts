@@ -3,15 +3,16 @@ import * as utils from '../assets/utils.js';
 
 export default {
   fetch(req: Request): Response {
-    const { respHeaders, responseType } = utils.initialize(req, [0, 1]);
+    const session = utils.initialize(req, { acceptedResponseTypes: [0, 1] });
+
     try {
       if (req.method === 'OPTIONS') {
-        return utils.send(204, respHeaders, null);
+        return utils.send(session, 204, null);
       }
-      if (responseType === 1) {
+      if (session.responseType === 1) {
         const systemEnv = getEnv();
-        respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
-        return utils.sendHTML(200, respHeaders, { title: '欢迎来到 API 页面', newStyle: true, body: `
+        session.responseHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
+        return utils.sendHTML(session, 200, { title: '欢迎来到 API 页面', newStyle: true, body: `
           <h2>欢迎您来到<a target="_blank" href="https://www.yumeharu.top/">晨叶梦春</a>的 API 页面！</h2>
           <p>本站提供以下公开的 API：</p>
           <div class="grid">
@@ -20,10 +21,10 @@ export default {
           </div>
           <p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${systemEnv.VERCEL_GIT_REPO_OWNER}/${systemEnv.VERCEL_GIT_REPO_SLUG}/tree/${systemEnv.VERCEL_GIT_COMMIT_REF}/#readme">查看 API 的使用说明</a></p>` });
       } else {
-        return utils.sendJSON(200, respHeaders, { code: 0, message: '0', data: null });
+        return utils.sendJSON(session, 200, { code: 0, message: '0', data: null });
       }
     } catch (e) {
-      return utils.send500(responseType, e);
+      return utils.send500(session, e);
     }
   },
 };

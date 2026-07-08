@@ -13,18 +13,20 @@ import * as utils from '../assets/utils.js';
 export default {
   fetch(req: Request): Promise<Response> {
     return new Promise(async resolve => {
-      const { params, respHeaders, responseType, isResponseTypeSpecified } = utils.initialize(req, [0, 1], resolve);
+      const session = utils.initialize(req, { acceptedResponseTypes: [0, 1] }, resolve),
+            { params, responseHeaders, responseType, isResponseTypeSpecified } = session;
+
       try {
-        const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)),
-              send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data));
+        const sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(session, status, data)),
+              send = (status: number, data: BodyInit): void => resolve(utils.send(session, status, data));
 
         if (responseType === 1) {
           switch (params.get('id')) {
             case 'friends': // 对直接访问 /api/modules?id=friends 的浏览器发送重定向的回应
-              resolve(utils.redirect(isResponseTypeSpecified ? 308 : 307, 'https://www.yumeharu.top/friends/', !isResponseTypeSpecified));
+              resolve(utils.redirect(session, isResponseTypeSpecified ? 308 : 307, 'https://www.yumeharu.top/friends/', !isResponseTypeSpecified));
               break;
             default:
-              resolve(utils.send404(1, !isResponseTypeSpecified));
+              resolve(utils.send404(session, !isResponseTypeSpecified));
           }
         } else {
           switch (params.get('id')) {
@@ -35,7 +37,7 @@ export default {
                     normalFriends = info.filter(u => !u.is_deleted),
                     deletedFriends = info.filter(u => u.is_deleted);
 
-              respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate');
+              responseHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate');
               if (version === '3') { // 第 3 版：简化名称
                 sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
               } else if (version === '2') { // 第 2 版
@@ -51,7 +53,7 @@ export default {
               if (country === 'CN') { // 在中国内地（不含港澳台地区）
                 blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
               }
-              respHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+              responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
               sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { country } });
               break;
             }
@@ -62,7 +64,7 @@ export default {
                   const body = new FormData();
                   body.set('smfile', file);
                   body.set('format', 'json');
-                  const resp = await utils.request('https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body, responseType: 'json' });
+                  const resp = await utils.request(session, 'https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body, responseType: 'json' });
                   if (resp.ok) {
                     const json = <SmmsUploadResponse> await resp.json();
                     if (json.success) {
@@ -91,8 +93,8 @@ export default {
                 if (hashInfo) {
                   const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hashInfo.s}&spec=4`);
                   if (resp.ok) {
-                    respHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
-                    respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
+                    responseHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
+                    responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                     send(200, resp.body);
                   } else {
                     sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
@@ -110,7 +112,7 @@ export default {
           }
         }
       } catch (e) {
-        resolve(utils.send500(responseType, e));
+        resolve(utils.send500(session, e));
       }
     });
   },

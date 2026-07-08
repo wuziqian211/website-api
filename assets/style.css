@@ -166,11 +166,14 @@ body.image-background header, body.image-background main {
 pre {
   background: var(--background-color-three-quarters-transparent);
   border-radius: 10px;
-  color: var(--broken-color);
+  color: var(--text-color);
   font-family: Consolas, Menlo, monospace, 'PingFang SC', 'Microsoft YaHei';
   font-size: 16px;
   overflow: auto;
   padding: 10px;
+}
+pre.error {
+  color: var(--broken-color);
 }
 h2, p {
   margin: 10px 0;

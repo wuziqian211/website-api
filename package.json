@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@upstash/redis": "latest",
-    "@vercel/edge": "latest",
     "@vercel/functions": "latest",
     "md5": "latest"
   },

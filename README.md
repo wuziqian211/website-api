@@ -169,6 +169,7 @@
 | `errType` | string | 错误类型，仅在调用 API 失败时出现。<br />`upstreamServerRespError`：上游服务器响应错误（成功获取到了 URL，但请求时上游服务器回复了错误响应代码）<br />`upstreamServerNoData`：上游服务器未回复本体数据（上游服务器 API 回复了表示失败的 `code`）<br />`upstreamServerInvalidRequest`：对上游服务器的请求无效（如：参数不合法）<br />`upstreamServerForbidden`：对访问上游服务器的本体数据的权限不足（如：未使用 Cookie 获取信息）<br />`upstreamServerRequestBanned`：对上游服务器的请求被拦截（如：在短时间内频繁调用 API）<br />`internalServerInvalidRequest`：本站服务器接收到的请求无效（参数不合法）<br />`notFoundInHistory`：在历史记录中未找到指定视频的信息，仅在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中使用<br />`internalServerError`：内部服务器错误 |
 | `upstreamServerResponseInfo` | object[] | 该 API 请求的上游服务器返回的信息，仅在请求了上游服务器时出现。 |
 | `apiExecTime` | number | 调用 API 所耗时间（单位：毫秒）。 |
+| `requestId` | string | 请求的 ID，每个请求的 ID 都是唯一的，可用于区分不同的请求。 |
 
 `extInfo` 对象中的 `upstreamServerResponseInfo` 数组中的对象：
 

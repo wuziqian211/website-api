@@ -15,33 +15,25 @@ import { officialVerifyInfo } from '../assets/constants.js';
 export default {
   fetch(req: Request): Promise<Response> {
     return new Promise(async resolve => {
-      const initData = utils.initialize(req, [0, 1, 2], resolve), // 获取请求参数与回复数据类型
-            { params, respHeaders, fetchDest } = initData, responseAttributes: string[] = [];
-      let { responseType, isResponseTypeSpecified } = initData;
-      const splitString = params.get('type')?.toUpperCase().split('_');
-      if (splitString?.[0] && ['IMAGE', 'FACE', 'AVATAR'].includes(splitString[0])) {
-        responseType = 2;
-        isResponseTypeSpecified = true;
-        splitString.shift(); // 删除第一个元素
-        responseAttributes.push(...splitString);
-      }
+      const session = utils.initialize(req, { acceptedResponseTypes: [0, 1, 2], extraResponseTypes: new Map([[2, ['FACE', 'AVATAR']]]) }, resolve), // 获取请求参数与回复数据类型
+            { params, fetchDest, responseHeaders, responseType, responseAttributes, isResponseTypeSpecified } = session;
 
       try {
-        const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; mid?: string }): void => resolve(utils.sendHTML(status, respHeaders, { ...data, desc: '获取哔哩哔哩用户信息', body: `
+        const sendHTML = (status: number, data: Omit<SendHTMLData, 'body'> & { content: string; mid?: string }): void => resolve(utils.sendHTML(session, status, { ...data, desc: '获取哔哩哔哩用户信息', body: `
           ${data.content}
           <form>
             <div><label for="mid">请输入您想要获取信息的用户的 UID（最多 200 个，以逗号分隔）：</label></div>
             <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="[ ,;_\\/\\\\，、]*(?:(?!0+[ ,;_\\/\\\\，、])\\d+[ ,;_\\/\\\\，、]+)*(?!0+(?:[ ,;_\\/\\\\，、]|$))\\d+[ ,;_\\/\\\\，、]*" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
           </form>` })), // 发送 HTML 响应到客户端
-              sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(status, respHeaders, data)), // 发送 JSON 数据到客户端
-              send = (status: number, data: BodyInit): void => resolve(utils.send(status, respHeaders, data)); // 发送其他数据到客户端
+              sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(session, status, data)), // 发送 JSON 数据到客户端
+              send = (status: number, data: BodyInit): void => resolve(utils.send(session, status, data)); // 发送其他数据到客户端
 
         const requestMid = params.get('mid');
         if (requestMid && /^\d+$/.test(requestMid) && BigInt(requestMid) > 0) { // 客户端提供的 UID 只有一个且有效
           const mid = BigInt(requestMid);
 
           let json: InternalAPIResponse<InternalAPIGetUserInfoData | null>;
-          const cjson = <APIResponse<UserCardData>> await utils.callAPI('https://api.bilibili.com/x/web-interface/card', { params: { mid, photo: true }, withCookie: true });
+          const cjson = <APIResponse<UserCardData>> await utils.callAPI(session, 'https://api.bilibili.com/x/web-interface/card', { params: { mid, photo: true }, withCookie: true });
           if (cjson.code === 0) {
             const cardData = cjson.data, { card } = cardData;
             json = { code: 0, message: '0', data: { mid: utils.largeNumberHandler(mid), name: '', approve: false, sex: '', face: '', face_nft: 0, face_nft_type: 0, sign: '', description: '', rank: 10000, DisplayRank: '10000', level: null, jointime: 0, regtime: 0, spacesta: 0, place: '', moral: 0, silence: 0, control: 0, coins: 0, article: 0, attentions: [], fans: null, friend: null, attention: null, following: null, follower: null, level_info: { next_exp: 0, current_level: 0, current_min: 0, current_exp: 0 }, fans_badge: false, fans_medal: { show: false, wear: false, medal: null, detail: null }, official: { role: 0, title: '', desc: '', type: -1 }, official_verify: { type: -1, desc: '' }, vip: { type: 0, status: 0, due_date: 0, vip_pay_type: 0, theme_type: 0, label: { path: '', text: '', label_theme: '', text_color: '', bg_style: 0, bg_color: '', border_color: '', use_img_label: true, img_label_uri_hans: '', img_label_uri_hant: '', img_label_uri_hans_static: '', img_label_uri_hant_static: '', label_id: 0, label_goto: null }, avatar_subscript: 0, nickname_color: '', role: 0, avatar_subscript_url: '', tv_vip_status: 0, tv_vip_pay_type: 0, tv_due_date: 0, avatar_icon: { icon_resource: {} }, ott_info: { vip_type: 0, pay_type: 0, pay_channel_id: '', status: 0, overdue_time: 0 }, super_vip: { is_super_vip: false } }, pendant: { pid: 0, name: '', image: '', expire: 0, image_enhance: '', image_enhance_frame: '', n_pid: 0 }, nameplate: { nid: 0, name: '', image: '', image_small: '', level: '', condition: '' }, user_honour_info: { mid: 0, colour: null, tags: [], is_latest_100honour: 0 }, is_followed: false, top_photo: '', sys_notice: {}, live_room: null, birthday: '', school: { name: '' }, profession: { name: '', department: '', title: '', is_show: 0 }, tags: null, series: { user_upgrade_status: 3, show_upgrade_window: false }, is_senior_member: 0, mcn_info: null, gaia_res_type: 0, gaia_data: null, is_risk: false, elec: { show_info: { show: false, state: -1, title: '', icon: '', jump_url: `?oid=${mid}`, total: 0, list: null, upower_count_show: true, long_title: '', jump_url_web: '' } }, contract: { is_display: false, is_follow_display: false }, certificate_show: false, name_render: null, top_photo_v2: { sid: 0, l_img: '', l_200h_img: '' }, theme: null, attestation: { type: 0, common_info: { title: '', prefix: '', prefix_title: '' }, splice_info: { title: '' }, icon: '', desc: '' } } }; // 初始化回复的 JSON 的数据结构
@@ -51,7 +43,7 @@ export default {
             json.data = { ...json.data!, ...cardData.card, mid: utils.largeNumberHandler(card.mid), rank: +card.rank, DisplayRank: card.rank, level: card.level_info.current_level, silence: <booleanNumber> +(card.spacesta === -2), following: card.attention, follower: card.fans, official: card.Official, top_photo: cardData.space.l_img, top_photo_v2: { sid: 0, l_img: cardData.space.l_img, l_200h_img: cardData.space.l_img }, attestation: { type: card.Official.type === 0 ? 2 : card.Official.type === 1 ? 3 : 0, common_info: { title: card.Official.title, prefix: officialPrefix, prefix_title: [0, 1].includes(card.Official.type) ? `${officialPrefix}：${card.Official.title}` : '' }, splice_info: { title: card.Official.title }, icon: card.Official.type === 0 ? 'https://i0.hdslb.com/bfs/activity-plat/static/20230828/e3b8ebec8e86f060b930a2c0536bb88b/72wejSxl9Z.png' : card.Official.type === 1 ? 'https://i0.hdslb.com/bfs/activity-plat/static/20230828/e3b8ebec8e86f060b930a2c0536bb88b/QFMyNuatvi.png' : '', desc: card.Official.desc }, Official: undefined };
 
             if (responseType !== 2) { // 回复头像数据时，只需要调用上面的 API 而无需调用下面的 API 即可获取头像地址
-              const ujson = <APIResponse<UserInfoData>> await utils.callAPI('https://api.bilibili.com/x/space/wbi/acc/info', { params: { mid, token: '', web_location: 1550101 }, wbiSign: true, withCookie: true });
+              const ujson = <APIResponse<UserInfoData>> await utils.callAPI(session, 'https://api.bilibili.com/x/space/wbi/acc/info', { params: { mid, token: '', web_location: 1550101 }, wbiSign: true, withCookie: true });
               if (ujson.code === 0) {
                 json.message = ujson.message;
                 json.data = { ...json.data, ...ujson.data, is_followed: false };
@@ -81,7 +73,7 @@ export default {
                         <strong>${utils.encodeHTML(data.name)}</strong>
                         ${data.sex === '男' ? '<img class="sex" alt="♂️" title="男" src="/assets/male.png" />' : data.sex === '女' ? '<img class="sex" alt="♀️" title="女" src="/assets/female.png" />' : ''}
                         <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${data.is_senior_member ? '6⚡' : data.level}" title="${data.is_senior_member ? '6 级（硬核会员）' : `${data.level} 级`}" src="/assets/level_${data.is_senior_member ? '6%2B' : data.level}.svg" /></a>
-                        ${data.vip.status ? data.vip.label.use_img_label && (data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(data.vip.label.text)}" title="${utils.encodeHTML(data.vip.label.text)}（过期时间：${utils.getDate(data.vip.due_date / 1000)}）" src="${utils.toHTTPS(data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${data.vip.label.bg_color ? `background: ${utils.encodeHTML(data.vip.label.bg_color)};` : ''}${data.vip.label.text_color ? `color: ${utils.encodeHTML(data.vip.label.text_color)};` : ''}">${utils.encodeHTML(data.vip.label.text)}</a>` : ''}
+                        ${data.vip.status ? data.vip.label.use_img_label && (data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(data.vip.label.text)}" title="${utils.encodeHTML(data.vip.label.text)}（过期时间：${utils.getDateHTML(data.vip.due_date)}）" src="${utils.toHTTPS(data.vip.label.img_label_uri_hans || data.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${data.vip.label.bg_color ? `background: ${utils.encodeHTML(data.vip.label.bg_color)};` : ''}${data.vip.label.text_color ? `color: ${utils.encodeHTML(data.vip.label.text_color)};` : ''}">${utils.encodeHTML(data.vip.label.text)}</a>` : ''}
                         ${data.nameplate.nid ? `<img class="pendant" alt="${utils.encodeHTML(data.nameplate.name)}" title="${utils.encodeHTML(data.nameplate.name)}（${utils.encodeHTML(data.nameplate.level)}，${utils.encodeHTML(data.nameplate.condition)}）" src="${utils.toHTTPS(data.nameplate.image)}" />` : ''}
                         ${data.fans_medal.show && data.fans_medal.detail ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://live.bilibili.com/p/html/live-fansmedal-wall/?tid=${data.fans_medal.detail.uid}#/view-wall"><div class="fans-medal" style="background: #${utils.encodeHTML(data.fans_medal.detail.medal_color.slice(3, 9))}; border: 1px solid #${utils.encodeHTML(data.fans_medal.detail.medal_color_border.slice(3, 9))};">${data.fans_medal.detail.first_icon ? `<img class="fans-medal-first-icon" alt src="${utils.toHTTPS(data.fans_medal.detail.first_icon)}" />` : ''}<span class="fans-medal-name" style="color: #${utils.encodeHTML(data.fans_medal.detail.medal_color_name.slice(3, 9))}">${utils.encodeHTML(data.fans_medal.detail.medal_name)}</span><span class="fans-medal-level" style="color: #${utils.encodeHTML(data.fans_medal.detail.medal_color_level.slice(3, 9))}">${data.fans_medal.detail.level}</span></div></a>` : ''}
                         <br />
@@ -111,7 +103,7 @@ export default {
                 case -412: // 请求被拦截（请求太频繁或被识别为爬虫）
                 case -509: // 请求过于频繁，请稍后再试（URL 非 Wbi，旧）
                 case -799: // 请求过于频繁，请稍后再试（URL 非 Wbi）
-                  respHeaders.set('Retry-After', '600');
+                  responseHeaders.set('Retry-After', '600');
                   sendHTML(429, { title: '请求被拦截', newStyle: true, content: '抱歉，本 API 的请求已被 B 站拦截，请等一段时间后再试一下 awa', mid: requestMid });
                   break;
                 case -404: // 啥都木有
@@ -127,14 +119,14 @@ export default {
               if (json.code === 0) {
                 const data = json.data!;
                 if (responseAttributes.includes('REDIRECT')) { // 允许本 API 重定向到 B 站服务器的头像地址
-                  resolve(utils.redirect(307, utils.toHTTPS(data.face)));
+                  resolve(utils.redirect(session, 307, utils.toHTTPS(data.face)));
                 } else {
                   const filename = encodeURIComponent(`${data.name} 的头像.${new URL(data.face).pathname.split('.').at(-1)}`), // 设置头像的文件名
-                        resp = await utils.request(utils.toHTTPS(data.face), 'image'); // 获取 B 站服务器存储的头像
+                        resp = await utils.request(session, utils.toHTTPS(data.face), 'image'); // 获取 B 站服务器存储的头像
                   if (resp.ok) {
-                    if (isResponseTypeSpecified) respHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
-                    respHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
-                    respHeaders.set('Content-Disposition', `inline; filename=${filename}`);
+                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                    responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
+                    responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                     send(200, resp.body);
                   } else {
                     if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
@@ -144,7 +136,7 @@ export default {
                         sendJSON(404, { code: -404, message: 'cannot fetch image', data: null, extInfo: { errType: 'upstreamServerRespError' } });
                       }
                     } else {
-                      respHeaders.set('Content-Type', 'image/jpeg');
+                      responseHeaders.set('Content-Type', 'image/jpeg');
                       send(404, fs.createReadStream('./assets/noface.jpg'));
                     }
                   }
@@ -157,7 +149,7 @@ export default {
                     sendJSON(404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'upstreamServerNoData' } });
                   }
                 } else {
-                  respHeaders.set('Content-Type', 'image/jpeg');
+                  responseHeaders.set('Content-Type', 'image/jpeg');
                   send(404, fs.createReadStream('./assets/noface.jpg'));
                 }
               }
@@ -175,7 +167,7 @@ export default {
                 case -412:
                 case -509:
                 case -799:
-                  respHeaders.set('Retry-After', '600');
+                  responseHeaders.set('Retry-After', '600');
                   sendJSON(429, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerRequestBanned' } });
                   break;
                 case -404:
@@ -201,8 +193,8 @@ export default {
                 cjsonList: Promise<APIResponse<UserCardsData>>[] = [], ujsonList: Promise<APIResponse<UsersInfoData>>[] = [],
                 usersInfo: UsersInfoItem[] = [];
           while (restUsers.length) {
-            cjsonList.push(<Promise<APIResponse<UserCardsData>>> utils.callAPI('https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
-            ujsonList.push(<Promise<APIResponse<UsersInfoData>>> utils.callAPI('https://api.vc.bilibili.com/account/v1/user/cards', { params: { uids: restUsers.splice(0, 50).join(',') }, withCookie: true }));
+            cjsonList.push(<Promise<APIResponse<UserCardsData>>> utils.callAPI(session, 'https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
+            ujsonList.push(<Promise<APIResponse<UsersInfoData>>> utils.callAPI(session, 'https://api.vc.bilibili.com/account/v1/user/cards', { params: { uids: restUsers.splice(0, 50).join(',') }, withCookie: true }));
           }
           for await (const cjson of cjsonList) {
             if (cjson.code === 0) Object.assign(data, cjson.data);
@@ -210,7 +202,7 @@ export default {
           for await (const ujson of ujsonList) {
             if (ujson.code === 0) usersInfo.push(...ujson.data);
           }
-          usersInfo.forEach(i => i.mid in data && Object.assign(data[i.mid], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
+          usersInfo.filter(i => i.mid in data).forEach(i => Object.assign(data[i.mid], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
 
           if (responseType === 1) { // 回复 HTML
             if (Object.keys(data).length) {
@@ -226,7 +218,7 @@ export default {
                     <div class="detail">
                       <strong>${utils.encodeHTML(u.name)}</strong>
                       ${'level' in u ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/blackboard/help.html#/?qid=59e2cffdaa69465486497bb35a5ac295"><img class="level" alt="Lv${u.level}" title="${u.level} 级" src="/assets/level_${u.level}.svg" /></a>` : ''}
-                      ${u.vip.status ? u.vip.label.use_img_label && (u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(u.vip.label.text)}" title="${utils.encodeHTML(u.vip.label.text)}（过期时间：${utils.getDate(+u.vip.due_date / 1000)}）" src="${utils.toHTTPS(u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${u.vip.label.bg_color ? `background: ${utils.encodeHTML(u.vip.label.bg_color)};` : ''}${u.vip.label.text_color ? `color: ${utils.encodeHTML(u.vip.label.text_color)};` : ''}">${utils.encodeHTML(u.vip.label.text)}</a>` : ''}
+                      ${u.vip.status ? u.vip.label.use_img_label && (u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static) ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big"><img class="vip" alt="${utils.encodeHTML(u.vip.label.text)}" title="${utils.encodeHTML(u.vip.label.text)}（过期时间：${utils.getDateHTML(+u.vip.due_date)}）" src="${utils.toHTTPS(u.vip.label.img_label_uri_hans || u.vip.label.img_label_uri_hans_static)}" /></a>` : `<a class="vip" target="_blank" rel="noopener external nofollow noreferrer" href="https://account.bilibili.com/big" style="${u.vip.label.bg_color ? `background: ${utils.encodeHTML(u.vip.label.bg_color)};` : ''}${u.vip.label.text_color ? `color: ${utils.encodeHTML(u.vip.label.text_color)};` : ''}">${utils.encodeHTML(u.vip.label.text)}</a>` : ''}
                       <br />
                       <span class="description">UID：${u.mid}</span>${u.silence ? ' <span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span>' : ''}
                       <br />
@@ -253,7 +245,7 @@ export default {
             case 1: // 回复 HTML
               if (!requestMid) { // 没有设置 UID 参数
                 const systemEnv = getEnv();
-                respHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
+                responseHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
                 sendHTML(200, { title: '获取哔哩哔哩用户信息', newStyle: true, content: `
                   本 API 可以获取指定 B 站用户的信息。<br />
                   基本用法：https://${req.headers.get('host')}<wbr />/api<wbr />/getuser?mid=<span class="notice">您想获取信息的用户的 UID</span><br />
@@ -267,7 +259,7 @@ export default {
             case 2: // 回复头像数据
               if (!requestMid) { // 没有设置 UID 参数，回复随机头像
                 const faces = ['1-22', '1-33', '2-22', '2-33', '3-22', '3-33', '4-22', '4-33', '5-22', '5-33', '6-33'];
-                respHeaders.set('Content-Type', 'image/jpeg');
+                responseHeaders.set('Content-Type', 'image/jpeg');
                 send(200, fs.createReadStream(`./assets/${faces[Math.floor(Math.random() * faces.length)]}.jpg`));
               } else { // 设置了 UID 参数但无效，回复默认头像
                 if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 2) {
@@ -279,7 +271,7 @@ export default {
                     sendJSON(400, { code: -400, message: '请求错误', data: null, extInfo: { errType: 'internalServerInvalidRequest' } });
                   }
                 } else {
-                  respHeaders.set('Content-Type', 'image/jpeg');
+                  responseHeaders.set('Content-Type', 'image/jpeg');
                   send(400, fs.createReadStream('./assets/noface.jpg'));
                 }
               }
@@ -289,7 +281,7 @@ export default {
           }
         }
       } catch (e) {
-        resolve(utils.send500(responseType, e));
+        resolve(utils.send500(session, e));
       }
     });
   },

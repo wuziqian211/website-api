@@ -13,12 +13,19 @@ interface WbiKeys {
   subKey: string;
   updatedTimestamp: millisecondLevelTimestamp;
 }
-interface RequestInfo {
-  userAgent: string;
-  SESSDATA: string;
-  csrf: string;
-  loginHeaders: Headers;
-  normalHeaders: Headers;
+interface Session {
+  readonly requestId: string;
+  readonly startTime: millisecondLevelTimestamp;
+  readonly abortSignal: AbortSignal;
+  timer: NodeJS.Timeout | undefined;
+  upstreamServerResponseInfo: ResponseInfo[];
+  readonly params: URLSearchParams;
+  readonly accepts: ContentType[];
+  readonly fetchDest: ContentType | undefined;
+  responseHeaders: Headers;
+  responseType: ContentType | undefined;
+  responseAttributes: string[];
+  isResponseTypeSpecified: boolean;
 }
 type ContentType = 0/* JSON */ | 1/* HTML */ | 2/* 图片 */ | 3/* 视频 */;
 
@@ -27,18 +34,21 @@ import { waitUntil, getEnv } from '@vercel/functions';
 import { Redis } from '@upstash/redis';
 import md5 from 'md5';
 
-let startTime: millisecondLevelTimestamp, timer: NodeJS.Timeout | undefined,
-    cachedRequestInfo: RequestInfo, wbiKeys: WbiKeys, upstreamServerResponseInfo: ResponseInfo[] = [];
+const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      sessionData = process.env.SESSDATA!, csrf = process.env.bili_jct!,
+      loginHeaders = new Headers({ Cookie: `SESSDATA=${sessionData}; bili_jct=${csrf}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }),
+      normalHeaders = new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent });
+let wbiKeys: WbiKeys;
 
-export const initialize = (req: Request, acceptedResponseTypes: ContentType[], resolve?: (returnValue: Response) => void): { params: URLSearchParams; respHeaders: Headers; fetchDest: ContentType | undefined; responseType: ContentType; isResponseTypeSpecified: boolean } => { // 初始化 API
-  startTime = performance.now();
-  upstreamServerResponseInfo = [];
-  const params = new URL(req.url).searchParams, accepts: ContentType[] = [],
+export const initialize = (req: Request, { acceptedResponseTypes, extraResponseTypes }: { acceptedResponseTypes: ContentType[]; extraResponseTypes?: Map<ContentType, string[]> }, resolve?: (returnValue: Response) => void): Session => { // 初始化 API
+  const startTime = performance.now(), requestId = req.headers.get('x-vercel-id') ?? crypto.randomUUID(),
+        session: Session = { requestId, startTime, abortSignal: req.signal, timer: undefined, upstreamServerResponseInfo: [], params: new URL(req.url).searchParams, accepts: [], fetchDest: undefined, responseHeaders: new Headers(), responseType: undefined, responseAttributes: [], isResponseTypeSpecified: false },
+        defaultResponseTypes: Map<ContentType, string[]> = new Map([[0, ['JSON']], [1, ['HTML', 'PAGE']], [2, ['IMAGE', 'IMG', 'PICTURE', 'PIC']], [3, ['VIDEO']]]),
         requestedAccept = req.headers.get('accept')?.toUpperCase(),
         requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(), // 详见 https://fetch.spec.whatwg.org/#destination-table
-        requestedResponseType = params.get('type')?.toUpperCase().split('_')[0];
-  let fetchDest: ContentType | undefined, acceptAll = false,
-      responseType: ContentType | undefined, isResponseTypeSpecified = false;
+        requestedResponseType = session.params.get('type')?.toUpperCase().split('_');
+
+  let fetchDest: ContentType | undefined, acceptAll = false;
 
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') {
@@ -54,70 +64,80 @@ export const initialize = (req: Request, acceptedResponseTypes: ContentType[], r
   if (requestedAccept) {
     if (requestedAccept === '*/*') { // 客户端接受所有类型的数据，“Accept” 标头必须与 “*/*” 相等，不能是包含关系
       acceptAll = true;
-      accepts.push(0, 1, 2, 3);
+      session.accepts.push(0, 1, 2, 3);
     } else {
-      if (requestedAccept.includes('JSON')) accepts.push(0);
-      if (requestedAccept.includes('HTML')) accepts.push(1);
-      if (requestedAccept.includes('IMAGE')) accepts.push(2);
-      if (requestedAccept.includes('VIDEO')) accepts.push(3);
+      if (requestedAccept.includes('JSON')) session.accepts.push(0);
+      if (requestedAccept.includes('HTML')) session.accepts.push(1);
+      if (requestedAccept.includes('IMAGE')) session.accepts.push(2);
+      if (requestedAccept.includes('VIDEO')) session.accepts.push(3);
     }
   }
 
   // 回复数据类型判断优先级：“type” 参数＞“Sec-Fetch-Dest” 标头＞“Accept” 标头
-  if (requestedResponseType) { // 先取客户端指定的回复数据类型
-    if (acceptedResponseTypes.includes(0) && requestedResponseType === 'JSON') {
-      responseType = 0;
-      isResponseTypeSpecified = true;
-    } else if (acceptedResponseTypes.includes(1) && ['HTML', 'PAGE'].includes(requestedResponseType)) {
-      responseType = 1;
-      isResponseTypeSpecified = true;
-    } else if (acceptedResponseTypes.includes(2) && ['IMAGE', 'IMG', 'PICTURE', 'PIC'].includes(requestedResponseType)) {
-      responseType = 2;
-      isResponseTypeSpecified = true;
-    } else if (acceptedResponseTypes.includes(3) && requestedResponseType === 'VIDEO') {
-      responseType = 3;
-      isResponseTypeSpecified = true;
+  if (requestedResponseType?.length) { // 先取客户端指定的回复数据类型
+    if (extraResponseTypes) {
+      for (const [type, aliases] of extraResponseTypes.entries()) {
+        if (aliases.some(a => requestedResponseType[0] === a)) {
+          session.responseType = type;
+          session.responseAttributes.push(...requestedResponseType.slice(1));
+          session.isResponseTypeSpecified = true;
+          break;
+        }
+      }
+    }
+
+    if (session.responseType === undefined) {
+      for (const [type, aliases] of defaultResponseTypes.entries()) {
+        if (aliases.some(a => requestedResponseType[0] === a)) {
+          session.responseType = type;
+          session.responseAttributes.push(...requestedResponseType.slice(1));
+          session.isResponseTypeSpecified = true;
+          break;
+        }
+      }
     }
   }
-  if (responseType === undefined && fetchDest !== undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
-    responseType = fetchDest;
+
+  if (session.responseType === undefined && fetchDest !== undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+    session.responseType = fetchDest;
   }
-  if (responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
+
+  if (session.responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
     if (acceptAll) { // 部分脚本在发送请求时会自动带上 “Accept: */*” 标头，此时应该回复 JSON
-      responseType = 0;
+      session.responseType = 0;
     } else {
-      const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
+      const filteredAccepts = session.accepts.filter(a => acceptedResponseTypes.includes(a));
       if (filteredAccepts.includes(1)) {
-        responseType = 1;
+        session.responseType = 1;
       } else if (filteredAccepts.includes(2)) {
-        responseType = 2;
+        session.responseType = 2;
       } else if (filteredAccepts.includes(3)) {
-        responseType = 3;
+        session.responseType = 3;
       } else { // 默认回复 JSON
-        responseType = 0;
+        session.responseType = 0;
       }
     }
   }
 
   if (resolve) { // API 超时处理
-    timer = setTimeout(() => {
-      timer = undefined;
-      resolve(send504(responseType));
+    session.timer = setTimeout(() => {
+      session.timer = undefined;
+      resolve(send504(session));
     }, 30000);
   }
 
-  return { params, respHeaders: new Headers(), fetchDest, responseType, isResponseTypeSpecified };
+  return session;
 };
 const getRunningTime = (ts: secondLevelTimestamp): string => `${Math.floor(ts / 86400)} 天 ${Math.floor(ts % 86400 / 3600)} 小时 ${Math.floor(ts % 3600 / 60)} 分钟 ${Math.floor(ts % 60)} 秒`; // 获取网站运行时间
-export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
-  if (timer) {
-    clearTimeout(timer);
-    timer = undefined;
+export const sendHTML = (session: Session, status: number, data: SendHTMLData): Response => { // 发送 HTML 页面到客户端
+  if (session.timer) {
+    clearTimeout(session.timer);
+    session.timer = undefined;
   }
-  const systemEnv = getEnv(), apiExecTime = performance.now() - startTime;
-  headers.set('Content-Type', 'text/html; charset=utf-8');
-  headers.set('Vary', 'Accept, Sec-Fetch-Dest');
-  headers.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
+  const systemEnv = getEnv(), apiExecTime = performance.now() - session.startTime;
+  session.responseHeaders.set('Content-Type', 'text/html; charset=utf-8');
+  session.responseHeaders.set('Vary', 'Accept, Sec-Fetch-Dest');
+  session.responseHeaders.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
   return new Response(`
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -149,85 +169,96 @@ export const sendHTML = (status: number, headers: Headers, data: SendHTMLData): 
           部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
         </footer>
         <script src="/assets/main.js"></script>
+        <!-- Execution time: ${apiExecTime.toFixed(3)} ms | Request ID: ${session.requestId} -->
       </body>
-    </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim(), { status, headers });
+    </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim(), { status, headers: session.responseHeaders });
 };
-export const sendJSON = (status: number, headers: Headers, data: InternalAPIResponse<unknown>): Response => { // 发送 JSON 数据到客户端
-  if (timer) {
-    clearTimeout(timer);
-    timer = undefined;
+export const sendJSON = (session: Session, status: number, data: InternalAPIResponse<unknown>): Response => { // 发送 JSON 数据到客户端
+  if (session.timer) {
+    clearTimeout(session.timer);
+    session.timer = undefined;
   }
-  const apiExecTime = performance.now() - startTime;
-  headers.set('Content-Type', 'application/json; charset=utf-8');
-  headers.set('Vary', 'Accept, Sec-Fetch-Dest');
-  headers.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
-  headers.set('X-Api-Status-Code', data.code.toString());
-  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo: upstreamServerResponseInfo.length ? upstreamServerResponseInfo : undefined, apiExecTime } }), { status, headers });
+  const apiExecTime = performance.now() - session.startTime;
+  session.responseHeaders.set('Content-Type', 'application/json; charset=utf-8');
+  session.responseHeaders.set('Vary', 'Accept, Sec-Fetch-Dest');
+  session.responseHeaders.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
+  session.responseHeaders.set('X-Api-Status-Code', data.code.toString());
+  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo: session.upstreamServerResponseInfo.length ? session.upstreamServerResponseInfo : undefined, apiExecTime, requestId: session.requestId } }), { status, headers: session.responseHeaders });
 };
-export const send = (status: number, headers: Headers, data: BodyInit): Response => { // 发送其他数据到客户端
-  if (timer) {
-    clearTimeout(timer);
-    timer = undefined;
+export const send = (session: Session, status: number, data: BodyInit): Response => { // 发送其他数据到客户端
+  if (session.timer) {
+    clearTimeout(session.timer);
+    session.timer = undefined;
   }
-  headers.set('X-Api-Exec-Time', (performance.now() - startTime).toFixed(3));
-  headers.set('Vary', 'Accept, Sec-Fetch-Dest');
-  return new Response(data, { status, headers });
+  session.responseHeaders.set('X-Api-Exec-Time', (performance.now() - session.startTime).toFixed(3));
+  session.responseHeaders.set('Vary', 'Accept, Sec-Fetch-Dest');
+  return new Response(data, { status, headers: session.responseHeaders });
 };
-export const send404 = (responseType: ContentType, noCache?: boolean): Response => {
-  const headers = new Headers();
-  if (responseType === 1) {
-    if (!noCache) headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
-    return sendHTML(404, headers, { title: 'API 不存在', newStyle: true, body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
+export const send404 = (session: Session, noCache?: boolean): Response => {
+  session.responseHeaders = new Headers();
+  if (session.responseType === 1) {
+    if (!noCache) session.responseHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
+    return sendHTML(session, 404, { title: 'API 不存在', newStyle: true, body: '您请求的 API 不存在，请到<a href="/api/">首页</a>查看目前可用的 API 列表 awa' });
   } else {
-    return sendJSON(404, headers, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
+    return sendJSON(session, 404, { code: -404, message: '啥都木有', data: null, extInfo: { errType: 'internalServerNotFound' } });
   }
 };
-export const send500 = (responseType: ContentType, error: unknown): Response => {
+export const send500 = (session: Session, error: unknown): Response => {
   console.error(error);
-  const headers = new Headers();
-  if (responseType === 1) {
-    return sendHTML(500, headers, { title: 'API 执行时出现异常', newStyle: true, body: `
+  session.responseHeaders = new Headers();
+  if (session.responseType === 1) {
+    return sendHTML(session, 500, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉梦春酱哟 awa
-      <pre>${encodeHTML(error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error))}</pre>
+      <pre>请求 ID：${session.requestId}</pre>
+      <pre class="error">${encodeHTML(error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error))}</pre>
       <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
-    return sendJSON(500, headers, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error) } });
+    return sendJSON(session, 500, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error) } });
   }
 };
-export const send504 = (responseType: ContentType): Response => {
-  const headers = new Headers();
-  if (responseType === 1) {
-    return sendHTML(504, headers, { title: 'API 执行超时', newStyle: true, body: `
+export const send504 = (session: Session): Response => {
+  session.responseHeaders = new Headers();
+  if (session.responseType === 1) {
+    return sendHTML(session, 504, { title: 'API 执行超时', newStyle: true, body: `
       抱歉，本 API 的执行已经超时了，请您再尝试调用一次本 API 吧 qwq<br />
       如果您仍然看到本错误信息，请跟梦春酱反馈哟 awa
+      <pre>请求 ID：${session.requestId}</pre>
       <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
-    return sendJSON(504, headers, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
+    return sendJSON(session, 504, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
   }
 };
-export const redirect = (status: number, redirectUrl: url, noCache?: boolean): Response => { // 发送重定向信息到客户端
-  const headers = new Headers({ Location: redirectUrl });
-  if (status === 308) headers.set('Refresh', `0; url=${redirectUrl}`);
+export const redirect = (session: Session, status: number, redirectUrl: url, noCache?: boolean): Response => { // 发送重定向信息到客户端
+  session.responseHeaders.set('Location', redirectUrl);
+  if (status === 308) session.responseHeaders.set('Refresh', `0; url=${redirectUrl}`);
   if (!noCache) {
     switch (status) {
       case 308:
       case 301:
-        headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
+        session.responseHeaders.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
         break;
       case 307:
       case 302:
-        headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+        session.responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
         break;
     }
   }
-  return sendJSON(status, headers, { code: status, message: 'redirect', data: { url: redirectUrl }, extInfo: { redirectUrl } });
+  return sendJSON(session, status, { code: status, message: 'redirect', data: { url: redirectUrl }, extInfo: { redirectUrl } });
 };
 
-export const getDate = (ts: secondLevelTimestamp): string => { // 根据时间戳返回日期时间
+export const getDate = (ts: millisecondLevelTimestamp): string => { // 根据时间戳返回日期时间
   if (typeof ts !== 'number' || ts === 0) return '未知';
-  const d = new Date(ts * 1000 + (new Date().getTimezoneOffset() + 480) * 60000);
+  const d = new Date(ts + (new Date().getTimezoneOffset() + 480) * 60000);
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+};
+export const getDateISO = (ts: millisecondLevelTimestamp): string => { // 根据时间戳返回 ISO 格式的日期时间
+  if (typeof ts !== 'number' || ts === 0) return '';
+  return new Date(ts).toISOString();
+};
+export const getDateHTML = (ts: millisecondLevelTimestamp): string => { // 根据时间戳返回 HTML 格式的日期时间
+  if (typeof ts !== 'number' || ts === 0) return '<span class="description">未知</span>';
+  return `<time datetime="${getDateISO(ts)}" title="${getDate(ts)}">${getDate(ts)}</time>`;
 };
 export const getTime = (s: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 export const getNumber = (n: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
@@ -306,17 +337,9 @@ export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 
   }
   return (t & maskCode) ^ xorCode;
 };
-const getRequestInfo = (): RequestInfo => {
-  if (!cachedRequestInfo) {
-    const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-          { SESSDATA, bili_jct: csrf } = process.env;
-    cachedRequestInfo = { userAgent, SESSDATA: SESSDATA!, csrf: csrf!, loginHeaders: new Headers({ Cookie: `SESSDATA=${SESSDATA}; bili_jct=${csrf}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }), normalHeaders: new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }) };
-  }
-  return cachedRequestInfo;
-};
-const makeRequest = async <T> (requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
+const makeRequest = async <T> (session: Session, requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
   const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
-        { csrf, loginHeaders, normalHeaders } = getRequestInfo(), headers = options.withCookie ? loginHeaders : normalHeaders,
+        headers = options.withCookie ? loginHeaders : normalHeaders,
         retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1); // 重试次数
 
   if (options.params) { // 请求参数
@@ -353,12 +376,12 @@ const makeRequest = async <T> (requestUrl: url, options: { method?: string; para
     if (options.wbiSign) { // 使用 Wbi 签名
       urlObj.searchParams.set('gaia_source', 'main_web');
       if (!urlObj.searchParams.has('platform')) urlObj.searchParams.set('platform', 'web');
-      urlObj.search = await encodeWbi(urlObj.search);
+      urlObj.search = await encodeWbi(session, urlObj.search);
     }
 
     try {
       const respStartTime = Date.now(),
-            resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true, signal: AbortSignal.timeout(10000) });
+            resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true, signal: AbortSignal.any([AbortSignal.timeout(10000), session.abortSignal]) });
       const respEndTime = Date.now();
 
       if (typeof options.afterRequestCallback === 'function') {
@@ -368,7 +391,7 @@ const makeRequest = async <T> (requestUrl: url, options: { method?: string; para
 
       return resp;
     } catch (e) {
-      if (i < retries) { // 请求次数小于尝试次数，就在 1 秒后再次尝试请求
+      if (!session.abortSignal.aborted && i < retries) { // 请求次数小于尝试次数，就在 1 秒后再次尝试请求
         await new Promise(r => { setTimeout(r, 1000); });
       } else { // 请求次数已经达到了尝试次数，就结束请求
         throw e;
@@ -377,27 +400,27 @@ const makeRequest = async <T> (requestUrl: url, options: { method?: string; para
   }
   throw new TypeError('fetch failed'); // 理论上，如果 retries 参数有效，就永远无法执行这行代码
 };
-export const callAPI = (requestUrl: url, options?: Parameters<typeof makeRequest>[1]): Promise<unknown> => makeRequest(requestUrl, { // 调用 API
+export const callAPI = (session: Session, requestUrl: url, options?: Parameters<typeof makeRequest>[2]): Promise<unknown> => makeRequest(session, requestUrl, { // 调用 API
   ...options,
   afterRequestCallback: async ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
     if (!resp.ok) { // 服务器返回了表示错误的 HTTP 状态码
-      upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: null, message: null });
+      session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: null, message: null });
       throw new TypeError(`HTTP status: ${resp.status}`);
     }
 
     const json = <{ code: number; message?: string; [key: string]: unknown }> JSONParse(await resp.text());
-    upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
+    session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
     if ([-351, -352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
 
     return json;
   },
 });
-export const request = (requestUrl: url, options?: string | (Parameters<typeof makeRequest>[1] & { responseType?: string })): Promise<Response> => { // 请求其他类型数据
+export const request = (session: Session, requestUrl: url, options?: string | (Parameters<typeof makeRequest>[2] & { responseType?: string })): Promise<Response> => { // 请求其他类型数据
   const optionsArg = typeof options === 'string' ? { responseType: options } : options ?? {};
-  return <Promise<Response>> makeRequest(requestUrl, {
+  return <Promise<Response>> makeRequest(session, requestUrl, {
     ...optionsArg,
     afterRequestCallback: ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
-      upstreamServerResponseInfo.push({ url: requestedUrl, method, type: optionsArg.responseType || null, startTime: respStartTime, endTime: respEndTime, status: resp.status });
+      session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: optionsArg.responseType || null, startTime: respStartTime, endTime: respEndTime, status: resp.status });
     },
   });
 };
@@ -419,8 +442,8 @@ export const getVidType = (vid: string | null): { type: -1; vid: undefined } | {
     return { type: -1, vid: undefined };
   }
 };
-export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名
-  const keys = await getWbiKeys();
+export const encodeWbi = async (session: Session, query?: ConstructorParameters<typeof URLSearchParams>[0]): Promise<string> => { // 对请求参数进行 Wbi 签名
+  const keys = await getWbiKeys(session);
   const mixinKey = [46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52].reduce((accumulator, n) => accumulator + (keys.imgKey + keys.subKey)[n], '').slice(0, 32), // 对 imgKey 和 subKey 进行字符顺序打乱编码
         params = new URLSearchParams(query);
   params.append('wts', Math.floor(Date.now() / 1000).toString()); // 添加 wts 字段
@@ -428,20 +451,20 @@ export const encodeWbi = async (query?: ConstructorParameters<typeof URLSearchPa
   params.append('w_rid', md5(params.toString() + mixinKey)); // 计算 w_rid
   return params.toString();
 };
-export const getWbiKeys = async (noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key
-  const requestInfo = getRequestInfo(), redis = Redis.fromEnv();
+export const getWbiKeys = async (session: Session, noCache?: boolean): Promise<WbiKeys> => { // 获取最新的 img_key 和 sub_key
+  const redis = Redis.fromEnv();
 
   if (!noCache && !wbiKeys) wbiKeys = <WbiKeys> await redis.get('wbiKeys');
   if (noCache || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
-    const ujson = <APIResponse<NavData>> await callAPI('https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
+    const ujson = <APIResponse<NavData>> await callAPI(session, 'https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
     wbiKeys.mid = ujson.data.mid;
     wbiKeys.imgKey = ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
     wbiKeys.subKey = ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
-    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
+    loginHeaders.set('Cookie', `SESSDATA=${sessionData}; bili_jct=${csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
     wbiKeys.updatedTimestamp = Date.now();
     waitUntil(redis.set('wbiKeys', wbiKeys));
   } else {
-    requestInfo.loginHeaders.set('Cookie', `SESSDATA=${requestInfo.SESSDATA}; bili_jct=${requestInfo.csrf}; DedeUserID=${wbiKeys.mid}`);
+    loginHeaders.set('Cookie', `SESSDATA=${sessionData}; bili_jct=${csrf}; DedeUserID=${wbiKeys.mid}`);
   }
 
   return wbiKeys;

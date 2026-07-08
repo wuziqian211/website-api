@@ -1,11 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "fluid": true,
   "functions": {
     "api/getuser.ts": {
-      "includeFiles": "assets/{1-22,1-33,2-22,2-33,3-22,3-33,4-22,4-33,5-22,5-33,6-33,noface}.jpg"
+      "includeFiles": "assets/{1-22,1-33,2-22,2-33,3-22,3-33,4-22,4-33,5-22,5-33,6-33,noface}.jpg",
+      "supportsCancellation": true
     },
     "api/getvideo.ts": {
-      "includeFiles": "assets/{error.mp4,nocover.png}"
+      "includeFiles": "assets/{error.mp4,nocover.png}",
+      "supportsCancellation": true
+    },
+    "api/**/*": {
+      "supportsCancellation": true
     }
   },
   "headers": [
