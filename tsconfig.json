@@ -1,5 +1,5 @@
 {
-  "include": ["api/**/*", "middleware.ts"],
+  "include": ["api/**/*.ts", "assets/**/*.ts", "middleware.ts"],
   "compilerOptions": {
     // Type checking
     "allowUnreachableCode": false,

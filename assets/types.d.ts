@@ -440,6 +440,7 @@ type PageInfo = {
   weblink: '';
   dimension: Dimension;
   first_frame?: url;
+  ctime?: secondLevelTimestamp;
 } | { // 站外视频
   cid: number;
   page: number;
@@ -450,6 +451,7 @@ type PageInfo = {
   weblink: url;
   dimension: Dimension;
   first_frame?: url;
+  ctime?: secondLevelTimestamp;
 };
 
 // a. 历史记录数据（https://api.bilibili.com/x/v2/history）
@@ -504,11 +506,12 @@ interface HistoryItem { // 此处仅定义视频信息数据结构
   dynamic: string;
   cid?: number;
   dimension: Dimension;
+  season_id?: number;
   short_link_v2: url;
   up_from_v2?: number;
   first_frame?: url;
   pub_location?: string;
-  cover43: '';
+  cover43: url;
   tidv2: number;
   tnamev2: string;
   pid_v2: number;
@@ -519,7 +522,7 @@ interface HistoryItem { // 此处仅定义视频信息数据结构
   device: number;
   page?: PageInfo;
   count?: number;
-  progress: 0;
+  progress: number;
   view_at: secondLevelTimestamp;
   kid: number;
   business: 'archive';
@@ -588,6 +591,7 @@ export interface VideoInfoData {
   dynamic: string;
   cid: number;
   dimension: Dimension;
+  season_id?: number;
   premiere: null;
   teenage_mode: booleanNumber;
   is_chargeable_season: boolean;
@@ -612,7 +616,8 @@ export interface VideoInfoData {
       id_str: numericString;
       ai_type: number;
       ai_status: number;
-      author: { mid: 0; name: ''; sex: ''; face: ''; sign: ''; rank: 0; birthday: 0; is_fake_account: 0; is_deleted: 0; in_reg_audit: 0; is_senior_member: 0; name_render: null };
+      subtitle_height: null;
+      author: { mid: 0; name: ''; sex: ''; face: ''; sign: ''; rank: 0; birthday: 0; is_fake_account: 0; is_deleted: 0; in_reg_audit: 0; is_senior_member: 0; name_render: null; handle: '' };
     }[];
   };
   staff?: { // 仅合作视频
@@ -625,6 +630,78 @@ export interface VideoInfoData {
     follower: number;
     label_style: 0/* 普通 */ | 1/* 赞助商 */;
   }[];
+  ugc_season?: {
+    id: number;
+    title: string;
+    cover: url;
+    mid: number;
+    intro: string;
+    sign_state: number;
+    attribute: number;
+    sections: {
+      season_id: number;
+      id: number;
+      title: string;
+      type: number;
+      episodes: {
+        season_id: number;
+        section_id: number;
+        id: number;
+        aid: number;
+        cid: number;
+        title: string;
+        attribute: number;
+        arc: {
+          aid: number;
+          videos: 0;
+          type_id: 0;
+          type_name: '';
+          copyright: 0;
+          pic: url;
+          title: string;
+          pubdate: secondLevelTimestamp;
+          ctime: secondLevelTimestamp;
+          desc: '';
+          state: number;
+          duration: number;
+          rights: { bp: booleanNumber; elec: booleanNumber; download: booleanNumber; movie: booleanNumber; pay: booleanNumber; hd5: booleanNumber; no_reprint: booleanNumber; autoplay: booleanNumber; ugc_pay: booleanNumber; is_cooperation: booleanNumber; ugc_pay_preview: booleanNumber; arc_pay: booleanNumber; free_watch: booleanNumber };
+          author: { mid: number; name: string; face: url };
+          stat: { aid: number; view: number; danmaku: number; reply: number; fav: number; coin: number; share: number; now_rank: number; his_rank: number; like: number; dislike: 0; evaluation: ''; argue_msg: string; vt: 0; vv: number };
+          dynamic: '';
+          dimension: { width: 0; height: 0; rotate: 0 };
+          desc_v2: null;
+          is_chargeable_season: boolean;
+          is_blooper: boolean;
+          enable_vt: 0;
+          vt_display: '';
+          type_id_v2: 0;
+          type_name_v2: '';
+          is_lesson_video: booleanNumber;
+        };
+        page: PageInfo;
+        bvid: string;
+        pages: PageInfo[];
+      }[];
+    }[];
+    stat: {
+      season_id: number;
+      view: number;
+      danmaku: number;
+      reply: number;
+      fav: number;
+      coin: number;
+      share: number;
+      now_rank: number;
+      his_rank: number;
+      like: number;
+      vt: 0;
+      vv: 0;
+    };
+    ep_count: number;
+    season_type: number;
+    is_pay_season: boolean;
+    enable_vt: 0;
+  };
   is_season_display: boolean;
   user_garb: { url_image_ani_cut: url };
   honor_reply: {} | {
@@ -653,14 +730,14 @@ export interface VideoPlayUrlData {
   result: 'suee';
   message: '';
   quality: quality;
-  format: 'mp4';
+  format: 'mp4' | 'mp4720';
   timelength: number;
   accept_format: string;
   accept_description: string[];
   accept_quality: quality[];
   video_codecid: 7/* AVC */ | 12/* HEVC */ | 13/* AV1 */;
   seek_param: 'start';
-  seek_type: 'second';
+  seek_type: 'second' | 'offset';
   durl: {
     order: number;
     length: number; // 单位为毫秒
@@ -668,14 +745,14 @@ export interface VideoPlayUrlData {
     ahead: '';
     vhead: '';
     url: url;
-    backup_url: url[];
+    backup_url: null | url[];
   }[];
   support_formats: {
     quality: quality;
-    format: 'mp4' | 'flv';
+    format: 'mp4' | 'mp4720' | 'flv' | 'flv_p60';
     new_description: string;
     display_desc: string;
-    superscript: '';
+    superscript: string;
     codecs: null | string[];
     can_watch_qn_reason: booleanNumber;
     limit_watch_reason: booleanNumber;
@@ -737,6 +814,7 @@ export interface InternalAPIGetVideoInfoData {
   dynamic: string;
   cid: number;
   dimension: Dimension;
+  season_id?: undefined | number;
   premiere: null;
   teenage_mode: booleanNumber;
   is_chargeable_season: boolean;
@@ -758,9 +836,11 @@ export interface InternalAPIGetVideoInfoData {
     weblink: url;
     dimension: Dimension;
     first_frame?: undefined | url;
+    ctime?: secondLevelTimestamp;
   }[];
   subtitle: null | VideoInfoData['subtitle'];
   staff?: VideoInfoData['staff'];
+  ugc_season?: VideoInfoData['ugc_season'];
   is_season_display: boolean;
   user_garb: VideoInfoData['user_garb'];
   honor_reply: VideoInfoData['honor_reply'];
@@ -769,7 +849,6 @@ export interface InternalAPIGetVideoInfoData {
   disable_show_up_info: boolean;
   is_story_play: booleanNumber;
   is_view_self: boolean;
-  cover43?: undefined;
   tidv2?: undefined;
   tnamev2?: undefined;
   favorite?: undefined;

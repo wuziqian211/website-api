@@ -1,7 +1,7 @@
 import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, SendHTMLData, ResponseInfo, InternalAPIResponse, APIResponse, JSON_, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
 
-declare const JSON: JSON_; // 含有 Stage 3 接口定义
+declare const JSON: JSON_; // 含有 Stage 4 接口定义
 
 interface Component {
   content: string; // 文本内容
@@ -34,7 +34,7 @@ import { waitUntil, getEnv } from '@vercel/functions';
 import { Redis } from '@upstash/redis';
 import md5 from 'md5';
 
-const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
       sessionData = process.env.SESSDATA!, csrf = process.env.bili_jct!,
       loginHeaders = new Headers({ Cookie: `SESSDATA=${sessionData}; bili_jct=${csrf}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent }),
       normalHeaders = new Headers({ Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent });

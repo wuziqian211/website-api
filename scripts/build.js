@@ -9,15 +9,18 @@
 
 import { Redis } from '@upstash/redis';
 
+console.log(`Node.js 版本：${process.version}`);
+
 if (process.env.VERCEL_URL?.startsWith('localhost')) process.exit(0);
 
-const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
       { SESSDATA, bili_jct: csrf } = process.env;
 
 /** @type {APIResponse<NavData>} */
 const ujson = await (await fetch('https://api.bilibili.com/x/web-interface/nav', { headers: { Cookie: `SESSDATA=${SESSDATA}; bili_jct=${csrf}`, Origin: 'https://www.bilibili.com', Referer: 'https://www.bilibili.com/', 'User-Agent': userAgent } })).json();
 if (ujson.code !== 0) {
   console.error('获取账号登录信息失败，请重新设置 Cookie');
+  console.error(ujson);
   process.exit(1);
 }
 const { mid } = ujson.data;
