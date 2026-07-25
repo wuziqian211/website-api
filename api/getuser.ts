@@ -122,9 +122,9 @@ export default {
                 resolve(utils.redirect(session, 307, utils.toHTTPS(data.face)));
               } else {
                 const filename = encodeURIComponent(`${data.name} 的头像.${new URL(data.face).pathname.split('.').at(-1)}`), // 设置头像的文件名
-                      resp = await utils.request(session, utils.toHTTPS(data.face), 'image'); // 获取 B 站服务器存储的头像
+                      resp = await utils.request(session, utils.toHTTPS(data.face), { timeout: false, responseType: 'image' }); // 获取 B 站服务器存储的头像
                 if (resp.ok) {
-                  if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                  if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
                   responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                   responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                   send(200, resp.body);

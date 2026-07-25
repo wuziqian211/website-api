@@ -438,7 +438,7 @@
 | assets/utils.ts | 所有 API 使用的功能文件，包括网站上页面的 “框架” |
 | assets/warning.png, assets/tribute.png | 警告图标 |
 | scripts/ | 本文件夹包括构建本项目所需文件 |
-| scripts/build.js | 构建本项目时使用的脚本文件 |
+| scripts/prepare.js | 构建本项目时使用的脚本文件 |
 | eslint.config.js | [ESLint](https://eslint.org/)（JavaScript 代码检查器）的配置文件 |
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |

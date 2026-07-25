@@ -211,10 +211,10 @@ export const send500 = (session: Session, error: unknown): Response => {
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉梦春酱哟 awa
       <pre>请求 ID：${session.requestId}</pre>
-      <pre class="error">${encodeHTML(error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error))}</pre>
+      <pre class="error">${encodeHTML(Error.isError(error) ? util.inspect(error, { depth: Infinity }) : String(error))}</pre>
       <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
-    return sendJSON(session, 500, { code: -500, message: error instanceof Error ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: error instanceof Error ? util.inspect(error, { depth: Infinity }) : String(error) } });
+    return sendJSON(session, 500, { code: -500, message: Error.isError(error) ? error.message : String(error), data: null, extInfo: { errType: 'internalServerError', errStack: Error.isError(error) ? util.inspect(error, { depth: Infinity }) : String(error) } });
   }
 };
 export const send504 = (session: Session): Response => {
@@ -240,7 +240,7 @@ export const redirect = (session: Session, status: number, redirectUrl: url, noC
         break;
       case 307:
       case 302:
-        session.responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+        session.responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
         break;
     }
   }
@@ -337,10 +337,11 @@ export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 
   }
   return (t & maskCode) ^ xorCode;
 };
-const makeRequest = async <T> (session: Session, requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; afterRequestCallback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
+const makeRequest = async <T> (session: Session, requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; timeout?: boolean | number; callback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
   const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         headers = options.withCookie ? loginHeaders : normalHeaders,
-        retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1); // 重试次数
+        retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1), // 重试次数
+        timeout = options.timeout === true ? 10000 : options.timeout === false ? Infinity : options.timeout ?? 10000; // 超时时间
 
   if (options.params) { // 请求参数
     for (const [name, value] of Object.entries(options.params)) {
@@ -381,11 +382,11 @@ const makeRequest = async <T> (session: Session, requestUrl: url, options: { met
 
     try {
       const respStartTime = Date.now(),
-            resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true, signal: AbortSignal.any([AbortSignal.timeout(10000), session.abortSignal]) });
+            resp = await fetch(urlObj, { method, headers, body: options.body ?? null, keepalive: true, signal: timeout === Infinity ? session.abortSignal : AbortSignal.any([AbortSignal.timeout(timeout), session.abortSignal]) });
       const respEndTime = Date.now();
 
-      if (typeof options.afterRequestCallback === 'function') {
-        const result = options.afterRequestCallback({ method, url: urlObj.href, resp, respStartTime, respEndTime });
+      if (typeof options.callback === 'function') {
+        const result = options.callback({ method, url: urlObj.href, resp, respStartTime, respEndTime });
         if (result) return result;
       }
 
@@ -398,19 +399,19 @@ const makeRequest = async <T> (session: Session, requestUrl: url, options: { met
       }
     }
   }
-  throw new TypeError('fetch failed'); // 理论上，如果 retries 参数有效，就永远无法执行这行代码
+  throw new TypeError(`${method} ${requestUrl} fetch failed`); // 理论上，如果 retries 参数有效，就永远无法执行这行代码
 };
 export const callAPI = (session: Session, requestUrl: url, options?: Parameters<typeof makeRequest>[2]): Promise<unknown> => makeRequest(session, requestUrl, { // 调用 API
   ...options,
-  afterRequestCallback: async ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
+  callback: async ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
     if (!resp.ok) { // 服务器返回了表示错误的 HTTP 状态码
       session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: null, message: null });
-      throw new TypeError(`HTTP status: ${resp.status}`);
+      throw new TypeError(`${method} ${requestedUrl} HTTP status: ${resp.status}`);
     }
 
     const json = <{ code: number; message?: string; [key: string]: unknown }> JSONParse(await resp.text());
     session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
-    if ([-351, -352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`Response code: ${json.code}`); // 请求被拦截
+    if ([-351, -352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`${method} ${requestedUrl} Response code: ${json.code}`); // 请求被拦截
 
     return json;
   },
@@ -419,7 +420,7 @@ export const request = (session: Session, requestUrl: url, options?: string | (P
   const optionsArg = typeof options === 'string' ? { responseType: options } : options ?? {};
   return <Promise<Response>> makeRequest(session, requestUrl, {
     ...optionsArg,
-    afterRequestCallback: ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
+    callback: ({ method, url: requestedUrl, resp, respStartTime, respEndTime }) => {
       session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: optionsArg.responseType || null, startTime: respStartTime, endTime: respEndTime, status: resp.status });
     },
   });

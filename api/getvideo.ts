@@ -4,7 +4,7 @@
  * 作者：晨叶梦春（https://www.yumeharu.top/）
  */
 
-import type { SendHTMLData, InternalAPIResponse, APIResponse, quality, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
+import type { SendHTMLData, InternalAPIResponse, APIResponse, HistoryData, VideoInfoData, VideoPlayUrlData, InternalAPIGetVideoInfoData, BangumiAPIResponse, BangumiMediaData, BangumiSeasonData, BangumiPlayUrlData } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 import fs from 'node:fs';
@@ -203,7 +203,7 @@ export default {
                         </div>` : ''}
                         <div class="detail">
                           <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
-                          ${p.ctime ? `<strong>发布时间：</strong>${utils.getDateHTML(p.ctime * 1000)}<br />` : ''}
+                          ${p.ctime ? `<strong>投稿/审核通过时间：</strong>${utils.getDateHTML(p.ctime * 1000)}<br />` : ''}
                           <strong>cid：</strong>${p.cid || '未知'}
                         </div>
                         <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/?p=${p.page}"></a>
@@ -254,9 +254,9 @@ export default {
                   resolve(utils.redirect(session, 307, utils.toHTTPS(data.pic)));
                 } else {
                   const filename = encodeURIComponent(`${data.title} 的封面.${new URL(data.pic).pathname.split('.').at(-1)}`), // 设置封面的文件名
-                        resp = await utils.request(session, utils.toHTTPS(data.pic)); // 获取 B 站服务器存储的封面
+                        resp = await utils.request(session, utils.toHTTPS(data.pic), { timeout: false, responseType: 'image' }); // 获取 B 站服务器存储的封面
                   if (resp.ok) {
-                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
                     responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                     responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                     send(200, resp.body);
@@ -300,22 +300,13 @@ export default {
                 }
 
                 if (cid) { // 客户端提供的分 P 参数有效
-                  const qualities: quality[] = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
-                  let url;
-                  for (const qn of qualities) {
-                    const vjson = <APIResponse<VideoPlayUrlData>> await utils.callAPI(session, 'https://api.bilibili.com/x/player/wbi/playurl', { params: { bvid: vid, cid, qn, fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: 'mp4', platform: qn === 6 ? 'pc' : 'html5', high_quality: 1, web_location: 1315877 }, wbiSign: true, withCookie: useCookie });
-                    if (vjson.code === 0) { // 视频地址获取成功
-                      url = vjson.data.durl[0].url;
-                    } else {
-                      break;
-                    }
-                  }
-
-                  if (url) { // 视频地址获取成功
-                    const filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`), // 设置视频的文件名
-                          resp = await utils.request(session, url, { withCookie: useCookie, responseType: 'video' });
+                  const vjson = <APIResponse<VideoPlayUrlData>> await utils.callAPI(session, 'https://api.bilibili.com/x/player/wbi/playurl', { params: { bvid: vid, cid, qn: 80, fnval: 1, fnver: 0, fourk: 1, otype: 'json', type: 'mp4', platform: 'html5', high_quality: 1, web_location: 1315877 }, wbiSign: true, withCookie: useCookie });
+                  if (vjson.code === 0) { // 视频地址获取成功
+                    const { url } = vjson.data.durl[0],
+                          filename = encodeURIComponent(`${data.title}.${new URL(url).pathname.split('.').at(-1)}`), // 设置视频的文件名
+                          resp = await utils.request(session, url, { withCookie: useCookie, timeout: false, responseType: 'video' });
                     if (resp.ok) {
-                      if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                      if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
                       responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                       responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                       send(200, resp.body);
@@ -471,9 +462,9 @@ export default {
                   resolve(utils.redirect(session, 307, utils.toHTTPS(result.media.cover)));
                 } else {
                   const filename = encodeURIComponent(`${result.media.title} 的封面.${new URL(result.media.cover).pathname.split('.').at(-1)}`), // 设置封面的文件名
-                        resp = await utils.request(session, utils.toHTTPS(result.media.cover), 'image'); // 获取 B 站服务器存储的封面
+                        resp = await utils.request(session, utils.toHTTPS(result.media.cover), { timeout: false, responseType: 'image' }); // 获取 B 站服务器存储的封面
                   if (resp.ok) {
-                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
                     responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                     responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                     send(200, resp.body);
@@ -669,9 +660,9 @@ export default {
                   resolve(utils.redirect(session, 307, utils.toHTTPS(result.cover)));
                 } else {
                   const filename = encodeURIComponent(`${result.title} 的封面.${new URL(result.cover).pathname.split('.').at(-1)}`), // 设置封面的文件名
-                        resp = await utils.request(session, utils.toHTTPS(result.cover), 'image'); // 获取 B 站服务器存储的封面
+                        resp = await utils.request(session, utils.toHTTPS(result.cover), { timeout: false, responseType: 'image' }); // 获取 B 站服务器存储的封面
                   if (resp.ok) {
-                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                    if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
                     responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                     responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                     send(200, resp.body);
@@ -732,22 +723,13 @@ export default {
                 }
 
                 if (P) { // 客户端提供的集号参数有效
-                  const qualities = [6, 16, 32, 64, 74, 80]; // 240P、360P、480P、720P、720P60、1080P
-                  let url;
-                  for (const qn of qualities) {
-                    const vjson = <BangumiAPIResponse<BangumiPlayUrlData>> await utils.callAPI(session, 'https://api.bilibili.com/pgc/player/web/playurl', { params: { bvid: P.bvid, ep_id: P.id, cid: P.cid, qn, fnval: qn === 6 ? 1 : 0, fnver: 0, fourk: 1, from_client: 'BROWSER' }, withCookie: useCookie });
-                    if (vjson.code === 0) { // 视频地址获取成功
-                      url = vjson.result!.durl[0].url;
-                    } else {
-                      break;
-                    }
-                  }
-
-                  if (url) { // 视频地址获取成功
-                    const filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`), // 设置视频的文件名
-                          resp = await utils.request(session, url, { withCookie: useCookie, responseType: 'video' });
+                  const vjson = <BangumiAPIResponse<BangumiPlayUrlData>> await utils.callAPI(session, 'https://api.bilibili.com/pgc/player/web/playurl', { params: { bvid: P.bvid, ep_id: P.id, cid: P.cid, qn: 80, fnval: 0, fnver: 0, fourk: 1, from_client: 'BROWSER' }, withCookie: useCookie });
+                  if (vjson.code === 0) { // 视频地址获取成功
+                    const { url } = vjson.result!.durl[0],
+                          filename = encodeURIComponent(`${result.title}.${new URL(url).pathname.split('.').at(-1)}`), // 设置视频的文件名
+                          resp = await utils.request(session, url, { withCookie: useCookie, timeout: false, responseType: 'video' });
                     if (resp.ok) {
-                      if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+                      if (isResponseTypeSpecified) responseHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
                       responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                       responseHeaders.set('Content-Disposition', `inline; filename=${filename}`);
                       send(200, resp.body);

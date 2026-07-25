@@ -37,7 +37,7 @@ export default {
                   normalFriends = info.filter(u => !u.is_deleted),
                   deletedFriends = info.filter(u => u.is_deleted);
 
-            responseHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate');
+            responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate=82800');
             if (version === '3') { // 第 3 版：简化名称
               sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
             } else if (version === '2') { // 第 2 版
@@ -53,7 +53,7 @@ export default {
             if (country === 'CN') { // 在中国内地（不含港澳台地区）
               blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
             }
-            responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+            responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate=82800');
             sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { country } });
             break;
           }
@@ -93,7 +93,7 @@ export default {
               if (hashInfo) {
                 const resp = await fetch(`https://q1.qlogo.cn/headimg_dl?dst_uin=${hashInfo.s}&spec=4`);
                 if (resp.ok) {
-                  responseHeaders.set('Cache-Control', 's-maxage=600, stale-while-revalidate=3000');
+                  responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
                   responseHeaders.set('Content-Type', resp.headers.get('Content-Type')!);
                   send(200, resp.body);
                 } else {
