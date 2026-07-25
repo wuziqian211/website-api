@@ -31,7 +31,7 @@
       ]
     }
   ],
-  "installCommand": "npm install --only=production",
+  "installCommand": "npm install --omit=dev",
   "redirects": [
     { "source": "/", "destination": "/api/" }
   ],

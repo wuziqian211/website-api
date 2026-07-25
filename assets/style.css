@@ -205,8 +205,9 @@ body.new-style div.grid-item {
   border-radius: 20px;
   padding: 20px;
 }
-div.grid-item > strong.grid-title {
+div.grid-item > p.grid-title {
   font-size: 20px;
+  font-weight: bold;
 }
 div.grid-item.main-info {
   box-shadow: none;
