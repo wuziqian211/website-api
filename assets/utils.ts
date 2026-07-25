@@ -21,7 +21,7 @@ interface Session {
   upstreamServerResponseInfo: ResponseInfo[];
   readonly params: URLSearchParams;
   readonly accepts: ContentType[];
-  readonly fetchDest: ContentType | undefined;
+  fetchDest: ContentType | undefined;
   responseHeaders: Headers;
   responseType: ContentType | undefined;
   responseAttributes: string[];
@@ -48,17 +48,17 @@ export const initialize = (req: Request, { acceptedResponseTypes, extraResponseT
         requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(), // 详见 https://fetch.spec.whatwg.org/#destination-table
         requestedResponseType = session.params.get('type')?.toUpperCase().split('_');
 
-  let fetchDest: ContentType | undefined, acceptAll = false;
+  let acceptAll = false;
 
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') {
-      fetchDest = 0;
+      session.fetchDest = 0;
     } else if (['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
-      fetchDest = 1;
+      session.fetchDest = 1;
     } else if (requestedSecFetchDest === 'IMAGE') {
-      fetchDest = 2;
+      session.fetchDest = 2;
     } else if (requestedSecFetchDest === 'VIDEO') {
-      fetchDest = 3;
+      session.fetchDest = 3;
     }
   }
   if (requestedAccept) {
@@ -98,8 +98,8 @@ export const initialize = (req: Request, { acceptedResponseTypes, extraResponseT
     }
   }
 
-  if (session.responseType === undefined && fetchDest !== undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
-    session.responseType = fetchDest;
+  if (session.responseType === undefined && session.fetchDest !== undefined && acceptedResponseTypes.includes(session.fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+    session.responseType = session.fetchDest;
   }
 
   if (session.responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
