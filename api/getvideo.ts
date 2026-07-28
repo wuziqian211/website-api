@@ -320,12 +320,12 @@ export default {
                     }
                   } else { // 视频地址获取失败
                     if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                      sendHTML(500, { title: '无法获取视频数据', newStyle: true, content: `
+                      sendHTML(400, { title: '无法获取视频数据', newStyle: true, content: `
                           抱歉，由于您想要获取数据的视频无法下载（原因可能是版权、地区限制等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
                           如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
                     } else {
                       responseHeaders.set('Content-Type', 'video/mp4');
-                      send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
+                      send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
                     }
                   }
                 } else { // 客户端提供的分 P 参数无效

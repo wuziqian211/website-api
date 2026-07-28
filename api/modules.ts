@@ -1,4 +1,4 @@
-import type { numericString, millisecondLevelTimestamp, InternalAPIResponse, FriendInfo, SmmsUploadResponse } from '../assets/types.d.ts';
+import type { numericString, millisecondLevelTimestamp, InternalAPIResponse, FriendInfo, SeeUploadResponse } from '../assets/types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 interface HashInfo {
@@ -31,20 +31,14 @@ export default {
       } else {
         switch (params.get('id')) {
           case 'friends': { // 关系好的朋友们（不一定互关）
-            const version = params.get('version'), redis = Redis.fromEnv(),
+            const redis = Redis.fromEnv(),
                   data = <{ list: FriendInfo[]; mtime: millisecondLevelTimestamp }> await redis.get('friendsInfo');
             const info = utils.shuffleArray(data.list), { mtime } = data,
                   normalFriends = info.filter(u => !u.is_deleted),
                   deletedFriends = info.filter(u => u.is_deleted);
 
             responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate=82800');
-            if (version === '3') { // 第 3 版：简化名称
-              sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
-            } else if (version === '2') { // 第 2 版
-              sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => ({ image: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), icon: u.official.type === 0 ? 'personal' : u.official.type === 1 ? 'business' : u.vip.status ? 'big-vip' : undefined, color: u.vip.status ? '#fb7299' : undefined, title: u.name, desc: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), link: `https://space.bilibili.com/${u.mid}` })), extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
-            } else {
-              sendJSON(200, { code: 0, message: '0', data: normalFriends?.map(u => `<div class=link-grid-container><img class=link-grid-image src=${utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`)} referrerpolicy=no-referrer><p${u.vip.type === 2 ? ' style=color:#fb7299' : ''}>${utils.encodeHTML(u.name)}</p><p>${utils.encodeHTML(u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'))}</p><a target=_blank rel="noopener external nofollow noreferrer" href=https://space.bilibili.com/${u.mid}></a></div>`).join(''), extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
-            }
+            sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
             break;
           }
           case 'blocked': { // 可能被屏蔽的域名
@@ -62,13 +56,13 @@ export default {
               const file = await req.blob();
               if (file.size) {
                 const body = new FormData();
-                body.set('smfile', file);
-                body.set('format', 'json');
-                const resp = await utils.request(session, 'https://smms.app/api/v2/upload', { method: 'POST', headers: { Authorization: `Basic ${process.env.smmsApiKey}` }, body, responseType: 'json' });
+                body.set('file', file);
+                body.set('is_private', 0);
+                const resp = await utils.request(session, 'https://s.ee/api/v1/file/upload', { method: 'POST', headers: { Authorization: process.env.seeApiKey! }, body, responseType: 'json' });
                 if (resp.ok) {
-                  const json = <SmmsUploadResponse> await resp.json();
-                  if (json.success) {
-                    sendJSON(200, { code: 0, message: '0', data: { filename: json.data!.filename, url: json.data!.url, size: json.data!.size, width: json.data!.width, height: json.data!.height } });
+                  const json = <SeeUploadResponse> await resp.json();
+                  if (json.code === 200) {
+                    sendJSON(200, { code: 0, message: '0', data: { filename: json.data.filename, url: json.data.url, size: json.data.size, width: json.data.width, height: json.data.height } });
                   } else {
                     sendJSON(400, { code: -400, message: `${json.code}: ${json.message}`, data: null, extInfo: { errType: 'upstreamServerInvalidRequest' } });
                   }

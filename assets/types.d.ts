@@ -730,7 +730,7 @@ export interface VideoPlayUrlData {
   result: 'suee';
   message: '';
   quality: quality;
-  format: 'mp4' | 'mp4720';
+  format: string;
   timelength: number;
   accept_format: string;
   accept_description: string[];
@@ -749,7 +749,7 @@ export interface VideoPlayUrlData {
   }[];
   support_formats: {
     quality: quality;
-    format: 'mp4' | 'mp4720' | 'flv' | 'flv_p60';
+    format: string;
     new_description: string;
     display_desc: string;
     superscript: string;
@@ -1144,25 +1144,61 @@ export interface FriendInfo {
   is_deleted: booleanNumber;
 }
 
-// b. 图床接口的回应（https://smms.app/api/v2/upload）
-export interface SmmsUploadResponse {
-  success: boolean;
-  code: string;
-  message: string;
-  data?: {
+// b. 图床接口的回应（https://s.ee/api/v1/file/upload）
+export interface SeeUploadResponse {
+  /** Response status code (200 indicates success) */
+  code: number;
+
+  /** File upload response */
+  data: {
+    /** Unique identifier for this file */
     file_id: number;
+
+    /** Image width in pixels (for image files only) */
     width: number;
+
+    /** Image height in pixels (for image files only) */
     height: number;
+
+    /** Original filename as uploaded */
     filename: string;
+
+    /** Filename in storage */
     storename: string;
+
+    /** File size in bytes */
     size: number;
+
+    /** Storage path of the file */
     path: string;
+
+    /** Delete key required to remove this file */
     hash: string;
+
+    /** Direct URL to access/download this file */
     url: url;
+
+    /** URL to delete this file */
     delete: url;
+
+    /** Web page URL where this file can be viewed */
     page: url;
+
+    /** Upload status code (1 = success) */
+    upload_status: number;
+
+    mine_type: string;
+
+    /** File upload timestamp (for upload history only) */
+    created_at: number;
+
+    thumb_url: url;
   };
-  RequestId: string;
+
+  /** Human-readable status message */
+  message: string;
+
+  success: boolean;
 }
 
 // c. 导航栏数据（https://api.bilibili.com/x/web-interface/nav）
