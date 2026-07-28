@@ -206,6 +206,7 @@ body.new-style div.grid-item {
   padding: 20px;
 }
 div.grid-item > p.grid-title {
+  color: var(--highlight-color);
   font-size: 20px;
   font-weight: bold;
 }
