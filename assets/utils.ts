@@ -171,7 +171,7 @@ export const sendHTML = (session: Session, status: number, data: SendHTMLData): 
         <script src="/assets/main.js"></script>
         <!-- Execution time: ${apiExecTime.toFixed(3)} ms | Request ID: ${session.requestId} -->
       </body>
-    </html>`.replace(/<br \/>[ \r\n]*(?=<\/)/g, '').replace(/[ \r\n]+/g, ' ').trim(), { status, headers: session.responseHeaders });
+    </html>`.replace(/<br \/>[ \t\f\r\n]*(?=<\/)/g, '').replace(/[ \t\f\r\n]+/g, ' ').trim(), { status, headers: session.responseHeaders });
 };
 export const sendJSON = (session: Session, status: number, data: InternalAPIResponse<unknown>): Response => { // 发送 JSON 数据到客户端
   if (session.timer) {

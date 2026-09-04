@@ -23,7 +23,7 @@ export default {
         ${data.content}
         <form>
           <div><label for="mid">请输入您想要获取信息的用户的 UID（最多 200 个，以逗号分隔）：</label></div>
-          <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="[ ,;_\\/\\\\、，；]*(?:(?!0+(?:[ ,;_\\/\\\\、，；]|$))\\d+[ ,;_\\/\\\\、，；]*)+" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+          <div><input type="text" name="mid" id="mid" value="${utils.encodeHTML(data.mid ?? '')}" pattern="[,;_|\\/\\\\、，；\\s]*(?:(?!0+(?:[,;_|\\/\\\\、，；\\s]|$))\\d+[,;_|\\/\\\\、，；\\s]*)+" inputmode="numeric" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
         </form>` })), // 发送 HTML 响应到客户端
             sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(session, status, data)), // 发送 JSON 数据到客户端
             send = (status: number, data: BodyInit): void => resolve(utils.send(session, status, data)); // 发送其他数据到客户端
@@ -178,8 +178,8 @@ export default {
                 sendJSON(400, { code: json.code, message: json.message, data: null, extInfo: { errType: 'upstreamServerNoData' } });
             }
         }
-      } else if (requestMid && requestMid.split(/[ ,;_/\\、，；\r\n]/).filter(m => m).length && requestMid.split(/[ ,;_/\\、，；\r\n]/).filter(m => m).every(m => /^\d+$/.test(m) && BigInt(m) > 0)) { // 客户端提供的 UID 为多个且均有效
-        const mids = [...new Set(requestMid.split(/[ ,;_/\\、，；\r\n]/).filter(m => m).map(m => BigInt(m)))];
+      } else if (requestMid && requestMid.split(/[,;_|/\\、，；\s]/).filter(m => m).length && requestMid.split(/[,;_|/\\、，；\s]/).filter(m => m).every(m => /^\d+$/.test(m) && BigInt(m) > 0)) { // 客户端提供的 UID 为多个且均有效
+        const mids = [...new Set(requestMid.split(/[,;_|/\\、，；\s]/).filter(m => m).map(m => BigInt(m)))];
         if (mids.length > 200) {
           if (responseType === 1) { // 回复 HTML
             sendHTML(400, { title: '用户数量过多', newStyle: true, content: '您提供的要获取信息的用户的 UID 太多了！请您提供不超过 200 个 UID 哟 qwq', mid: requestMid });

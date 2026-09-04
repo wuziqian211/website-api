@@ -52,7 +52,7 @@ export default {
             break;
           }
           case 'upload': { // 上传图片
-            if (req.method === 'POST' && req.headers.get('content-type')?.split(';')[0] === 'application/octet-stream') {
+            if (req.method === 'POST' && req.headers.get('content-type')?.split(';', 1)[0] === 'application/octet-stream') {
               const file = await req.blob();
               if (file.size) {
                 const body = new FormData();
