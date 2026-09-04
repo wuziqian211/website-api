@@ -1,5 +1,5 @@
 {
-  "include": ["api/**/*.ts", "assets/**/*.ts", "middleware.ts"],
+  "include": ["api/**/*.ts", "assets/**/*.ts", "scripts/**/*.ts", "middleware.ts"],
   "compilerOptions": {
     // Type checking
     "allowUnreachableCode": false,
@@ -17,12 +17,8 @@
     // JavaScript support
     "checkJs": true,
 
-    // Interop Constraints
-    "esModuleInterop": true,
-
     // Language and Environment
     "lib": ["ESNext"],
-    "target": "ESNext",
 
     // Completeness
     "skipLibCheck": true

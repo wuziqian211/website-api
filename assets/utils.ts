@@ -183,7 +183,7 @@ export const sendJSON = (session: Session, status: number, data: InternalAPIResp
   session.responseHeaders.set('Vary', 'Accept, Sec-Fetch-Dest');
   session.responseHeaders.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
   session.responseHeaders.set('X-Api-Status-Code', data.code.toString());
-  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo: session.upstreamServerResponseInfo.length ? session.upstreamServerResponseInfo : undefined, apiExecTime, requestId: session.requestId } }), { status, headers: session.responseHeaders });
+  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo: session.upstreamServerResponseInfo.length ? session.upstreamServerResponseInfo : undefined, apiExecTime: JSON.rawJSON(apiExecTime.toFixed(6)), requestId: session.requestId } }), { status, headers: session.responseHeaders });
 };
 export const send = (session: Session, status: number, data: BodyInit): Response => { // 发送其他数据到客户端
   if (session.timer) {
@@ -292,7 +292,7 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
           { pattern: /(?:https?):\/\/[\w-]+(?:\.[\w-]+)+(?:[\w-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/i, replacer: (match: url): url => match },
-          { pattern: /(?:BV|bv|Bv|bV)1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/BV1${matches[0]}/` },
+          { pattern: /[Bb][Vv]1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/BV1${matches[0]}/` },
           { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/av${matches[0]}/` },
           { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
           { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/read/cv${matches[0]}` },
@@ -327,7 +327,7 @@ export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV
   return `BV1${bvid.join('')}`;
 };
 export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
-  if (!/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new TypeError('Invalid BV number');
+  if (!/^[Bb][Vv]1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new TypeError('Invalid BV number');
   const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
         decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8], base = BigInt(alphabet.length);
   let t = 0n;
@@ -431,7 +431,7 @@ export const getVidType = (vid: string | null): { type: -1; vid: undefined } | {
     return { type: 1, vid: toBV(vid.slice(2)) };
   } else if (/^\d+$/.test(vid) && BigInt(vid) > 0) { // 判断编号是否为不带前缀的 AV 号
     return { type: 1, vid: toBV(vid) };
-  } else if (/^(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
+  } else if (/^[Bb][Vv]1[1-9A-HJ-NP-Za-km-z]{9}$/.test(vid)) { // 判断编号是否为 BV 号
     return { type: 1, vid: `BV${vid.slice(2)}` };
   } else if (/^md\d+$/i.test(vid) && BigInt(vid.slice(2)) > 0) { // 判断编号是否为 mdid
     return { type: 2, vid: BigInt(vid.slice(2)) };
@@ -459,8 +459,8 @@ export const getWbiKeys = async (session: Session, noCache?: boolean): Promise<W
   if (noCache || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
     const ujson = <APIResponse<NavData>> await callAPI(session, 'https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
     wbiKeys.mid = ujson.data.mid;
-    wbiKeys.imgKey = ujson.data.wbi_img.img_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
-    wbiKeys.subKey = ujson.data.wbi_img.sub_url.replace(/^(?:.*\/)?([^.]+)(?:\..*)?$/, '$1');
+    wbiKeys.imgKey = /.*\/([^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.[1] || '7cd084941338484aae1ad9425b84077c';
+    wbiKeys.subKey = /.*\/([^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.[1] || '4932caff0ff746eab6f01bf08b70ac45';
     loginHeaders.set('Cookie', `SESSDATA=${sessionData}; bili_jct=${csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
     wbiKeys.updatedTimestamp = Date.now();
     waitUntil(redis.set('wbiKeys', wbiKeys));

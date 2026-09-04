@@ -501,7 +501,7 @@ export const zonesV2: ZoneV2[] = [
     ],
   },
   {
-    tid: 1016, name: '户外', route: 'outdoors', sub: [
+    tid: 1016, name: '户外潮流', route: 'outdoors', sub: [
       { tid: 2124, name: '露营', route: 'camping' },
       { tid: 2125, name: '徒步', route: 'hiking' },
       { tid: 2126, name: '户外探秘', route: 'explore' },

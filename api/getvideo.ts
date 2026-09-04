@@ -23,7 +23,7 @@ export default {
         ${data.content}
         <form>
           <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-          <div><input type="text" name="vid" id="vid" value="${utils.encodeHTML(data.vid ?? '')}" placeholder="av…/BV…/md…/ss…/ep…" pattern="(?:BV|bv|Bv|bV)1[1-9A-HJ-NP-Za-km-z]{9}|(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)\\d+" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+          <div><input type="text" name="vid" id="vid" value="${utils.encodeHTML(data.vid ?? '')}" placeholder="av…/BV…/md…/ss…/ep…" pattern="[Bb][Vv]1[1-9A-HJ-NP-Za-km-z]{9}|(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)\\d+" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
           <div><input type="checkbox" name="force" id="force" value="true"${requestForce ? ' checked' : ''} autocomplete="off" /><label for="force">强制获取信息（仅适用于获取编号为 AV 号或 BV 号的视频的信息）</label></div>
         </form>` })), // 发送 HTML 响应到客户端
             sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(session, status, data)), // 发送 JSON 数据到客户端
@@ -69,18 +69,18 @@ export default {
       const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
       switch (type) {
         case 1: { // 编号为 AV 号或 BV 号
-          let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, season_id: undefined, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, no_cache: false, pages: [], subtitle: null, staff: undefined, ugc_season: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
+          let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, season_id: undefined, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, is_hua_sheng: false, no_cache: false, pages: [], subtitle: null, staff: undefined, ugc_season: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
 
           if (requestForce) { // 强制获取视频信息
             await utils.callAPI(session, 'https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', withCookie: true, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1' }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
             await new Promise(r => { setTimeout(r, 500); }); // 等待 0.5 秒
-            const hjson1 = <APIResponse<HistoryData>> await utils.callAPI(session, 'https://api.bilibili.com/x/v2/history', { params: { pn: 1, ps: 30 }, withCookie: true }); // 获取历史记录
+            const hjson1 = <APIResponse<HistoryData>> await utils.callAPI(session, 'https://api.bilibili.com/x/v2/history', { params: { pn: 1, ps: 5 }, withCookie: true }); // 获取历史记录
             let info = hjson1.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
             if (hjson1.code === 0 && info) {
               if (info.cid) {
                 await utils.callAPI(session, 'https://api.bilibili.com/x/v2/history/report', { method: 'POST', withCookie: true, body: new URLSearchParams({ aid: utils.toAV(vid).toString(), cid: info.cid.toString(), progress: '0', platform: 'web' }) }); // 在 B 站历史记录再次加入这个视频（带 cid，此时可以获取更多信息）
                 await new Promise(r => { setTimeout(r, 500); }); // 等待 0.5 秒
-                const hjson2 = <APIResponse<HistoryData>> await utils.callAPI(session, 'https://api.bilibili.com/x/v2/history', { params: { pn: 1, ps: 30 }, withCookie: true }); // 获取历史记录
+                const hjson2 = <APIResponse<HistoryData>> await utils.callAPI(session, 'https://api.bilibili.com/x/v2/history', { params: { pn: 1, ps: 5 }, withCookie: true }); // 获取历史记录
                 const info2 = hjson2.data?.find(h => h.type === 3 && h.bvid === vid); // 获取 BV 号相同的视频信息
                 if (info2) info = info2;
               }
@@ -202,7 +202,7 @@ export default {
                           <img class="ppic" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
                         </div>` : ''}
                         <div class="detail">
-                          <strong>${utils.encodeHTML(p.part)}</strong> ${utils.getTime(p.duration)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
+                          <strong>${utils.encodeHTML(p.part)}</strong>${p.duration ? ` ${utils.getTime(p.duration)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
                           ${p.ctime ? `<strong>投稿/审核通过时间：</strong>${utils.getDateHTML(p.ctime * 1000)}<br />` : ''}
                           <strong>cid：</strong>${p.cid || '未知'}
                         </div>
@@ -351,13 +351,14 @@ export default {
                 case 0: {
                   const data = json.data!;
 
-                  // 添加父分区信息
+                  // 添加分区信息
                   let mainZone = zones.find(m => m.tid === data.tid);
                   if (!mainZone) {
                     for (const m of zones) {
                       if (m.sub) {
                         const subZone = m.sub.find(s => s.tid === data.tid);
                         if (subZone) {
+                          data.tname ||= subZone.name;
                           mainZone = m;
                           break;
                         }
@@ -375,6 +376,7 @@ export default {
                       if (p.sub) {
                         const subZone = p.sub.find(s => s.tid === data.tid_v2);
                         if (subZone) {
+                          data.tname_v2 ||= subZone.name;
                           parentZone = p;
                           break;
                         }
@@ -594,7 +596,7 @@ export default {
                           <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
-                          <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                          <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                           <strong>发布时间：</strong>${utils.getDateHTML(p.pub_time * 1000)}<br />
                           <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${p.bvid}">${p.bvid}</a>
                         </div>
@@ -624,7 +626,7 @@ export default {
                           <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
-                          <strong>${utils.encodeHTML(p.long_title)}</strong> ${utils.getTime(p.duration / 1000)}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                          <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                           ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDateHTML(p.pub_time * 1000)}<br />` : ''}
                           ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                         </div>

@@ -90,7 +90,6 @@ export default [
       'no-unreachable-loop': 'error',
       'no-unused-expressions': 'error',
       'no-use-before-define': ['error', { variables: false }],
-      'no-useless-assignment': 'error',
       'no-useless-call': 'error',
       'no-useless-computed-key': 'error',
       'no-useless-concat': 'error',

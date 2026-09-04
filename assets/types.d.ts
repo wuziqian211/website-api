@@ -602,6 +602,7 @@ export interface VideoInfoData {
   enable_vt: 0;
   vt_display: '';
   is_upower_exclusive_with_qa: boolean;
+  is_hua_sheng: boolean;
   no_cache: boolean;
   pages: PageInfo[];
   subtitle: {
@@ -825,6 +826,7 @@ export interface InternalAPIGetVideoInfoData {
   enable_vt: 0;
   vt_display: '';
   is_upower_exclusive_with_qa: boolean;
+  is_hua_sheng: boolean;
   no_cache: boolean;
   pages: {
     cid: number;
@@ -882,34 +884,48 @@ interface RatingInfo {
 }
 interface EpisodeInfo {
   aid: number;
+  archive_attr?: number;
   badge: string;
   badge_info: { bg_color: '' | hexColor; bg_color_night: '' | hexColor; text: string };
-  badge_type: number;
-  bvid: string;
+  badge_type?: number;
+  bvid?: string;
   cid: number;
   cover: url;
-  dimension: { height: number; rotate: booleanNumber; width: number };
-  duration: number;
+  dimension?: { height: number; rotate: booleanNumber; width: number };
+  duration?: number;
   enable_vt: false;
   ep_id: number;
-  from: string;
+  from?: string;
+  icon_font: { name: 'playdata-square-line@500'; text: string };
   id: number;
   is_view_hide: boolean;
   link: url;
-  long_title: string;
+  link_type?: string;
+  long_title?: string;
   pub_time: secondLevelTimestamp;
   pv: 0;
-  release_date: '';
-  rights: { allow_demand: booleanNumber; allow_dm: booleanNumber; allow_download: booleanNumber; area_limit: booleanNumber };
-  share_copy: string;
-  share_url: url;
-  short_link: url;
+  release_date?: '';
+  report?: { aid: numericString; ep_title: string; position: ''; season_id: numericString; season_type: numericString; section_id: numericString; section_type: numericString };
+  rights?: { allow_dm: booleanNumber; allow_download: booleanNumber; area_limit: booleanNumber; cache_auth: booleanNumber };
+  section_type: number;
+  share_copy?: string;
+  share_url?: url;
+  short_link?: url;
   showDrmLoginDialog: boolean;
+  show_title?: string;
   skip?: { ed: { end: number; start: number }; op: { end: number; start: number } };
+  stat?: { coin: number; danmakus: number; likes: number; play: number; reply: number; vt: 0 };
+  stat_for_unity?: {
+    coin: number;
+    danmaku: { icon: 'danmu-square-line@500'; pure_text: string; text: string; value: number };
+    likes: number;
+    reply: number;
+    vt: { icon: 'playdata-square-line@500'; pure_text: string; text: string; value: number };
+  };
   status: number;
-  subtitle: string;
+  subtitle?: string;
   title: string;
-  vid: '';
+  vid?: '';
 }
 interface SeasonInfo {
   badge: string;
@@ -930,8 +946,8 @@ interface SeasonInfo {
 interface SectionInfo {
   attr: number;
   episode_id: 0;
-  episode_ids?: [] | number[];
-  episodes: [] | EpisodeInfo[];
+  episode_ids?: number[];
+  episodes: EpisodeInfo[];
   id: number;
   report?: { season_id: numericString; season_type: numericString; sec_title: string; section_id: numericString; section_type: numericString };
   title: string;
@@ -1014,6 +1030,7 @@ export interface BangumiSeasonData {
     freya_white: booleanNumber;
     is_cover_show: booleanNumber;
     is_preview: booleanNumber;
+    is_sponsor: booleanNumber;
     only_vip_download: booleanNumber;
     resource: '';
     watch_platform: number;
@@ -1072,7 +1089,7 @@ export interface BangumiSeasonData {
     pay: booleanNumber;
     pay_pack_paid: booleanNumber;
     progress?: { last_ep_id: number; last_ep_index: string; last_time: number };
-    sponsor: number;
+    sponsor: booleanNumber;
     vip_info?: { due_date: millisecondLevelTimestamp; status: booleanNumber; type: VIPType };
   };
 }
@@ -1203,7 +1220,8 @@ export interface SeeUploadResponse {
 
 // c. 导航栏数据（https://api.bilibili.com/x/web-interface/nav）
 export interface NavData { // 此处仅定义部分必要字段
-  isLogin: boolean;
+  isLogin: true;
   mid: number;
   wbi_img: { img_url: url; sub_url: url };
+  [key: string]: unknown;
 }
