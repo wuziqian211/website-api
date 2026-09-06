@@ -38,7 +38,7 @@ export default {
                   deletedFriends = info.filter(u => u.is_deleted);
 
             responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate=82800');
-            sendJSON(200, { code: 0, message: '0', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
+            sendJSON(200, { code: 0, message: 'OK', data: { n: normalFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), d: deletedFriends?.map(u => ({ a: utils.toHTTPS(`${u.face}@300w_300h_80q_1c.webp`), i: u.official.type === 0 ? 0 : u.official.type === 1 ? 1 : u.vip.status ? 2 : undefined, n: u.face_nft || undefined, o: [0, 1].includes(u.official.type) ? u.official.title : undefined, c: u.vip.status ? '#fb7299' : undefined, t: u.name, d: u.sign.replace(/\d{5}.*/s, '…').replace(/(?<=[^\n]*\n[^\n]*)\n.*/s, '…'), l: `https://space.bilibili.com/${u.mid}` })), m: mtime }, extInfo: { dataLength: info.length, dataSource: 'redis', dataModifiedTime: mtime } });
             break;
           }
           case 'blocked': { // 可能被屏蔽的域名
@@ -48,7 +48,7 @@ export default {
               blocked = '^(?:(?:.+\\.)?(?:google\\.com|youtube\\.com|facebook\\.com|wikipedia\\.org|twitter\\.com|x\\.com|reddit\\.com|blogspot\\.com|openai\\.com|chatgpt\\.com|instagram\\.com|twitch\\.tv|tiktok\\.com|whatsapp\\.com|telegram\\.org|nicovideo\\.jp|archive\\.org|discord\\.com|disqus\\.com|pixiv\\.net|vercel\\.app|yande\\.re)|cdn\\.jsdelivr\\.net)$';
             }
             responseHeaders.set('Cache-Control', 's-maxage=3600, stale-while-revalidate=82800');
-            sendJSON(200, { code: 0, message: '0', data: { blocked }, extInfo: { country } });
+            sendJSON(200, { code: 0, message: 'OK', data: { blocked }, extInfo: { country } });
             break;
           }
           case 'upload': { // 上传图片
@@ -62,7 +62,7 @@ export default {
                 if (resp.ok) {
                   const json = <SeeUploadResponse> await resp.json();
                   if (json.code === 200) {
-                    sendJSON(200, { code: 0, message: '0', data: { filename: json.data.filename, url: json.data.url, size: json.data.size, width: json.data.width, height: json.data.height } });
+                    sendJSON(200, { code: 0, message: 'OK', data: { filename: json.data.filename, url: json.data.url, size: json.data.size, width: json.data.width, height: json.data.height } });
                   } else {
                     sendJSON(400, { code: -400, message: `${json.code}: ${json.message}`, data: null, extInfo: { errType: 'upstreamServerInvalidRequest' } });
                   }

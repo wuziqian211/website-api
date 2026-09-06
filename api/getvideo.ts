@@ -69,7 +69,7 @@ export default {
       const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
       switch (type) {
         case 1: { // 编号为 AV 号或 BV 号
-          let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.toAV(vid), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.toAV(vid), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, season_id: undefined, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, is_hua_sheng: false, no_cache: false, pages: [], subtitle: null, staff: undefined, ugc_season: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
+          let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: 'OK', data: { bvid: vid, aid: utils.toAV(vid), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.toAV(vid), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, season_id: undefined, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, is_hua_sheng: false, no_cache: false, pages: [], subtitle: null, staff: undefined, ugc_season: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
 
           if (requestForce) { // 强制获取视频信息
             await utils.callAPI(session, 'https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', withCookie: true, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1' }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
@@ -234,10 +234,10 @@ export default {
                     您可以在 B 站获取<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/${vid}/">这个视频的信息</a>哟 awa`, vid: requestVid });
                   break;
                 case 62003:
-                  sendHTML(404, { title: '视频待发布', newStyle: true, content: '视频已审核通过，但还没有发布，请等一下再获取信息吧 awa', vid: requestVid });
+                  sendHTML(403, { title: '视频待发布', newStyle: true, content: '视频已审核通过，但还没有发布，请等一下再获取信息吧 awa', vid: requestVid });
                   break;
                 case 62004:
-                  sendHTML(404, { title: '视频审核中', newStyle: true, content: '视频正在审核中，请等一下再获取信息吧 awa', vid: requestVid });
+                  sendHTML(403, { title: '视频审核中', newStyle: true, content: '视频正在审核中，请等一下再获取信息吧 awa', vid: requestVid });
                   break;
                 case 62012:
                   sendHTML(403, { title: '视频仅 UP 主可见', newStyle: true, content: '这个视频只有 UP 主自己可以看到哟 qwq', vid: requestVid });
@@ -320,12 +320,12 @@ export default {
                     }
                   } else { // 视频地址获取失败
                     if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                      sendHTML(400, { title: '无法获取视频数据', newStyle: true, content: `
+                      sendHTML(403, { title: '无法获取视频数据', newStyle: true, content: `
                           抱歉，由于您想要获取数据的视频无法下载（原因可能是版权、地区限制等等），本 API 无法向您发送这个视频的数据哟 qwq<br />
                           如果您想下载视频，最好使用其他工具哟 awa`, vid: requestVid });
                     } else {
                       responseHeaders.set('Content-Type', 'video/mp4');
-                      send(fetchDest === 3 ? 200 : 400, fs.createReadStream('./assets/error.mp4'));
+                      send(fetchDest === 3 ? 200 : 403, fs.createReadStream('./assets/error.mp4'));
                     }
                   }
                 } else { // 客户端提供的分 P 参数无效
@@ -402,11 +402,11 @@ export default {
                   break;
                 case -404:
                 case 62002:
-                case 62003:
-                case 62004:
                   sendJSON(404, { code: json.code, message: json.message, data: null, extInfo: { errType: json.extInfo?.errType ?? 'upstreamServerNoData' } });
                   break;
                 case -403:
+                case 62003:
+                case 62004:
                 case 62012:
                   sendJSON(403, { code: -403, message: json.message, data: null, extInfo: { errType: 'upstreamServerForbidden' } });
                   break;
@@ -744,12 +744,12 @@ export default {
                     }
                   } else { // 视频地址获取失败
                     if (responseAttributes.includes('ERRORWHENFAILED') && fetchDest !== 3) {
-                      sendHTML(500, { title: '无法获取视频数据', newStyle: true, content: `
+                      sendHTML(403, { title: '无法获取视频数据', newStyle: true, content: `
                         抱歉，由于您想要获取的这一集的视频无法下载（原因可能是版权、地区限制等等），本 API 无法向您发送这一集的视频的数据哟 qwq<br />
                         如果您想下载这一集，最好使用其他工具哟 awa`, vid: requestVid });
                     } else {
                       responseHeaders.set('Content-Type', 'video/mp4');
-                      send(fetchDest === 3 ? 200 : 500, fs.createReadStream('./assets/error.mp4'));
+                      send(fetchDest === 3 ? 200 : 403, fs.createReadStream('./assets/error.mp4'));
                     }
                   }
                 } else { // 客户端提供的集号参数无效

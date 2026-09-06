@@ -21,7 +21,7 @@ export default {
           </div>
           <p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/${systemEnv.VERCEL_GIT_REPO_OWNER}/${systemEnv.VERCEL_GIT_REPO_SLUG}/tree/${systemEnv.VERCEL_GIT_COMMIT_REF}/#readme">查看 API 的使用说明</a></p>` });
       } else {
-        return utils.sendJSON(session, 200, { code: 0, message: '0', data: null });
+        return utils.sendJSON(session, 200, { code: 0, message: 'OK', data: null });
       }
     } catch (e) {
       return utils.send500(session, e);

@@ -29,11 +29,12 @@
   | [`200`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/200) | 请求成功 |
   | [`307`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/307)（**不是** [`302`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/302)） | 临时重定向（如：您在获取图片数据时，在 `type` 参数中带上了 `_redirect` 后缀） |
   | [`308`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/308)（**不是** [`301`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/301)） | 永久重定向 |
-  | [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（仅出现在 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 中，表示获取这个视频的信息需要登录 B 站账号） |
-  | [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的目标（用户、视频等）不存在，或者 API 不存在（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频正在审核中） |
+  | [`403`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/403) | 获取该信息的权限不足（如登录、会员、地区等限制），或视频正在审核中 |
+  | [`404`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/404) | 您想获取信息的用户、视频等不存在，或者 API 不存在 |
   | [`429`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/429)（**不是** [`412`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/412)） | 请求太频繁 |
-  | [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) 或 [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用异常或超时（对于 “获取哔哩哔哩视频 / 剧集 / 番剧信息及数据” API 来说，该状态代码还可能表示视频太大，API 无法回复视频数据） |
-  | [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效（或其他原因）而请求失败 |
+  | [`500`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/500) | API 调用异常 |
+  | [`504`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/504) | API 调用超时 |
+  | [`400`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status/400) | 因参数无效或其他原因而请求失败 |
 
 同时，<https://api.yumeharu.top/api/> 中的 API 强制使用 [HTTPS 协议](https://developer.mozilla.org/zh-CN/docs/Glossary/HTTPS)。这是 [Vercel](https://vercel.com/) 的行为，您在其他地方部署 API 不一定会强制使用 HTTPS 协议。
 
@@ -42,13 +43,13 @@
 - [👤获取哔哩哔哩用户信息](#获取哔哩哔哩用户信息)（<https://api.yumeharu.top/api/getuser>）
 - [📺获取哔哩哔哩视频 / 剧集 / 番剧信息及数据](#获取哔哩哔哩视频--剧集--番剧信息及数据)（<https://api.yumeharu.top/api/getvideo>）
 
-这些 API 允许任何合法网站与程序等调用，而 API 的服务器不会存储任何访问记录与哔哩哔哩用户、视频、剧集、番剧等的信息、数据等，仅转发与处理哔哩哔哩 API 的回复数据。
+这些 API 允许任何合法网站与程序等调用，而 API 的服务器不会存储任何访问记录与哔哩哔哩用户、视频、剧集、番剧等的信息、数据等，仅会转发与处理哔哩哔哩 API 的回复数据。
 
 > [!TIP]
 > 本项目的 API 可以给您带来许多好处：
 >
 > 1. 您基本不需要添加任何 “风控参数” 即可成功调用 API，因为添加 “风控参数” 等操作由 API 的服务器自动进行；
-> 2. 本项目的 API 会频繁更新，以确保能够给用户带来更好的体验；
+> 2. 本项目的 API 会按需更新，以确保能够给用户带来更好的体验；
 > 3. API 可以给您简化一些操作，如：您在引用图片时，直接填写图片链接为 [`https://api.yumeharu.top/api/getuser?mid=2&type=avatar`](https://api.yumeharu.top/api/getuser?mid=2&type=avatar) 即可引用 B 站上 UID 为 2 的用户的头像，并且会实时更新。
 
 > [!NOTE]
@@ -74,7 +75,7 @@
 | 请求参数 | 说明 |
 | :------: | ---- |
 | `mid` | 您想获取用户信息的用户的 UID，只能是正整数，最多 200 个，以逗号分隔每个 UID。<br />**示例**：[`425503913`](https://api.yumeharu.top/api/getuser?mid=425503913)、[`2`](https://api.yumeharu.top/api/getuser?mid=2)、[`2,425503913`](https://api.yumeharu.top/api/getuser?mid=2,425503913) |
-| `type` | 本 API 回复的数据类型，详见[回复数据类型判断规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
+| `type` | 本 API 回复的数据类型，详见[回复数据类型判断规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `image`、`face` 或 `avatar`，则默认情况下，成功时回复用户的头像数据，失败时回复默认头像数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取头像失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器上的头像地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 
 如果没有填写 `mid` 参数，且本 API 将回复图片数据，那么本 API 就回复 B 站的随机头像数据。
 
@@ -94,7 +95,7 @@
 | `vid` | 您想获取信息或数据的视频、剧集、番剧的编号。可以是前缀为 `av` 或没有前缀的 AV 号，前缀为 `BV` 的 BV 号，前缀为 `md`、`ss`、`ep` 的剧集、番剧等的编号，编号的前缀不区分大小写。<br />**示例**：[`10429`](https://api.yumeharu.top/api/getvideo?vid=10429)、[`av106`](https://api.yumeharu.top/api/getvideo?vid=av106)、[`BV17x411w7KC`](https://api.yumeharu.top/api/getvideo?vid=BV17x411w7KC)、[`ss29325`](https://api.yumeharu.top/api/getvideo?vid=ss29325) |
 | `cid` | 该视频的某个分 P 的 cid，或者该剧集中某一集的 cid，只能是正整数。**仅在获取视频数据时使用本参数。** |
 | `p` | 该视频的第几个分 P，或者该剧集中的第几集，只能是正整数。**仅在获取视频数据时使用本参数。** |
-| `type` | 本 API 回复的数据类型，详见[回复数据类型判断规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应表示错误的状态代码（如 `404`、`400`、`500` 等；这样做的目的是让播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应表示错误的状态代码而不加载视频）。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。</li></ul></li><li>如果本参数的值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取封面失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器的封面地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
+| `type` | 本 API 回复的数据类型，详见[回复数据类型判断规则](#通过-type-参数判断)。本 API 对此参数进行了扩展：<ul><li>如果本参数的值为 `video` 或 `data`，则默认情况下，成功时回复视频数据，失败时**以视频形式**提示视频不存在，并且失败时**若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则响应 200 状态代码**，否则响应错误状态代码（如 `404`、`403`、`400` 等；这样做的目的是让网页播放器能够加载提示 “视频不存在” 的视频，不会因本 API 响应错误状态代码而不加载视频）。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时若请求标头 `Sec-Fetch-Dest` 的值为 `video`（名称与值均不区分大小写），则**以视频形式**提示视频不存在（且**响应 200 状态代码**），否则**以 HTML 形式**提示视频不存在（响应表示错误的状态代码）。</li></ul></li><li>如果本参数的值为 `image`、`cover` 或 `pic`，则默认情况下，成功时回复视频封面数据，失败时回复默认封面数据。此条件下：<ul><li>若加上 `_errorwhenfailed` 后缀，则失败时根据 [`Sec-Fetch-Dest` 标头的值](#通过-sec-fetch-dest-标头判断)提示获取封面失败；</li><li>若加上 `_redirect` 后缀，则成功时重定向到 B 站服务器上的封面地址。</li></ul>可以添加多个后缀。</li></ul>本参数的值不区分大小写。 |
 | `cookie` | 获取信息时是否带 Cookie。<ul><li>如果本参数的值为 `true`，则强制带 Cookie 获取信息；</li><li>如果本参数的值为 `false`，则强制不带 Cookie 获取信息；</li><li>否则先尝试不带 Cookie 获取信息，如果失败，再带 Cookie 获取信息。</li></ul>本参数的值不区分大小写。<br />**示例**：获取仅对登录用户可见的视频信息：[BV16s411f7<span>x<!-- 防止 “x” 被自动转换成 “×” --></span>2](https://api.yumeharu.top/api/getvideo?vid=BV16s411f7x2&cookie=true) |
 | `force` | 指定本 API 应该强制获取视频信息，仅适用于获取视频的信息（编号为 AV 号或 BV 号）。如果**存在**本参数，那么本 API 会尽可能尝试获取到视频信息，无论这个视频现在是否存在（会自动设置 `cookie=true` 参数）。<br />**示例**：获取被退回或锁定的视频信息：[av10388](https://api.yumeharu.top/api/getvideo?vid=10388&force=true)、[av10492](https://api.yumeharu.top/api/getvideo?vid=10492&force=true) |
 
@@ -212,42 +213,43 @@
     "place": "",
     "moral": 0,
     "silence": 0,
+    "control": 0,
     "coins": 0,
     "article": 0,
     "attentions": [],
-    "fans": 1213576,
-    "friend": 372,
-    "attention": 372,
-    "following": 372,
-    "follower": 1213576,
-    "level_info": {
-      "current_level": 6,
-      "current_min": 0,
-      "current_exp": 0,
-      "next_exp": 0
-    },
+    "fans": 1427581,
+    "friend": 429,
+    "attention": 429,
+    "following": 429,
+    "follower": 1427581,
+    "level_info": { "current_level": 6, "current_min": 0, "current_exp": 0, "next_exp": 0 },
     "fans_badge": true,
     "fans_medal": {
       "show": true,
       "wear": true,
       "medal": {
-        "uid": 2,
-        "target_id": 548076,
-        "medal_id": 32525,
-        "level": 28,
-        "medal_name": "桜樱怪",
-        "medal_color": 398668,
-        "intimacy": 45966,
-        "next_intimacy": 160000,
-        "day_limit": 250000,
-        "medal_color_start": 398668,
-        "medal_color_end": 6850801,
-        "medal_color_border": 6809855,
-        "is_lighted": 1,
+        "level": 42,
         "guard_level": 3,
-        "light_status": 1,
-        "wearing_status": 1,
-        "score": 50205966
+        "medal_color": 16736523,
+        "medal_name": "桜樱怪",
+        "medal_color_border": 6809855,
+        "medal_color_start": 16736523,
+        "medal_color_end": 16765060
+      },
+      "detail": {
+        "uid": 2,
+        "medal_color_end": "#FFF2E6F9",
+        "level": 42,
+        "guard_level": 3,
+        "first_icon": "https://i0.hdslb.com/bfs/live/48360c8f3b7de8031e86ff1ef4a2dfc0ec2a61c2.png",
+        "second_icon": "",
+        "medal_color_level": "#FFB699CF",
+        "medal_color_name": "#FF876EA9",
+        "medal_level_bg_color": 0,
+        "medal_name": "桜樱怪",
+        "medal_id": 32525,
+        "medal_color": "#FFF2E6F9",
+        "medal_color_border": "#FFEFDEF8"
       }
     },
     "official": { "role": 2, "title": "bilibili创始人（站长）", "desc": "", "type": 0 },
@@ -255,7 +257,7 @@
     "vip": {
       "type": 2,
       "status": 1,
-      "due_date": 4003660800000,
+      "due_date": 4041158400000,
       "vip_pay_type": 0,
       "theme_type": 0,
       "label": {
@@ -267,15 +269,18 @@
         "bg_color": "#FB7299",
         "border_color": "",
         "use_img_label": true,
-        "img_label_uri_hans": "https://i0.hdslb.com/bfs/activity-plat/static/20220608/e369244d0b14644f5e1a06431e22a4d5/wltavwHAkL.gif",
+        "img_label_uri_hans": "",
         "img_label_uri_hant": "",
-        "img_label_uri_hans_static": "https://i0.hdslb.com/bfs/vip/802418ff03911645648b63aa193ba67997b5a0bc.png",
+        "img_label_uri_hans_static": "http://i0.hdslb.com/bfs/vip/404f480ced28270f468393660a01aebf3ae87e61.png",
         "img_label_uri_hant_static": "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/8u7iRTPE7N.png",
-        "label_id": -22,
+        "label_id": 62,
         "label_goto": {
-          "mobile": "https://big.bilibili.com/mobile/index?navhide=1&from_spmid=vipicon",
+          "mobile": "https://big.bilibili.com/mobile/index?appId=125&appSubId=minebutton&popup_id=41170",
           "pc_web": "https://account.bilibili.com/big?from_spmid=vipicon"
-        }
+        },
+        "img_label_uri_i18n": "",
+        "img_label_uri_i18n_static": "",
+        "label_type": 2
       },
       "avatar_subscript": 1,
       "nickname_color": "#FB7299",
@@ -284,7 +289,21 @@
       "tv_vip_status": 1,
       "tv_vip_pay_type": 1,
       "tv_due_date": 2003500800,
-      "avatar_icon": { "icon_type": 1, "icon_resource": {} }
+      "avatar_icon": {
+        "icon_type": 3,
+        "icon_resource": {
+          "type": 1,
+          "url": "http://i0.hdslb.com/bfs/vip/dbe23f4ede5c120f11e18630cdd023010bce03b3.png@80w_80h_1c.webp"
+        }
+      },
+      "ott_info": {
+        "vip_type": 1,
+        "pay_type": 1,
+        "pay_channel_id": "wechat",
+        "status": 1,
+        "overdue_time": 2003500800
+      },
+      "super_vip": { "is_super_vip": true }
     },
     "pendant": {
       "pid": -338454175,
@@ -298,10 +317,10 @@
     "nameplate": {
       "nid": 10,
       "name": "见习偶像",
-      "image": "https://i0.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
-      "image_small": "https://i2.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
+      "image": "https://i2.hdslb.com/bfs/face/e93dd9edfa7b9e18bf46fd8d71862327a2350923.png",
+      "image_small": "https://i0.hdslb.com/bfs/face/275b468b043ec246737ab8580a2075bee0b1263b.png",
       "level": "普通勋章",
-      "condition": "所有自制视频总播放数>=10万"
+      "condition": "所有自制视频总播放数\u003E=10万，数据次日更新"
     },
     "user_honour_info": { "mid": 0, "colour": null, "tags": [], "is_latest_100honour": 0 },
     "is_followed": false,
@@ -310,17 +329,17 @@
     "live_room": {
       "roomStatus": 1,
       "liveStatus": 0,
-      "url": "https://live.bilibili.com/1024?broadcast_type=0&is_room_feed=0",
-      "title": "试图恰鸡",
+      "url": "https://live.bilibili.com/1024?broadcast_type=0&is_room_feed=1",
+      "title": "$400 小抽跑车",
       "cover": "https://i0.hdslb.com/bfs/live/new_room_cover/96ee5bfd0279a0f18b190340334f43f473038288.jpg",
       "roomid": 1024,
       "roundStatus": 0,
       "broadcast_type": 0,
       "watched_show": {
         "switch": true,
-        "num": 9,
-        "text_small": "9",
-        "text_large": "9人看过",
+        "num": 6,
+        "text_small": "6",
+        "text_large": "6人看过",
         "icon": "https://i0.hdslb.com/bfs/live/a725a9e61242ef44d764ac911691a7ce07f36c1d.png",
         "icon_location": "",
         "icon_web": "https://i0.hdslb.com/bfs/live/8d9d0f33ef8bf6f308742752d13dd0df731df19c.png"
@@ -343,13 +362,16 @@
         "title": "",
         "icon": "",
         "jump_url": "?oid=2",
-        "total": 2085,
+        "total": 2144,
         "list": [{
-          "pay_mid": 1702542779,
+          "pay_mid": 506581092,
           "rank": 1,
-          "avatar": "https://i2.hdslb.com/bfs/face/d46a3cb87d0d93da0ec1a700290cc4352ba59f5b.webp",
-          "uname": "没名字的米忽悠"
-        }]
+          "avatar": "https://i0.hdslb.com/bfs/face/9178042335aeb4f56b5472c8a597fc4e11a78083.jpg",
+          "uname": "mhm104"
+        }],
+        "upower_count_show": true,
+        "long_title": "",
+        "jump_url_web": ""
       }
     },
     "contract": { "is_display": false, "is_follow_display": false },
@@ -357,7 +379,7 @@
     "name_render": null,
     "top_photo_v2": {
       "sid": 1,
-      "l_img": "https://i2.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
+      "l_img": "https://i0.hdslb.com/bfs/space/cb1c3ef50e22b6096fde67febe863494caefebad.png",
       "l_200h_img": "https://i2.hdslb.com/bfs/activity-plat/static/0977767b2e79d8ad0a36a731068a83d7/1sz3p8w2Sk.png"
     },
     "theme": null,
@@ -378,31 +400,32 @@
       "url": "https://api.bilibili.com/x/web-interface/card?mid=2&photo=true",
       "method": "GET",
       "type": "json",
-      "startTime": 1751543611481,
-      "endTime": 1751543611891,
+      "startTime": 1788679378239,
+      "endTime": 1788679378371,
       "status": 200,
       "code": 0,
-      "message": "0"
+      "message": "OK"
     }, {
       "url": "https://api.bilibili.com/x/web-interface/nav",
       "method": "GET",
       "type": "json",
-      "startTime": 1751543612142,
-      "endTime": 1751543612271,
+      "startTime": 1788679378415,
+      "endTime": 1788679378512,
       "status": 200,
       "code": 0,
-      "message": "0"
+      "message": "OK"
     }, {
-      "url": "https://api.bilibili.com/x/space/wbi/acc/info?gaia_source=main_web&mid=2&platform=web&token=&web_location=1550101&wts=1751543612&x-bili-device-req-json=%7B%22platform%22%3A%22web%22%2C%22device%22%3A%22pc%22%7D&w_rid=f698de07d94b47b9dc3d2bba6c8c1ddf",
+      "url": "https://api.bilibili.com/x/space/wbi/acc/info?gaia_source=main_web&mid=2&platform=web&token=&web_location=1550101&wts=1788679378&w_rid=00623f11e1e1b73ea5c2c52c7c8ea00b",
       "method": "GET",
       "type": "json",
-      "startTime": 1751543612274,
-      "endTime": 1751543612398,
+      "startTime": 1788679378515,
+      "endTime": 1788679378627,
       "status": 200,
       "code": 0,
-      "message": "0"
+      "message": "OK"
     }],
-    "apiExecTime": 918.851605 // 调用 API 耗时（单位：毫秒）
+    "apiExecTime": 391.97424, // 调用 API 耗时（单位：毫秒）
+    "requestId": "hnd1::qklxg-1788679377502-13e2376a5668" // 请求 ID
   }
 }
 ```
