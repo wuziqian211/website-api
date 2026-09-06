@@ -15,7 +15,11 @@ import { zones, zonesV2, states } from '../assets/constants.js';
 export default {
   async fetch(req: Request): Promise<Response> {
     const { promise, resolve } = Promise.withResolvers<Response>(),
-          session = utils.initialize(req, { acceptedResponseTypes: [0, 1, 2, 3], extraResponseTypes: new Map([[2, ['COVER']], [3, ['DATA']]]) }, resolve), // 获取请求参数与回复数据类型
+          session = utils.initialize( // 获取请求参数与回复数据类型
+            req,
+            { acceptedResponseTypes: [0, 1, 2, 3], extraResponseTypes: new Map([[2, ['COVER']], [3, ['DATA']]]) },
+            resolve,
+          ),
           { params, fetchDest, responseHeaders, responseType, responseAttributes, isResponseTypeSpecified } = session;
 
     try {
@@ -143,7 +147,7 @@ export default {
                   const content = `
                     <div class="main-info">
                       <div class="image-wrap">
-                        <img class="vpic" title="${utils.encodeHTML(data.title)}" src="${utils.toHTTPS(data.pic)}" />
+                        <img class="cover video" title="${utils.encodeHTML(data.title)}" src="${utils.toHTTPS(data.pic)}" />
                       </div>
                       <div class="detail">
                         <strong>${utils.encodeHTML(data.title)}</strong><br />
@@ -199,7 +203,7 @@ export default {
                         <div class="left"><strong>P${p.page}</strong></div>
                         ${p.first_frame ? `
                         <div class="image-wrap">
-                          <img class="ppic" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
+                          <img class="cover part" title="${utils.encodeHTML(p.part)}" src="${utils.toHTTPS(p.first_frame)}" />
                         </div>` : ''}
                         <div class="detail">
                           <strong>${utils.encodeHTML(p.part)}</strong>${p.duration ? ` ${utils.getTime(p.duration)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}<br />
@@ -426,7 +430,7 @@ export default {
                   const content = `
                     <div class="main-info">
                       <div class="image-wrap">
-                        <img class="spic" title="${utils.encodeHTML(result.media.title)}" src="${utils.toHTTPS(result.media.cover)}" />
+                        <img class="cover season" title="${utils.encodeHTML(result.media.title)}" src="${utils.toHTTPS(result.media.cover)}" />
                       </div>
                       <div class="detail">
                         <strong>${utils.encodeHTML(result.media.title)}</strong><br />
@@ -544,7 +548,7 @@ export default {
                   const content = `
                     <div class="main-info">
                       <div class="image-wrap">
-                        <img class="spic" title="${utils.encodeHTML(result.title)}" src="${utils.toHTTPS(result.cover)}" />
+                        <img class="cover season" title="${utils.encodeHTML(result.title)}" src="${utils.toHTTPS(result.cover)}" />
                       </div>
                       <div class="detail">
                         <strong>${utils.encodeHTML(result.title)}</strong><br />
@@ -592,7 +596,7 @@ export default {
                         <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
                         ${p.cover ? `
                         <div class="image-wrap">
-                          <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
+                          <img class="cover part" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
                           <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
@@ -609,7 +613,7 @@ export default {
                       <div class="grid-item main-info">
                         ${p.cover ? `
                         <div class="image-wrap">
-                          <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
+                          <img class="cover part" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
                           <strong>${utils.encodeHTML(p.title)}</strong>${p.badge ? ` ${utils.encodeHTML(p.badge)}` : ''}<br />
@@ -622,7 +626,7 @@ export default {
                         <div class="left"><strong>${utils.encodeHTML(p.title)}</strong></div>
                         ${p.cover ? `
                         <div class="image-wrap">
-                          <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
+                          <img class="cover part" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
                           <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${utils.encodeHTML(p.badge)}` : ''}<br />

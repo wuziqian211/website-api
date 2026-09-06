@@ -15,7 +15,11 @@ import { officialVerifyInfo } from '../assets/constants.js';
 export default {
   async fetch(req: Request): Promise<Response> {
     const { promise, resolve } = Promise.withResolvers<Response>(),
-          session = utils.initialize(req, { acceptedResponseTypes: [0, 1, 2], extraResponseTypes: new Map([[2, ['FACE', 'AVATAR']]]) }, resolve), // 获取请求参数与回复数据类型
+          session = utils.initialize( // 获取请求参数与回复数据类型
+            req,
+            { acceptedResponseTypes: [0, 1, 2], extraResponseTypes: new Map([[2, ['FACE', 'AVATAR']]]) },
+            resolve,
+          ),
           { params, fetchDest, responseHeaders, responseType, responseAttributes, isResponseTypeSpecified } = session;
 
     try {
@@ -190,7 +194,8 @@ export default {
         }
 
         const restUsers = [...mids], data: InternalAPIGetUsersInfoData = {},
-              cjsonList: Promise<APIResponse<UserCardsData>>[] = [], ujsonList: Promise<APIResponse<UsersInfoData>>[] = [],
+              cjsonList: Promise<APIResponse<UserCardsData>>[] = [],
+              ujsonList: Promise<APIResponse<UsersInfoData>>[] = [],
               usersInfo: UsersInfoItem[] = [];
         while (restUsers.length) {
           cjsonList.push(<Promise<APIResponse<UserCardsData>>> utils.callAPI(session, 'https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards', { params: { uids: restUsers.slice(0, 50).join(',') }, withCookie: true }));
@@ -202,7 +207,8 @@ export default {
         for await (const ujson of ujsonList) {
           if (ujson.code === 0) usersInfo.push(...ujson.data);
         }
-        usersInfo.filter(i => i.mid.toString() in data).forEach(i => Object.assign(data[<numericString> i.mid.toString()], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
+        usersInfo.filter(i => i.mid.toString() in data)
+          .forEach(i => Object.assign(data[<numericString> i.mid.toString()], { sign: i.sign, rank: i.rank, level: i.level, silence: i.silence }));
 
         if (responseType === 1) { // 回复 HTML
           if (Object.keys(data).length) {

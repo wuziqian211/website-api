@@ -320,16 +320,16 @@ img.level, img.official-icon {
   height: 25px;
   vertical-align: -5px;
 }
-img.vpic, img.spic, img.ppic {
+img.cover {
   border-radius: 10px;
 }
-img.vpic {
+img.cover.video {
   height: 100px;
 }
-img.spic {
+img.cover.season {
   height: 160px;
 }
-img.ppic {
+img.cover.part {
   height: 80px;
 }
 a.vip {
@@ -531,7 +531,7 @@ footer {
   img.level, img.official-icon {
     height: 20px;
   }
-  img.vpic, img.spic, img.ppic {
+  img.cover {
     height: auto;
     max-width: 100%;
   }

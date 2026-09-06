@@ -18,14 +18,14 @@ interface Session {
   readonly startTime: millisecondLevelTimestamp;
   readonly abortSignal: AbortSignal;
   timer: NodeJS.Timeout | undefined;
-  upstreamServerResponseInfo: ResponseInfo[];
+  readonly upstreamServerResponseInfo: ResponseInfo[];
   readonly params: URLSearchParams;
   readonly accepts: ContentType[];
-  fetchDest: ContentType | undefined;
+  readonly fetchDest: ContentType | undefined;
   responseHeaders: Headers;
-  responseType: ContentType | undefined;
-  responseAttributes: string[];
-  isResponseTypeSpecified: boolean;
+  readonly responseType: ContentType;
+  readonly responseAttributes: string[];
+  readonly isResponseTypeSpecified: boolean;
 }
 type ContentType = 0/* JSON */ | 1/* HTML */ | 2/* 图片 */ | 3/* 视频 */;
 
@@ -42,34 +42,37 @@ let wbiKeys: WbiKeys;
 
 export const initialize = (req: Request, { acceptedResponseTypes, extraResponseTypes }: { acceptedResponseTypes: ContentType[]; extraResponseTypes?: Map<ContentType, string[]> }, resolve?: (returnValue: Response) => void): Session => { // 初始化 API
   const startTime = performance.now(), requestId = req.headers.get('x-vercel-id') ?? crypto.randomUUID(),
-        session: Session = { requestId, startTime, abortSignal: req.signal, timer: undefined, upstreamServerResponseInfo: [], params: new URL(req.url).searchParams, accepts: [], fetchDest: undefined, responseHeaders: new Headers(), responseType: undefined, responseAttributes: [], isResponseTypeSpecified: false },
-        defaultResponseTypes: Map<ContentType, string[]> = new Map([[0, ['JSON']], [1, ['HTML', 'PAGE']], [2, ['IMAGE', 'IMG', 'PICTURE', 'PIC']], [3, ['VIDEO']]]),
+        params = new URL(req.url).searchParams, accepts: ContentType[] = [], responseAttributes: string[] = [],
+        defaultResponseTypes: Map<ContentType, string[]> = new Map([
+          [0, ['JSON']], [1, ['HTML', 'PAGE']], [2, ['IMAGE', 'IMG', 'PICTURE', 'PIC']], [3, ['VIDEO']],
+        ]),
         requestedAccept = req.headers.get('accept')?.toUpperCase(),
         requestedSecFetchDest = req.headers.get('sec-fetch-dest')?.toUpperCase(), // 详见 https://fetch.spec.whatwg.org/#destination-table
-        requestedResponseType = session.params.get('type')?.toUpperCase().split('_');
+        requestedResponseType = params.get('type')?.toUpperCase().split('_');
 
-  let acceptAll = false;
+  let acceptAll = false, fetchDest: ContentType | undefined,
+      responseType: ContentType | undefined, isResponseTypeSpecified = false;
 
   if (requestedSecFetchDest) {
     if (requestedSecFetchDest === 'JSON') {
-      session.fetchDest = 0;
+      fetchDest = 0;
     } else if (['DOCUMENT', 'FRAME', 'IFRAME'].includes(requestedSecFetchDest)) {
-      session.fetchDest = 1;
+      fetchDest = 1;
     } else if (requestedSecFetchDest === 'IMAGE') {
-      session.fetchDest = 2;
+      fetchDest = 2;
     } else if (requestedSecFetchDest === 'VIDEO') {
-      session.fetchDest = 3;
+      fetchDest = 3;
     }
   }
   if (requestedAccept) {
-    if (requestedAccept === '*/*') { // 客户端接受所有类型的数据，“Accept” 标头必须与 “*/*” 相等，不能是包含关系
+    if (requestedAccept === '*/*') { // 客户端接受所有类型的数据，“Accept” 标头的值必须与 “*/*” 相等，不能是包含关系
       acceptAll = true;
-      session.accepts.push(0, 1, 2, 3);
+      accepts.push(0, 1, 2, 3);
     } else {
-      if (requestedAccept.includes('JSON')) session.accepts.push(0);
-      if (requestedAccept.includes('HTML')) session.accepts.push(1);
-      if (requestedAccept.includes('IMAGE')) session.accepts.push(2);
-      if (requestedAccept.includes('VIDEO')) session.accepts.push(3);
+      if (requestedAccept.includes('JSON')) accepts.push(0);
+      if (requestedAccept.includes('HTML')) accepts.push(1);
+      if (requestedAccept.includes('IMAGE')) accepts.push(2);
+      if (requestedAccept.includes('VIDEO')) accepts.push(3);
     }
   }
 
@@ -78,47 +81,52 @@ export const initialize = (req: Request, { acceptedResponseTypes, extraResponseT
     if (extraResponseTypes) {
       for (const [type, aliases] of extraResponseTypes.entries()) {
         if (aliases.some(a => requestedResponseType[0] === a)) {
-          session.responseType = type;
-          session.responseAttributes.push(...requestedResponseType.slice(1));
-          session.isResponseTypeSpecified = true;
+          responseType = type;
+          responseAttributes.push(...requestedResponseType.slice(1));
+          isResponseTypeSpecified = true;
           break;
         }
       }
     }
 
-    if (session.responseType === undefined) {
+    if (responseType === undefined) {
       for (const [type, aliases] of defaultResponseTypes.entries()) {
         if (aliases.some(a => requestedResponseType[0] === a)) {
-          session.responseType = type;
-          session.responseAttributes.push(...requestedResponseType.slice(1));
-          session.isResponseTypeSpecified = true;
+          responseType = type;
+          responseAttributes.push(...requestedResponseType.slice(1));
+          isResponseTypeSpecified = true;
           break;
         }
       }
     }
   }
 
-  if (session.responseType === undefined && session.fetchDest !== undefined && acceptedResponseTypes.includes(session.fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
-    session.responseType = session.fetchDest;
+  if (responseType === undefined && fetchDest !== undefined && acceptedResponseTypes.includes(fetchDest)) { // 若客户端未指定回复数据类型或指定的回复数据类型无效，则从客户端指定的请求目标中获取
+    responseType = fetchDest;
   }
 
-  if (session.responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
+  if (responseType === undefined) { // 若上述操作未取到回复数据类型，则取客户端接受的数据类型；若仍未取到，则默认回复 JSON
     if (acceptAll) { // 部分脚本在发送请求时会自动带上 “Accept: */*” 标头，此时应该回复 JSON
-      session.responseType = 0;
+      responseType = 0;
     } else {
-      const filteredAccepts = session.accepts.filter(a => acceptedResponseTypes.includes(a));
+      const filteredAccepts = accepts.filter(a => acceptedResponseTypes.includes(a));
       if (filteredAccepts.includes(1)) {
-        session.responseType = 1;
+        responseType = 1;
       } else if (filteredAccepts.includes(2)) {
-        session.responseType = 2;
+        responseType = 2;
       } else if (filteredAccepts.includes(3)) {
-        session.responseType = 3;
+        responseType = 3;
       } else { // 默认回复 JSON
-        session.responseType = 0;
+        responseType = 0;
       }
     }
   }
 
+  const session: Session = {
+    requestId, startTime, abortSignal: req.signal, timer: undefined, upstreamServerResponseInfo: [],
+    params, accepts, fetchDest,
+    responseHeaders: new Headers(), responseType, responseAttributes, isResponseTypeSpecified,
+  };
   if (resolve) { // API 超时处理
     session.timer = setTimeout(() => {
       session.timer = undefined;
@@ -183,7 +191,15 @@ export const sendJSON = (session: Session, status: number, data: InternalAPIResp
   session.responseHeaders.set('Vary', 'Accept, Sec-Fetch-Dest');
   session.responseHeaders.set('X-Api-Exec-Time', apiExecTime.toFixed(3));
   session.responseHeaders.set('X-Api-Status-Code', data.code.toString());
-  return new Response(JSONStringify({ ...data, extInfo: { ...data.extInfo, upstreamServerResponseInfo: session.upstreamServerResponseInfo.length ? session.upstreamServerResponseInfo : undefined, apiExecTime: JSON.rawJSON(apiExecTime.toFixed(6)), requestId: session.requestId } }), { status, headers: session.responseHeaders });
+  return new Response(JSONStringify({
+    ...data,
+    extInfo: {
+      ...data.extInfo,
+      upstreamServerResponseInfo: session.upstreamServerResponseInfo.length ? session.upstreamServerResponseInfo : undefined,
+      apiExecTime: JSON.rawJSON(apiExecTime.toFixed(6)),
+      requestId: session.requestId,
+    },
+  }), { status, headers: session.responseHeaders });
 };
 export const send = (session: Session, status: number, data: BodyInit): Response => { // 发送其他数据到客户端
   if (session.timer) {

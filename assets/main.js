@@ -98,13 +98,12 @@ const bindFormElement = form => {
       event.preventDefault();
       const params = new URLSearchParams(url.searchParams);
       for (const e of form.elements) {
-        if (e.tagName === 'INPUT') {
-          const input = /** @type HTMLInputElement */(e);
-          if (input.type.toUpperCase() !== 'SUBMIT') {
-            if (input.type.toUpperCase() === 'CHECKBOX' && !input.checked) {
-              params.delete(input.name);
+        if (e instanceof HTMLInputElement) {
+          if (e.type.toUpperCase() !== 'SUBMIT') {
+            if (e.type.toUpperCase() === 'CHECKBOX' && !e.checked) {
+              params.delete(e.name);
             } else {
-              params.set(input.name, input.value);
+              params.set(e.name, e.value);
             }
           }
         }
@@ -121,19 +120,16 @@ const bindFormElement = form => {
  */
 const bindImageElement = img => {
   img.style.filter = 'blur(10px)';
-  img.addEventListener('load', () => {
-    img.style.filter = '';
-  });
+  img.addEventListener('load', () => { img.style.filter = ''; });
   img.addEventListener('error', () => {
-    switch (img.className) {
-      case 'face':
+    for (const c of img.className.split(' ')) {
+      if (c === 'face') {
         img.src = '/assets/noface.jpg';
         break;
-      case 'vpic':
-      case 'spic':
-      case 'ppic':
+      } else if (c === 'cover') {
         img.src = '/assets/nocover.png';
         break;
+      }
     }
   });
   if (img.complete) img.style.filter = '';
