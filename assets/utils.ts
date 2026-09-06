@@ -1,4 +1,4 @@
-import type { numericString, url, secondLevelTimestamp, millisecondLevelTimestamp, SendHTMLData, ResponseInfo, InternalAPIResponse, APIResponse, JSON_, NavData } from './types.d.ts';
+import type { largeNumber, url, secondLevelTimestamp, millisecondLevelTimestamp, SendHTMLData, ResponseInfo, InternalAPIResponse, APIResponse, JSON_, NavData } from './types.d.ts';
 import type { BodyInit } from 'undici-types';
 
 declare const JSON: JSON_; // 含有 Stage 4 接口定义
@@ -8,7 +8,7 @@ interface Component {
   url?: url; // 链接
 }
 interface WbiKeys {
-  mid: number;
+  mid: largeNumber;
   imgKey: string;
   subKey: string;
   updatedTimestamp: millisecondLevelTimestamp;
@@ -169,7 +169,7 @@ export const sendHTML = (session: Session, status: number, data: SendHTMLData): 
           部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
         </footer>
         <script src="/assets/main.js"></script>
-        <!-- Execution time: ${apiExecTime.toFixed(3)} ms | Request ID: ${session.requestId} -->
+        <!-- Execution time: ${apiExecTime.toFixed(3)} ms | Request ID: ${encodeHTML(session.requestId)} -->
       </body>
     </html>`.replace(/<br \/>[ \t\f\r\n]*(?=<\/)/g, '').replace(/[ \t\f\r\n]+/g, ' ').trim(), { status, headers: session.responseHeaders });
 };
@@ -210,7 +210,7 @@ export const send500 = (session: Session, error: unknown): Response => {
     return sendHTML(session, 500, { title: 'API 执行时出现异常', newStyle: true, body: `
       抱歉，本 API 在执行时出现了一些异常，请稍后重试 qwq<br />
       您可以将下面的错误信息告诉梦春酱哟 awa
-      <pre>请求 ID：${session.requestId}</pre>
+      <pre>请求 ID：${encodeHTML(session.requestId)}</pre>
       <pre class="error">${encodeHTML(Error.isError(error) ? util.inspect(error, { depth: Infinity }) : String(error))}</pre>
       <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
@@ -223,7 +223,7 @@ export const send504 = (session: Session): Response => {
     return sendHTML(session, 504, { title: 'API 执行超时', newStyle: true, body: `
       抱歉，本 API 的执行已经超时了，请您再尝试调用一次本 API 吧 qwq<br />
       如果您仍然看到本错误信息，请跟梦春酱反馈哟 awa
-      <pre>请求 ID：${session.requestId}</pre>
+      <pre>请求 ID：${encodeHTML(session.requestId)}</pre>
       <form><input type="submit" value="重新加载页面" /></form>` });
   } else {
     return sendJSON(session, 504, { code: -504, message: '服务调用超时', data: null, extInfo: { errType: 'internalServerTimedOut' } });
@@ -262,7 +262,6 @@ export const getDateHTML = (ts: millisecondLevelTimestamp): string => { // 根�
 };
 export const getTime = (s: number | null): string => typeof s === 'number' ? `${s >= 3600 ? `${Math.floor(s / 3600)}:` : ''}${Math.floor(s % 3600 / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}` : ''; // 根据秒数返回时、分、秒
 export const getNumber = (n: number | null): string => typeof n === 'number' && n >= 0 ? n >= 100000000 ? `${n / 100000000} 亿` : n >= 10000 ? `${n / 10000} 万` : `${n}` : '-';
-export const largeNumberHandler = (s: numericString | bigint | number): numericString | number => typeof s === 'string' && /^\d+$/.test(s) ? +s < Number.MAX_SAFE_INTEGER && +s > Number.MIN_SAFE_INTEGER ? +s : s : typeof s === 'bigint' ? Number(s) < Number.MAX_SAFE_INTEGER && Number(s) > Number.MIN_SAFE_INTEGER ? Number(s) : <numericString> s.toString() : s; // 大数处理（参数类型为文本或 BigInt），对于过大或过小的数字直接返回文本，否则返回数字
 export const shuffleArray = <T> (array: T[]): T[] => { // 使用 Fisher-Yates 洗牌算法对数组进行排序
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -275,7 +274,7 @@ export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
   if (!targetUrl) return 'data:,';
   const urlObj = URL.parse(targetUrl);
   if (urlObj) {
-    urlObj.protocol = 'https:';
+    if (urlObj.protocol === 'http:') urlObj.protocol = 'https:';
     return urlObj.href;
   } else {
     return targetUrl;

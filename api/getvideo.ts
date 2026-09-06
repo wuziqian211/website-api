@@ -69,7 +69,7 @@ export default {
       const { type, vid } = utils.getVidType(requestVid); // 判断客户端给出的编号类型
       switch (type) {
         case 1: { // 编号为 AV 号或 BV 号
-          let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.largeNumberHandler(utils.toAV(vid)), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.largeNumberHandler(utils.toAV(vid)), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, season_id: undefined, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, is_hua_sheng: false, no_cache: false, pages: [], subtitle: null, staff: undefined, ugc_season: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
+          let json: InternalAPIResponse<InternalAPIGetVideoInfoData | null> = { code: 0, message: '0', data: { bvid: vid, aid: utils.toAV(vid), videos: null, pid: 0, pid_v2: 0, pid_name: '', pid_name_v2: '', tid: 0, tid_v2: 0, tname: '', tname_v2: '', copyright: null, pic: '', title: '', pubdate: 0, ctime: 0, desc: '', desc_v2: [{ raw_text: '', type: 1, biz_id: 0 }], state: null, duration: null, forward: undefined, mission_id: undefined, rights: null, owner: { mid: 0, name: '', face: '' }, stat: { aid: utils.toAV(vid), view: null, danmaku: null, reply: null, favorite: null, coin: null, share: null, now_rank: 0, his_rank: 0, like: null, dislike: 0, evaluation: '', vt: 0 }, argue_info: { argue_msg: '', argue_type: 0, argue_link: '' }, dynamic: '', cid: 0, dimension: { width: 0, height: 0, rotate: 0 }, season_id: undefined, premiere: null, teenage_mode: 0, is_chargeable_season: false, is_story: false, is_upower_exclusive: false, is_upower_play: false, is_upower_preview: false, enable_vt: 0, vt_display: '', is_upower_exclusive_with_qa: false, is_hua_sheng: false, no_cache: false, pages: [], subtitle: null, staff: undefined, ugc_season: undefined, is_season_display: false, user_garb: { url_image_ani_cut: 'https://i0.hdslb.com/bfs/garb/item/e4c1c34e8b87fc05a893ed4a04ad322f75edbed9.bin' }, honor_reply: {}, like_icon: '', need_jump_bv: false, disable_show_up_info: false, is_story_play: 0, is_view_self: false } }; // 初始化回复的 JSON 的数据结构
 
           if (requestForce) { // 强制获取视频信息
             await utils.callAPI(session, 'https://api.bilibili.com/x/click-interface/web/heartbeat', { method: 'POST', withCookie: true, body: new URLSearchParams({ bvid: vid, played_time: '0', realtime: '0', start_ts: Math.floor(Date.now() / 1000).toString(), type: '3', sub_type: '0', dt: '2', play_type: '1' }) }); // 在 B 站历史记录首次加入这个视频（可不带 cid）
@@ -430,13 +430,12 @@ export default {
                       </div>
                       <div class="detail">
                         <strong>${utils.encodeHTML(result.media.title)}</strong><br />
-                        <span class="description">${result.media.season_id ? `ss${result.media.season_id}，` : ''}md${result.media.media_id}</span><br />
+                        <span class="description">${result.media.season_id ? `<a href="?vid=ss${result.media.season_id}">ss${result.media.season_id}</a>，` : ''}md${result.media.media_id}</span><br />
                         ${utils.encodeHTML(result.media.type_name)} ${utils.encodeHTML(result.media.new_ep?.index_show)} ${result.media.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.media.rating ? `${result.media.rating.score ? `${result.media.rating.score.toFixed(1)} 分` : ''}（共 ${result.media.rating.count} 人评分）` : '暂无评分'}
                       </div>
                       <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/media/md${vid}"></a>
                     </div>
-                    ${result.media.new_ep?.id ? `<strong>最新一话：</strong><a href="?vid=ep${result.media.new_ep.id}">${utils.encodeHTML(result.media.new_ep.index)}</a><br />` : ''}
-                    ${result.media.season_id ? `<a href="?vid=ss${result.media.season_id}">点击此处查看更多信息</a>` : ''}`;
+                    ${result.media.new_ep?.id ? `<strong>最新一话：</strong><a href="?vid=ep${result.media.new_ep.id}">${utils.encodeHTML(result.media.new_ep.index)}</a><br />` : ''}`;
                   sendHTML(200, { title: `${result.media.title} 的信息`, imageBackground: result.media.horizontal_picture || result.media.cover, content, vid: requestVid });
                   break;
                 }
@@ -598,7 +597,7 @@ export default {
                         <div class="detail">
                           <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
                           <strong>发布时间：</strong>${utils.getDateHTML(p.pub_time * 1000)}<br />
-                          <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${p.bvid}">${p.bvid}</a>
+                          <strong>cid：</strong>${p.cid} <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.encodeHTML(p.bvid)}">${utils.encodeHTML(p.bvid)}</a>
                         </div>
                         <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}"></a>
                       </div>`).join('')}
@@ -613,7 +612,7 @@ export default {
                           <img class="ppic" title="${utils.encodeHTML(p.title)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
-                          <strong>${utils.encodeHTML(p.title)}</strong>${p.badge ? ` ${p.badge}` : ''}<br />
+                          <strong>${utils.encodeHTML(p.title)}</strong>${p.badge ? ` ${utils.encodeHTML(p.badge)}` : ''}<br />
                           ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDateHTML(p.pub_time * 1000)}<br />` : ''}
                           ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}${p.id ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> ` : ''}<a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                         </div>
@@ -626,7 +625,7 @@ export default {
                           <img class="ppic" title="${utils.encodeHTML(`${p.title} ${p.long_title}`)}" src="${utils.toHTTPS(p.cover)}" />
                         </div>` : ''}
                         <div class="detail">
-                          <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${p.badge}` : ''}<br />
+                          <strong>${utils.encodeHTML(p.long_title)}</strong>${p.duration ? ` ${utils.getTime(p.duration / 1000)}` : ''}${p.dimension?.height && p.dimension?.width ? ` <span class="description">${p.dimension.rotate ? `${p.dimension.height}×${p.dimension.width}` : `${p.dimension.width}×${p.dimension.height}`}</span>` : ''}${p.badge ? ` ${utils.encodeHTML(p.badge)}` : ''}<br />
                           ${p.pub_time ? `<strong>发布时间：</strong>${utils.getDateHTML(p.pub_time * 1000)}<br />` : ''}
                           ${p.cid ? `<strong>cid：</strong>${p.cid} ` : ''}<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ep${p.id}">ep${p.id}</a> <a href="?vid=${utils.toBV(p.aid)}">${utils.toBV(p.aid)}</a>
                         </div>

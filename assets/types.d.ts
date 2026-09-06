@@ -2,6 +2,7 @@
 // 1. 通用类型
 export type booleanNumber = 0 | 1; // 用数字表示的逻辑值
 export type numericString = `${number}`; // 仅含有纯数字的字符串
+export type largeNumber = bigint | number; // 可能超出 JS 安全整数范围的数字
 export type url = string;
 export type secondLevelTimestamp = number; // 秒级时间戳
 export type millisecondLevelTimestamp = number; // 毫秒级时间戳
@@ -205,7 +206,7 @@ export interface UserCardData {
 
 // b. 用户信息数据（https://api.bilibili.com/x/space/wbi/acc/info）
 export interface UserInfoData {
-  mid: number;
+  mid: largeNumber;
   name: string;
   sex: sex;
   face: url;
@@ -285,7 +286,7 @@ export interface UserInfoData {
       icon: url;
       jump_url: url;
       total: number;
-      list: null | { pay_mid: number; rank: number; avatar: url; uname: string }[];
+      list: null | { pay_mid: largeNumber; rank: number; avatar: url; uname: string }[];
       upower_count_show: boolean;
       long_title: string;
       jump_url_web: url;
@@ -337,11 +338,11 @@ interface UserCardsItem {
   };
   name_render: null | NameRenderInfo;
 }
-export type UserCardsData = Record<number, UserCardsItem>;
+export type UserCardsData = Record<numericString, UserCardsItem>;
 
 // d. 多用户信息数据（https://api.vc.bilibili.com/account/v1/user/cards）
 export interface UsersInfoItem {
-  mid: number;
+  mid: largeNumber;
   name: string;
   face: url;
   sign: string;
@@ -353,7 +354,7 @@ export type UsersInfoData = UsersInfoItem[];
 
 // e. “获取哔哩哔哩用户信息” 接口回应的单用户数据（/api/getuser）
 export interface InternalAPIGetUserInfoData {
-  mid: number | numericString;
+  mid: largeNumber;
   name: string;
   approve: false;
   sex: '' | sex;
@@ -420,7 +421,7 @@ interface InternalAPIUsersInfoItem extends UserCardsItem {
   level?: level;
   silence?: booleanNumber;
 }
-export type InternalAPIGetUsersInfoData = Record<number, InternalAPIUsersInfoItem>;
+export type InternalAPIGetUsersInfoData = Record<numericString, InternalAPIUsersInfoItem>;
 
 // 3. 视频信息相关
 export type quality = 6/* 240P */ | 16/* 360P */ | 32/* 480P */ | 64/* 720P */ | 74/* 720P60 */ | 80/* 1080P */ | 100/* 智能修复 */ | 112/* 1080P+ */ | 116/* 1080P60 */ | 120/* 4K */ | 125/* HDR */ | 126/* 杜比视界 */ | 127/* 8K */ | 129/* HDR Vivid */;
@@ -431,7 +432,7 @@ interface Dimension { // 视频分辨率信息
   rotate: booleanNumber;
 }
 type PageInfo = {
-  cid: number;
+  cid: largeNumber;
   page: number;
   from: 'vupload';
   part: string;
@@ -442,7 +443,7 @@ type PageInfo = {
   first_frame?: url;
   ctime?: secondLevelTimestamp;
 } | { // 站外视频
-  cid: number;
+  cid: largeNumber;
   page: number;
   from: 'hunan' | 'qq';
   part: string;
@@ -456,7 +457,7 @@ type PageInfo = {
 
 // a. 历史记录数据（https://api.bilibili.com/x/v2/history）
 interface HistoryItem { // 此处仅定义视频信息数据结构
-  aid: number;
+  aid: largeNumber;
   videos: number;
   tid: number;
   tname: string;
@@ -485,9 +486,9 @@ interface HistoryItem { // 此处仅定义视频信息数据结构
     arc_pay: booleanNumber;
     pay_free_watch: booleanNumber;
   };
-  owner: { mid: number; name: string; face: url };
+  owner: { mid: largeNumber; name: string; face: url };
   stat: {
-    aid: number;
+    aid: largeNumber;
     view: number;
     danmaku: number;
     reply: number;
@@ -504,7 +505,7 @@ interface HistoryItem { // 此处仅定义视频信息数据结构
     like_g: 0;
   };
   dynamic: string;
-  cid?: number;
+  cid?: largeNumber;
   dimension: Dimension;
   season_id?: number;
   short_link_v2: url;
@@ -534,8 +535,7 @@ export type HistoryData = HistoryItem[];
 // b. 视频信息数据（https://api.bilibili.com/x/web-interface/wbi/view）
 export interface VideoInfoData {
   bvid: string;
-  aid: number;
-  videos: number;
+  aid: largeNumber;
   tid: number;
   tid_v2: number;
   tname: string;
@@ -571,9 +571,9 @@ export interface VideoInfoData {
     arc_pay: booleanNumber;
     free_watch: booleanNumber;
   };
-  owner: { mid: number; name: string; face: url };
+  owner: { mid: largeNumber; name: string; face: url };
   stat: {
-    aid: number;
+    aid: largeNumber;
     view: number;
     danmaku: number;
     reply: number;
@@ -589,7 +589,7 @@ export interface VideoInfoData {
   };
   argue_info: { argue_msg: string; argue_type: number; argue_link: url };
   dynamic: string;
-  cid: number;
+  cid: largeNumber;
   dimension: Dimension;
   season_id?: number;
   premiere: null;
@@ -622,7 +622,7 @@ export interface VideoInfoData {
     }[];
   };
   staff?: { // 仅合作视频
-    mid: number;
+    mid: largeNumber;
     title: string;
     name: string;
     face: url;
@@ -635,7 +635,7 @@ export interface VideoInfoData {
     id: number;
     title: string;
     cover: url;
-    mid: number;
+    mid: largeNumber;
     intro: string;
     sign_state: number;
     attribute: number;
@@ -648,12 +648,12 @@ export interface VideoInfoData {
         season_id: number;
         section_id: number;
         id: number;
-        aid: number;
-        cid: number;
+        aid: largeNumber;
+        cid: largeNumber;
         title: string;
         attribute: number;
         arc: {
-          aid: number;
+          aid: largeNumber;
           videos: 0;
           type_id: 0;
           type_name: '';
@@ -666,8 +666,8 @@ export interface VideoInfoData {
           state: number;
           duration: number;
           rights: { bp: booleanNumber; elec: booleanNumber; download: booleanNumber; movie: booleanNumber; pay: booleanNumber; hd5: booleanNumber; no_reprint: booleanNumber; autoplay: booleanNumber; ugc_pay: booleanNumber; is_cooperation: booleanNumber; ugc_pay_preview: booleanNumber; arc_pay: booleanNumber; free_watch: booleanNumber };
-          author: { mid: number; name: string; face: url };
-          stat: { aid: number; view: number; danmaku: number; reply: number; fav: number; coin: number; share: number; now_rank: number; his_rank: number; like: number; dislike: 0; evaluation: ''; argue_msg: string; vt: 0; vv: number };
+          author: { mid: largeNumber; name: string; face: url };
+          stat: { aid: largeNumber; view: number; danmaku: number; reply: number; fav: number; coin: number; share: number; now_rank: number; his_rank: number; like: number; dislike: 0; evaluation: ''; argue_msg: string; vt: 0; vv: number };
           dynamic: '';
           dimension: { width: 0; height: 0; rotate: 0 };
           desc_v2: null;
@@ -707,12 +707,12 @@ export interface VideoInfoData {
   user_garb: { url_image_ani_cut: url };
   honor_reply: {} | {
     honor: ({
-      aid: number;
+      aid: largeNumber;
       type: 1/* 入站必刷收录 */ | 3/* 全站排行榜最高第?名 */ | 4/* 热门 */;
       desc: string;
       weekly_recommend_num: 0;
     } | {
-      aid: number;
+      aid: largeNumber;
       type: 2/* 第?期每周必看 */;
       desc: string;
       weekly_recommend_num: number;
@@ -761,7 +761,7 @@ export interface VideoPlayUrlData {
   }[];
   high_format: null;
   last_play_time: number;
-  last_play_cid: number;
+  last_play_cid: largeNumber;
   view_info: null;
   play_conf: { is_new_description: boolean };
   cur_language: string;
@@ -772,7 +772,7 @@ export interface VideoPlayUrlData {
 // d. “获取哔哩哔哩视频 / 剧集 / 番剧信息” 接口回应数据（/api/getvideo）
 export interface InternalAPIGetVideoInfoData {
   bvid: string;
-  aid: number | numericString;
+  aid: largeNumber;
   videos: null | number;
   pid: number;
   pid_v2: number;
@@ -796,7 +796,7 @@ export interface InternalAPIGetVideoInfoData {
   rights: null | HistoryItem['rights'] | VideoInfoData['rights'];
   owner: VideoInfoData['owner'];
   stat: {
-    aid: number | numericString;
+    aid: largeNumber;
     view: null | number;
     danmaku: null | number;
     reply: null | number;
@@ -813,7 +813,7 @@ export interface InternalAPIGetVideoInfoData {
   };
   argue_info: VideoInfoData['argue_info'];
   dynamic: string;
-  cid: number;
+  cid: largeNumber;
   dimension: Dimension;
   season_id?: undefined | number;
   premiere: null;
@@ -829,7 +829,7 @@ export interface InternalAPIGetVideoInfoData {
   is_hua_sheng: boolean;
   no_cache: boolean;
   pages: {
-    cid: number;
+    cid: largeNumber;
     page: number;
     from: 'vupload' | 'hunan' | 'qq';
     part: string;
@@ -883,13 +883,13 @@ interface RatingInfo {
   score: number;
 }
 interface EpisodeInfo {
-  aid: number;
+  aid: largeNumber;
   archive_attr?: number;
   badge: string;
   badge_info: { bg_color: '' | hexColor; bg_color_night: '' | hexColor; text: string };
   badge_type?: number;
   bvid?: string;
-  cid: number;
+  cid: largeNumber;
   cover: url;
   dimension?: { height: number; rotate: booleanNumber; width: number };
   duration?: number;
@@ -1070,7 +1070,7 @@ export interface BangumiSeasonData {
     avatar_subscript_url: url;
     follower: number;
     is_follow: 0;
-    mid: number;
+    mid: largeNumber;
     nickname_color: '' | hexColor;
     pendant: { image: url; name: string; pid: number };
     theme_type: 0;
@@ -1151,7 +1151,7 @@ export interface BangumiPlayUrlData {
 // 5. 其他
 // a. 朋友信息
 export interface FriendInfo {
-  mid: number;
+  mid: largeNumber;
   name: string;
   face: url;
   face_nft: booleanNumber;
@@ -1221,7 +1221,7 @@ export interface SeeUploadResponse {
 // c. 导航栏数据（https://api.bilibili.com/x/web-interface/nav）
 export interface NavData { // 此处仅定义部分必要字段
   isLogin: true;
-  mid: number;
+  mid: largeNumber;
   wbi_img: { img_url: url; sub_url: url };
   [key: string]: unknown;
 }
