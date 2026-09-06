@@ -536,6 +536,7 @@ export type HistoryData = HistoryItem[];
 export interface VideoInfoData {
   bvid: string;
   aid: largeNumber;
+  videos: number;
   tid: number;
   tid_v2: number;
   tname: string;
