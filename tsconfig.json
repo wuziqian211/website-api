@@ -13,10 +13,14 @@
     // Modules
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
 
     // JavaScript support
     "checkJs": true,
 
+    // Interop Constraints
+    "verbatimModuleSyntax": true,
+  
     // Language and Environment
     "lib": ["ESNext"],
 

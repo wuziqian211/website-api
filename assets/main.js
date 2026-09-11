@@ -1,3 +1,4 @@
+// eslint-disable-next-line strict -- 此文件在浏览器中使用，不是模块
 'use strict';
 
 // AJAX 导航，改编自 pjax.js（https://github.com/MoOx/pjax，MIT License）

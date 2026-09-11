@@ -71,10 +71,10 @@ export interface JSON_ extends JSON {
    * @param text A valid JSON string.
    * @param reviver A function that transforms the results. This function is called for each member of the object.
    * If a member contains nested objects, the nested objects are transformed before the parent object is.
-   * For primitive values the reviver also receives a `context` object whose `source` property is the original JSON
-   * text of that value.
+   * For each value, the reviver also receives a `context` object. When the property is unmodified and its value is
+   * primitive, `context` has a `source` property containing the original JSON text of that value.
    */
-  parse(text: string, reviver: (this: unknown, key: string, value: unknown, context: { source: string }) => unknown): unknown;
+  parse(text: string, reviver: (this: unknown, key: string, value: unknown, context: { source?: string }) => unknown): unknown;
 
   /**
    * Creates a "raw JSON" object containing a piece of JSON text.

@@ -152,6 +152,7 @@ export const sendHTML = (session: Session, status: number, data: SendHTMLData): 
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="light dark" />
         <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
         <title>${encodeHTML(data.title)} | YumeHaru's Blog API</title>
@@ -176,7 +177,7 @@ export const sendHTML = (session: Session, status: number, data: SendHTMLData): 
           本站已稳定运行 <span class="running-time">${getRunningTime(Date.now() / 1000 - 1636816579.737)}</span><br />
           部署于 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://vercel.com/">Vercel</a>
         </footer>
-        <script src="/assets/main.js"></script>
+        <script defer src="/assets/main.js"></script>
         <!-- Execution time: ${apiExecTime.toFixed(3)} ms | Request ID: ${encodeHTML(session.requestId)} -->
       </body>
     </html>`.replace(/<br \/>[ \t\f\r\n]*(?=<\/)/g, '').replace(/[ \t\f\r\n]+/g, ' ').trim(), { status, headers: session.responseHeaders });
@@ -298,7 +299,7 @@ export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
 };
 export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或过小的数字将会被转换成 BigInt 或文本）
   if (typeof text !== 'string') return text;
-  return JSON.parse(text, (key, value, { source }) => typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
+  return JSON.parse(text, (key, value, { source }) => source && typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
 };
 export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
 
