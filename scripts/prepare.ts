@@ -3,8 +3,9 @@ import type { APIResponse, NavData } from '../assets/types.d.ts';
 import { getEnv } from '@vercel/functions';
 import { Redis } from '@upstash/redis';
 
+const systemEnv = getEnv();
 console.log(`Node.js 版本：${process.version}`);
-if (getEnv().VERCEL_ENV === 'development') process.exit(0);
+if (!systemEnv.VERCEL || systemEnv.VERCEL_ENV === 'development') process.exit(0);
 
 const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
       sessionData = process.env.SESSDATA!, csrf = process.env.bili_jct!;
