@@ -12,21 +12,24 @@ export default (req: Request): Response => {
   const session = utils.initialize(req, { acceptedResponseTypes: [1] }),
         { pathname } = new URL(req.url);
 
-  const userRegExpResult = /^\/(?:space\/|user\/|uid|mid)(\d+)(?:[?/#].*)?$/.exec(pathname);
-  if (userRegExpResult) return Response.redirect(new URL(`/api/getuser?mid=${userRegExpResult[1]}`, req.url), 308);
+  const userRegExpResult = /^\/(?:space\/|user\/|uid|mid)(?<id>\d+)(?:[?/#].*)?$/.exec(pathname);
+  if (userRegExpResult?.groups) return Response.redirect(new URL(`/api/getuser?mid=${userRegExpResult.groups.id}`, req.url), 308);
 
   for (const r of [
-    /^\/video\/(av\d+)(?:[?/#].*)?$/, /^\/video\/(BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/,
-    /^\/bangumi\/media\/(md\d+)(?:[?/#].*)?$/, /^\/bangumi\/play\/((?:ss|ep)\d+)(?:[?/#].*)?$/,
-    /^\/((?:av|md|ss|ep)\d+)(?:[?/#].*)?$/, /^\/(BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/,
+    /^\/video\/(?<id>av\d+)(?:[?/#].*)?$/,
+    /^\/video\/(?<id>BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/,
+    /^\/bangumi\/media\/(?<id>md\d+)(?:[?/#].*)?$/,
+    /^\/bangumi\/play\/(?<id>(?:ss|ep)\d+)(?:[?/#].*)?$/,
+    /^\/(?<id>(?:av|md|ss|ep)\d+)(?:[?/#].*)?$/,
+    /^\/(?<id>BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/,
   ]) {
     const videoRegExpResult = r.exec(pathname);
-    if (videoRegExpResult) return Response.redirect(new URL(`/api/getvideo?vid=${videoRegExpResult[1]}`, req.url), 308);
+    if (videoRegExpResult?.groups) return Response.redirect(new URL(`/api/getvideo?vid=${videoRegExpResult.groups.id}`, req.url), 308);
   }
 
-  const pureNumberRegExpResult = /^\/(\d+)(?:[?/#].*)?$/.exec(pathname);
-  if (pureNumberRegExpResult) {
-    const id = pureNumberRegExpResult[1];
+  const pureNumberRegExpResult = /^\/(?<id>\d+)(?:[?/#].*)?$/.exec(pathname);
+  if (pureNumberRegExpResult?.groups) {
+    const { id } = pureNumberRegExpResult.groups;
     return utils.sendHTML(session, 300, { title: '请选择要获取信息的项目', newStyle: true, body: `
       <p>您提供的路径为纯数字，请选择您要获取信息的项目：</p>
       <div class="grid">

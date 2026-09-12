@@ -259,6 +259,8 @@ export const redirect = (session: Session, status: number, redirectUrl: url, noC
       case 302:
         session.responseHeaders.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3300');
         break;
+
+      // No default
     }
   }
   return sendJSON(session, status, { code: status, message: 'redirect', data: { url: redirectUrl }, extInfo: { redirectUrl } });
@@ -308,23 +310,23 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
           { pattern: /(?:https?):\/\/[\w-]+(?:\.[\w-]+)+(?:[\w-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/i, replacer: (match: url): url => match },
-          { pattern: /[Bb][Vv]1([1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/BV1${matches[0]}/` },
-          { pattern: /av(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/video/av${matches[0]}/` },
-          { pattern: /sm(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.nicovideo.jp/watch/sm${matches[0]}` },
-          { pattern: /cv(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/read/cv${matches[0]}` },
-          { pattern: /md(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/bangumi/media/md${matches[0]}` },
-          { pattern: /ss(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/bangumi/play/ss${matches[0]}` },
-          { pattern: /ep(\d+)/i, replacer: (match: string, matches: string[]): url => `https://www.bilibili.com/bangumi/play/ep${matches[0]}` },
+          { pattern: /[Bb][Vv]1(?<id>[1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/video/BV1${groups.id}/` },
+          { pattern: /av(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/video/av${groups.id}/` },
+          { pattern: /sm(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.nicovideo.jp/watch/sm${groups.id}` },
+          { pattern: /cv(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/read/cv${groups.id}` },
+          { pattern: /md(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/media/md${groups.id}` },
+          { pattern: /ss(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/play/ss${groups.id}` },
+          { pattern: /ep(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/play/ep${groups.id}` },
         ];
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
       if (!components[i].url) { // 该组成部分没有转化成链接
         const { content } = components[i], result = p.pattern.exec(content);
-        if (result) {
-          const [match, ...capturedMatches] = result, { index } = result;
+        if (result?.groups) {
+          const [match] = result, { groups, index } = result;
           components.splice(i++, 0, { content: content.slice(0, index) }); // 在该组成部分前插入一个内容为匹配文本之前的文本的组成部分
           components[i].content = match;
-          components[i].url = p.replacer(match, capturedMatches); // 将该组成部分修改成已经转化的链接
+          components[i].url = p.replacer(match, groups); // 将该组成部分修改成已经转化的链接
           components.splice(i + 1, 0, { content: content.slice(index + match.length) }); // 在该组成部分后插入一个内容为匹配文本之后的文本的组成部分
         }
       }
@@ -475,8 +477,8 @@ export const getWbiKeys = async (session: Session, noCache?: boolean): Promise<W
   if (noCache || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
     const ujson = <APIResponse<NavData>> await callAPI(session, 'https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
     wbiKeys.mid = ujson.data.mid;
-    wbiKeys.imgKey = /.*\/([^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.[1] || '7cd084941338484aae1ad9425b84077c';
-    wbiKeys.subKey = /.*\/([^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.[1] || '4932caff0ff746eab6f01bf08b70ac45';
+    wbiKeys.imgKey = /.*\/(?<img>[^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.groups?.img || '7cd084941338484aae1ad9425b84077c';
+    wbiKeys.subKey = /.*\/(?<sub>[^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.groups?.sub || '4932caff0ff746eab6f01bf08b70ac45';
     loginHeaders.set('Cookie', `SESSDATA=${sessionData}; bili_jct=${csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
     wbiKeys.updatedTimestamp = Date.now();
     waitUntil(redis.set('wbiKeys', wbiKeys));
