@@ -43,7 +43,7 @@ let wbiKeys: WbiKeys;
 export const initialize = (req: Request, { acceptedResponseTypes, extraResponseTypes }: { acceptedResponseTypes: ContentType[]; extraResponseTypes?: Map<ContentType, string[]> }, resolve?: (returnValue: Response) => void): Session => { // 初始化 API
   const startTime = performance.now(), requestId = req.headers.get('x-vercel-id') ?? crypto.randomUUID(),
         params = new URL(req.url).searchParams, accepts: ContentType[] = [], responseAttributes: string[] = [],
-        defaultResponseTypes: Map<ContentType, string[]> = new Map([
+        defaultResponseTypes = new Map<ContentType, string[]>([
           [0, ['JSON']], [1, ['HTML', 'PAGE']], [2, ['IMAGE', 'IMG', 'PICTURE', 'PIC']], [3, ['VIDEO']],
         ]),
         requestedAccept = req.headers.get('accept')?.toUpperCase(),
@@ -301,7 +301,10 @@ export const toHTTPS = (targetUrl: url): url => { // 将网址协议改成 HTTPS
 };
 export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或过小的数字将会被转换成 BigInt 或文本）
   if (typeof text !== 'string') return text;
-  return JSON.parse(text, (key, value, { source }) => source && typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value);
+  return JSON.parse(
+    text,
+    (key, value, { source }) => source && typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value,
+  );
 };
 export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
 
@@ -335,7 +338,8 @@ export const markText = (str: string): string => { // 将纯文本中的特殊�
   return components.map(c => c.url ? `<a target="_blank" rel="noopener external nofollow noreferrer" href="${encodeHTML(c.url)}">${encodeHTML(c.content)}</a>` : encodeHTML(c.content)).join('');
 };
 export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
-  const xorCode = 23442827791579n, maxAid = 1n << 51n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
+  const xorCode = 23442827791579n, maxAid = 1n << 51n,
+        alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
         encodeMap = [8, 7, 0, 5, 1, 3, 2, 4, 6], bvid = [], base = BigInt(alphabet.length);
   let t = (maxAid | BigInt(aid)) ^ xorCode;
   for (const n of encodeMap) {
@@ -346,7 +350,8 @@ export const toBV = (aid: bigint | number | string): string => { // AV 号转 BV
 };
 export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 https://www.zhihu.com/question/381784377/answer/1099438784
   if (!/^[Bb][Vv]1[1-9A-HJ-NP-Za-km-z]{9}$/.test(bvid)) throw new TypeError('Invalid BV number');
-  const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n, alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
+  const xorCode = 23442827791579n, maskCode = (1n << 51n) - 1n,
+        alphabet = 'FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf',
         decodeMap = [6, 4, 2, 3, 1, 5, 0, 7, 8], base = BigInt(alphabet.length);
   let t = 0n;
   for (const n of decodeMap) {
@@ -356,7 +361,8 @@ export const toAV = (bvid: string): bigint => { // BV 号转 AV 号，改编自 
   return (t & maskCode) ^ xorCode;
 };
 const makeRequest = async <T> (session: Session, requestUrl: url, options: { method?: string; params?: Record<string, unknown>; includePlatformInfo?: boolean; wbiSign?: boolean; headers?: Record<string, string>; withCookie?: boolean | undefined; body?: BodyInit; retries?: boolean | number; timeout?: boolean | number; callback?: (args: { method: string; url: url; resp: Response; respStartTime: millisecondLevelTimestamp; respEndTime: millisecondLevelTimestamp }) => T } = {}): Promise<NonNullable<T> | Response> => { // 发送请求到服务器
-  const initialUrlObj = new URL(requestUrl), method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
+  const initialUrlObj = new URL(requestUrl),
+        method = typeof options.method === 'string' ? options.method.toUpperCase() : 'GET',
         headers = options.withCookie ? loginHeaders : normalHeaders,
         retries = options.retries === true ? 3 : options.retries === false ? 1 : options.retries ?? (['GET', 'HEAD', 'OPTIONS'].includes(method) ? 3 : 1), // 重试次数
         timeout = options.timeout === true ? 10000 : options.timeout === false ? Infinity : options.timeout ?? 10000; // 超时时间
@@ -427,7 +433,7 @@ export const callAPI = (session: Session, requestUrl: url, options?: Parameters<
       throw new TypeError(`${method} ${requestedUrl} HTTP status: ${resp.status}`);
     }
 
-    const json = <{ code: number; message?: string; [key: string]: unknown }> JSONParse(await resp.text());
+    const json = <{ code: number; message: string; [key: string]: unknown }> JSONParse(await resp.text());
     session.upstreamServerResponseInfo.push({ url: requestedUrl, method, type: 'json', startTime: respStartTime, endTime: respEndTime, status: resp.status, code: json.code, message: json.message });
     if ([-351, -352, -401, -412, -509, -799].includes(json.code)) throw new TypeError(`${method} ${requestedUrl} Response code: ${json.code}`); // 请求被拦截
 
@@ -477,8 +483,8 @@ export const getWbiKeys = async (session: Session, noCache?: boolean): Promise<W
   if (noCache || Math.floor(wbiKeys.updatedTimestamp / 3600000) !== Math.floor(Date.now() / 3600000)) {
     const ujson = <APIResponse<NavData>> await callAPI(session, 'https://api.bilibili.com/x/web-interface/nav', { withCookie: true });
     wbiKeys.mid = ujson.data.mid;
-    wbiKeys.imgKey = /.*\/(?<img>[^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.groups?.img || '7cd084941338484aae1ad9425b84077c';
-    wbiKeys.subKey = /.*\/(?<sub>[^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.groups?.sub || '4932caff0ff746eab6f01bf08b70ac45';
+    wbiKeys.imgKey = /.*\/(?<key>[^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.groups?.key || '7cd084941338484aae1ad9425b84077c';
+    wbiKeys.subKey = /.*\/(?<key>[^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.groups?.key || '4932caff0ff746eab6f01bf08b70ac45';
     loginHeaders.set('Cookie', `SESSDATA=${sessionData}; bili_jct=${csrf}; DedeUserID=${wbiKeys.mid}`); // 设置 DedeUserID Cookie
     wbiKeys.updatedTimestamp = Date.now();
     waitUntil(redis.set('wbiKeys', wbiKeys));

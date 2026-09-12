@@ -10,7 +10,7 @@ import type { BodyInit } from 'undici-types';
 import fs from 'node:fs';
 import { getEnv } from '@vercel/functions';
 import * as utils from '../assets/utils.js';
-import { officialVerifyInfo } from '../assets/constants.js';
+import { ranks, officialVerifyInfo } from '../assets/constants.js';
 
 export default {
   async fetch(req: Request): Promise<Response> {
@@ -62,7 +62,6 @@ export default {
             switch (json.code) {
               case 0: {
                 const data = json.data!,
-                      ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' },
                       officialInfo = officialVerifyInfo.find(i => i.role === data.official.role),
                       officialPrefixSuffix = officialInfo ? ` - ${utils.encodeHTML(officialInfo.title)}` : '';
                 const content = `
@@ -90,7 +89,7 @@ export default {
                     </div>
                     <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${mid}"></a>
                   </div>
-                  <strong>用户权限等级：</strong>${data.rank in ranks ? `${ranks[data.rank]}（${data.rank}）` : data.rank}<br />
+                  <strong>用户权限等级：</strong>${ranks.has(data.rank) ? `${ranks.get(data.rank)}（${data.rank}）` : data.rank}<br />
                   <strong>生日：</strong>${data.birthday ? utils.encodeHTML(data.birthday) : '保密'}<br />
                   ${data.school?.name ? `<strong>学校：</strong>${utils.encodeHTML(data.school.name)}<br />` : ''}
                   <strong>关注数：</strong>${utils.getNumber(data.following)}<br />
@@ -212,7 +211,6 @@ export default {
 
         if (responseType === 1) { // 回复 HTML
           if (Object.keys(data).length) {
-            const ranks: Record<number, string> = { 5000: '非正式会员', 10000: '普通会员', 20000: '字幕君', 25000: 'VIP', 30000: '真·职人', 32000: '管理员' };
             const content = `
               <div class="grid user-list">
                 ${Object.values(data).map(u => `
@@ -229,7 +227,7 @@ export default {
                     <span class="description">UID：${u.mid}</span>${u.silence ? ' <span class="notice"><img class="notice-icon" alt="⚠️" /> 该账号封禁中</span>' : ''}
                     <br />
                     ${[0, 1].includes(u.official.type) ? `<img class="official-icon icon-${u.official.type === 0 ? 'personal" alt="⚡" title="UP 主认证" /> <strong class="text-personal">bilibili UP 主' : 'business" alt="⚡" title="机构认证" /> <strong class="text-business">bilibili 机构'}认证${u.official.title ? '：' : ''}</strong>${utils.encodeHTML(u.official.title)}${u.official.desc ? `<span class="description">（${utils.encodeHTML(u.official.desc)}）</span>` : ''}<br />` : ''}
-                    ${'rank' in u ? `<strong>用户权限等级：</strong>${u.rank in ranks ? `${ranks[u.rank]}（${u.rank}）` : u.rank}<br />` : ''}
+                    ${'rank' in u ? `<strong>用户权限等级：</strong>${ranks.has(u.rank) ? `${ranks.get(u.rank)}（${u.rank}）` : u.rank}<br />` : ''}
                     ${'sign' in u ? `<span class="description">${utils.markText(u.sign)}</span>` : ''}
                   </div>
                   <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://space.bilibili.com/${u.mid}"></a>

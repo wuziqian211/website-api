@@ -9,11 +9,10 @@ import { next } from '@vercel/functions';
 import * as utils from './assets/utils.js';
 
 export default (req: Request): Response => {
-  const session = utils.initialize(req, { acceptedResponseTypes: [1] }),
-        { pathname } = new URL(req.url);
+  const session = utils.initialize(req, { acceptedResponseTypes: [1] }), { pathname } = new URL(req.url);
 
   const userRegExpResult = /^\/(?:space\/|user\/|uid|mid)(?<id>\d+)(?:[?/#].*)?$/.exec(pathname);
-  if (userRegExpResult?.groups) return Response.redirect(new URL(`/api/getuser?mid=${userRegExpResult.groups.id}`, req.url), 308);
+  if (userRegExpResult?.groups) return utils.redirect(session, 308, `/api/getuser?mid=${userRegExpResult.groups.id}`);
 
   for (const r of [
     /^\/video\/(?<id>av\d+)(?:[?/#].*)?$/,
@@ -24,7 +23,7 @@ export default (req: Request): Response => {
     /^\/(?<id>BV1[1-9A-HJ-NP-Za-km-z]{9})(?:[?/#].*)?$/,
   ]) {
     const videoRegExpResult = r.exec(pathname);
-    if (videoRegExpResult?.groups) return Response.redirect(new URL(`/api/getvideo?vid=${videoRegExpResult.groups.id}`, req.url), 308);
+    if (videoRegExpResult?.groups) return utils.redirect(session, 308, `/api/getvideo?vid=${videoRegExpResult.groups.id}`);
   }
 
   const pureNumberRegExpResult = /^\/(?<id>\d+)(?:[?/#].*)?$/.exec(pathname);

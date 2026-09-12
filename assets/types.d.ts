@@ -193,10 +193,7 @@ export interface UserCardData {
     is_senior_member: booleanNumber;
     name_render: null | NameRenderInfo;
   };
-  space: { // 仅当 “photo” 参数为 “true” 时出现
-    s_img: url;
-    l_img: url;
-  };
+  space: { s_img: url; l_img: url }; // 仅当 “photo” 参数为 “true” 时出现
   following: boolean;
   archive_count: number;
   article_count: 0;
@@ -1091,7 +1088,7 @@ export interface BangumiSeasonData {
     pay_pack_paid: booleanNumber;
     progress?: { last_ep_id: number; last_ep_index: string; last_time: number };
     sponsor: booleanNumber;
-    vip_info?: { due_date: millisecondLevelTimestamp; status: booleanNumber; type: VIPType };
+    vip_info?: { due_date: millisecondLevelTimestamp; status: booleanNumber; type: VIPType }; // 仅登录时存在此项
   };
 }
 

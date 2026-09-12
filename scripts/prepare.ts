@@ -22,7 +22,7 @@ console.log(`当前登录 B 站账号 UID：${mid}`);
 const redis = Redis.fromEnv();
 await redis.set('wbiKeys', {
   mid,
-  imgKey: /.*\/(?<img>[^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.groups?.img || '7cd084941338484aae1ad9425b84077c',
-  subKey: /.*\/(?<sub>[^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.groups?.sub || '4932caff0ff746eab6f01bf08b70ac45',
+  imgKey: /.*\/(?<key>[^.]+)\.?/.exec(ujson.data.wbi_img.img_url)?.groups?.key || '7cd084941338484aae1ad9425b84077c',
+  subKey: /.*\/(?<key>[^.]+)\.?/.exec(ujson.data.wbi_img.sub_url)?.groups?.key || '4932caff0ff746eab6f01bf08b70ac45',
   updatedTimestamp: Date.now(),
 });

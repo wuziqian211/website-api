@@ -1,13 +1,19 @@
+import js from '@eslint/js';
 import globals from 'globals';
-import pluginJs from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin';
+import { defineConfig } from 'eslint/config';
 
-export default [
-  { files: ['**/*.{js,mjs,cjs,ts}'], languageOptions: { globals: globals.nodeBuiltin } },
+export default defineConfig([
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    plugins: { js },
+    extends: ['js/recommended'],
+    languageOptions: { globals: globals.nodeBuiltin },
+  },
   { files: ['assets/main.js'], languageOptions: { globals: globals.browser, sourceType: 'script' } },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  tseslint.configs.recommended,
+  tseslint.configs.stylistic,
   stylistic.configs.customize({
     braceStyle: '1tbs',
     indent: [2, { flatTernaryExpressions: true, VariableDeclarator: 'first' }],
@@ -127,6 +133,7 @@ export default [
       'valid-typeof': 'error',
       'vars-on-top': 'error',
       yoda: 'error',
+      '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/no-empty-object-type': ['error', { allowObjectTypes: 'always' }],
       '@stylistic/array-bracket-newline': ['error', 'consistent'],
       '@stylistic/array-bracket-spacing': 'error',
@@ -149,4 +156,4 @@ export default [
       '@stylistic/switch-colon-spacing': 'error',
     },
   },
-];
+]);

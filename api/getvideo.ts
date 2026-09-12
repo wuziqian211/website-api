@@ -10,7 +10,7 @@ import type { BodyInit } from 'undici-types';
 import fs from 'node:fs';
 import { getEnv } from '@vercel/functions';
 import * as utils from '../assets/utils.js';
-import { zones, zonesV2, states } from '../assets/constants.js';
+import { zones, zonesV2, states, mediaTypes } from '../assets/constants.js';
 
 export default {
   async fetch(req: Request): Promise<Response> {
@@ -152,7 +152,7 @@ export default {
                       <div class="detail">
                         <strong>${utils.encodeHTML(data.title)}</strong><br />
                         <span class="description">av${data.aid}，${utils.encodeHTML(data.bvid)}</span><br />
-                        ${data.state !== 0 ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${data.state && data.state in states ? states[data.state] : '该视频存在未知问题'}</span><br />` : ''}
+                        ${data.state !== 0 ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${data.state && states.has(data.state) ? states.get(data.state) : '该视频存在未知问题'}</span><br />` : ''}
                         ${data.forward ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> 本视频已与 <a href="?vid=${utils.toBV(data.forward)}">${utils.toBV(data.forward)}</a> 撞车</span><br />` : ''}
                         ${data.argue_info.argue_msg ? `<span class="notice"><img class="notice-icon" alt="⚠️" /> ${utils.encodeHTML(data.argue_info.argue_msg)}</span><br />` : ''}
                         ${data.videos}P ${utils.getTime(data.duration)} ${data.copyright === 1 ? '自制' : data.copyright === 2 ? '转载' : ''}${data.rights?.no_reprint ? '（未经作者授权，禁止转载）' : ''}${data.rights?.is_cooperation ? ' 合作' : ''}${data.rights && 'is_stein_gate' in data.rights && data.rights.is_stein_gate ? ' 互动' : ''}${data.rights && 'is_360' in data.rights && data.rights.is_360 ? ' 全景' : ''}${'honor' in data.honor_reply && data.honor_reply.honor?.some(h => h.type !== 3) ? ` ${data.honor_reply.honor.filter(h => h.type !== 3).map(h => utils.encodeHTML(h.desc)).join(' ')}` : ''}${data.stat.evaluation ? ` ${utils.encodeHTML(data.stat.evaluation)}` : ''}${data.stat.now_rank ? ` 当前排名第 ${data.stat.now_rank} 名` : ''}${data.stat.his_rank ? ` 历史最高排名第 ${data.stat.his_rank} 名` : ''}
@@ -544,7 +544,7 @@ export default {
             case 1: { // 回复 HTML
               switch (json.code) {
                 case 0: {
-                  const result = json.result!, types = { 1: '番剧', 2: '电影', 3: '纪录片', 4: '国创', 5: '电视剧', 6: '漫画', 7: '综艺' };
+                  const result = json.result!;
                   const content = `
                     <div class="main-info">
                       <div class="image-wrap">
@@ -554,7 +554,7 @@ export default {
                         <strong>${utils.encodeHTML(result.title)}</strong><br />
                         <span class="description">ss${result.season_id}，md${result.media_id}</span><br />
                         ${result.styles?.length ? `<span class="description">${result.styles.map(s => `<span class="icon-font icon-tag"></span> ${utils.encodeHTML(s)}`).join(' ')}</span><br />` : ''}
-                        ${types[result.type] ?? ''}${result.rights.copyright === 'bilibili' ? ' 授权' : result.rights.copyright === 'dujia' ? ' 独家' : ''}${result.total === -1 ? '' : ` 已完结，共 ${result.total} 集`} ${result.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.rating?.score ? `${result.rating.score.toFixed(1)} 分（共 ${result.rating.count} 人评分）` : '暂无评分'}
+                        ${mediaTypes.get(result.type) ?? ''}${result.rights.copyright === 'bilibili' ? ' 授权' : result.rights.copyright === 'dujia' ? ' 独家' : ''}${result.total === -1 ? '' : ` 已完结，共 ${result.total} 集`} ${result.areas.map(a => utils.encodeHTML(a.name)).join('、')} ${result.rating?.score ? `${result.rating.score.toFixed(1)} 分（共 ${result.rating.count} 人评分）` : '暂无评分'}
                       </div>
                       <a class="main-info-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/bangumi/play/ss${result.season_id}"></a>
                     </div>
