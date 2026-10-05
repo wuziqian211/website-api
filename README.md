@@ -465,7 +465,7 @@
 | eslint.config.js | [ESLint](https://eslint.org/)（JavaScript 代码检查器）的配置文件 |
 | favicon.ico | 网站图标 |
 | LICENSE | MIT 许可证 |
-| middleware.ts | [Vercel 边缘中间件](https://vercel.com/docs/functions/edge-middleware)文件 |
+| middleware.ts | [Vercel 路由中间件](https://vercel.com/docs/routing-middleware)文件 |
 | package.json, package-lock.json | 本项目使用的依赖项列表 |
 | README.md | 本项目的说明文件，即本文件 |
 | robots.txt | 搜索引擎爬虫配置文件 |

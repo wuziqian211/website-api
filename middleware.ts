@@ -3,6 +3,7 @@ export const config = {
     '/((?:video/)?BV1[1-9A-HJ-NP-Za-km-z]{9}(?:[?/#].*)?)',
     '/((?:video/av|bangumi/media/md|bangumi/play/ss|bangumi/play/ep|space/|user/|av|md|ss|ep|uid|mid)?\\d+(?:[?/#].*)?)',
   ],
+  runtime: 'nodejs',
 };
 
 import { next } from '@vercel/functions';
