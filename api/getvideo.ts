@@ -27,7 +27,7 @@ export default {
         ${data.content}
         <form>
           <div><label for="vid">请输入您想要获取信息的视频 / 剧集 / 番剧的编号（仅输入数字会被视为 AV 号）：</label></div>
-          <div><input type="text" name="vid" id="vid" value="${utils.encodeHTML(data.vid ?? '')}" placeholder="av…/BV…/md…/ss…/ep…" pattern="[Bb][Vv]1[1-9A-HJ-NP-Za-km-z]{9}|(?:AV|av|Av|aV|MD|md|Md|mD|SS|ss|Ss|sS|EP|ep|Ep|eP)?(?!0+$)\\d+" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
+          <div><input type="text" name="vid" id="vid" value="${utils.encodeHTML(data.vid ?? '')}" placeholder="av…/BV…/md…/ss…/ep…" pattern="[Bb][Vv]1[1-9A-HJ-NP-Za-km-z]{9}|(?:[Aa][Vv]|[Mm][Dd]|[Ss][Ss]|[Ee][Pp])?(?!0+$)\\d+" maxlength="20" autocomplete="off" spellcheck="false" /> <input type="submit" value="获取" /></div>
           <div><input type="checkbox" name="force" id="force" value="true"${requestForce ? ' checked' : ''} autocomplete="off" /><label for="force">强制获取信息（仅适用于获取编号为 AV 号或 BV 号的视频的信息）</label></div>
         </form>` })), // 发送 HTML 响应到客户端
             sendJSON = (status: number, data: InternalAPIResponse<unknown>): void => resolve(utils.sendJSON(session, status, data)), // 发送 JSON 数据到客户端

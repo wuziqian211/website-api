@@ -303,23 +303,23 @@ export const JSONParse = (text: string): unknown => { // 解析 JSON（过大或
   if (typeof text !== 'string') return text;
   return JSON.parse(
     text,
-    (key, value, { source }) => source && typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value,
+    (_key, value, { source }) => source && typeof value === 'number' && (value > Number.MAX_SAFE_INTEGER || value < Number.MIN_SAFE_INTEGER) ? /^-?(?:[1-9]\d*|0)$/.test(source) ? BigInt(source) : source : value,
   );
 };
-export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
+export const JSONStringify = (valueArg: unknown): string => JSON.stringify(valueArg, (_key, value) => typeof value === 'bigint' ? JSON.rawJSON(value.toString()) : value); // 序列化 JSON（BigInt 将会被转换成数字）
 
 export const markText = (str: string): string => { // 将纯文本中的特殊标记转化成可点击的链接
   if (typeof str !== 'string') return '';
   const components: Component[] = [{ content: str }],
         replacementRules = [ // 替换规则
           { pattern: /(?:https?):\/\/[\w-]+(?:\.[\w-]+)+(?:[\w-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?/i, replacer: (match: url): url => match },
-          { pattern: /[Bb][Vv]1(?<id>[1-9A-HJ-NP-Za-km-z]{9})/, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/video/BV1${groups.id}/` },
-          { pattern: /av(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/video/av${groups.id}/` },
-          { pattern: /sm(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.nicovideo.jp/watch/sm${groups.id}` },
-          { pattern: /cv(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/read/cv${groups.id}` },
-          { pattern: /md(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/media/md${groups.id}` },
-          { pattern: /ss(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/play/ss${groups.id}` },
-          { pattern: /ep(?<id>\d+)/i, replacer: (match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/play/ep${groups.id}` },
+          { pattern: /[Bb][Vv]1(?<id>[1-9A-HJ-NP-Za-km-z]{9})/, replacer: (_match: string, groups: Record<string, string>): url => `https://www.bilibili.com/video/BV1${groups.id}/` },
+          { pattern: /av(?<id>\d+)/i, replacer: (_match: string, groups: Record<string, string>): url => `https://www.bilibili.com/video/av${groups.id}/` },
+          { pattern: /sm(?<id>\d+)/i, replacer: (_match: string, groups: Record<string, string>): url => `https://www.nicovideo.jp/watch/sm${groups.id}` },
+          { pattern: /cv(?<id>\d+)/i, replacer: (_match: string, groups: Record<string, string>): url => `https://www.bilibili.com/read/cv${groups.id}` },
+          { pattern: /md(?<id>\d+)/i, replacer: (_match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/media/md${groups.id}` },
+          { pattern: /ss(?<id>\d+)/i, replacer: (_match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/play/ss${groups.id}` },
+          { pattern: /ep(?<id>\d+)/i, replacer: (_match: string, groups: Record<string, string>): url => `https://www.bilibili.com/bangumi/play/ep${groups.id}` },
         ];
   for (const p of replacementRules) {
     for (let i = 0; i < components.length; i++) { // 由于下面的代码可能会导致 components 的元素变化，为确保能遍历每一个需要遍历的元素，此处不能使用 for (const c of components)
