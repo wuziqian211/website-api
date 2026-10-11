@@ -1,55 +1,58 @@
-export const config = { runtime: 'edge' };
+export default {
+  fetch(req: Request): Response {
+    const encodeHTML = (str?: string): string => typeof str === 'string' ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/ (?= )|(?<= ) |^ | $/gm, '&nbsp;').replace(/\r\n|\r|\n/g, '<br />') : '';
 
-export default (req: Request): Response => {
-  const requestPath = new URL(req.url).pathname,
-        host = req.headers.get('Host')!;
-  if (/^.+\.yumeharu.top$/.test(host)) {
-    let expectedURL: string | undefined;
-    if (/^\/arc|^\/wik|^\/abo|^\/fri/.test(requestPath)) {
-      expectedURL = `https://www.yumeharu.top${requestPath}`;
-    } else if (/^\/api|^\/get/.test(requestPath)) {
-      expectedURL = `https://api.yumeharu.top${requestPath}`;
+    const { pathname } = new URL(req.url),
+          host = req.headers.get('Host')!;
+    if (/^.+\.yumeharu\.top$/.test(host)) {
+      let expectedURL: string | undefined;
+      if (/^\/(?:arc|wik|abo|fri)/.test(pathname)) {
+        expectedURL = `https://www.yumeharu.top${pathname}`;
+      } else if (/^\/(?:api|get|vid|ban|spa|use|av|md|ss|ep|uid|mid)/.test(pathname)) {
+        expectedURL = `https://api.yumeharu.top${pathname}`;
+      }
+      return new Response(`
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="color-scheme" content="light dark" />
+            <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
+            <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
+            <title>页面不存在 | 晨叶梦春的小屋</title>
+            <link rel="stylesheet" href="/assets/style.css" />
+            <link rel="shortcut icon" href="/favicon.ico" />
+            <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+          </head>
+          <body>
+            <header>
+              <div class="header">
+                <div class="left"><a href="https://www.yumeharu.top/">晨叶梦春的小屋</a> <span class="description">温馨和谐的小屋</span></div>
+                <div class="right"><a href="https://www.yumeharu.top/">返回主站</a></div>
+              </div>
+            </header>
+            <main>
+              您似乎输入错了网址！请仔细检查您的网址是否输入正确。<br />
+              ${expectedURL ? `您是否想要访问 <a href="${encodeHTML(expectedURL)}">${encodeHTML(expectedURL)}</a>？` : '<a href="https://www.yumeharu.top/">点击此处返回 Blog 首页</a>'}
+            </main>
+            <footer>
+              © 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春
+            </footer>
+          </body>
+        </html>`.replace(/[ \t\f\r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
+    } else if (host === 'yumeharu.top') {
+      const url = `https://www.yumeharu.top${pathname}`;
+      return Response.json({ code: 308, message: 'redirect', data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
+    } else if (/^(?:.+\.)?w211\.top$/.test(host)) {
+      const url = `https://${host.replace(/^(?<subdomain>.+\.)?w211\.top$/, '$1yumeharu.top')}${pathname}`;
+      return Response.json({ code: 308, message: 'redirect', data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
+    } else if (/^(?:.+\.)?wuziqian211\.top$/.test(host)) {
+      const url = `https://${host.replace(/^(?<subdomain>.+\.)?wuziqian211\.top$/, '$1yumeharu.top')}${pathname}`;
+      return Response.json({ code: 308, message: 'redirect', data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
+    } else {
+      const url = 'https://www.yumeharu.top/';
+      return Response.json({ code: 307, message: 'redirect', data: { url } }, { status: 307, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url } });
     }
-    return new Response(`
-      <!DOCTYPE html>
-      <html lang="zh-CN">
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)" />
-          <meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)" />
-          <title>页面不存在 | 晨叶梦春的小屋</title>
-          <link rel="stylesheet" href="/assets/style.css" />
-          <link rel="shortcut icon" href="/favicon.ico" />
-          <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
-        </head>
-        <body>
-          <header>
-            <div class="header">
-              <div class="left"><a href="https://www.yumeharu.top/">晨叶梦春的小屋</a> <span class="description">温馨和谐的小屋</span></div>
-              <div class="right"><a href="https://www.yumeharu.top/">返回主站</a></div>
-            </div>
-          </header>
-          <main>
-            您似乎输入错了网址！请仔细检查您的网址是否输入正确。<br />
-            ${expectedURL ? `您是否想要访问 <a href="${expectedURL}">${expectedURL}</a>？` : '<a href="https://www.yumeharu.top/">点击此处返回 Blog 首页</a>'}
-          </main>
-          <footer>
-            © 2021 – ${new Date(Date.now() + (new Date().getTimezoneOffset() + 480) * 60000).getFullYear()} 晨叶梦春
-          </footer>
-        </body>
-      </html>`.replace(/[ \r\n]+/g, ' ').trim(), { status: 404, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'text/html; charset=utf-8' } });
-  } else if (host === 'yumeharu.top') {
-    const url = `https://www.yumeharu.top${requestPath}`;
-    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
-  } else if (/^(?:.+\.)?w211.top$/.test(host)) {
-    const url = `https://${host.replace(/^(.+\.)?w211.top$/, '$1yumeharu.top')}${requestPath}`;
-    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
-  } else if (/^(?:.+\.)?wuziqian211.top$/.test(host)) {
-    const url = `https://${host.replace(/^(.+\.)?wuziqian211.top$/, '$1yumeharu.top')}${requestPath}`;
-    return Response.json({ code: 308, data: { url } }, { status: 308, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url, Refresh: `0; url=${url}` } });
-  } else {
-    const url = 'https://www.yumeharu.top/';
-    return Response.json({ code: 307, data: { url } }, { status: 307, headers: { 'Cache-Control': 's-maxage=86400, stale-while-revalidate', 'Content-Type': 'application/json; charset=utf-8', Location: url } });
-  }
+  },
 };
