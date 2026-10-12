@@ -12,7 +12,7 @@ export default {
     try {
       const requestHeaders = new Headers(), urlParam = params.get('url')?.trim(), responseHeaders = new Headers();
       if (!urlParam) {
-        resolve(new Response(`<!DOCTYPE html><title>Request</title><form><label for=url>Request URL:</label> <input type=url name=url id=url placeholder=https:// > <input type=submit value=Request></form><br>Request ID: <code>${encodeHTML(requestId)}</code>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
+        resolve(new Response(`<!DOCTYPE html><title>Request</title><form><label for=url>Request URL:</label> <input type=url name=url id=url placeholder=https:// > <input type=submit value=Request></form>Request ID: <code>${encodeHTML(requestId)}</code>`, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
         return promise;
       }
 
