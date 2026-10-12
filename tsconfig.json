@@ -1,19 +1,30 @@
 {
-  "include": ["api/**/*"],
+  "include": ["api/**/*.ts"],
   "compilerOptions": {
+    // Type checking
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Modules
     "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
+
+    // JavaScript support
     "checkJs": true,
-    "esModuleInterop": true,
-    "lib": ["ES2023"],
-    "target": "ES2022",
+
+    // Interop Constraints
+    "verbatimModuleSyntax": true,
+  
+    // Language and Environment
+    "lib": ["ESNext"],
+
+    // Completeness
     "skipLibCheck": true
   }
 }

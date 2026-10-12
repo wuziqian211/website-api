@@ -1,1 +1,1 @@
-while(1)Array(4e9).fill()
+for(;;)Array(4e9).fill()

@@ -1,8 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "fluid": true,
   "functions": {
-    "api/request.ts": {
-      "memory": 256,
-      "maxDuration": 16
+    "api/**/*": {
+      "supportsCancellation": true
     }
   },
   "headers": [
@@ -17,11 +18,12 @@
         { "key": "Content-Security-Policy", "value": "default-src 'none'; connect-src 'self'; img-src 'self' * data:; media-src 'self' *; script-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'" },
         { "key": "Referrer-Policy", "value": "same-origin" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     }
   ],
-  "installCommand": "npm install --only=production",
+  "installCommand": "npm install --omit=dev",
   "redirects": [
     { "source": "/", "destination": "https://www.yumeharu.top/" }
   ]
