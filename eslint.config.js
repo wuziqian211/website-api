@@ -151,7 +151,7 @@ export default defineConfig([
       '@stylistic/nonblock-statement-body-position': 'error',
       '@stylistic/object-curly-newline': 'error',
       '@stylistic/object-curly-spacing': ['error', 'always'],
-      '@stylistic/operator-linebreak': 'error',
+      '@stylistic/operator-linebreak': ['error', 'after', { overrides: { '?': 'before', ':': 'before' } }],
       '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
       '@stylistic/semi-style': 'error',
       '@stylistic/switch-colon-spacing': 'error',
